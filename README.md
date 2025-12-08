@@ -6,7 +6,7 @@ The **Wolfram TensorNetworks** paclet provides a general framework for Tensor Ne
 
 ### Paclet Repository
 
-The paclet will be available from the Wolfram Paclet Repository:
+The paclet is available from the Wolfram Paclet Repository:
 [Wolfram/TensorNetworks](https://resources.wolframcloud.com/PacletRepository/resources/Wolfram/TensorNetworks/)
 
 ### Development Version
