@@ -97,7 +97,7 @@ TensorNetworkContractionPath[KeyValuePattern[{
 	dimensions, rules, indices, normalIndices, input, output
 },
 	dimensions = AssociationThread[Catenate[tensorIndices], Catenate[tensorDimensions /@ tensors]];
-	rules = Rule @@@ Catenate[contractions];
+	rules = Rule @@@ Catenate[Cases[contractions, {_, _}]];
 	ConfirmAssert[AllTrue[Partition[Lookup[dimensions, rules[[All, 1]]], 2], Apply[Equal]]];
 	dimensions = KeyMap[Replace[rules], dimensions];
 	indices = Replace[tensorIndices, rules, {2}];
@@ -362,7 +362,7 @@ Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"Transpos
 TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, path_, opts : OptionsPattern[]] :=
     TensorNetworkContraction[TensorNetworkGraphData[net], path, opts]
 
-TensorNetworkContraction[netData : KeyValuePattern["Vertices" -> vertices_], path : {{_Integer, _Integer} ...}, opts : OptionsPattern[]] := 
+TensorNetworkContraction[netData : KeyValuePattern["Vertices" -> vertices_], path : {{Repeated[_Integer, {1, 2}]} ...}, opts : OptionsPattern[]] := 
     TensorNetworkContraction[netData, PathToTreePath[path, vertices], opts]
 
 TensorNetworkContraction[

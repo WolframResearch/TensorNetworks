@@ -11,7 +11,7 @@ PackageExport[CanonicalPath]
 PackageExport[PathIndexContractions]
 
 
-ClearAll /@ Names["Wolfram`TensorNetworks`*", "Wolfram`TensorNetworks`**`*"]
+ClearAll /@ Names[{"Wolfram`TensorNetworks`*", "Wolfram`TensorNetworks`**`*"}]
 
 
 libraryFunctions := libraryFunctions = Replace[
