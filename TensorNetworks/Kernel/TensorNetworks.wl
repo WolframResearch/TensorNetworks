@@ -1,7 +1,5 @@
 Package["Wolfram`TensorNetworks`"]
 
-PackageImport["ExtensionCargo`"]
-
 PackageExport[GreedyPath]
 PackageExport[OptimalPath]
 PackageExport[ContractIndices]
@@ -13,21 +11,54 @@ PackageExport[PathIndexContractions]
 
 ClearAll /@ Names[{"Wolfram`TensorNetworks`*", "Wolfram`TensorNetworks`**`*"}]
 
+pacletInstalledQ[paclet_, version_] := AnyTrue[Through[PacletFind[paclet]["Version"]], ResourceFunction["VersionOrder"][#, version] <= 0 &]
 
-libraryFunctions := libraryFunctions = Replace[
-    CargoLoad[
-        PacletObject["Wolfram/TensorNetworks"],
-        "Functions"
-    ],
-    _ ? FailureQ :> Replace[
-        CargoBuild[PacletObject["Wolfram/TensorNetworks"]], {
-            f_ ? FailureQ :> Function @ Function @ f,
-            files_ :> CargoLoad[
-                files,
-                "Functions"
-            ]
-        }
-    ]
+libraryFunctions := libraryFunctions = (
+	If[ ! pacletInstalledQ["ExternalEvaluate", "38.0.1"],
+		PacletInstall["ExternalEvaluate"]
+	];
+	If[ ! pacletInstalledQ["PacletExtensions", "40.0.0"],
+		PacletInstall["https://www.wolframcloud.com/obj/nikm/PacletExtensions.paclet"]
+	];
+	Needs["ExtensionCargo`"];
+	Replace[
+		ExtensionCargo`CargoLoad[
+			PacletObject["Wolfram/TensorNetworks"],
+			"Functions"
+		],
+		Except[_ ? AssociationQ] :> Replace[
+			ExtensionCargo`CargoBuild[PacletObject["Wolfram/TensorNetworks"]], {
+				f : Except[{__ ? FileExistsQ}] :> Function @ Function @ Failure["CargoBuildError", <|
+						"MessageTemplate" -> "Cargo build failed",
+						"Return" -> f
+					|>],
+				files_ :> Replace[
+					ExtensionCargo`CargoLoad[files, "Functions"],
+					f : Except[_ ? AssociationQ] :>
+						Function @ Function @ Failure["CargoLoadError", <|
+							"MessageTemplate" -> "Cargo load failed",
+							"Return" -> f
+						|>]
+				]
+			}
+		]
+	]
+) // Replace[{
+	functions_ ? AssociationQ :>
+		Association @ KeyValueMap[
+			#1 -> Composition[
+				Replace[LibraryFunctionError[error_, code_] :>
+					Failure["RustError", <|
+						"MessageTemplate" -> "Rust error: `` (``)",
+						"MessageParameters" -> {error, code},
+					"Error" -> error, "ErrorCode" -> code, "Function" -> #1
+				|>]
+			],
+			#2
+		] &,
+		functions
+	]
+}
 ]
 
 
@@ -43,7 +74,7 @@ GreedyPath[
 	useSSA : True | False | None : None
 ] := Block[{ds = Developer`DataStore, path},
 	Enclose[
-		path = List @@ List @@@ Confirm @ libraryFunctions["optimize_greedy"][
+		path = List @@ List @@@ Confirm @ Echo[libraryFunctions]["optimize_greedy"][
 			ds @@ ds @@@ input,
 			ds @@ output,
 			ds @@ ds @@@ Normal[N /@ sizeDict],
