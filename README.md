@@ -1,81 +1,50 @@
-# Cotengra
+# Wolfram TensorNetworks
 
-Tensor network contraction path optimization library (Rust) with Wolfram LibraryLink exports.
+The **Wolfram TensorNetworks** paclet provides a general framework for Tensor Networks in the Wolfram Language. It integrates the **Cotengra** library (written in Rust) for high-performance contraction path optimization.
 
-## Build (native)
+## Installation
 
-Run a release build for your host platform:
+### Paclet Repository
 
-    cargo build --release
+The paclet will be available from the Wolfram Paclet Repository:
+[Wolfram/TensorNetworks](https://resources.wolframcloud.com/PacletRepository/resources/Wolfram/TensorNetworks/)
 
-Artifacts (in target/<triple>/release/):
-- Linux: libcotengrust.so
-- macOS: libcotengrust.dylib
-- Windows (MSVC): cotengrust.dll
+### Development Version
 
-## Cross Compilation
+You can install the latest development version directly from the cloud:
 
-Add targets with rustup, then build with --target.
-
-Example (macOS arm64 from x86_64 host):
-
-    rustup target add aarch64-apple-darwin
-    cargo build --release --target aarch64-apple-darwin
-
-### macOS Universal (x86_64 + arm64)
-
-    rustup target add x86_64-apple-darwin aarch64-apple-darwin
-    cargo build --release --target x86_64-apple-darwin
-    cargo build --release --target aarch64-apple-darwin
-    mkdir -p dist
-        lipo -create \
-            target/x86_64-apple-darwin/release/libcotengrust.dylib \
-            target/aarch64-apple-darwin/release/libcotengrust.dylib \
-            -output dist/libcotengrust_universal.dylib
-
-### Linux aarch64 from x86_64 host
-
-    sudo apt-get update
-    sudo apt-get install -y gcc-aarch64-linux-gnu
-    rustup target add aarch64-unknown-linux-gnu
-    mkdir -p .cargo
-    printf "[target.aarch64-unknown-linux-gnu]\nlinker = \"aarch64-linux-gnu-gcc\"\n" >> .cargo/config.toml
-    cargo build --release --target aarch64-unknown-linux-gnu
-
-### Windows (MSVC)
-
-On Windows host (GitHub Actions already covers this):
-
-    rustup target add x86_64-pc-windows-msvc
-    cargo build --release --target x86_64-pc-windows-msvc
-
-### Optional: MUSL (more static Linux)
-
-    rustup target add x86_64-unknown-linux-musl
-    cargo build --release --target x86_64-unknown-linux-musl
-
-## Continuous Integration
-
-`.github/workflows/ci.yml` builds and uploads artifacts for:
-- x86_64-unknown-linux-gnu
-- aarch64-unknown-linux-gnu
-- x86_64-apple-darwin
-- aarch64-apple-darwin (merged via lipo into universal dylib)
-- x86_64-pc-windows-msvc
-
-## Wolfram Usage
-## Packaging macOS Library into Paclet
-
-After building the release library locally on macOS:
-
-```
-chmod +x scripts/package_macos.sh
-./scripts/package_macos.sh
+```wolfram
+PacletInstall["https://www.wolframcloud.com/obj/wolframquantumframework/TensorNetworks.paclet"]
 ```
 
-This copies `target/release/libcotengrust.dylib` into the appropriate `Cotengra/LibraryResources/MacOSX-<arch>/` directory so the paclet can load it via `LibraryFunctionLoad` automatically.
+### From Source
 
-For universal binaries, first lipo the two arch builds into `dist/libcotengrust_universal.dylib` and then copy that instead (renaming to `libcotengrust.dylib`).
+To install from the source code locally:
 
+1.  Clone the repository.
+2.  Load the paclet directory:
 
-Load the produced shared library with `LibraryFunctionLoad` to access the exported functions (annotated with `#[wll::export]`). Ensure Wolfram installation is discoverable for the build (override with `WOLFRAM_APPDIR` if necessary).
+```wolfram
+PacletDirectoryLoad["/path/to/Cotengra/TensorNetworks"]
+Needs["Wolfram`TensorNetworks`"]
+```
+
+## Usage
+
+### Contraction Path Optimization
+
+The paclet provides functions to find optimal contraction paths for tensor networks, leveraging the `Cotengra` library.
+
+```wolfram
+net = GraphTensorNetwork[RandomGraph[{10, 20}], 
+  Method -> "RandomComplex"]
+
+ContractTensorNetwork[net]
+
+path = TensorNetworkContractionPath[net]
+
+Activate /@ 
+ AssociationMap[
+  TensorNetworkContraction[net, path, 
+    Method -> #] &, $TensorNetworkContractionMethods]
+```
