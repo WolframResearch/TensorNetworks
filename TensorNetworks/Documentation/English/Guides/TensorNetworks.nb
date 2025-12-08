@@ -1,0 +1,625 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 15.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     24151,        615]
+NotebookOptionsPosition[     17398,        480]
+NotebookOutlinePosition[     17928,        498]
+CellTagsIndexPosition[     17885,        495]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Tensor Networks", "GuideTitle",
+ CellID->498637957,ExpressionUUID->"740e410d-28a9-478c-95cb-4a16791384c3"],
+
+Cell["XXXX", "GuideAbstract",
+ CellID->1126952705,ExpressionUUID->"e4c260c7-c601-4cb0-aed5-6b30facdda3c"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "GuideFunctionsSection",
+ CellID->2035830042,ExpressionUUID->"604279fb-a739-4ed6-981c-5e10abca7373"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["EinsteinSummation",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/EinsteinSummation"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"c40ac8e4-27e1-4161-a8df-4d4f38357a23",ExpressionUUID->
+  "a7a031d7-3aed-4c8c-8313-a080de3ee01a"],
+ " \[LongDash] contracts the given arrays according to the index \
+specification."
+}], "GuideText",
+ CellID->338568243,ExpressionUUID->"9c154130-cfad-41d1-b542-fcaa9d19f82d"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["HadamardProduct",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/HadamardProduct"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid1",ExpressionUUID->"75a03c33-962d-46c5-b59b-c9cb8f2f3000"],
+ " \[LongDash] computes the Hadamard product of arrays over shared indices."
+}], "GuideText",
+ CellID->100000001,ExpressionUUID->"7e19193f-c4a4-44c5-9cc0-d4ed2b210729"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ActivateTensor",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ActivateTensor"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid2",ExpressionUUID->"d84bd785-28f1-43c4-888d-1d83b5e95528"],
+ " \[LongDash] activates Inactive[TensorProduct] and Inactive[TensorContract] \
+in expr."
+}], "GuideText",
+ CellID->100000002,ExpressionUUID->"7dd48029-85d0-41f1-9ad6-719e9cb8895f"],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000001,ExpressionUUID->"6e64a961-e37c-4541-bc41-dd0b016e3685"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["GreedyPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/GreedyPath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid3",ExpressionUUID->"bf5258d7-6651-4dc8-b31c-f645182772bb"],
+ " \[LongDash] finds a contraction path using a greedy heuristic."
+}], "GuideText",
+ CellID->100000003,ExpressionUUID->"08bc7e83-5852-4e15-b92f-4dd1e8dfa9d9"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["OptimalPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/OptimalPath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid4",ExpressionUUID->"4e083a83-0cde-4b3b-b42b-f3cc9a65b08c"],
+ " \[LongDash] finds an optimal contraction path."
+}], "GuideText",
+ CellID->100000004,ExpressionUUID->"ea728a99-8b5f-4a72-9c27-2a2abb95f7d4"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ContractIndices",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ContractIndices"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid5",ExpressionUUID->"45c4320f-506e-421f-a0d7-97813193bf7e"],
+ " \[LongDash] returns the indices that would be contracted between two index \
+sets."
+}], "GuideText",
+ CellID->100000005,ExpressionUUID->"1c22923b-8688-49a7-a060-d98937432d33"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TreePathToPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TreePathToPath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid6",ExpressionUUID->"3f655d1a-2cf2-4b9a-bd31-dcb05f326943"],
+ " \[LongDash] converts a tree-structured path to a linear contraction path."
+}], "GuideText",
+ CellID->100000006,ExpressionUUID->"27abc515-54fc-47ef-a24e-c494b907e610"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["PathToTreePath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathToTreePath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid7",ExpressionUUID->"0f00393b-1a02-4ae8-be4f-37ea6a5a786e"],
+ " \[LongDash] converts a linear contraction path to a tree-structured path."
+}], "GuideText",
+ CellID->100000007,ExpressionUUID->"58281fcb-9681-4c2c-8d83-880a42378296"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["CanonicalPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid8",ExpressionUUID->"b4f2a84d-9c40-4712-8b97-8311e80e4cc8"],
+ " \[LongDash] returns a canonical representation of the contraction path."
+}], "GuideText",
+ CellID->100000008,ExpressionUUID->"0c6d1311-933b-4e01-9eba-bfeaac30d006"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["PathIndexContractions",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathIndexContractions"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid9",ExpressionUUID->"672d0673-51d4-4d5e-98c4-f0b0aff3d5ac"],
+ " \[LongDash] returns the sequence of indices contracted at each step of the \
+path."
+}], "GuideText",
+ CellID->100000009,ExpressionUUID->"c76cd625-c823-42c1-b539-ac8f449ddf95"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000002,ExpressionUUID->"edd914cf-aad1-479d-8aec-e566d129655e"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["GraphTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/GraphTensorNetwork"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid10",ExpressionUUID->"3f593390-28ec-4c21-bddc-a6d580badf2d"],
+ " \[LongDash] constructs a tensor network from a directed acyclic graph."
+}], "GuideText",
+ CellID->100000010,ExpressionUUID->"3289eeb9-c8d1-4ab2-8fbb-d873d0037855"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkGraphQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkGraphQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid11",ExpressionUUID->"277e1ecd-be77-41e0-a9a0-c300dd05e2e2"],
+ " \[LongDash] yields True if g is a valid tensor network graph."
+}], "GuideText",
+ CellID->100000011,ExpressionUUID->"9b809d44-09d8-4343-b76f-22ddb320f7b1"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkIndexGraph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndexGraph"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid12",ExpressionUUID->"e8108e2c-d4be-41a8-8ce2-4364c4c4092a"],
+ " \[LongDash] returns a graph representing the index connectivity."
+}], "GuideText",
+ CellID->100000012,ExpressionUUID->"c9607491-8f46-4f5c-b705-12f5f637f05e"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkIndices",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndices"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid13",ExpressionUUID->"d1391512-6c80-4466-962a-bd6834f8275e"],
+ " \[LongDash] returns the index lists for each tensor in the network."
+}], "GuideText",
+ CellID->100000013,ExpressionUUID->"0f32ef2a-e4d7-47a7-a625-fa30ece9bb49"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkTensors",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkTensors"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid14",ExpressionUUID->"27e686b5-4d69-42b5-bc3b-c037dbb0d2c8"],
+ " \[LongDash] returns the list of tensors stored in the network vertices."
+}], "GuideText",
+ CellID->100000014,ExpressionUUID->"99a49c3f-4470-4060-9f39-c9612f291784"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkGraphData",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkGraphData"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid15",ExpressionUUID->"e8b775bf-924a-41f5-bb9d-07824a056387"],
+ " \[LongDash] returns raw data (tensors, indices, dimensions) of the network."
+}], "GuideText",
+ CellID->100000015,ExpressionUUID->"399adeb2-5dd6-48a3-8dcc-91f444c63814"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkIndexDimensions",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndexDimensions"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid16",ExpressionUUID->"d7dfd50e-e7c4-4b0b-a41d-bd0711378938"],
+ " \[LongDash] returns the dimensions associated with each index."
+}], "GuideText",
+ CellID->100000016,ExpressionUUID->"291ece81-40f0-409f-b6b7-b2990f2faba5"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkFreeIndices",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkFreeIndices"]],
+   "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid17",ExpressionUUID->"9a7dd1d9-2a1b-4442-937a-4815b68952b3"],
+ " \[LongDash] returns the list of uncontracted (free) indices."
+}], "GuideText",
+ CellID->100000017,ExpressionUUID->"43cf58ae-8428-43a8-b38c-f03097461705"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkAdd",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkAdd"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid18",ExpressionUUID->"2ec72aa1-f5da-446a-b399-8d6cf58c3f29"],
+ " \[LongDash] adds a new tensor to the network with specified indices."
+}], "GuideText",
+ CellID->100000018,ExpressionUUID->"4919810e-ae41-49fa-866d-1e2dff9a16d0"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["RemoveTensorNetworkCycles",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/RemoveTensorNetworkCycles"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid19",ExpressionUUID->"d6dd5067-508a-47ad-946d-c44cecce25b3"],
+ " \[LongDash] inserts identity tensors to break cycles in the network \
+graph."
+}], "GuideText",
+ CellID->100000019,ExpressionUUID->"ebf0c81c-17bf-4d81-8e3b-55adeb23ccb1"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkNetGraph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkNetGraph"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid20",ExpressionUUID->"09ef18e2-b952-4878-9d95-9799e8f5ac6c"],
+ " \[LongDash] converts the tensor network into a Neural NetGraph."
+}], "GuideText",
+ CellID->100000020,ExpressionUUID->"ae12a3a9-2b38-409c-8458-6a44494a8882"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkIndexReplace",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndexReplace"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid21",ExpressionUUID->"85337648-430d-4b6f-9f3e-554bc760d50a"],
+ " \[LongDash] replaces indices in the network according to rules."
+}], "GuideText",
+ CellID->100000021,ExpressionUUID->"1cb247fa-f1a7-49b3-b156-3287a9fbc939"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["InitializeTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/InitializeTensorNetwork"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid22",ExpressionUUID->"96d9ab3a-1f42-4a25-9699-a0458236384d"],
+ " \[LongDash] initializes a tensor network with a initial tensors."
+}], "GuideText",
+ CellID->100000022,ExpressionUUID->"422c12fb-995b-4d26-9f5d-a3363d13160d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000003,ExpressionUUID->"54ffe399-7e63-410f-aa7d-f46e639d821b"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ContractTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ContractTensorNetwork"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid23",ExpressionUUID->"97903dd2-7bf8-4025-b5fa-d9c026eb9caa"],
+ " \[LongDash] contracts the entire tensor network to a single tensor."
+}], "GuideText",
+ CellID->100000023,ExpressionUUID->"66c0069e-6e14-4355-9a68-7842a52c628c"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContractionPath",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContractionPath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid24",ExpressionUUID->"08479846-6a6a-4201-b973-66f9b0f1551d"],
+ " \[LongDash] computes an optimized contraction path for the network."
+}], "GuideText",
+ CellID->100000024,ExpressionUUID->"e7a084da-15d8-4f42-8467-4ce1a0053a0e"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContractPath",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContractPath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid25",ExpressionUUID->"905a81a7-2074-4031-b815-cdabf00a238a"],
+ " \[LongDash] contracts the network using the specified contraction path."
+}], "GuideText",
+ CellID->100000025,ExpressionUUID->"9e7108b6-ed86-461b-909f-4beb5a939bdc"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContraction",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContraction"]],
+   "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid26",ExpressionUUID->"ae58c72d-8fc8-4f20-93f1-f2a8327c4459"],
+ " \[LongDash] returns a contraction expression for the tensor network along \
+a path."
+}], "GuideText",
+ CellID->100000026,ExpressionUUID->"8da07ac2-3f4b-4d5c-80fc-c47cfc35c47a"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["$TensorNetworkContractionMethods",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/$TensorNetworkContractionMethods"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"uuid27",ExpressionUUID->"e46fde04-38ef-41f1-bd97-d5127eb844f6"],
+ " \[LongDash] is a list of available types for contraction expressions."
+}], "GuideText",
+ CellID->100000027,ExpressionUUID->"747d3e8f-d53e-4b8a-aaf9-859736dbb509"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Tech Notes", "GuideTutorialsSection",
+ CellID->680839151,ExpressionUUID->"ec25a9a9-6429-4558-956a-713cad82579f"],
+
+Cell["XXXX", "GuideTutorial",
+ CellID->1070739641,ExpressionUUID->"41287c15-7939-48cc-8005-67ab3b571bef"],
+
+Cell["XXXX", "GuideTutorial",
+ CellID->8184427,ExpressionUUID->"4f42a297-39af-4974-aea7-5dc839639218"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Related Guides", "GuideMoreAboutSection",
+ CellID->116711181,ExpressionUUID->"f5123ab3-c626-4e9b-b959-c945446a5890"],
+
+Cell["XXXX", "GuideMoreAbout",
+ CellID->912249356,ExpressionUUID->"5a8dbb5d-01a7-4ded-a6ac-676c35faac46"],
+
+Cell["XXXX", "GuideMoreAbout",
+ CellID->1289170359,ExpressionUUID->"8f00b7a2-02f7-442f-8926-822f9dd5459b"]
+}, Open  ]],
+
+Cell["Related Links", "GuideRelatedLinksSection",
+ CellID->1123709130,ExpressionUUID->"876cd6b8-340e-448a-92a0-37d662bdb81c"],
+
+Cell[CellGroupData[{
+
+Cell["Metadata", "MetadataSection",
+ CellID->1208156192,ExpressionUUID->"fdb32e11-d53e-45fb-bc4a-dce76e61aaae"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["XX", "HistoryData",
+  CellTags->"New",ExpressionUUID->"74423232-9ebd-4a40-8551-cfd879c9d9a2"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified",ExpressionUUID->"d756d709-ae3c-44b7-bbb8-d79341ced1ee"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete",ExpressionUUID->
+  "177c7fcc-b9e8-4a89-b247-22e37c44de3d"]
+}], "History",
+ CellID->1023236559,ExpressionUUID->"1e153fca-41be-4ad1-bacf-e6e512ecb27e"],
+
+Cell[CellGroupData[{
+
+Cell["Categorization", "CategorizationSection",
+ CellID->487801937,ExpressionUUID->"a2cdc8bd-435a-48a4-af8a-b48bb0ef156b"],
+
+Cell["Guide", "Categorization",
+ CellLabel->"Entity Type",
+ CellID->1542074560,ExpressionUUID->"2c87239e-fe5f-4964-a34e-5071de955a1e"],
+
+Cell["Wolfram/TensorNetworks", "Categorization",
+ CellLabel->"Paclet Name",
+ CellID->1814477924,ExpressionUUID->"d82da7fc-95af-4cec-a4ac-84e8f771844a"],
+
+Cell["Wolfram`TensorNetworks`", "Categorization",
+ CellLabel->"Context",
+ CellID->1662681268,ExpressionUUID->"6732d386-6740-4cbd-826a-b69a62debdc1"],
+
+Cell["Wolfram/TensorNetworks/guide/TensorNetworks", "Categorization",
+ CellLabel->"URI",
+ CellID->1626856512,ExpressionUUID->"8b1adc08-7bcd-4a2d-befb-eb6e4c95a463"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection",
+ CellID->815603580,ExpressionUUID->"597250c0-ebba-438b-9404-dd2689e2e53c"],
+
+Cell["XXXX", "Keywords",
+ CellID->461250259,ExpressionUUID->"371e26bd-c128-49f1-ab96-bd499993b3e8"]
+}, Closed]]
+}, Open  ]]
+},
+WindowSize->{808, 911},
+WindowMargins->{{460, Automatic}, {Automatic, 70}},
+TaggingRules-><|"Paclet" -> "Wolfram/TensorNetworks"|>,
+FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (November 18, 2025)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "GuidePageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"],
+ExpressionUUID->"ff5fff20-2959-475b-8da8-a3e5deb2a516"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 112, 1, 86, "GuideTitle",ExpressionUUID->"740e410d-28a9-478c-95cb-4a16791384c3",
+ CellID->498637957],
+Cell[691, 25, 105, 1, 28, "GuideAbstract",ExpressionUUID->"e4c260c7-c601-4cb0-aed5-6b30facdda3c",
+ CellID->1126952705]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[833, 31, 109, 1, 71, "GuideFunctionsSection",ExpressionUUID->"604279fb-a739-4ed6-981c-5e10abca7373",
+ CellID->2035830042],
+Cell[945, 34, 513, 12, 24, "GuideText",ExpressionUUID->"9c154130-cfad-41d1-b542-fcaa9d19f82d",
+ CellID->338568243],
+Cell[1461, 48, 469, 10, 24, "GuideText",ExpressionUUID->"7e19193f-c4a4-44c5-9cc0-d4ed2b210729",
+ CellID->100000001],
+Cell[1933, 60, 480, 11, 24, "GuideText",ExpressionUUID->"7dd48029-85d0-41f1-9ad6-719e9cb8895f",
+ CellID->100000002],
+Cell[CellGroupData[{
+Cell[2438, 75, 103, 1, 26, "GuideDelimiter",ExpressionUUID->"6e64a961-e37c-4541-bc41-dd0b016e3685",
+ CellID->200000001],
+Cell[2544, 78, 449, 10, 24, "GuideText",ExpressionUUID->"08bc7e83-5852-4e15-b92f-4dd1e8dfa9d9",
+ CellID->100000003],
+Cell[2996, 90, 435, 10, 24, "GuideText",ExpressionUUID->"ea728a99-8b5f-4a72-9c27-2a2abb95f7d4",
+ CellID->100000004],
+Cell[3434, 102, 479, 11, 24, "GuideText",ExpressionUUID->"1c22923b-8688-49a7-a060-d98937432d33",
+ CellID->100000005],
+Cell[3916, 115, 468, 10, 24, "GuideText",ExpressionUUID->"27abc515-54fc-47ef-a24e-c494b907e610",
+ CellID->100000006],
+Cell[4387, 127, 468, 10, 24, "GuideText",ExpressionUUID->"58281fcb-9681-4c2c-8d83-880a42378296",
+ CellID->100000007],
+Cell[4858, 139, 464, 10, 24, "GuideText",ExpressionUUID->"0c6d1311-933b-4e01-9eba-bfeaac30d006",
+ CellID->100000008],
+Cell[5325, 151, 491, 11, 40, "GuideText",ExpressionUUID->"c76cd625-c823-42c1-b539-ac8f449ddf95",
+ CellID->100000009]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5853, 167, 103, 1, 26, "GuideDelimiter",ExpressionUUID->"edd914cf-aad1-479d-8aec-e566d129655e",
+ CellID->200000002],
+Cell[5959, 170, 474, 10, 24, "GuideText",ExpressionUUID->"3289eeb9-c8d1-4ab2-8fbb-d873d0037855",
+ CellID->100000010],
+Cell[6436, 182, 467, 10, 24, "GuideText",ExpressionUUID->"9b809d44-09d8-4343-b76f-22ddb320f7b1",
+ CellID->100000011],
+Cell[6906, 194, 478, 10, 24, "GuideText",ExpressionUUID->"c9607491-8f46-4f5c-b705-12f5f637f05e",
+ CellID->100000012],
+Cell[7387, 206, 475, 10, 24, "GuideText",ExpressionUUID->"0f32ef2a-e4d7-47a7-a625-fa30ece9bb49",
+ CellID->100000013],
+Cell[7865, 218, 479, 10, 24, "GuideText",ExpressionUUID->"99a49c3f-4470-4060-9f39-c9612f291784",
+ CellID->100000014],
+Cell[8347, 230, 487, 10, 24, "GuideText",ExpressionUUID->"399adeb2-5dd6-48a3-8dcc-91f444c63814",
+ CellID->100000015],
+Cell[8837, 242, 491, 11, 24, "GuideText",ExpressionUUID->"291ece81-40f0-409f-b6b7-b2990f2faba5",
+ CellID->100000016],
+Cell[9331, 255, 476, 10, 24, "GuideText",ExpressionUUID->"43cf58ae-8428-43a8-b38c-f03097461705",
+ CellID->100000017],
+Cell[9810, 267, 468, 10, 24, "GuideText",ExpressionUUID->"4919810e-ae41-49fa-866d-1e2dff9a16d0",
+ CellID->100000018],
+Cell[10281, 279, 499, 12, 40, "GuideText",ExpressionUUID->"ebf0c81c-17bf-4d81-8e3b-55adeb23ccb1",
+ CellID->100000019],
+Cell[10783, 293, 473, 10, 24, "GuideText",ExpressionUUID->"ae12a3a9-2b38-409c-8458-6a44494a8882",
+ CellID->100000020],
+Cell[11259, 305, 486, 11, 24, "GuideText",ExpressionUUID->"1cb247fa-f1a7-49b3-b156-3287a9fbc939",
+ CellID->100000021],
+Cell[11748, 318, 478, 10, 24, "GuideText",ExpressionUUID->"422c12fb-995b-4d26-9f5d-a3363d13160d",
+ CellID->100000022]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12263, 333, 103, 1, 26, "GuideDelimiter",ExpressionUUID->"54ffe399-7e63-410f-aa7d-f46e639d821b",
+ CellID->200000003],
+Cell[12369, 336, 477, 10, 24, "GuideText",ExpressionUUID->"66c0069e-6e14-4355-9a68-7842a52c628c",
+ CellID->100000023],
+Cell[12849, 348, 496, 11, 40, "GuideText",ExpressionUUID->"e7a084da-15d8-4f42-8467-4ce1a0053a0e",
+ CellID->100000024],
+Cell[13348, 361, 494, 11, 24, "GuideText",ExpressionUUID->"9e7108b6-ed86-461b-909f-4beb5a939bdc",
+ CellID->100000025],
+Cell[13845, 374, 499, 11, 40, "GuideText",ExpressionUUID->"8da07ac2-3f4b-4d5c-80fc-c47cfc35c47a",
+ CellID->100000026],
+Cell[14347, 387, 506, 11, 40, "GuideText",ExpressionUUID->"747d3e8f-d53e-4b8a-aaf9-859736dbb509",
+ CellID->100000027]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14902, 404, 118, 1, 73, "GuideTutorialsSection",ExpressionUUID->"ec25a9a9-6429-4558-956a-713cad82579f",
+ CellID->680839151],
+Cell[15023, 407, 105, 1, 23, "GuideTutorial",ExpressionUUID->"41287c15-7939-48cc-8005-67ab3b571bef",
+ CellID->1070739641],
+Cell[15131, 410, 102, 1, 23, "GuideTutorial",ExpressionUUID->"4f42a297-39af-4974-aea7-5dc839639218",
+ CellID->8184427]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15270, 416, 122, 1, 73, "GuideMoreAboutSection",ExpressionUUID->"f5123ab3-c626-4e9b-b959-c945446a5890",
+ CellID->116711181],
+Cell[15395, 419, 105, 1, 23, "GuideMoreAbout",ExpressionUUID->"5a8dbb5d-01a7-4ded-a6ac-676c35faac46",
+ CellID->912249356],
+Cell[15503, 422, 106, 1, 23, "GuideMoreAbout",ExpressionUUID->"8f00b7a2-02f7-442f-8926-822f9dd5459b",
+ CellID->1289170359]
+}, Open  ]],
+Cell[15624, 426, 125, 1, 73, "GuideRelatedLinksSection",ExpressionUUID->"876cd6b8-340e-448a-92a0-37d662bdb81c",
+ CellID->1123709130],
+Cell[CellGroupData[{
+Cell[15774, 431, 111, 1, 70, "MetadataSection",ExpressionUUID->"fdb32e11-d53e-45fb-bc4a-dce76e61aaae",
+ CellID->1208156192],
+Cell[15888, 434, 477, 12, 70, "History",ExpressionUUID->"1e153fca-41be-4ad1-bacf-e6e512ecb27e",
+ CellID->1023236559],
+Cell[CellGroupData[{
+Cell[16390, 450, 122, 1, 70, "CategorizationSection",ExpressionUUID->"a2cdc8bd-435a-48a4-af8a-b48bb0ef156b",
+ CellID->487801937],
+Cell[16515, 453, 134, 2, 70, "Categorization",ExpressionUUID->"2c87239e-fe5f-4964-a34e-5071de955a1e",
+ CellID->1542074560],
+Cell[16652, 457, 151, 2, 70, "Categorization",ExpressionUUID->"d82da7fc-95af-4cec-a4ac-84e8f771844a",
+ CellID->1814477924],
+Cell[16806, 461, 148, 2, 70, "Categorization",ExpressionUUID->"6732d386-6740-4cbd-826a-b69a62debdc1",
+ CellID->1662681268],
+Cell[16957, 465, 164, 2, 70, "Categorization",ExpressionUUID->"8b1adc08-7bcd-4a2d-befb-eb6e4c95a463",
+ CellID->1626856512]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[17158, 472, 110, 1, 70, "KeywordsSection",ExpressionUUID->"597250c0-ebba-438b-9404-dd2689e2e53c",
+ CellID->815603580],
+Cell[17271, 475, 99, 1, 70, "Keywords",ExpressionUUID->"371e26bd-c128-49f1-ab96-bd499993b3e8",
+ CellID->461250259]
+}, Closed]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+
