@@ -61,7 +61,7 @@ libraryFunctions := libraryFunctions = (
 GreedyPath[
 	input : {{___Integer}...},
 	output : {___Integer},
-	sizeDict : KeyValuePattern[_Integer -> _Integer],
+	sizeDict_Association : KeyValuePattern[_Integer -> _Integer],
 	costMod : _ ? NumericQ | None : None,
 	temperature : _ ? NumericQ | None : None,
 	maxNeighbors : _Integer | None : None,
@@ -73,7 +73,7 @@ GreedyPath[
 		path = List @@ List @@@ Confirm @ libraryFunctions["optimize_greedy"][
 			ds @@ ds @@@ input,
 			ds @@ output,
-			ds @@ ds @@@ Normal[N /@ sizeDict],
+			ds @@ ds @@@ Normal[N /@ Replace[sizeDict, Except[_ ? NumericQ] -> 2, 1]],
 			ds @ Replace[N[costMod], None -> Sequence[]],
 			ds @ Replace[N[temperature], None -> Sequence[]],
 			ds @ Replace[maxNeighbors, None -> Sequence[]],
@@ -88,7 +88,7 @@ GreedyPath[
 OptimalPath[
 	input : {{___Integer}...},
 	output : {___Integer},
-	sizeDict : KeyValuePattern[_Integer -> _Integer],
+	sizeDict_Association : KeyValuePattern[_Integer -> _Integer],
 	minimize : _String | None : None,
 	costCap : _ ? NumericQ | None : None,
 	searchOuter : True | False | None : None,
@@ -99,7 +99,7 @@ OptimalPath[
 		path = List @@ List @@@ Confirm @ libraryFunctions["optimize_optimal"][
 			ds @@ ds @@@ input,
 			ds @@ output,
-			ds @@ ds @@@ Normal[N /@ sizeDict],
+			ds @@ ds @@@ Normal[N /@ Replace[sizeDict, Except[_ ? NumericQ] -> 2, 1]],
 			ds @ Replace[minimize, None -> Sequence[]],
 			ds @ Replace[N[costCap], None -> Sequence[]],
 			ds @ Replace[searchOuter, None -> Sequence[]],

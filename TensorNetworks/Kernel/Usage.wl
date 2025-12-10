@@ -14,6 +14,10 @@ PathToTreePath::usage = "PathToTreePath[path, indices] converts a linear contrac
 CanonicalPath::usage = "CanonicalPath[path, indices] returns a canonical representation of the contraction path."
 PathIndexContractions::usage = "PathIndexContractions[path, indices] returns the sequence of indices contracted at each step of the path."
 
+(* TensorNetwork.wl *)
+TensorNetwork::usage = "TensorNetwork[tensors, indices] or TensorNetwork[graph] creates a tensor network object with a summary box display."
+TensorNetworkQ::usage = "TensorNetworkQ[expr] yields True if expr is a valid TensorNetwork object."
+
 (* TensorNetworkGraph.wl *)
 TensorNetworkGraphQ::usage = "TensorNetworkGraphQ[g] yields True if g is a valid tensor network graph."
 TensorNetworkIndexGraph::usage = "TensorNetworkIndexGraph[net] returns a graph representing the index connectivity of the tensor network."

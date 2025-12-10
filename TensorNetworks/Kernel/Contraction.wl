@@ -14,15 +14,15 @@ PackageExport[TensorNetworkContract]
 Options[TensorNetworkContractionPath] = {"ReturnParameters" -> False, Method -> Automatic}
 
 TensorNetworkContractionPath[KeyValuePattern[{
-    "Tensors" -> tensors_,
+    "Dimensions" -> tensorDimensions_,
     "Indices" -> tensorIndices_,
     "Contractions" -> contractions_,
     "FreeIndices" -> freeIndices_
 }], OptionsPattern[]] := Enclose @ Block[{
 	dimensions, rules, indices, normalIndices, input, output
 },
-	dimensions = AssociationThread[Catenate[tensorIndices], Catenate[tensorDimensions /@ tensors]];
-	rules = Rule @@@ Catenate[Cases[contractions, {_, _}]];
+	dimensions = AssociationThread[Catenate[tensorIndices], Catenate[tensorDimensions]];
+	rules = Rule @@@ Cases[Catenate[contractions], {_, _}];
 	ConfirmAssert[AllTrue[Partition[Lookup[dimensions, rules[[All, 1]]], 2], Apply[Equal]]];
 	dimensions = KeyMap[Replace[rules], dimensions];
 	indices = Replace[tensorIndices, rules, {2}];
@@ -38,9 +38,11 @@ TensorNetworkContractionPath[KeyValuePattern[{
     }]
 ]
 
-TensorNetworkContractionPath[net_ ? TensorNetworkGraphQ, opts : OptionsPattern[]] :=
+TensorNetworkContractionPath[net_Graph ? TensorNetworkGraphQ, opts : OptionsPattern[]] :=
     CanonicalPath @ TensorNetworkContractionPath[TensorNetworkGraphData[net], opts]
 
+TensorNetworkContractionPath[net_TensorNetwork ? TensorNetworkQ, opts : OptionsPattern[]] :=
+    CanonicalPath @ TensorNetworkContractionPath[TensorNetworkData[net], opts]
 
 einsumArrayDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
 	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
@@ -235,8 +237,11 @@ contractTensorPair[{tensor1_ -> indices1_, tensor2_ -> indices2_}, opts : Option
 
 Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"TransposeFunction" -> Transpose}]
 
-TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, path_, opts : OptionsPattern[]] :=
-    TensorNetworkContraction[TensorNetworkGraphData[net], path, opts]
+TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
+    TensorNetworkContraction[TensorNetworkGraphData[net], args]
+
+TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args___] :=
+    TensorNetworkContraction[TensorNetworkData[net], args]
 
 TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? PathQ, opts : OptionsPattern[]] := 
     TensorNetworkContraction[data, PathToTreePath[path, vertices], opts]
@@ -245,7 +250,7 @@ TensorNetworkContraction[
     KeyValuePattern[{
 		"Vertices" -> vertices_,
 		"Tensors" -> tensors_,
-		"Contractions" -> contractions_,
+		"ContractionIndices" -> contractions_,
         "FreeIndices" -> freeIndices_
 	}],
     treePath_ ? TreePathQ,
@@ -254,8 +259,8 @@ TensorNetworkContraction[
     contractOpts = FilterRules[{opts}, Options[contractTensorPair]]
 }, {
     tensorPath = FixedPoint[
-        ReplaceAll[pair : {_Rule, _Rule} :> Rule @@ contractTensorPair[pair, contractOpts]],
-        Replace[treePath, MapThread[{#1} -> (#2 -> #3) &, {vertices, tensors, contractions}], {-2}]
+        ReplaceAll[{"Pair"[t1_, i1_], "Pair"[t2_, i2_]} :> "Pair" @@ contractTensorPair[{t1 -> i1, t2 -> i2}, contractOpts]],
+        Replace[treePath, MapThread[{#1} -> "Pair"[#2, #3] &, {vertices, tensors, contractions}], {-2}]
     ],
     transposeFunction = OptionValue["TransposeFunction"]
 },
@@ -284,6 +289,8 @@ Options[TensorNetworkContract] = Options[TensorNetworkContraction]
 
 TensorNetworkContract[data_ ? AssociationQ, path_ ? PathQ, opts : OptionsPattern[]] := TensorNetworkContraction[data, path, opts, "Inactive" -> False]
 
-TensorNetworkContract[net_ ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkGraphData[net], args]
+TensorNetworkContract[net_Graph ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkGraphData[net], args]
+
+TensorNetworkContract[net_TensorNetwork ? TensorNetworkQ, args___] := TensorNetworkContract[TensorNetworkData[net], args]
 
 TensorNetworkContract[net_, opts : OptionsPattern[]] := TensorNetworkContraction[net, opts, "Inactive" -> False]
