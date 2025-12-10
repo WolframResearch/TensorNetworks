@@ -5,85 +5,10 @@ PackageExport[ContractTensorNetwork]
 PackageExport[TensorNetworkContractionPath]
 PackageExport[TensorNetworkContractPath]
 
-PackageExport[TensorNetworkContraction]
 PackageExport[$TensorNetworkContractionMethods]
+PackageExport[TensorNetworkContraction]
+PackageExport[TensorNetworkContract]
 
-
-
-NeighborhoodEdges[g_, vs_List] := Catenate[EdgeList[g, _[#, __] | _[_, #, ___]] & /@ vs]
-NeighborhoodEdges[g_, v_] := NeighborhoodEdges[g, {v}]
-
-(* temporary due to EdgeContract bug *)
-edgeContract[g_, edge_] := With[{edges = NeighborhoodEdges[g, edge[[1]]]},
-	EdgeAdd[EdgeDelete[g, edges], Replace[DeleteCases[edges, edge], {
-		head_[edge[[1]], edge[[1]], rest___] :> head[edge[[2]], edge[[2]], rest],
-		head_[edge[[1]], rest___] :> head[edge[[2]], rest],
-		head_[v_, edge[[1]], rest___] :> head[v, edge[[2]], rest]
-	}, {1}]]
-]
-
-edgeContractWithIndex[g_, edge : _[from_, to_, {i_, j_}]] := Annotate[
-	{edgeContract[g, edge], to},
-	"Index" -> If[
-		from === to,
-		DeleteCases[AnnotationValue[{g, to}, "Index"], i | j],
-		DeleteCases[Join[AnnotationValue[{g, from}, "Index"], AnnotationValue[{g, to}, "Index"]], i | j]
-	]
-]
-
-ContractEdge[g_, edge : _[from_, to_, {i_, j_}]] := Enclose @ Block[{
-	tensors = Confirm[AnnotationValue[{g, {from, to}}, "Tensor"]],
-	indices = Confirm[AnnotationValue[{g, {from, to}}, "Index"]],
-	rank
-},
-	rank = tensorRank[tensors[[1]]];
-	Annotate[
-		{edgeContractWithIndex[g, edge], to},
-		"Tensor" -> TensorContract[
-			TensorProduct[tensors[[1]], tensors[[2]]],
-			{Confirm[FirstPosition[indices[[1]], i]][[1]], rank + Confirm[FirstPosition[indices[[2]], j]][[1]]}
-		]
-	]
-]
-
-ContractEdge[g_, edge : _[v_, v_, {i_, j_}]] := Enclose @ Block[{
-	tensor = Confirm[AnnotationValue[{g, v}, "Tensor"]],
-	index = Confirm[AnnotationValue[{g, v}, "Index"]]
-},
-	Annotate[{edgeContractWithIndex[g, edge], v}, "Tensor" -> TensorContract[tensor, {Catenate @ Position[index, i | j]}]]
-]
-
-
-NaiveContractTensorNetwork[net_Graph] := Enclose @ Block[{g, edges, ordering},
-	{g, {edges}} = Reap @ NestWhile[Confirm @ ContractEdge[#, Sow @ First[EdgeList[#]]] &, net, EdgeCount[#] > 0 &];
-    ordering = Ordering @ OrderingBy[AnnotationValue[{g, edges[[-1, 2]]}, "Index"], Replace[{Subscript[_, x_] :> {x}, Superscript[_, x_] :> x}]];
-	If[ordering === {}, #, Transpose[#, ordering]] & @ AnnotationValue[{g, edges[[-1, 2]]}, "Tensor"]
-]
-
-FastContractTensorNetwork[net_Graph] := Enclose[
-    Block[{indices, outIndices, tensors, scalarPositions, scalars},
-        indices = TensorNetworkIndices[net] /. Rule @@@ EdgeTags[net];
-        tensors =  TensorNetworkTensors[net];
-        outIndices = TensorNetworkFreeIndices[net];
-        If[MemberQ[tensors, {}], Return[ArrayReshape[{}, Append[Table[1, Length[outIndices] - 1], 0]]]];
-        scalarPositions = Position[indices, {}, {1}, Heads -> False];
-        scalars = Extract[tensors, scalarPositions];
-        indices = Delete[indices, scalarPositions];
-        tensors = Delete[tensors, scalarPositions];
-        Times @@ scalars * ActivateTensor @ Confirm[EinsteinSummation[indices -> outIndices, tensors]]
-    ],
-    (ReleaseHold[#["HeldMessageCall"]]; #) &
-]
-
-Options[ContractTensorNetwork] = {Method -> Automatic}
-
-ContractTensorNetwork[net_Graph ? (TensorNetworkGraphQ[True]), OptionsPattern[]] := Switch[
-    OptionValue[Method],
-    "Naive",
-    NaiveContractTensorNetwork[net],
-    _,
-    FastContractTensorNetwork[net]
-]
 
 
 Options[TensorNetworkContractionPath] = {"ReturnParameters" -> False, Method -> Automatic}
@@ -114,56 +39,7 @@ TensorNetworkContractionPath[KeyValuePattern[{
 ]
 
 TensorNetworkContractionPath[net_ ? TensorNetworkGraphQ, opts : OptionsPattern[]] :=
-    TensorNetworkContractionPath[TensorNetworkGraphData[net], opts]
-
-
-einsum[{i_, j_} -> k_, a_, b_] := Block[{c = Complement[Join[i, j], k], adim = Dimensions[a], bdim = Dimensions[b], al, br, ac, bc, ad, bd},
-	ac = Catenate @ Lookup[PositionIndex[i], c];
-	bc = Catenate @ Lookup[PositionIndex[j], c];
-	al = Complement[Range[Length[i]], ac];
-	br = Complement[Range[Length[j]], bc];
-	ad = Times @@ adim[[ac]];
-	bd = Times @@ bdim[[bc]];
-	Transpose[
-		ArrayReshape[
-			ArrayReshape[Transpose[a, FindPermutation[Join[al, ac]]], {Times @@ adim / ad, ad}] . ArrayReshape[Transpose[b, FindPermutation[Join[bc, br]]], {bd, Times @@ bdim / bd}],
-			Join[adim[[al]], bdim[[br]]]
-		],
-		FindPermutation[Join[i[[al]], j[[br]]], k]
-	]
-]
-
-
-TensorNetworkContractPath[
-	KeyValuePattern[{
-		"Tensors" -> initTensors_,
-		"ContractionIndices" -> initIndices_,
-		"FreeIndices" -> freeIndices_
-	}],
-	path_
-] := Enclose @ Block[{tensors = initTensors, indices = initIndices},
-    Do[
-		Replace[p, {
-			{i_} :> (
-				{tensors, indices} = Append[Delete[#, {i}], #[[i]]] & /@ {tensors, indices}
-			),
-			{i_, j_} :> Block[{out, tensor},
-				out = SymmetricDifference @@ Extract[indices, {{i}, {j}}];
-				tensor = ActivateTensor @ EinsteinSummation[indices[[{i, j}]] -> out, {tensors[[i]], tensors[[j]]}];
-				(* tensor = einsum[indices[[{i, j}]] -> out, tensors[[i]], tensors[[j]]]; *)
-
-				tensors = Append[Delete[tensors, {{i}, {j}}], tensor];
-				indices = Append[Delete[indices, {{i}, {j}}], out]
-			]
-		}],
-		{p, path}
-	];
-	ConfirmAssert[Length[tensors] == Length[indices] == 1];
-	ConfirmAssert[ContainsAll[indices[[1]], freeIndices]];
-	Transpose[tensors[[1]], FindPermutation[indices[[1]], freeIndices]]
-]
-
-TensorNetworkContractPath[net_ ? TensorNetworkGraphQ, path_] := TensorNetworkContractPath[TensorNetworkGraphData[net], path]
+    CanonicalPath @ TensorNetworkContractionPath[TensorNetworkGraphData[net], opts]
 
 
 einsumArrayDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
@@ -346,15 +222,15 @@ $TensorNetworkContractionMethods = {"ArrayDotTranspose", "ArrayDot", "Dot", "Ten
 
 Options[contractTensorPair] = {Method -> "ArrayDot", "Inactive" -> True}
 
-contractTensorPair[{\[FormalCapitalT][tensor1_, indices1_, flop1_], \[FormalCapitalT][tensor2_, indices2_, flop2_]}, opts : OptionsPattern[]] :=
-	\[FormalCapitalT] @@ Append[0] @ Switch[
+contractTensorPair[{tensor1_ -> indices1_, tensor2_ -> indices2_}, opts : OptionsPattern[]] :=
+	Switch[
 		OptionValue[Method],
-			"ArrayDotTranspose", einsumArrayDotTranspose,
-			"ArrayDot", einsumArrayDot,
-			"Dot", einsumDot,
-			"TensorContract", einsumTensorContract,
-			"TableSum", einsumTableSum
-		][{indices1, indices2} -> Automatic, tensor1, tensor2, TrueQ[OptionValue["Inactive"]]]
+		"ArrayDotTranspose", einsumArrayDotTranspose,
+		"ArrayDot", einsumArrayDot,
+		"Dot", einsumDot,
+		"TensorContract", einsumTensorContract,
+		"TableSum", einsumTableSum
+	][{indices1, indices2} -> Automatic, tensor1, tensor2, TrueQ[OptionValue["Inactive"]]]
 
 
 Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"TransposeFunction" -> Transpose}]
@@ -362,8 +238,8 @@ Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"Transpos
 TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, path_, opts : OptionsPattern[]] :=
     TensorNetworkContraction[TensorNetworkGraphData[net], path, opts]
 
-TensorNetworkContraction[netData : KeyValuePattern["Vertices" -> vertices_], path : {{Repeated[_Integer, {1, 2}]} ...}, opts : OptionsPattern[]] := 
-    TensorNetworkContraction[netData, PathToTreePath[path, vertices], opts]
+TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? PathQ, opts : OptionsPattern[]] := 
+    TensorNetworkContraction[data, PathToTreePath[path, vertices], opts]
 
 TensorNetworkContraction[
     KeyValuePattern[{
@@ -372,15 +248,14 @@ TensorNetworkContraction[
 		"Contractions" -> contractions_,
         "FreeIndices" -> freeIndices_
 	}],
-    treePath_,
+    treePath_ ? TreePathQ,
     opts : OptionsPattern[]
 ] := With[{
     contractOpts = FilterRules[{opts}, Options[contractTensorPair]]
 }, {
-    tensorPath = NestWhile[
-        ReplaceAll[tensorPair : {_\[FormalCapitalT], _\[FormalCapitalT]} :> contractTensorPair[tensorPair, contractOpts]],
-        Replace[treePath, MapThread[{#1} -> \[FormalCapitalT][#2, #3, 0] &, {vertices, tensors, contractions}], {-2}],
-        Not @* MatchQ[_\[FormalCapitalT]]
+    tensorPath = FixedPoint[
+        ReplaceAll[pair : {_Rule, _Rule} :> Rule @@ contractTensorPair[pair, contractOpts]],
+        Replace[treePath, MapThread[{#1} -> (#2 -> #3) &, {vertices, tensors, contractions}], {-2}]
     ],
     transposeFunction = OptionValue["TransposeFunction"]
 },
@@ -394,3 +269,21 @@ TensorNetworkContraction[
 		]
     ]
 ]
+
+TensorNetworkContraction[
+    KeyValuePattern[{
+		"Tensors" -> tensors_,
+		"ContractionIndices" -> indices_,
+        "FreeIndices" -> freeIndices_
+	}],
+	OptionsPattern[]
+] := If[TrueQ[OptionValue["Inactive"]], Identity, ActivateTensor] @ EinsteinSummation[indices -> freeIndices, tensors]
+
+
+Options[TensorNetworkContract] = Options[TensorNetworkContraction]
+
+TensorNetworkContract[data_ ? AssociationQ, path_ ? PathQ, opts : OptionsPattern[]] := TensorNetworkContraction[data, path, opts, "Inactive" -> False]
+
+TensorNetworkContract[net_ ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkGraphData[net], args]
+
+TensorNetworkContract[net_, opts : OptionsPattern[]] := TensorNetworkContraction[net, opts, "Inactive" -> False]
