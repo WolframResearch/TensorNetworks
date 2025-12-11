@@ -4,6 +4,11 @@ PackageExport[TensorNetwork]
 PackageExport[TensorNetworkQ]
 PackageExport[TensorNetworkData]
 
+PackageExport[BinaryTensorNetworkQ]
+PackageExport[BinaryTensorNetwork]
+
+PackageExport[SparseTensorNetwork]
+
 PackageExport[RandomTensorNetwork]
 
 
@@ -118,9 +123,12 @@ TensorNetworkProp[tn_, "Hypergraph", opts___] :=
         VertexLabels -> Automatic, EdgeLabels -> Thread[tn["Hyperedges"] -> Range[Length[tn["Hyperedges"]]]]
     ]
 
-TensorNetworkProp[tn_, "BinaryQ"] := AllTrue[Counts[Catenate @ tn["Hyperedges"]], # <= 2 &]
+TensorNetworkProp[tn_, "BinaryQ"] := BinaryTensorNetworkQ[tn]
+TensorNetworkProp[tn_, "SparseQ"] := AllTrue[tn["Tensors"], SparseArrayQ]
 
-TensorNetworkProp[tn_, "ToBinary"] := Block[{hyperedges = tn["Hyperedges"], indexHyperedges, dimensions, spidersIndices},
+BinaryTensorNetworkQ[tn_TensorNetwork ? TensorNetworkQ] := AllTrue[Counts[Catenate @ tn["Hyperedges"]], # <= 2 &]
+
+BinaryTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] := Block[{hyperedges = tn["Hyperedges"], indexHyperedges, dimensions, spidersIndices},
     indexHyperedges = Select[
         GroupBy[
             Catenate @ MapIndexed[List, hyperedges, {2}],
@@ -166,7 +174,8 @@ TensorNetworkProp[_, "Properties"] := {
     "Dimensions", "Ranks",
     "Indices", "IndexDimensions",
     "Vertices", "FreeIndices", "Bonds", "Contractions", "ContractionIndices",
-    "BinaryQ", "ToBinary",
+    "BinaryQ",
+    "SparseQ",
     "Graph", "GraphData", "Data"
 }
 
@@ -182,6 +191,8 @@ TensorNetworkFreeIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["FreeIndices"]
 TensorNetworkIndexDimensions[tn_TensorNetwork ? TensorNetworkQ] :=
     TensorNetworkIndexDimensions[<|"Indices" -> tn["Indices"], "Dimensions" -> tn["Dimensions"]|>]
 
+SparseTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] :=
+    TensorNetwork[SparseArray /@ tn["Tensors"], tn["Hyperedges"]]
 
 RandomTensorNetwork[{n_Integer, m_Integer}, maxDimension_Integer : 2, maxRank_Integer : 5] := Enclose @ Block[{
     g, ranks, tensors, indices, curIndices, rules, dimensions
@@ -236,8 +247,8 @@ TensorNetwork /: MakeBoxes[tn_TensorNetwork /; TensorNetworkQ[tn], fmt_] := With
         ],
         (* Always shown *)
         {
-            {BoxForm`SummaryItem[{"Tensors: ", nTensors}], BoxForm`SummaryItem[{"Binary: ", tn["BinaryQ"]}]},
-            {BoxForm`SummaryItem[{"Free indices: ", Length[freeIndices]}]},
+            {BoxForm`SummaryItem[{"Tensors: ", nTensors}], BoxForm`SummaryItem[{"Binary: ", If[tn["BinaryQ"], "Yes", "No"]}]},
+            {BoxForm`SummaryItem[{"Free indices: ", Length[freeIndices]}], BoxForm`SummaryItem[{"Sparse: ", If[tn["SparseQ"], "Yes", "No"]}]},
             {BoxForm`SummaryItem[{"Output dimension: ", tn["OutputDimension"]}]}
         },
         (* Expanded *)

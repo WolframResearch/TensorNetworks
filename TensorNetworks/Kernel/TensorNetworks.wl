@@ -5,7 +5,7 @@ PackageScope[OptimalPath]
 
 
 
-ClearAll /@ Names[{"Wolfram`TensorNetworks`*", "Wolfram`TensorNetworks`**`*"}]
+ClearAll["Wolfram`TensorNetworks`*", "Wolfram`TensorNetworks`**`*"]
 
 pacletInstalledQ[paclet_, version_] := AnyTrue[Through[PacletFind[paclet]["Version"]], ResourceFunction["VersionOrder"][#, version] <= 0 &]
 
@@ -61,7 +61,7 @@ libraryFunctions := libraryFunctions = (
 GreedyPath[
 	input : {{___Integer}...},
 	output : {___Integer},
-	sizeDict_Association : KeyValuePattern[_Integer -> _Integer],
+	sizeDict : KeyValuePattern[(_Integer -> _Integer) ...] ? AssociationQ,
 	costMod : _ ? NumericQ | None : None,
 	temperature : _ ? NumericQ | None : None,
 	maxNeighbors : _Integer | None : None,
@@ -88,7 +88,7 @@ GreedyPath[
 OptimalPath[
 	input : {{___Integer}...},
 	output : {___Integer},
-	sizeDict_Association : KeyValuePattern[_Integer -> _Integer],
+	sizeDict : KeyValuePattern[(_Integer -> _Integer) ...] ? AssociationQ,
 	minimize : _String | None : None,
 	costCap : _ ? NumericQ | None : None,
 	searchOuter : True | False | None : None,
