@@ -52,7 +52,7 @@ toSymbolicTensor[t_, OptionsPattern[]] := Activate[t /. {
 				],
 				ArraySymbol[
 					Inactive[Transpose][toSymbolicTensor[b], FindPermutation[Range[Length[d2]], Join[#, Complement[Range[Length[d2]], #]] & @ indices[[All, 2]]]],
-					Append[Times @@ d2[[indices[[All, 2]]]], Delete[d2, List /@ indices[[All, 2]]]]
+					Prepend[Delete[d2, List /@ indices[[All, 2]]], Times @@ d2[[indices[[All, 2]]]]]
 				]
 			]
 		],
@@ -63,6 +63,6 @@ toSymbolicTensor[t_, OptionsPattern[]] := Activate[t /. {
 	tt_ ? TensorQ :> ArraySymbol["T", TensorDimensions[tt]]
 }, Except[TensorContract | Dot | ArrayDot | TensorProduct]]
 
-symbolicTensorDimensions[t_] := Replace[TensorDimensions[toSymbolicTensor[t]], Except[_List] -> {}]
+symbolicTensorDimensions[t_] := Replace[TensorDimensions[toSymbolicTensor[t, "ArrayDotExpand" -> True]], Except[_List] -> {}]
 
 symbolicTensorRank[t_] := Length[symbolicTensorDimensions[t]]

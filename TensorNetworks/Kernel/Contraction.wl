@@ -8,6 +8,8 @@ PackageExport[$TensorNetworkContractionMethods]
 PackageExport[TensorNetworkContraction]
 PackageExport[TensorNetworkContract]
 
+PackageExport[ContractionTree]
+
 
 
 Options[TensorNetworkContractionPath] = {"ReturnParameters" -> False, Method -> Automatic}
@@ -41,7 +43,7 @@ TensorNetworkContractionPath[net_Graph ? TensorNetworkGraphQ, opts : OptionsPatt
     TensorNetworkContractionPath[TensorNetworkGraphData[net], opts]
 
 TensorNetworkContractionPath[net_TensorNetwork ? TensorNetworkQ, opts : OptionsPattern[]] :=
-    TensorNetworkContractionPath[TensorNetworkData[net], opts]
+    TensorNetworkContractionPath[TensorNetworkData[net["ToBinary"]], opts]
 
 einsumArrayDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
 	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
@@ -240,7 +242,7 @@ TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
     TensorNetworkContraction[TensorNetworkGraphData[net], args]
 
 TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args___] :=
-    TensorNetworkContraction[TensorNetworkData[net], args]
+    TensorNetworkContraction[TensorNetworkData[net["ToBinary"]], args]
 
 TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? PathQ, opts : OptionsPattern[]] := 
     TensorNetworkContraction[data, PathToTreePath[path, vertices], opts]
@@ -290,6 +292,19 @@ TensorNetworkContract[data_ ? AssociationQ, path_ ? PathQ, opts : OptionsPattern
 
 TensorNetworkContract[net_Graph ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkGraphData[net], args]
 
-TensorNetworkContract[net_TensorNetwork ? TensorNetworkQ, args___] := TensorNetworkContract[TensorNetworkData[net], args]
+TensorNetworkContract[net_TensorNetwork ? TensorNetworkQ, args___] := TensorNetworkContract[TensorNetworkData[net["ToBinary"]], args]
 
 TensorNetworkContract[net_, opts : OptionsPattern[]] := TensorNetworkContraction[net, opts, "Inactive" -> False]
+
+
+
+contractionTree[IgnoringInactive[t : HoldPattern @ ArrayDot[x_, y_, k_]]] := Tree[Subscript[symbolicTensorDimensions[t], Underscript["\[CenterDot]", k]], {contractionTree[x], contractionTree[y]}]
+contractionTree[IgnoringInactive[t : HoldPattern @ Dot[x_, y_]]] := Tree[Subscript[symbolicTensorDimensions[t], "\[CenterDot]"], {contractionTree[x], contractionTree[y]}]
+contractionTree[IgnoringInactive[t : HoldPattern @ Transpose[x_, perm_]]] := Tree[DirectedEdge[symbolicTensorDimensions[x], symbolicTensorDimensions[t], perm], {contractionTree[x]}]
+contractionTree[IgnoringInactive[t : HoldPattern @ ArrayReshape[x_, shape_]]] := Tree[symbolicTensorDimensions[x] -> shape, {contractionTree[x]}]
+contractionTree[IgnoringInactive[t : HoldPattern @ TensorProduct[xs__]]] := Tree[Subscript[symbolicTensorDimensions[t], "\[CircleTimes]"], contractionTree /@ {xs}]
+contractionTree[IgnoringInactive[t : HoldPattern @ TensorContract[x_, c_]]] := Tree[Subscript[symbolicTensorDimensions[t], c], {contractionTree[x]}]
+contractionTree[x_] := symbolicTensorDimensions[x]
+
+ContractionTree[expr_, opts : OptionsPattern[]] :=
+	Tree[contractionTree[expr], opts, AspectRatio -> 1 / 2, TreeLayout -> Right, TreeElementLabelStyle -> {All -> FontSize -> 6}]

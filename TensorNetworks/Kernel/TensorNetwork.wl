@@ -69,6 +69,10 @@ TensorNetworkProp[TensorNetwork[_, hyperedges_], "Hyperedges"] := hyperedges
 
 TensorNetworkProp[tn_, "Dimensions"] := tensorDimensions /@ tn["Tensors"]
 
+TensorNetworkProp[tn_, "Indices"] := MapIndexed[Thread[Superscript[First[#2], #1]] &, tn["Hyperedges"]]
+
+TensorNetworkProp[tn_, "IndexDimensions"] := TensorNetworkIndexDimensions[tn]
+
 TensorNetworkProp[tn_, "Ranks"] := tensorRank /@ tn["Tensors"]
 
 TensorNetworkProp[tn_, "Graph", opts___] := GraphTensorNetwork[tn["Tensors"], tn["Hyperedges"], opts]
@@ -107,10 +111,62 @@ TensorNetworkProp[tn_, prop_String] /;
 
 TensorNetworkProp[tn_, "OutputDimension"] := Times @@ Lookup[TensorNetworkIndexDimensions[tn], tn["FreeIndices"]]
 
-TensorNetworkProp[tn_, "Properties"] := {
+TensorNetworkProp[tn_, "Hypergraph", opts___] :=
+    PacletSymbol["WolframInstitute/Hypergraph", "Hypergraph"][
+        tn["Hyperedges"],
+        opts,
+        VertexLabels -> Automatic, EdgeLabels -> Thread[tn["Hyperedges"] -> Range[Length[tn["Hyperedges"]]]]
+    ]
+
+TensorNetworkProp[tn_, "BinaryQ"] := AllTrue[Counts[Catenate @ tn["Hyperedges"]], # <= 2 &]
+
+TensorNetworkProp[tn_, "ToBinary"] := Block[{hyperedges = tn["Hyperedges"], indexHyperedges, dimensions, spidersIndices},
+    indexHyperedges = Select[
+        GroupBy[
+            Catenate @ MapIndexed[List, hyperedges, {2}],
+            First -> Last
+        ],
+        Length[#] > 2 &
+    ];
+
+    If[Length[indexHyperedges] == 0, Return[tn]];
+
+    dimensions = TensorNetworkIndexDimensions[<|"Indices" -> hyperedges, "Dimensions" -> tn["Dimensions"]|>];
+
+    spidersIndices = KeyValueMap[
+        Thread[#2 -> Thread[Range[Length[#2]] -> #1, List, 1]] &,
+        indexHyperedges
+    ];
+
+    TensorNetwork[
+        Join[
+            tn["Tensors"],
+            KeyValueMap[
+                With[{rank = Length[#2]},
+                    SymbolicDeltaProductArray[ConstantArray[Lookup[dimensions, Key[#1]], rank], {Range[rank]}]
+                ] &,
+                indexHyperedges
+            ]
+        ],
+        Join[
+            ReplacePart[
+                hyperedges,
+                Catenate @ spidersIndices
+            ],
+            Values /@ spidersIndices
+        ]
+    ]
+    
+]
+    
+
+TensorNetworkProp[_, "Properties"] := {
     "Tensors", "Hyperedges",
+    "Hypergraph",
     "Dimensions", "Ranks",
-    "Indices", "Vertices", "FreeIndices", "Bonds", "Contractions", "ContractionIndices",
+    "Indices", "IndexDimensions",
+    "Vertices", "FreeIndices", "Bonds", "Contractions", "ContractionIndices",
+    "BinaryQ", "ToBinary",
     "Graph", "GraphData", "Data"
 }
 
@@ -123,7 +179,8 @@ TensorNetworkGraphData[tn_TensorNetwork ? TensorNetworkQ] := TensorNetworkGraphD
 TensorNetworkTensors[tn_TensorNetwork ? TensorNetworkQ] := tn["Tensors"]
 TensorNetworkIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["ContractionIndices"]
 TensorNetworkFreeIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["FreeIndices"]
-TensorNetworkIndexDimensions[tn_TensorNetwork ? TensorNetworkQ] := TensorNetworkIndexDimensions[tn["Data"]]
+TensorNetworkIndexDimensions[tn_TensorNetwork ? TensorNetworkQ] :=
+    TensorNetworkIndexDimensions[<|"Indices" -> tn["Indices"], "Dimensions" -> tn["Dimensions"]|>]
 
 
 RandomTensorNetwork[{n_Integer, m_Integer}, maxDimension_Integer : 2, maxRank_Integer : 5] := Enclose @ Block[{
@@ -179,9 +236,9 @@ TensorNetwork /: MakeBoxes[tn_TensorNetwork /; TensorNetworkQ[tn], fmt_] := With
         ],
         (* Always shown *)
         {
-            BoxForm`SummaryItem[{"Tensors: ", nTensors}],
-            BoxForm`SummaryItem[{"Free indices: ", Length[freeIndices]}],
-            BoxForm`SummaryItem[{"Output dimension: ", tn["OutputDimension"]}]
+            {BoxForm`SummaryItem[{"Tensors: ", nTensors}], BoxForm`SummaryItem[{"Binary: ", tn["BinaryQ"]}]},
+            {BoxForm`SummaryItem[{"Free indices: ", Length[freeIndices]}]},
+            {BoxForm`SummaryItem[{"Output dimension: ", tn["OutputDimension"]}]}
         },
         (* Expanded *)
         {
