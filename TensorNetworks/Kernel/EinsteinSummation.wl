@@ -124,5 +124,8 @@ EinsteinSummation::output = "The uncontracted indices can't compose the desired 
 
 
 ActivateTensor[expr_] := Activate[
-    Activate[expr /. GeneralizedPower[TensorProduct, t_, n_Integer] :> Inactive[TensorProduct] @@ ConstantArray[Activate[t, TensorContract], n], TensorContract]
+    Activate[expr /. {
+        GeneralizedPower[TensorProduct, t_, n_Integer] :> Inactive[TensorProduct] @@ ConstantArray[Activate[t, TensorContract], n],
+        arr : _SymbolicIdentityArray | _SymbolicDeltaProductArray :> Normal[arr]
+    }, TensorContract]
 ]

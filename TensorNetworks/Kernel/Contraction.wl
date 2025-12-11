@@ -3,7 +3,6 @@ Package["Wolfram`TensorNetworks`"]
 PackageExport[ContractTensorNetwork]
 
 PackageExport[TensorNetworkContractionPath]
-PackageExport[TensorNetworkContractPath]
 
 PackageExport[$TensorNetworkContractionMethods]
 PackageExport[TensorNetworkContraction]
@@ -31,7 +30,7 @@ TensorNetworkContractionPath[KeyValuePattern[{
 	output = Replace[freeIndices, normalIndices, {1}];
 	dimensions = KeyMap[Replace[normalIndices], dimensions];
 	If[TrueQ[OptionValue["ReturnParameters"]], Return[{input, output, dimensions}]];
-	Replace[OptionValue[Method], {
+	CanonicalPath @ Replace[OptionValue[Method], {
         Automatic :> OptimalPath[input, output, dimensions, "size"],
         method_String :>  OptimalPath[input, output, dimensions, method],
         _ :> GreedyPath[input, output, dimensions]
@@ -39,10 +38,10 @@ TensorNetworkContractionPath[KeyValuePattern[{
 ]
 
 TensorNetworkContractionPath[net_Graph ? TensorNetworkGraphQ, opts : OptionsPattern[]] :=
-    CanonicalPath @ TensorNetworkContractionPath[TensorNetworkGraphData[net], opts]
+    TensorNetworkContractionPath[TensorNetworkGraphData[net], opts]
 
 TensorNetworkContractionPath[net_TensorNetwork ? TensorNetworkQ, opts : OptionsPattern[]] :=
-    CanonicalPath @ TensorNetworkContractionPath[TensorNetworkData[net], opts]
+    TensorNetworkContractionPath[TensorNetworkData[net], opts]
 
 einsumArrayDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
 	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
@@ -224,7 +223,7 @@ $TensorNetworkContractionMethods = {"ArrayDotTranspose", "ArrayDot", "Dot", "Ten
 
 Options[contractTensorPair] = {Method -> "ArrayDot", "Inactive" -> True}
 
-contractTensorPair[{tensor1_ -> indices1_, tensor2_ -> indices2_}, opts : OptionsPattern[]] :=
+contractTensorPair[{tensor1_ -> indices1_, tensor2_ -> indices2_}, OptionsPattern[]] :=
 	Switch[
 		OptionValue[Method],
 		"ArrayDotTranspose", einsumArrayDotTranspose,

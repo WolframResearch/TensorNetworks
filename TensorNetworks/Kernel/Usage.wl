@@ -36,6 +36,5 @@ InitializeTensorNetwork::usage = "InitializeTensorNetwork[net, tensors] initiali
 (* Contraction.wl *)
 ContractTensorNetwork::usage = "ContractTensorNetwork[net] contracts the entire tensor network to a single tensor."
 TensorNetworkContractionPath::usage = "TensorNetworkContractionPath[net] computes an optimized contraction path for the network."
-TensorNetworkContractPath::usage = "TensorNetworkContractPath[net, path] contracts the network using the specified contraction path."
 TensorNetworkContraction::usage = "TensorNetworkContraction[net, path] returns a contraction expression for the tensor network along a path."
 $TensorNetworkContractionMethods::usage = "$TensorNetworkContractionMethods is a list of available types for contraction expressions."

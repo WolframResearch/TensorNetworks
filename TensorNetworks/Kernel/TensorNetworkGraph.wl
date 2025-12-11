@@ -78,9 +78,13 @@ TensorNetworkFreeIndices[indices_List, tags_List] :=
     SortBy[Replace[{Superscript[_, x_] :> {0, x}, Subscript[_, x_] :> {1, x}}]] @ DeleteElements[Catenate[indices], Catenate[tags]]
 
 
-TensorNetworkIndexDimensions[net_Graph ? TensorNetworkGraphQ] := TensorNetworkIndexDimensions @@ Lookup[TensorNetworkGraphData[net], {"Indices", "Tensors"}]
+TensorNetworkIndexDimensions[net_Graph ? TensorNetworkGraphQ] := TensorNetworkIndexDimensions[TensorNetworkGraphData[net]]
 
-TensorNetworkIndexDimensions[indices_List, tensors_List] := Catenate @ MapThread[Thread[#1 -> TensorDimensions[#2]] &, {indices, tensors}]
+TensorNetworkIndexDimensions[KeyValuePattern[{"Indices" -> indices_, "Dimensions" -> dimensions_}]] :=
+    Catenate @ MapThread[Thread[#1 -> #2] &, {indices, dimensions}]
+
+TensorNetworkIndexDimensions[indices_List, tensors_List] :=
+    TensorNetworkIndexDimensions[<|"Indices" -> indices, "Dimensions" -> tensorDimensions /@ tensors|>]
 
 
 TensorNetworkIndexReplace[net_ ? TensorNetworkGraphQ, rules_] :=
@@ -245,11 +249,11 @@ GraphTensorNetwork[g_ ? GraphQ, opts : OptionsPattern[]] := GraphTensorNetwork[D
 GraphTensorNetwork[tensors_List, hyperedges : {___List}, opts : OptionsPattern[]] := Block[{
     n = Length[tensors],
     dims, indexPositions, 
-    spiderData = {}, (* list of {vertex, tensor, indices} *)
-    undirectedEdges = {}, spiderId,
-    allVertices, g0, directedEdges0,
-    vertexIndices, (* association: vertex -> list of indices *)
-    annotations, finalEdges
+    spiders = {}, spiderId,
+    undirectedEdges = {},
+    allVertices, directedEdges,
+    vertexIndices,
+    annotations, edgeMap
 },
     (* Build dimension lookup *)
     dims = Association @ Catenate @ MapThread[
@@ -265,7 +269,7 @@ GraphTensorNetwork[tensors_List, hyperedges : {___List}, opts : OptionsPattern[]
     spiderId = n;
 
     (* Build undirected edges *)
-    KeyValueMap[Function[{idx, verts},
+    KeyValueMap[{idx, verts} |->
         Which[
             Length[verts] == 1, (* Free index -> edge to boundary 0 *)
                 AppendTo[undirectedEdges, UndirectedEdge[verts[[1]], 0, idx]],
@@ -274,66 +278,69 @@ GraphTensorNetwork[tensors_List, hyperedges : {___List}, opts : OptionsPattern[]
             True, (* Hyperedge -> spider *)
                 spiderId++;
                 With[{d = Lookup[dims, idx, 2], k = Length[verts]},
-                    AppendTo[spiderData, {spiderId, SymbolicIdentityArray[ConstantArray[d, k]], ConstantArray[idx, k]}]
-                ];
-                Scan[AppendTo[undirectedEdges, UndirectedEdge[#, spiderId, idx]] &, verts]
+                    AppendTo[spiders, {spiderId, SymbolicDeltaProductArray[ConstantArray[d, k], {Range[k]}]}];
+                    Scan[AppendTo[undirectedEdges, UndirectedEdge[#, spiderId, idx]] &, verts]
+                ]
         ]
-    ], indexPositions];
+        ,
+        indexPositions
+    ];
 
-    allVertices = Join[{0}, Range[n], If[spiderData === {}, {}, spiderData[[All, 1]]]];
+    allVertices = Join[Range[n], spiders[[All, 1]]];
 
     (* Make acyclic to determine directions *)
-    g0 = DirectedGraph[Graph[allVertices, undirectedEdges], "Acyclic"];
-    directedEdges0 = EdgeList[g0];
+    directedEdges = EdgeList[DirectedGraph[undirectedEdges, "Acyclic"]];
 
     (* Build vertex indices based on edge directions *)
     vertexIndices = <||>;
 
     (* Tensor vertices *)
     Do[
-        vertexIndices[v] = MapIndexed[With[{idx = #1, slot = First[#2]},
-            If[MemberQ[directedEdges0, DirectedEdge[v, _, idx]],
-                Superscript[v, slot], (* source -> output *)
-                Subscript[v, slot]    (* target -> input *)
-            ]
-        ] &, hyperedges[[v]]],
+        vertexIndices[v] = MapIndexed[
+            With[{idx = #1, i = First[#2]},
+                FirstCase[directedEdges,
+                    edge : DirectedEdge[v, _, idx] :> edge -> Superscript[v, i],
+                    FirstCase[directedEdges, edge : DirectedEdge[_, v, idx] :> edge -> Subscript[v, i]]
+                ]
+            ] &,
+            hyperedges[[v]]
+        ],
         {v, Range[n]}
     ];
 
     (* Spider vertices *)
-    Do[With[{v = sp[[1]], spIdx = sp[[3]]},
-        vertexIndices[v] = MapIndexed[With[{idx = #1, slot = First[#2]},
-            If[MemberQ[directedEdges0, DirectedEdge[v, _, idx]],
-                Superscript[v, slot],
-                Subscript[v, slot]
+    Do[
+        Block[{i = 1},
+            vertexIndices[s] = Replace[
+                directedEdges,
+                {
+                    edge : DirectedEdge[s, _, _] :> edge -> Superscript[s, i++],
+                    edge : DirectedEdge[_, s, _] :> edge -> Subscript[s, i++],
+                    _ -> Nothing
+                },
+                1
             ]
-        ] &, spIdx]
-    ], {sp, spiderData}];
+        ],
+        {s, spiders[[All, 1]]}
+    ];
     
     (* Build annotations *)
     annotations = Join[
-        Table[v -> {"Tensor" -> tensors[[v]], "Index" -> vertexIndices[v], VertexLabels -> v}, {v, Range[n]}],
-        Table[sp[[1]] -> {"Tensor" -> sp[[2]], "Index" -> vertexIndices[sp[[1]]], VertexLabels -> "Spider"}, {sp, spiderData}]
+        Table[v -> {"Tensor" -> tensors[[v]], "Index" -> Values @ vertexIndices[v], VertexLabels -> v}, {v, Range[n]}],
+        Table[sp[[1]] -> {"Tensor" -> sp[[2]], "Index" -> Values @ vertexIndices[sp[[1]]], VertexLabels -> "Spider"}, {sp, spiders}]
     ];
-    
+
+    edgeMap = GroupBy[Catenate @ Values @ vertexIndices, First -> Last, SortBy[MatchQ[_Subscript]]];
+
     (* Build final edges with {srcIndex, tgtIndex} tags *)
-    finalEdges = Table[
-        With[{src = e[[1]], tgt = e[[2]], origIdx = e[[3]]},
-            If[src === 0 || tgt === 0, Nothing, (* skip boundary edges *)
-                With[{
-                    srcSlot = FirstPosition[If[src <= n, hyperedges[[src]], spiderData[[src - n, 3]]], origIdx][[1]],
-                    tgtSlot = FirstPosition[If[tgt <= n, hyperedges[[tgt]], spiderData[[tgt - n, 3]]], origIdx][[1]]
-                },
-                    DirectedEdge[src, tgt, {vertexIndices[src][[srcSlot]], vertexIndices[tgt][[tgtSlot]]}]
-                ]
-            ]
-        ],
-        {e, directedEdges0}
+    directedEdges = Map[
+        ReplacePart[#, 3 -> Lookup[edgeMap, #]] &,
+        DeleteCases[directedEdges, DirectedEdge[0, __] | DirectedEdge[_, 0, _]]
     ];
     
     Graph[
-        DeleteCases[allVertices, 0],
-        finalEdges,
+        allVertices,
+        directedEdges,
         AnnotationRules -> annotations,
         opts
     ]

@@ -4,6 +4,8 @@ PackageExport[TensorNetwork]
 PackageExport[TensorNetworkQ]
 PackageExport[TensorNetworkData]
 
+PackageExport[RandomTensorNetwork]
+
 
 
 (* Internal validation function *)
@@ -79,7 +81,7 @@ TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
     tensors = tn["Tensors"],
     hyperedges = tn["Hyperedges"]
 }, {
-    indices = MapIndexed[Thread[First[#2] -> #1] &, hyperedges],
+    indices = MapIndexed[Thread[Superscript[First[#2], #1]] &, hyperedges],
     dimensions = tensorDimensions /@ tensors
 }, {
     indexDimensions = Association @ Catenate @ MapThread[Thread[#1 -> #2] &, {indices, dimensions}],
@@ -91,8 +93,10 @@ TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
         "Indices" -> indices,
         "Vertices" -> Range[Length[tensors]],
         "FreeIndices" -> Catenate @ Values @ Select[indexGroups, Length[#] == 1 &],
-        "Bonds" -> Thread[Values[indexGroups] -> Lookup[indexDimensions, Values[indexGroups][[All, 1]]]],
-        "Contractions" -> Replace[hyperedges, indexGroups, {2}],
+        "Bonds" -> With[{bondGroups = Select[indexGroups, Length[#] > 1 &]},
+            Thread[Values[bondGroups] -> Lookup[indexDimensions, Values[bondGroups][[All, 1]]]]
+        ],
+        "Contractions" -> Replace[hyperedges, Replace[indexGroups, {x_} :> x, 1], {2}],
         "ContractionIndices" -> Replace[hyperedges, First /@ indexGroups, {2}]
     |>
 ]
@@ -100,6 +104,8 @@ TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
 TensorNetworkProp[tn_, prop_String] /;
     MemberQ[{"Indices", "Vertices", "FreeIndices", "Bonds", "Contractions", "ContractionIndices"}, prop] :=
         Lookup[tn["Data"], prop]
+
+TensorNetworkProp[tn_, "OutputDimension"] := Times @@ Lookup[TensorNetworkIndexDimensions[tn], tn["FreeIndices"]]
 
 TensorNetworkProp[tn_, "Properties"] := {
     "Tensors", "Hyperedges",
@@ -117,6 +123,42 @@ TensorNetworkGraphData[tn_TensorNetwork ? TensorNetworkQ] := TensorNetworkGraphD
 TensorNetworkTensors[tn_TensorNetwork ? TensorNetworkQ] := tn["Tensors"]
 TensorNetworkIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["ContractionIndices"]
 TensorNetworkFreeIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["FreeIndices"]
+TensorNetworkIndexDimensions[tn_TensorNetwork ? TensorNetworkQ] := TensorNetworkIndexDimensions[tn["Data"]]
+
+
+RandomTensorNetwork[{n_Integer, m_Integer}, maxDimension_Integer : 2, maxRank_Integer : 5] := Enclose @ Block[{
+    g, ranks, tensors, indices, curIndices, rules, dimensions
+},
+	g = ConfirmBy[RandomGraph[{n, m}], GraphQ];
+    ranks = Table[
+        RandomInteger[{minRank, Max[minRank, maxRank]}],
+        {minRank, VertexDegree[g]}
+    ];
+	
+	indices = curIndices = TakeList[Range[Total[ranks]], ranks];
+	rules = Map[
+        With[
+            {i = RandomInteger[{1, Length[curIndices[[#]]]}]},
+            {ret = curIndices[[#, i]]},
+            curIndices[[#, i]] = Nothing;
+            ret
+        ] &,
+        Rule @@@ EdgeList[g],
+        {2}
+    ];
+    indices = Replace[indices, rules, {2}];
+    dimensions = ReplacePart[indices,
+        Append[{_, _} :> RandomInteger[{2, maxDimension}]] @ Catenate @ Values @ GroupBy[
+            Catenate @ MapIndexed[Rule, indices, {2}],
+            First -> Last,
+            Thread[# -> RandomInteger[{2, maxDimension}], List, 1] &
+        ]
+    ];
+    tensors = RandomComplex[{-1 - I, 1 + I}, #] & /@ dimensions;
+    
+	TensorNetwork[tensors, indices]
+]
+
 
 (* Summary Box - NoEntry is handled by System`Private`HoldSetNoEntry *)
 TensorNetwork /: MakeBoxes[tn_TensorNetwork /; TensorNetworkQ[tn], fmt_] := With[{
@@ -138,11 +180,12 @@ TensorNetwork /: MakeBoxes[tn_TensorNetwork /; TensorNetworkQ[tn], fmt_] := With
         (* Always shown *)
         {
             BoxForm`SummaryItem[{"Tensors: ", nTensors}],
-            BoxForm`SummaryItem[{"Free indices: ", Length[freeIndices]}]
+            BoxForm`SummaryItem[{"Free indices: ", Length[freeIndices]}],
+            BoxForm`SummaryItem[{"Output dimension: ", tn["OutputDimension"]}]
         },
         (* Expanded *)
         {
-            BoxForm`SummaryItem[{"Dimensions: ", dims}]
+            BoxForm`SummaryItem[{"Dimensions: ", Pane[dims, 256]}]
         },
         fmt
     ]
