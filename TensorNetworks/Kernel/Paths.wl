@@ -10,6 +10,7 @@ PackageExport[PathIndexContractions]
 
 
 
+TreePathQ[{}] := False
 TreePathQ[{_}] := True
 TreePathQ[nodes_List] := AllTrue[nodes, TreePathQ]
 TreePathQ[___] := False
@@ -33,7 +34,7 @@ TreePathToPath[treePath_List ? TreePathQ, indices : _List | Automatic : Automati
 	path
 ]
 
-PathQ[{({_Integer} | {_Integer, _Integer}) ...}] := True
+PathQ[{({_Integer} | {_Integer, _Integer}) ..}] := True
 PathQ[___] := False
 
 PathToTreePath[path_List ? PathQ, indices : _List | Automatic : Automatic] :=

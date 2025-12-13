@@ -10,7 +10,7 @@ PackageExport[ContractionTree]
 
 
 
-Options[TensorNetworkContractionPath] = {"ReturnParameters" -> False, Method -> Automatic}
+Options[TensorNetworkContractionPath] = {"ReturnParameters" -> False, Method -> "Optimal"}
 
 TensorNetworkContractionPath[KeyValuePattern[{
     "Dimensions" -> tensorDimensions_,
@@ -30,9 +30,8 @@ TensorNetworkContractionPath[KeyValuePattern[{
 	output = Replace[freeIndices, normalIndices, {1}];
 	dimensions = KeyMap[Replace[normalIndices], dimensions];
 	If[TrueQ[OptionValue["ReturnParameters"]], Return[{input, output, dimensions}]];
-	CanonicalPath @ Replace[OptionValue[Method], {
-        Automatic :> OptimalPath[input, output, dimensions, "size"],
-        method : Except["Greedy", _String] :>  OptimalPath[input, output, dimensions, method],
+	CanonicalPath @ Replace[Replace[OptionValue[Method], "Optimal" -> "size"], {
+        method : "flops" | "max" | "size" | "write" | "combo" | "limit" :> OptimalPath[input, output, dimensions, method],
         _ :> GreedyPath[input, output, dimensions]
     }]
 ]
@@ -245,7 +244,7 @@ TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args___] :=
 TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? PathQ, opts : OptionsPattern[]] := 
     TensorNetworkContraction[data, PathToTreePath[path, vertices], opts]
 
-TensorNetworkContraction[net_, method : _String | Automatic, opts : OptionsPattern[]] := 
+TensorNetworkContraction[net_, method_String, opts : OptionsPattern[]] := 
     TensorNetworkContraction[net, TensorNetworkContractionPath[net, Method -> method], opts]
 
 TensorNetworkContraction[
@@ -289,7 +288,8 @@ TensorNetworkContraction[
 
 Options[TensorNetworkContract] = Options[TensorNetworkContraction]
 
-TensorNetworkContract[data_ ? AssociationQ, path_ ? PathQ, opts : OptionsPattern[]] := TensorNetworkContraction[data, path, opts, "Inactive" -> False]
+TensorNetworkContract[data_ ? AssociationQ, path : Automatic | _String | _ ? PathQ, opts : OptionsPattern[]] :=
+	TensorNetworkContraction[data, path, opts, "Inactive" -> False]
 
 TensorNetworkContract[net_Graph ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkGraphData[net], args]
 

@@ -2,7 +2,7 @@ Package["Wolfram`TensorNetworks`"]
 
 PackageExport[TensorNetworkGraphQ]
 PackageExport[TensorNetworkIndexGraph]
-PackageExport[GraphTensorNetwork]
+PackageExport[TensorNetworkGraph]
 PackageExport[TensorNetworkIndices]
 PackageExport[TensorNetworkTensors]
 PackageExport[TensorNetworkGraphData]
@@ -151,9 +151,9 @@ TensorNetworkIndexGraph[net_Graph ? (TensorNetworkGraphQ[True]), opts : OptionsP
 ]
 
 
-Options[GraphTensorNetwork] = Join[{Method -> "Symbolic"}, Options[Graph]]
+Options[TensorNetworkGraph] = Join[{Method -> "Symbolic"}, Options[Graph]]
 
-GraphTensorNetwork[g_ /; DirectedGraphQ[g] && AcyclicGraphQ[g], opts : OptionsPattern[]] := Enclose @ Block[{
+TensorNetworkGraph[g_ /; DirectedGraphQ[g] && AcyclicGraphQ[g], opts : OptionsPattern[]] := Enclose @ Block[{
 	vs = Developer`FromPackedArray[TopologicalSort[g]], edges = EdgeList[g],
 	labels,
 	inputs, outputs, inputOrder, outputOrder,
@@ -236,17 +236,17 @@ GraphTensorNetwork[g_ /; DirectedGraphQ[g] && AcyclicGraphQ[g], opts : OptionsPa
     ]
 ]
 
-GraphTensorNetwork[g_ ? DirectedGraphQ, opts : OptionsPattern[]] :=
-    Enclose @ GraphTensorNetwork[ConfirmBy[RemoveTensorNetworkCycles[g], AcyclicGraphQ], opts]
+TensorNetworkGraph[g_ ? DirectedGraphQ, opts : OptionsPattern[]] :=
+    Enclose @ TensorNetworkGraph[ConfirmBy[RemoveTensorNetworkCycles[g], AcyclicGraphQ], opts]
 
-GraphTensorNetwork[g_ ? GraphQ, opts : OptionsPattern[]] := GraphTensorNetwork[DirectedGraph[g, "Acyclic"], opts]
+TensorNetworkGraph[g_ ? GraphQ, opts : OptionsPattern[]] := TensorNetworkGraph[DirectedGraph[g, "Acyclic"], opts]
 
 (* Hyperedges act as indices - when more than 2 tensors share an index, 
    insert a spider tensor (reshaped identity) to convert to binary edges.
    All index variance (Superscript/Subscript) is determined by edge direction:
    source vertex gets Superscript (contravariant/output), target gets Subscript (covariant/input).
    Edge tags are pairs {srcIndex, tgtIndex}. *)
-GraphTensorNetwork[tensors_List, hyperedges : {___List}, opts : OptionsPattern[]] := Block[{
+TensorNetworkGraph[tensors_List, hyperedges : {___List}, opts : OptionsPattern[]] := Block[{
     n = Length[tensors],
     dims, indexPositions, 
     spiders = {}, spiderId,

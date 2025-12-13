@@ -36,7 +36,7 @@ Needs["Wolfram`TensorNetworks`"]
 The paclet provides functions to find optimal contraction paths for tensor networks, leveraging the `Cotengra` library.
 
 ```wolfram
-net = GraphTensorNetwork[RandomGraph[{10, 20}], 
+net = TensorNetworkGraph[RandomGraph[{10, 20}], 
   Method -> "RandomComplex"]
 
 ContractTensorNetwork[net]

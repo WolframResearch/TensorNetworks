@@ -3,6 +3,8 @@ Package["Wolfram`TensorNetworks`"]
 PackageExport[TensorNetwork]
 PackageExport[TensorNetworkQ]
 PackageExport[TensorNetworkData]
+PackageExport[TensorNetworkSize]
+PackageExport[TensorNetworkContractions]
 
 PackageExport[BinaryTensorNetworkQ]
 PackageExport[BinaryTensorNetwork]
@@ -74,17 +76,35 @@ TensorNetworkProp[TensorNetwork[_, hyperedges_], "Hyperedges"] := hyperedges
 
 TensorNetworkProp[tn_, "Dimensions"] := tensorDimensions /@ tn["Tensors"]
 
+TensorNetworkSize[tn_ ? TensorNetworkQ] := Length[tn["Hyperedges"]]
+
+TensorNetworkProp[tn_, "Size"] := TensorNetworkSize[tn]
+
 TensorNetworkProp[tn_, "Indices"] := MapIndexed[Thread[Superscript[First[#2], #1]] &, tn["Hyperedges"]]
 
 TensorNetworkProp[tn_, "IndexDimensions"] := TensorNetworkIndexDimensions[tn]
 
 TensorNetworkProp[tn_, "Ranks"] := tensorRank /@ tn["Tensors"]
 
-TensorNetworkProp[tn_, "Graph", opts___] := GraphTensorNetwork[tn["Tensors"], tn["Hyperedges"], opts]
+TensorNetworkGraph[tn_ ? TensorNetworkQ, opts___] := TensorNetworkGraph[tn["Tensors"], tn["Hyperedges"], opts]
+
+TensorNetworkProp[tn_, "Graph", opts___] := TensorNetworkGraph[tn, opts]
 
 TensorNetworkProp[tn_, "GraphData"] := TensorNetworkProp[tn, "GraphData"] = TensorNetworkGraphData[tn["Graph"]]
 
 TensorNetworkProp[tn_, "Data"] := TensorNetworkProp[tn, "Data"] = TensorNetworkData[tn]
+
+TensorNetworkContractions[tn_ ? TensorNetworkQ]  := With[{
+    hyperedges = tn["Hyperedges"]
+},
+    Replace[
+        hyperedges,
+        Replace[GroupBy[Catenate[MapIndexed[Thread[Superscript[First[#2], #1]] &, hyperedges]], Last], {x_} :> x, 1],
+        {2}
+    ]
+]
+
+TensorNetworkProp[tn_, "Contractions"] := TensorNetworkContractions[tn]
 
 TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
     tensors = tn["Tensors"],
