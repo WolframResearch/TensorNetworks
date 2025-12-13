@@ -194,7 +194,9 @@ TensorNetworkIndexDimensions[tn_TensorNetwork ? TensorNetworkQ] :=
 SparseTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] :=
     TensorNetwork[SparseArray /@ tn["Tensors"], tn["Hyperedges"]]
 
-RandomTensorNetwork[{n_Integer, m_Integer}, maxDimension_Integer : 2, maxRank_Integer : 5] := Enclose @ Block[{
+Options[RandomTensorNetwork] = {Method -> "Complex"}
+
+RandomTensorNetwork[{n_Integer, m_Integer}, maxDimension_Integer : 2, maxRank_Integer : 5, OptionsPattern[]] := Enclose @ Block[{
     g, ranks, tensors, indices, curIndices, rules, dimensions
 },
 	g = ConfirmBy[RandomGraph[{n, m}], GraphQ];
@@ -222,7 +224,7 @@ RandomTensorNetwork[{n_Integer, m_Integer}, maxDimension_Integer : 2, maxRank_In
             Thread[# -> RandomInteger[{2, maxDimension}], List, 1] &
         ]
     ];
-    tensors = RandomComplex[{-1 - I, 1 + I}, #] & /@ dimensions;
+    tensors = Switch[OptionValue[Method], "Complex", RandomComplex[{-1 - I, 1 + I}, #], _, RandomReal[{-1, 1}, #]] & /@ dimensions;
     
 	TensorNetwork[tensors, indices]
 ]
