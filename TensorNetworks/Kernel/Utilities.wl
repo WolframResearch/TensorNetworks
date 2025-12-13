@@ -58,9 +58,10 @@ toSymbolicTensor[t_, OptionsPattern[]] := Activate[t /. {
 		],
 		Inactive[ArrayDot][toSymbolicTensor[a], toSymbolicTensor[b], indices]
 	],
+	IgnoringInactive[Dot[a_, b_]] :> Inactive[Dot][toSymbolicTensor[a], toSymbolicTensor[b]],
 	IgnoringInactive[Verbatim[Table][_, iter : {_, _Integer} ..]] :> ArraySymbol["T", {iter}[[All, 2]]],
 	IgnoringInactive[(h : TensorContract | Transpose)[body_, args__]] :> Inactive[h][toSymbolicTensor[body], args],
-	tt_ ? TensorQ :> ArraySymbol["T", TensorDimensions[tt]]
+	tt_ :> ArraySymbol["T", tensorDimensions[tt]]
 }, Except[TensorContract | Dot | ArrayDot | TensorProduct]]
 
 symbolicTensorDimensions[t_] := Replace[TensorDimensions[toSymbolicTensor[t, "ArrayDotExpand" -> True]], Except[_List] -> {}]
