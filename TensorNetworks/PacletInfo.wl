@@ -16,7 +16,7 @@ PacletObject[
         "Root" -> "Kernel",
         "Context" -> "Wolfram`TensorNetworks`"
       },
-      {"Cargo", "Root" -> "Cotengra"},
+      {"Cargo", "Root" -> ".."},
       {"Build", "Actions" -> {"CargoBuild"}},
       {"Binaries"}
     }
