@@ -2,7 +2,7 @@ Package["Wolfram`TensorNetworks`"]
 
 
 PackageExport[EinsteinSummation]
-PackageExport[HadamardProduct]
+PackageExport[TensorJoin]
 PackageExport[ActivateTensor]
 
 
@@ -23,7 +23,7 @@ EinsteinSummation[s_String, arrays_] := EinsteinSummation[
 	arrays
 ]
 
-HadamardProduct[indices_, arrays_] := Enclose @ Block[{
+TensorJoin[indices_, arrays_] := Enclose @ Block[{
     oldIndices, newIndices, dims, posIndex
 },
     ConfirmAssert[Length /@ indices == tensorRank /@ arrays];
@@ -88,7 +88,7 @@ isum[in_List -> out_, arrays_List] := Enclose @ Module[{
     If[ AnyTrue[out, Count[in, {___, #, ___}] > 1 &],
         nonFreePos = Catenate @ Position[newIn, _ ? (ContainsAny[out]), {1}, Heads -> False];
         freePos = Complement[Range[Length[newIn]], nonFreePos];
-        {nonFreeIn, nonFreeArray} = Confirm @ HadamardProduct[newIn[[nonFreePos]], newArrays[[nonFreePos]]];
+        {nonFreeIn, nonFreeArray} = Confirm @ TensorJoin[newIn[[nonFreePos]], newArrays[[nonFreePos]]];
         newArrays = Prepend[newArrays[[freePos]], nonFreeArray];
         newIn = Prepend[newIn[[freePos]], nonFreeIn]
     ];

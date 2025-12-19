@@ -2,7 +2,7 @@ Package["Wolfram`TensorNetworks`"]
 
 (* EinsteinSummation.wl *)
 EinsteinSummation::usage = "EinsteinSummation[in -> out, arrays] contracts the given arrays according to the index specification."
-HadamardProduct::usage = "HadamardProduct[indices, arrays] computes the Hadamard product of arrays over shared indices."
+TensorJoin::usage = "TensorJoin[indices, arrays] joins arrays over shared indices, broadcasting along non-shared dimensions."
 ActivateTensor::usage = "ActivateTensor[expr] activates Inactive[TensorProduct] and Inactive[TensorContract] in expr."
 
 (* TensorNetworks.wl *)
