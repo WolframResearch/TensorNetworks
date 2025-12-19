@@ -18,7 +18,7 @@ PathIndexContractions::usage = "PathIndexContractions[path, indices] returns the
 TensorNetwork::usage = "TensorNetwork[tensors, indices] or TensorNetwork[graph] creates a tensor network object with a summary box display."
 TensorNetworkQ::usage = "TensorNetworkQ[expr] yields True if expr is a valid TensorNetwork object."
 
-(* TensorNetworkGraph.wl *)
+(* TensorNetworkFromGraph.wl *)
 TensorNetworkGraphQ::usage = "TensorNetworkGraphQ[g] yields True if g is a valid tensor network graph."
 TensorNetworkIndexGraph::usage = "TensorNetworkIndexGraph[net] returns a graph representing the index connectivity of the tensor network."
 TensorNetworkFromGraph::usage = "TensorNetworkFromGraph[g] constructs a tensor network from a directed acyclic graph g."

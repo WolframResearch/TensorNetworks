@@ -6222,14 +6222,14 @@ Cell[BoxData[
 Cell[BoxData[
  InterpretationBox[
   TagBox[
-   TemplateBox[{"\"TensorNetworkGraph.wl\"", 
+   TemplateBox[{"\"TensorNetworkFromGraph.wl\"", 
      FileNameJoin[{
-       NotebookDirectory[], "Kernel", "TensorNetworkGraph.wl"}]},
+       NotebookDirectory[], "Kernel", "TensorNetworkFromGraph.wl"}]},
     "FileManagerFileOpenerTemplate"],
    Annotation[#, 
     DefinitionNotebookClient`TemplateCells`PackagePrivate`fileDepth[1]]& ],
   FileNameJoin[{
-    NotebookDirectory[], "Kernel", "TensorNetworkGraph.wl"}],
+    NotebookDirectory[], "Kernel", "TensorNetworkFromGraph.wl"}],
   BoxID -> "FileTreePath",
   BaseStyle->{"Text"}]], "FileManagerFile",
  CellMargins->{{23 + Inherited, Inherited}, {Inherited, Inherited}},
@@ -13390,7 +13390,7 @@ Cell[CellGroupData[{
 
 Cell[BoxData[
  RowBox[{"net", "=", 
-  RowBox[{"GraphTensorNetwork", "[", 
+  RowBox[{"TensorNetworkFromGraph", "[", 
    RowBox[{
     RowBox[{"RandomGraph", "[", 
      RowBox[{"{", 
@@ -13849,7 +13849,7 @@ Cell[CellGroupData[{
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"ContractTensorNetwork", "[", "net", "]"}], "//", 
+  RowBox[{"TensorNetworkContract", "[", "net", "]"}], "//", 
   "AbsoluteTiming"}]], "Input",
  TaggingRules->{},
  CellChangeTimes->{{3.9741408756191273`*^9, 3.9741408757423286`*^9}, 
@@ -13875,7 +13875,7 @@ Cell[CellGroupData[{
 
 Cell[BoxData[
  RowBox[{"path", "=", 
-  RowBox[{"TensorNetworkContractionPath", "[", 
+  RowBox[{"TensorNetworkFindContractionPath", "[", 
    RowBox[{"net", ",", 
     RowBox[{"Method", "->", "\"\<max\>\""}]}], "]"}]}]], "Input",
  TaggingRules->{},
@@ -13977,7 +13977,7 @@ Cell[BoxData[
   RowBox[{"EinsteinSummation", "[", 
    RowBox[{
     RowBox[{
-     RowBox[{"TensorNetworkGraphData", "[", "net", "]"}], 
+     RowBox[{"TensorNetworkFromGraphData", "[", "net", "]"}], 
      "[", "\"\<ContractionIndices\>\"", "]"}], ",", 
     RowBox[{"TensorNetworkTensors", "[", "net", "]"}]}], "]"}]}]], "Input",
  TaggingRules->{},
