@@ -29,7 +29,7 @@ TensorNetworkIndexDimensions::usage = "TensorNetworkIndexDimensions[net] returns
 TensorNetworkFreeIndices::usage = "TensorNetworkFreeIndices[net] returns the list of uncontracted (free) indices in the network."
 TensorNetworkAdd::usage = "TensorNetworkAdd[net, tensor, indices] adds a new tensor to the network with specified indices."
 RemoveTensorNetworkCycles::usage = "RemoveTensorNetworkCycles[net] inserts identity tensors to break cycles in the network graph."
-TensorNetworkNetGraph::usage = "TensorNetworkNetGraph[net] converts the tensor network into a Neural NetGraph."
+TensorNetworkToNetGraph::usage = "TensorNetworkToNetGraph[net] converts the tensor network into a Neural NetGraph."
 TensorNetworkIndexReplace::usage = "TensorNetworkIndexReplace[net, rules] replaces indices in the network according to rules."
 InitializeTensorNetwork::usage = "InitializeTensorNetwork[net, tensors] initializes a tensor network with a initial tensors."
 

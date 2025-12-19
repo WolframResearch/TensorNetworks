@@ -10,7 +10,7 @@ PackageExport[TensorNetworkIndexDimensions]
 PackageExport[TensorNetworkFreeIndices]
 PackageExport[TensorNetworkAdd]
 PackageExport[RemoveTensorNetworkCycles]
-PackageExport[TensorNetworkNetGraph]
+PackageExport[TensorNetworkToNetGraph]
 PackageExport[TensorNetworkIndexReplace]
 PackageExport[InitializeTensorNetwork]
 
@@ -407,9 +407,9 @@ RemoveTensorNetworkCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Grap
 
 
 
-TensorNetworkNetGraph[net_ ? TensorNetworkGraphQ] := TensorNetworkNetGraph[net, TensorNetworkContractionPath[net]]
+TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ] := TensorNetworkToNetGraph[net, TensorNetworkContractionPath[net]]
 
-TensorNetworkNetGraph[net_ ? TensorNetworkGraphQ, path_] := Enclose @ Block[{tensors, indices, freeIndices, g, tensorQueue, addEinsumLayer, n},
+TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ, path_] := Enclose @ Block[{tensors, indices, freeIndices, g, tensorQueue, addEinsumLayer, n},
     tensors = Chop @* FullSimplify @* N @* Normal /@ TensorNetworkTensors[net];
     indices = TensorNetworkIndices[net];
     freeIndices = TensorNetworkFreeIndices[net];
