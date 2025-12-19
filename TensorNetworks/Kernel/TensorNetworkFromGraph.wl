@@ -2,16 +2,16 @@ Package["Wolfram`TensorNetworks`"]
 
 PackageExport[TensorNetworkGraphQ]
 PackageExport[TensorNetworkIndexGraph]
-PackageExport[TensorNetworkGraph]
+PackageExport[TensorNetworkFromGraph]
 PackageExport[TensorNetworkIndices]
 PackageExport[TensorNetworkTensors]
-PackageExport[TensorNetworkGraphData]
+PackageExport[TensorNetworkFromGraphData]
 PackageExport[TensorNetworkIndexDimensions]
 PackageExport[TensorNetworkFreeIndices]
 PackageExport[TensorNetworkAdd]
-PackageExport[RemoveTensorNetworkCycles]
+PackageExport[TensorNetworkRemoveCycles]
 PackageExport[TensorNetworkToNetGraph]
-PackageExport[TensorNetworkIndexReplace]
+PackageExport[TensorNetworkReplaceIndices]
 PackageExport[InitializeTensorNetwork]
 
 
@@ -46,7 +46,7 @@ TensorNetworkIndices[net_Graph ? TensorNetworkGraphQ] := AnnotationValue[{net, D
 TensorNetworkTensors[net_Graph ? TensorNetworkGraphQ] := AnnotationValue[{net, Developer`FromPackedArray[VertexList[net]]}, "Tensor"]
 
 
-TensorNetworkGraphData[net_Graph ? TensorNetworkGraphQ] := With[{
+TensorNetworkFromGraphData[net_Graph ? TensorNetworkGraphQ] := With[{
     vs = Developer`FromPackedArray[VertexList[net]]
 }, {
     tensors = AnnotationValue[{net, vs}, "Tensor"],
@@ -78,7 +78,7 @@ TensorNetworkFreeIndices[indices_List, tags_List] :=
     SortBy[Replace[{Superscript[_, x_] :> {0, x}, Subscript[_, x_] :> {1, x}}]] @ DeleteElements[Catenate[indices], Catenate[tags]]
 
 
-TensorNetworkIndexDimensions[net_Graph ? TensorNetworkGraphQ] := TensorNetworkIndexDimensions[TensorNetworkGraphData[net]]
+TensorNetworkIndexDimensions[net_Graph ? TensorNetworkGraphQ] := TensorNetworkIndexDimensions[TensorNetworkFromGraphData[net]]
 
 TensorNetworkIndexDimensions[KeyValuePattern[{"Indices" -> indices_, "Dimensions" -> dimensions_}]] :=
     Catenate @ MapThread[Thread[#1 -> #2] &, {indices, dimensions}]
@@ -87,7 +87,7 @@ TensorNetworkIndexDimensions[indices_List, tensors_List] :=
     TensorNetworkIndexDimensions[<|"Indices" -> indices, "Dimensions" -> tensorDimensions /@ tensors|>]
 
 
-TensorNetworkIndexReplace[net_ ? TensorNetworkGraphQ, rules_] :=
+TensorNetworkReplaceIndices[net_ ? TensorNetworkGraphQ, rules_] :=
     Graph[net, AnnotationRules -> MapThread[#1 -> {"Index" -> #2} &, {VertexList[net], Replace[TensorNetworkIndices[net], rules, {2}]}]]
 
 
@@ -151,9 +151,9 @@ TensorNetworkIndexGraph[net_Graph ? (TensorNetworkGraphQ[True]), opts : OptionsP
 ]
 
 
-Options[TensorNetworkGraph] = Join[{Method -> "Symbolic"}, Options[Graph]]
+Options[TensorNetworkFromGraph] = Join[{Method -> "Symbolic"}, Options[Graph]]
 
-TensorNetworkGraph[g_ /; DirectedGraphQ[g] && AcyclicGraphQ[g], opts : OptionsPattern[]] := Enclose @ Block[{
+TensorNetworkFromGraph[g_ /; DirectedGraphQ[g] && AcyclicGraphQ[g], opts : OptionsPattern[]] := Enclose @ Block[{
 	vs = Developer`FromPackedArray[TopologicalSort[g]], edges = EdgeList[g],
 	labels,
 	inputs, outputs, inputOrder, outputOrder,
@@ -236,17 +236,17 @@ TensorNetworkGraph[g_ /; DirectedGraphQ[g] && AcyclicGraphQ[g], opts : OptionsPa
     ]
 ]
 
-TensorNetworkGraph[g_ ? DirectedGraphQ, opts : OptionsPattern[]] :=
-    Enclose @ TensorNetworkGraph[ConfirmBy[RemoveTensorNetworkCycles[g], AcyclicGraphQ], opts]
+TensorNetworkFromGraph[g_ ? DirectedGraphQ, opts : OptionsPattern[]] :=
+    Enclose @ TensorNetworkFromGraph[ConfirmBy[TensorNetworkRemoveCycles[g], AcyclicGraphQ], opts]
 
-TensorNetworkGraph[g_ ? GraphQ, opts : OptionsPattern[]] := TensorNetworkGraph[DirectedGraph[g, "Acyclic"], opts]
+TensorNetworkFromGraph[g_ ? GraphQ, opts : OptionsPattern[]] := TensorNetworkFromGraph[DirectedGraph[g, "Acyclic"], opts]
 
 (* Hyperedges act as indices - when more than 2 tensors share an index, 
    insert a spider tensor (reshaped identity) to convert to binary edges.
    All index variance (Superscript/Subscript) is determined by edge direction:
    source vertex gets Superscript (contravariant/output), target gets Subscript (covariant/input).
    Edge tags are pairs {srcIndex, tgtIndex}. *)
-TensorNetworkGraph[tensors_List, hyperedges : {___List}, opts : OptionsPattern[]] := Block[{
+TensorNetworkFromGraph[tensors_List, hyperedges : {___List}, opts : OptionsPattern[]] := Block[{
     n = Length[tensors],
     dims, indexPositions, 
     spiders = {}, spiderId,
@@ -346,7 +346,7 @@ TensorNetworkGraph[tensors_List, hyperedges : {___List}, opts : OptionsPattern[]
     ]
 ]
 
-RemoveTensorNetworkCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Graph]] := Enclose @ Block[{
+TensorNetworkRemoveCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Graph]] := Enclose @ Block[{
     net = IndexGraph[inputNet], cycles, id, q, r, edge, tag, cup, cap, cupIndex, capIndex, dim
 },
 	id = Max[VertexList[net], 0] + 1;
@@ -407,7 +407,7 @@ RemoveTensorNetworkCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Grap
 
 
 
-TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ] := TensorNetworkToNetGraph[net, TensorNetworkContractionPath[net]]
+TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ] := TensorNetworkToNetGraph[net, TensorNetworkFindContractionPath[net]]
 
 TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ, path_] := Enclose @ Block[{tensors, indices, freeIndices, g, tensorQueue, addEinsumLayer, n},
     tensors = Chop @* FullSimplify @* N @* Normal /@ TensorNetworkTensors[net];

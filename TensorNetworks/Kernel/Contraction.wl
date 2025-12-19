@@ -1,6 +1,6 @@
 Package["Wolfram`TensorNetworks`"]
 
-PackageExport[TensorNetworkContractionPath]
+PackageExport[TensorNetworkFindContractionPath]
 
 PackageExport[$TensorNetworkContractionMethods]
 PackageExport[TensorNetworkContraction]
@@ -10,9 +10,9 @@ PackageExport[ContractionTree]
 
 
 
-Options[TensorNetworkContractionPath] = {"ReturnParameters" -> False, Method -> "Optimal"}
+Options[TensorNetworkFindContractionPath] = {"ReturnParameters" -> False, Method -> "Optimal"}
 
-TensorNetworkContractionPath[KeyValuePattern[{
+TensorNetworkFindContractionPath[KeyValuePattern[{
     "Dimensions" -> tensorDimensions_,
     "Indices" -> tensorIndices_,
     "Contractions" -> contractions_,
@@ -36,11 +36,11 @@ TensorNetworkContractionPath[KeyValuePattern[{
     }]
 ]
 
-TensorNetworkContractionPath[net_Graph ? TensorNetworkGraphQ, opts : OptionsPattern[]] :=
-    TensorNetworkContractionPath[TensorNetworkGraphData[net], opts]
+TensorNetworkFindContractionPath[net_Graph ? TensorNetworkGraphQ, opts : OptionsPattern[]] :=
+    TensorNetworkFindContractionPath[TensorNetworkFromGraphData[net], opts]
 
-TensorNetworkContractionPath[net_TensorNetwork ? TensorNetworkQ, opts : OptionsPattern[]] :=
-    TensorNetworkContractionPath[TensorNetworkData[BinaryTensorNetwork[net]], opts]
+TensorNetworkFindContractionPath[net_TensorNetwork ? TensorNetworkQ, opts : OptionsPattern[]] :=
+    TensorNetworkFindContractionPath[TensorNetworkData[BinaryTensorNetwork[net]], opts]
 
 einsumArrayDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
 	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
@@ -236,7 +236,7 @@ contractTensorPair[{tensor1_ -> indices1_, tensor2_ -> indices2_}, OptionsPatter
 Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"TransposeFunction" -> Transpose}]
 
 TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
-    TensorNetworkContraction[TensorNetworkGraphData[net], args]
+    TensorNetworkContraction[TensorNetworkFromGraphData[net], args]
 
 TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args___] :=
     TensorNetworkContraction[TensorNetworkData[BinaryTensorNetwork[net]], args]
@@ -245,7 +245,7 @@ TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ 
     TensorNetworkContraction[data, PathToTreePath[path, vertices], opts]
 
 TensorNetworkContraction[net_, method_String, opts : OptionsPattern[]] := 
-    TensorNetworkContraction[net, TensorNetworkContractionPath[net, Method -> method], opts]
+    TensorNetworkContraction[net, TensorNetworkFindContractionPath[net, Method -> method], opts]
 
 TensorNetworkContraction[
     KeyValuePattern[{
@@ -291,7 +291,7 @@ Options[TensorNetworkContract] = Options[TensorNetworkContraction]
 TensorNetworkContract[data_ ? AssociationQ, path : Automatic | _String | _ ? PathQ, opts : OptionsPattern[]] :=
 	TensorNetworkContraction[data, path, opts, "Inactive" -> False]
 
-TensorNetworkContract[net_Graph ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkGraphData[net], args]
+TensorNetworkContract[net_Graph ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkFromGraphData[net], args]
 
 TensorNetworkContract[net_TensorNetwork ? TensorNetworkQ, args___] := TensorNetworkContract[TensorNetworkData[BinaryTensorNetwork[net]], args]
 
