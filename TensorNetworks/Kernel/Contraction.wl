@@ -283,7 +283,7 @@ TensorNetworkContraction[
         "FreeIndices" -> freeIndices_
 	}],
 	OptionsPattern[]
-] := If[TrueQ[OptionValue["Inactive"]], Identity, ActivateTensor] @ EinsteinSummation[indices -> freeIndices, tensors]
+] := If[TrueQ[OptionValue["Inactive"]], Identity, ActivateTensors] @ EinsteinSummation[indices -> freeIndices, tensors]
 
 
 Options[TensorNetworkContract] = Options[TensorNetworkContraction]

@@ -3,7 +3,7 @@ Package["Wolfram`TensorNetworks`"]
 
 PackageExport[EinsteinSummation]
 PackageExport[TensorJoin]
-PackageExport[ActivateTensor]
+PackageExport[ActivateTensors]
 
 
 EinsteinSummation[in_List, arrays_] := Module[{
@@ -123,7 +123,7 @@ EinsteinSummation::dim = "Dimensions of contracted indices don't match";
 EinsteinSummation::output = "The uncontracted indices can't compose the desired output";
 
 
-ActivateTensor[expr_] := Activate[
+ActivateTensors[expr_] := Activate[
     Activate[expr /. {
         GeneralizedPower[TensorProduct, t_, n_Integer] :> Inactive[TensorProduct] @@ ConstantArray[Activate[t, TensorContract], n],
         arr : _SymbolicIdentityArray | _SymbolicDeltaProductArray :> Normal[arr]

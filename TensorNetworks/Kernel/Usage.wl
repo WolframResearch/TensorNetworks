@@ -3,7 +3,7 @@ Package["Wolfram`TensorNetworks`"]
 (* EinsteinSummation.wl *)
 EinsteinSummation::usage = "EinsteinSummation[in -> out, arrays] contracts the given arrays according to the index specification."
 TensorJoin::usage = "TensorJoin[indices, arrays] joins arrays over shared indices, broadcasting along non-shared dimensions."
-ActivateTensor::usage = "ActivateTensor[expr] activates Inactive[TensorProduct] and Inactive[TensorContract] in expr."
+ActivateTensors::usage = "ActivateTensors[expr] activates Inactive[TensorProduct] and Inactive[TensorContract] in expr."
 
 (* TensorNetworks.wl *)
 GreedyPath::usage = "GreedyPath[inputs, output, sizeDict] finds a contraction path using a greedy heuristic."
