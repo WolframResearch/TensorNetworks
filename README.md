@@ -55,67 +55,67 @@ This section provides a comprehensive list of all public functions exported by t
 
 ### Core Tensor Network Construction
 
-| Function | Usage |
-| :--- | :--- |
-| `TensorNetwork` | creates a tensor network object with a summary box display. |
-| `TensorNetworkQ` | yields `True` if an expression is a valid `TensorNetwork` object. |
-| `TensorNetworkFromGraph` | constructs a tensor network from a graph. |
-| `RandomTensorNetwork` | creates a tensor network with random tensors and topology. |
-| `SparseTensorNetwork` | converts a tensor network's tensors to `SparseArray`. |
-| `BinaryTensorNetwork` | converts a tensor network to binary form (at most 2 tensors per index). |
-| `BinaryTensorNetworkQ` | yields `True` if a tensor network is in binary form. |
+| Function | Usage | Output |
+| :--- | :--- | :--- |
+| `TensorNetwork` | creates a tensor network object with a summary box display. | `TensorNetwork[...]` object |
+| `TensorNetworkQ` | yields `True` if an expression is a valid `TensorNetwork` object. | `True` or `False` |
+| `TensorNetworkFromGraph` | constructs a tensor network from a graph. | `TensorNetwork[...]` object |
+| `RandomTensorNetwork` | creates a tensor network with random tensors and topology. | `TensorNetwork[...]` object |
+| `SparseTensorNetwork` | converts a tensor network's tensors to `SparseArray`. | `TensorNetwork[...]` object |
+| `BinaryTensorNetwork` | converts a tensor network to binary form (at most 2 tensors per index). | `TensorNetwork[...]` object |
+| `BinaryTensorNetworkQ` | yields `True` if a tensor network is in binary form. | `True` or `False` |
 
 ### Graph & Topology
 
-| Function | Usage |
-| :--- | :--- |
-| `TensorNetworkGraphQ` | yields `True` if a graph is a valid tensor network graph. |
-| `TensorNetworkIndexGraph` | returns a graph representing the index connectivity of the network. |
-| `TensorNetworkToNetGraph` | converts a tensor network into a Neural `NetGraph` object. |
-| `TensorNetworkRemoveCycles` | inserts identity tensors to break cycles in the network graph. |
+| Function | Usage | Output |
+| :--- | :--- | :--- |
+| `TensorNetworkGraphQ` | yields `True` if a graph is a valid tensor network graph. | `True` or `False` |
+| `TensorNetworkIndexGraph` | returns a graph representing the index connectivity of the network. | `Graph` object |
+| `TensorNetworkToNetGraph` | converts a tensor network into a Neural `NetGraph` object. | `NetGraph` object |
+| `TensorNetworkRemoveCycles` | inserts identity tensors to break cycles in the network graph. | `TensorNetwork[...]` object |
 
 ### Network Manipulation
 
-| Function | Usage |
-| :--- | :--- |
-| `TensorNetworkAdd` | adds a new tensor to the network with specified indices. |
-| `TensorNetworkReplaceIndices` | replaces indices in the network according to rules. |
-| `InitializeTensorNetwork` | initializes a tensor network with specific tensors. |
+| Function | Usage | Output |
+| :--- | :--- | :--- |
+| `TensorNetworkAdd` | adds a new tensor to the network with specified indices. | `TensorNetwork[...]` object |
+| `TensorNetworkReplaceIndices` | replaces indices in the network according to rules. | `TensorNetwork[...]` object |
+| `InitializeTensorNetwork` | initializes a tensor network with specific tensors. | `TensorNetwork[...]` object |
 
 ### Data & Extraction
 
-| Function | Usage |
-| :--- | :--- |
-| `TensorNetworkIndices` | returns the index lists for each tensor in the network. |
-| `TensorNetworkTensors` | returns the list of tensors stored in the network. |
-| `TensorNetworkFromGraphData` | returns raw data (tensors, indices, dimensions) of the network. |
-| `TensorNetworkIndexDimensions` | returns the dimensions associated with each index. |
-| `TensorNetworkFreeIndices` | returns the list of uncontracted (free) indices in the network. |
-| `TensorNetworkData` | returns an association of all internal data for a `TensorNetwork`. |
-| `TensorNetworkSize` | returns the number of tensors in the network. |
-| `TensorNetworkContractions` | returns the tensor network indices grouped by connectivity. |
+| Function | Usage | Output |
+| :--- | :--- | :--- |
+| `TensorNetworkIndices` | returns the index lists for each tensor in the network. | `List` of index lists |
+| `TensorNetworkTensors` | returns the list of tensors stored in the network. | `List` of arrays |
+| `TensorNetworkFromGraphData` | returns raw data (tensors, indices, dimensions) of the network. | `Association` of raw data |
+| `TensorNetworkIndexDimensions` | returns the dimensions associated with each index. | `Association` |
+| `TensorNetworkFreeIndices` | returns the list of uncontracted (free) indices in the network. | `List` of indices |
+| `TensorNetworkData` | returns an association of all internal data for a `TensorNetwork`. | `Association` |
+| `TensorNetworkSize` | returns the number of tensors in the network. | `Integer` |
+| `TensorNetworkContractions` | returns the tensor network indices grouped by connectivity. | `List` of index groups |
 
 ### Contraction & Path Optimization
 
-| Function | Usage |
-| :--- | :--- |
-| `TensorNetworkContract` | contracts the entire tensor network to a single tensor. |
-| `TensorNetworkFindContractionPath` | computes an optimized contraction path for the network. |
-| `TensorNetworkContraction` | returns a contraction expression for the network along a path. |
-| `$TensorNetworkContractionMethods` | list of available types for contraction expressions. |
-| `ContractionTree` | visualizes the contraction process as a tree. |
-| `GreedyPath` | finds a contraction path using a greedy heuristic. |
-| `OptimalPath` | finds an optimal contraction path. |
+| Function | Usage | Output |
+| :--- | :--- | :--- |
+| `TensorNetworkContract` | contracts the entire tensor network to a single tensor. | `Array` (result of contraction) |
+| `TensorNetworkFindContractionPath` | computes an optimized contraction path for the network. | `List` (contraction path) |
+| `TensorNetworkContraction` | returns a contraction expression for the network along a path. | symbolic `Inactive` expression |
+| `$TensorNetworkContractionMethods` | list of available types for contraction expressions. | `List` of strings |
+| `ContractionTree` | visualizes the contraction process as a tree. | `Tree` object |
+| `GreedyPath` | finds a contraction path using a greedy heuristic. | `List` (contraction path) |
+| `OptimalPath` | finds an optimal contraction path. | `List` (contraction path) |
 
 ### Low-level Utilities
 
-| Function | Usage |
-| :--- | :--- |
-| `EinsteinSummation` | contracts given arrays according to the index specification. |
-| `TensorJoin` | joins arrays over shared indices. |
-| `ActivateTensors` | activates `Inactive` tensor operations in an expression. |
-| `CanonicalPath` | returns a canonical representation of a contraction path. |
-| `TreePathToPath` | converts a tree-structured path to a linear contraction path. |
-| `PathToTreePath` | converts a linear contraction path to a tree-structured path. |
-| `PathIndexContractions` | returns the sequence of indices contracted at each step. |
-| `ContractIndices` | returns the indices that would be contracted between two index sets. |
+| Function | Usage | Output |
+| :--- | :--- | :--- |
+| `EinsteinSummation` | contracts given arrays according to the index specification. | an active `TensorContract` which will be an `Array` resulting from the specified sum over indices. |
+| `TensorJoin` | joins arrays over shared indices. | `Array` (result of join) |
+| `ActivateTensors` | activates `Inactive` tensor operations in an expression. | expression with activated tensors |
+| `CanonicalPath` | returns a canonical representation of a contraction path. | standardized path `List` |
+| `TreePathToPath` | converts a tree-structured path to a linear contraction path. | linear path `List` |
+| `PathToTreePath` | converts a linear contraction path to a tree-structured path. | nested path `List` |
+| `PathIndexContractions` | returns the sequence of indices contracted at each step. | `List` of index sets |
+| `ContractIndices` | returns the indices that would be contracted between two index sets. | `List` of common indices |
