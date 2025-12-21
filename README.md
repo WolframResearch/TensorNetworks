@@ -57,59 +57,65 @@ This section provides a comprehensive list of all public functions exported by t
 
 | Function | Usage |
 | :--- | :--- |
-| `TensorNetwork` | `TensorNetwork[tensors, indices]` or `TensorNetwork[graph]` creates a tensor network object with a summary box display. |
-| `TensorNetworkQ` | `TensorNetworkQ[expr]` yields `True` if `expr` is a valid `TensorNetwork` object. |
-| `TensorNetworkFromGraph` | `TensorNetworkFromGraph[g]` constructs a tensor network from a directed acyclic graph `g`. |
-| `RandomTensorNetwork` | Create a tensor network with random tensors and topology. |
-| `SparseTensorNetwork` | Convert a tensor network's tensors to `SparseArray`. |
-| `BinaryTensorNetwork` | Convert a tensor network to a binary form (max 2 tensors per index). |
+| `TensorNetwork` | creates a tensor network object with a summary box display. |
+| `TensorNetworkQ` | yields `True` if an expression is a valid `TensorNetwork` object. |
+| `TensorNetworkFromGraph` | constructs a tensor network from a graph. |
+| `RandomTensorNetwork` | creates a tensor network with random tensors and topology. |
+| `SparseTensorNetwork` | converts a tensor network's tensors to `SparseArray`. |
+| `BinaryTensorNetwork` | converts a tensor network to binary form (at most 2 tensors per index). |
+| `BinaryTensorNetworkQ` | yields `True` if a tensor network is in binary form. |
 
 ### Graph & Topology
 
 | Function | Usage |
 | :--- | :--- |
-| `TensorNetworkGraphQ` | `TensorNetworkGraphQ[g]` yields `True` if `g` is a valid tensor network graph. |
-| `TensorNetworkIndexGraph` | `TensorNetworkIndexGraph[net]` returns a graph representing the index connectivity of the tensor network. |
-| `TensorNetworkToNetGraph` | `TensorNetworkToNetGraph[net]` converts the tensor network into a Neural `NetGraph`. |
-| `TensorNetworkRemoveCycles` | `TensorNetworkRemoveCycles[net]` inserts identity tensors to break cycles in the network graph. |
+| `TensorNetworkGraphQ` | yields `True` if a graph is a valid tensor network graph. |
+| `TensorNetworkIndexGraph` | returns a graph representing the index connectivity of the network. |
+| `TensorNetworkToNetGraph` | converts a tensor network into a Neural `NetGraph` object. |
+| `TensorNetworkRemoveCycles` | inserts identity tensors to break cycles in the network graph. |
 
 ### Network Manipulation
 
 | Function | Usage |
 | :--- | :--- |
-| `TensorNetworkAdd` | `TensorNetworkAdd[net, tensor, indices]` adds a new tensor to the network with specified indices. |
-| `TensorNetworkReplaceIndices` | `TensorNetworkReplaceIndices[net, rules]` replaces indices in the network according to rules. |
-| `InitializeTensorNetwork` | `InitializeTensorNetwork[net, tensors]` initializes a tensor network with initial tensors. |
+| `TensorNetworkAdd` | adds a new tensor to the network with specified indices. |
+| `TensorNetworkReplaceIndices` | replaces indices in the network according to rules. |
+| `InitializeTensorNetwork` | initializes a tensor network with specific tensors. |
 
 ### Data & Extraction
 
 | Function | Usage |
 | :--- | :--- |
-| `TensorNetworkIndices` | `TensorNetworkIndices[net]` returns the index lists for each tensor in the network. |
-| `TensorNetworkTensors` | `TensorNetworkTensors[net]` returns the list of tensors stored in the network vertices. |
-| `TensorNetworkFromGraphData` | `TensorNetworkFromGraphData[net]` returns an association containing raw data (tensors, indices, dimensions) of the network. |
-| `TensorNetworkIndexDimensions` | `TensorNetworkIndexDimensions[net]` returns the dimensions associated with each index in the network. |
-| `TensorNetworkFreeIndices` | `TensorNetworkFreeIndices[net]` returns the list of uncontracted (free) indices in the network. |
-| `TensorNetworkData` | Returns an association of all internal data for a `TensorNetwork` object. |
-| `TensorNetworkSize` | Returns the number of tensors in the network. |
+| `TensorNetworkIndices` | returns the index lists for each tensor in the network. |
+| `TensorNetworkTensors` | returns the list of tensors stored in the network. |
+| `TensorNetworkFromGraphData` | returns raw data (tensors, indices, dimensions) of the network. |
+| `TensorNetworkIndexDimensions` | returns the dimensions associated with each index. |
+| `TensorNetworkFreeIndices` | returns the list of uncontracted (free) indices in the network. |
+| `TensorNetworkData` | returns an association of all internal data for a `TensorNetwork`. |
+| `TensorNetworkSize` | returns the number of tensors in the network. |
+| `TensorNetworkContractions` | returns the tensor network indices grouped by connectivity. |
 
 ### Contraction & Path Optimization
 
 | Function | Usage |
 | :--- | :--- |
-| `TensorNetworkContract` | `TensorNetworkContract[net, path]` contracts the entire tensor network to a single tensor. |
-| `TensorNetworkFindContractionPath` | `TensorNetworkFindContractionPath[net]` computes an optimized contraction path for the network. |
-| `TensorNetworkContraction` | `TensorNetworkContraction[net, path]` returns a contraction expression for the tensor network along a path. |
-| `$TensorNetworkContractionMethods` | List of available types for contraction expressions. |
-| `ContractionTree` | Visualizes the contraction process as a tree. |
+| `TensorNetworkContract` | contracts the entire tensor network to a single tensor. |
+| `TensorNetworkFindContractionPath` | computes an optimized contraction path for the network. |
+| `TensorNetworkContraction` | returns a contraction expression for the network along a path. |
+| `$TensorNetworkContractionMethods` | list of available types for contraction expressions. |
+| `ContractionTree` | visualizes the contraction process as a tree. |
+| `GreedyPath` | finds a contraction path using a greedy heuristic. |
+| `OptimalPath` | finds an optimal contraction path. |
 
 ### Low-level Utilities
 
 | Function | Usage |
 | :--- | :--- |
-| `EinsteinSummation` | `EinsteinSummation[in -> out, arrays]` contracts given arrays according to the index specification. |
-| `TensorJoin` | `TensorJoin[indices, arrays]` joins arrays over shared indices. |
-| `ActivateTensors` | `ActivateTensors[expr]` activates `Inactive[TensorProduct]` and `Inactive[TensorContract]` in `expr`. |
-| `CanonicalPath` | Returns a canonical representation of a contraction path. |
-| `TreePathToPath` / `PathToTreePath` | Conversion between tree and linear contraction paths. |
-| `PathIndexContractions` | Returns the sequence of indices contracted at each step. |
+| `EinsteinSummation` | contracts given arrays according to the index specification. |
+| `TensorJoin` | joins arrays over shared indices. |
+| `ActivateTensors` | activates `Inactive` tensor operations in an expression. |
+| `CanonicalPath` | returns a canonical representation of a contraction path. |
+| `TreePathToPath` | converts a tree-structured path to a linear contraction path. |
+| `PathToTreePath` | converts a linear contraction path to a tree-structured path. |
+| `PathIndexContractions` | returns the sequence of indices contracted at each step. |
+| `ContractIndices` | returns the indices that would be contracted between two index sets. |
