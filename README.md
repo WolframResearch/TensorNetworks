@@ -36,7 +36,7 @@ Needs["Wolfram`TensorNetworks`"]
 The paclet provides functions to find optimal contraction paths for tensor networks, leveraging the `Cotengra` library.
 
 ```wolfram
-net = TensorNetworkFromGraph[RandomGraph[{10, 20}], 
+net = ToTensorNetworkGraph[RandomGraph[{10, 20}], 
   Method -> "RandomComplex"]
 
 TensorNetworkContract[net]
@@ -59,7 +59,7 @@ This section provides a comprehensive list of all public functions exported by t
 | :--- | :--- | :--- |
 | `TensorNetwork` | creates a tensor network object with a summary box display. | `TensorNetwork[...]` object |
 | `TensorNetworkQ` | yields `True` if an expression is a valid `TensorNetwork` object. | `True` or `False` |
-| `TensorNetworkFromGraph` | constructs a tensor network from a graph. | `TensorNetwork[...]` object |
+| `ToTensorNetworkGraph` | constructs a tensor network from a graph. | `TensorNetwork[...]` object |
 | `RandomTensorNetwork` | creates a tensor network with random tensors and topology. | `TensorNetwork[...]` object |
 | `SparseTensorNetwork` | converts a tensor network's tensors to `SparseArray`. | `TensorNetwork[...]` object |
 | `BinaryTensorNetwork` | converts a tensor network to binary form (at most 2 tensors per index). | `TensorNetwork[...]` object |

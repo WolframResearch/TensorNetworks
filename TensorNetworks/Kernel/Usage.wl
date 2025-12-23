@@ -21,7 +21,7 @@ TensorNetworkQ::usage = "TensorNetworkQ[expr] yields True if expr is a valid Ten
 (* TensorNetworkFromGraph.wl *)
 TensorNetworkGraphQ::usage = "TensorNetworkGraphQ[g] yields True if g is a valid tensor network graph."
 TensorNetworkIndexGraph::usage = "TensorNetworkIndexGraph[net] returns a graph representing the index connectivity of the tensor network."
-TensorNetworkFromGraph::usage = "TensorNetworkFromGraph[g] constructs a tensor network from a directed acyclic graph g."
+ToTensorNetworkGraph::usage = "ToTensorNetworkGraph[g] constructs a tensor network from a directed acyclic graph g."
 TensorNetworkIndices::usage = "TensorNetworkIndices[net] returns the index lists for each tensor in the network."
 TensorNetworkTensors::usage = "TensorNetworkTensors[net] returns the list of tensors stored in the network vertices."
 TensorNetworkFromGraphData::usage = "TensorNetworkFromGraphData[net] returns an association containing raw data (tensors, indices, dimensions) of the network."

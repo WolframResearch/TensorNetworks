@@ -86,9 +86,9 @@ TensorNetworkProp[tn_, "IndexDimensions"] := TensorNetworkIndexDimensions[tn]
 
 TensorNetworkProp[tn_, "Ranks"] := tensorRank /@ tn["Tensors"]
 
-TensorNetworkFromGraph[tn_ ? TensorNetworkQ, opts___] := TensorNetworkFromGraph[tn["Tensors"], tn["Hyperedges"], opts]
+ToTensorNetworkGraph[tn_ ? TensorNetworkQ, opts___] := ToTensorNetworkGraph[tn["Tensors"], tn["Hyperedges"], opts]
 
-TensorNetworkProp[tn_, "Graph", opts___] := TensorNetworkFromGraph[tn, opts]
+TensorNetworkProp[tn_, "Graph", opts___] := ToTensorNetworkGraph[tn, opts]
 
 TensorNetworkProp[tn_, "GraphData"] := TensorNetworkProp[tn, "GraphData"] = TensorNetworkFromGraphData[tn["Graph"]]
 
