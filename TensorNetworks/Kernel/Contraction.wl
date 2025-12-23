@@ -37,7 +37,7 @@ TensorNetworkFindContractionPath[KeyValuePattern[{
 ]
 
 TensorNetworkFindContractionPath[net_Graph ? TensorNetworkGraphQ, opts : OptionsPattern[]] :=
-    TensorNetworkFindContractionPath[TensorNetworkFromGraphData[net], opts]
+    TensorNetworkFindContractionPath[TensorNetworkGraphData[net], opts]
 
 TensorNetworkFindContractionPath[net_TensorNetwork ? TensorNetworkQ, opts : OptionsPattern[]] :=
     TensorNetworkFindContractionPath[TensorNetworkData[BinaryTensorNetwork[net]], opts]
@@ -236,7 +236,7 @@ contractTensorPair[{tensor1_ -> indices1_, tensor2_ -> indices2_}, OptionsPatter
 Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"TransposeFunction" -> Transpose}]
 
 TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
-    TensorNetworkContraction[TensorNetworkFromGraphData[net], args]
+    TensorNetworkContraction[TensorNetworkGraphData[net], args]
 
 TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args___] :=
     TensorNetworkContraction[TensorNetworkData[BinaryTensorNetwork[net]], args]
@@ -291,7 +291,7 @@ Options[TensorNetworkContract] = Options[TensorNetworkContraction]
 TensorNetworkContract[data_ ? AssociationQ, path : Automatic | _String | _ ? PathQ, opts : OptionsPattern[]] :=
 	TensorNetworkContraction[data, path, opts, "Inactive" -> False]
 
-TensorNetworkContract[net_Graph ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkFromGraphData[net], args]
+TensorNetworkContract[net_Graph ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkGraphData[net], args]
 
 TensorNetworkContract[net_TensorNetwork ? TensorNetworkQ, args___] := TensorNetworkContract[TensorNetworkData[BinaryTensorNetwork[net]], args]
 

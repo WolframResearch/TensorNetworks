@@ -88,7 +88,7 @@ This section provides a comprehensive list of all public functions exported by t
 | :--- | :--- | :--- |
 | `TensorNetworkIndices` | returns the index lists for each tensor in the network. | `List` of index lists |
 | `TensorNetworkTensors` | returns the list of tensors stored in the network. | `List` of arrays |
-| `TensorNetworkFromGraphData` | returns raw data (tensors, indices, dimensions) of the network. | `Association` of raw data |
+| `TensorNetworkGraphData` | returns raw data (tensors, indices, dimensions) of the network. | `Association` of raw data |
 | `TensorNetworkIndexDimensions` | returns the dimensions associated with each index. | `Association` |
 | `TensorNetworkFreeIndices` | returns the list of uncontracted (free) indices in the network. | `List` of indices |
 | `TensorNetworkData` | returns an association of all internal data for a `TensorNetwork`. | `Association` |

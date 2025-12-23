@@ -60,7 +60,7 @@ TensorNetwork[
 ]
 
 TensorNetwork[net_ ? TensorNetworkGraphQ] :=
-    TensorNetwork @@ Lookup[TensorNetworkFromGraphData[net], {"Tensors", "ContractionIndices"}]
+    TensorNetwork @@ Lookup[TensorNetworkGraphData[net], {"Tensors", "ContractionIndices"}]
 
 TensorNetwork[hypergraph : {___List}] := TensorNetwork[
     ArraySymbol[\[FormalCapitalT], ConstantArray[\[FormalD], Length[#]]] & /@ hypergraph,
@@ -90,7 +90,7 @@ ToTensorNetworkGraph[tn_ ? TensorNetworkQ, opts___] := ToTensorNetworkGraph[tn["
 
 TensorNetworkProp[tn_, "Graph", opts___] := ToTensorNetworkGraph[tn, opts]
 
-TensorNetworkProp[tn_, "GraphData"] := TensorNetworkProp[tn, "GraphData"] = TensorNetworkFromGraphData[tn["Graph"]]
+TensorNetworkProp[tn_, "GraphData"] := TensorNetworkProp[tn, "GraphData"] = TensorNetworkGraphData[tn["Graph"]]
 
 TensorNetworkProp[tn_, "Data"] := TensorNetworkProp[tn, "Data"] = TensorNetworkData[tn]
 
@@ -204,7 +204,7 @@ TensorNetworkProp[_, prop_] := Missing["UnknownProperty", prop]
 
 
 
-TensorNetworkFromGraphData[tn_TensorNetwork ? TensorNetworkQ] := TensorNetworkFromGraphData[tn["Graph"]]
+TensorNetworkGraphData[tn_TensorNetwork ? TensorNetworkQ] := TensorNetworkGraphData[tn["Graph"]]
 TensorNetworkTensors[tn_TensorNetwork ? TensorNetworkQ] := tn["Tensors"]
 TensorNetworkIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["ContractionIndices"]
 TensorNetworkFreeIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["FreeIndices"]

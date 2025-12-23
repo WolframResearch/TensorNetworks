@@ -18,13 +18,13 @@ PathIndexContractions::usage = "PathIndexContractions[path, indices] returns the
 TensorNetwork::usage = "TensorNetwork[tensors, indices] or TensorNetwork[graph] creates a tensor network object with a summary box display."
 TensorNetworkQ::usage = "TensorNetworkQ[expr] yields True if expr is a valid TensorNetwork object."
 
-(* TensorNetworkFromGraph.wl *)
+(* ToTensorNetworkGraph.wl *)
 TensorNetworkGraphQ::usage = "TensorNetworkGraphQ[g] yields True if g is a valid tensor network graph."
 TensorNetworkIndexGraph::usage = "TensorNetworkIndexGraph[net] returns a graph representing the index connectivity of the tensor network."
 ToTensorNetworkGraph::usage = "ToTensorNetworkGraph[g] constructs a tensor network from a directed acyclic graph g."
 TensorNetworkIndices::usage = "TensorNetworkIndices[net] returns the index lists for each tensor in the network."
 TensorNetworkTensors::usage = "TensorNetworkTensors[net] returns the list of tensors stored in the network vertices."
-TensorNetworkFromGraphData::usage = "TensorNetworkFromGraphData[net] returns an association containing raw data (tensors, indices, dimensions) of the network."
+TensorNetworkGraphData::usage = "TensorNetworkGraphData[net] returns an association containing raw data (tensors, indices, dimensions) of the network."
 TensorNetworkIndexDimensions::usage = "TensorNetworkIndexDimensions[net] returns the dimensions associated with each index in the network."
 TensorNetworkFreeIndices::usage = "TensorNetworkFreeIndices[net] returns the list of uncontracted (free) indices in the network."
 TensorNetworkAdd::usage = "TensorNetworkAdd[net, tensor, indices] adds a new tensor to the network with specified indices."

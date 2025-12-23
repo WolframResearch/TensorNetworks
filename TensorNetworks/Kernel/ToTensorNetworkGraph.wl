@@ -5,7 +5,7 @@ PackageExport[TensorNetworkIndexGraph]
 PackageExport[ToTensorNetworkGraph]
 PackageExport[TensorNetworkIndices]
 PackageExport[TensorNetworkTensors]
-PackageExport[TensorNetworkFromGraphData]
+PackageExport[TensorNetworkGraphData]
 PackageExport[TensorNetworkIndexDimensions]
 PackageExport[TensorNetworkFreeIndices]
 PackageExport[TensorNetworkAdd]
@@ -46,7 +46,7 @@ TensorNetworkIndices[net_Graph ? TensorNetworkGraphQ] := AnnotationValue[{net, D
 TensorNetworkTensors[net_Graph ? TensorNetworkGraphQ] := AnnotationValue[{net, Developer`FromPackedArray[VertexList[net]]}, "Tensor"]
 
 
-TensorNetworkFromGraphData[net_Graph ? TensorNetworkGraphQ] := With[{
+TensorNetworkGraphData[net_Graph ? TensorNetworkGraphQ] := With[{
     vs = Developer`FromPackedArray[VertexList[net]]
 }, {
     tensors = AnnotationValue[{net, vs}, "Tensor"],
@@ -78,7 +78,7 @@ TensorNetworkFreeIndices[indices_List, tags_List] :=
     SortBy[Replace[{Superscript[_, x_] :> {0, x}, Subscript[_, x_] :> {1, x}}]] @ DeleteElements[Catenate[indices], Catenate[tags]]
 
 
-TensorNetworkIndexDimensions[net_Graph ? TensorNetworkGraphQ] := TensorNetworkIndexDimensions[TensorNetworkFromGraphData[net]]
+TensorNetworkIndexDimensions[net_Graph ? TensorNetworkGraphQ] := TensorNetworkIndexDimensions[TensorNetworkGraphData[net]]
 
 TensorNetworkIndexDimensions[KeyValuePattern[{"Indices" -> indices_, "Dimensions" -> dimensions_}]] :=
     Catenate @ MapThread[Thread[#1 -> #2] &, {indices, dimensions}]
