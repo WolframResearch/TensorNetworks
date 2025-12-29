@@ -6,7 +6,7 @@ PackageExport[TensorJoin]
 PackageExport[ActivateTensors]
 
 
-EinsteinSummation[in_List, arrays_] := Module[{
+EinsteinSummation[in_List | (in_List -> Automatic), arrays_] := Module[{
 	res = isum[in -> Cases[Tally @ Flatten @ in, {_, 1}][[All, 1]], arrays]
 },
 	res /; res =!= $Failed
