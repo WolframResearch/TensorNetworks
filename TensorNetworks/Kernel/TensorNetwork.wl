@@ -212,7 +212,7 @@ TensorNetworkIndexDimensions[tn_TensorNetwork ? TensorNetworkQ] :=
     TensorNetworkIndexDimensions[<|"Indices" -> tn["Indices"], "Dimensions" -> tn["Dimensions"]|>]
 
 SparseTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] :=
-    TensorNetwork[SparseArray /@ tn["Tensors"], tn["Hyperedges"]]
+    TensorNetwork[If[tensorRank[#] > 0, SparseArray[#], #] & /@ tn["Tensors"], tn["Hyperedges"]]
 
 Options[RandomTensorNetwork] = {Method -> "Complex"}
 
