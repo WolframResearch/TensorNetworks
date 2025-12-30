@@ -9,6 +9,7 @@ PackageExport[TensorNetworkGraphData]
 PackageExport[TensorNetworkIndexDimensions]
 PackageExport[TensorNetworkFreeIndices]
 PackageExport[TensorNetworkAdd]
+PackageExport[TensorNetworkDelete]
 PackageExport[TensorNetworkRemoveCycles]
 PackageExport[TensorNetworkToNetGraph]
 PackageExport[TensorNetworkReplaceIndices]
@@ -110,7 +111,7 @@ InitializeTensorNetwork[net_Graph ? TensorNetworkGraphQ, tensor_, index_List : A
 ]
 
 TensorNetworkAdd[net_Graph ? TensorNetworkGraphQ, Labeled[tensor_, label_ : None], autoIndex : _List | Automatic : Automatic] := Enclose @ With[{
-    newVertex = Max[VertexList[net]] + 1,
+    newVertex = Max[VertexList[net, _Integer], 0] + 1,
     toIndex = Replace[autoIndex, Automatic :> Take[SortBy[TensorNetworkFreeIndices[net], Replace[{Superscript[_, x_] :> {1, x}, Subscript[_, x_] :> {0, x}}]], UpTo[tensorRank[tensor]]]]
 },
 {
@@ -140,6 +141,12 @@ TensorNetworkAdd[net_Graph ? TensorNetworkGraphQ, Labeled[tensor_, label_ : None
 ]
 
 TensorNetworkAdd[net_Graph ? TensorNetworkGraphQ, tensor_, index : _List | Automatic : Automatic] := TensorNetworkAdd[net, Labeled[tensor, None], index]
+
+TensorNetworkDelete[net_Graph ? TensorNetworkGraphQ, index_Integer : -1] := With[{
+    vs = VertexList[net]
+},
+    VertexDelete[net, vs[[index]]]
+]
 
 VertexCompleteGraph[vs_List] := With[{n = Length[vs]}, AdjacencyGraph[vs, SparseArray[Band[{1, 1}] -> 0, {n, n}, 1]]]
 

@@ -12,6 +12,8 @@ PackageExport[BinaryTensorNetwork]
 PackageExport[SparseTensorNetwork]
 
 PackageExport[RandomTensorNetwork]
+PackageExport[TensorNetworkAdd]
+PackageExport[TensorNetworkDelete]
 
 
 
@@ -248,6 +250,12 @@ RandomTensorNetwork[{n_Integer, m_Integer}, maxDimension_Integer : 2, maxRank_In
     
 	TensorNetwork[tensors, indices]
 ]
+
+TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] :=
+    TensorNetwork[Append[net["Tensors"], tensor], Append[net["Hyperedges"], indices]]
+
+TensorNetworkDelete[net_ ? TensorNetworkQ, index_Integer : -1] :=
+    TensorNetwork[Delete[net["Tensors"], index], Delete[net["Hyperedges"], index]]
 
 
 (* Summary Box - NoEntry is handled by System`Private`HoldSetNoEntry *)
