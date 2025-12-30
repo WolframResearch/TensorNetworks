@@ -18,11 +18,12 @@ TensorNetworkFindContractionPath[KeyValuePattern[{
     "Contractions" -> contractions_,
     "FreeIndices" -> freeIndices_
 }], OptionsPattern[]] := Enclose @ Block[{
-	dimensions, rules, indices, normalIndices, input, output
+	dimensions, pairs, rules, indices, normalIndices, input, output
 },
 	dimensions = AssociationThread[Catenate[tensorIndices], Catenate[tensorDimensions]];
-	rules = Rule @@@ Cases[Catenate[contractions], {_, _}];
-	ConfirmAssert[AllTrue[Partition[Lookup[dimensions, rules[[All, 1]]], 2], Apply[Equal]]];
+	pairs = Cases[Catenate[contractions], {_, _}];
+	rules = Rule @@@ pairs;
+	ConfirmAssert[AllTrue[Partition[Lookup[dimensions, Catenate[pairs]], 2], Apply[Equal]]];
 	dimensions = KeyMap[Replace[rules], dimensions];
 	indices = Replace[tensorIndices, rules, {2}];
 	normalIndices = Thread[# -> Range[Length[#]]] & [Union @@ indices];
