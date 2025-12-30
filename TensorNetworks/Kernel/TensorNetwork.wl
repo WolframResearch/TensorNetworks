@@ -214,7 +214,7 @@ TensorNetworkIndexDimensions[tn_TensorNetwork ? TensorNetworkQ] :=
 SparseTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] :=
     TensorNetwork[If[tensorRank[#] > 0, SparseArray[#], #] & /@ tn["Tensors"], tn["Hyperedges"]]
 
-Options[RandomTensorNetwork] = {Method -> "Complex"}
+Options[RandomTensorNetwork] = {Method -> Automatic}
 
 RandomTensorNetwork[{n_Integer, m_Integer}, maxDimension_Integer : 2, maxRank_Integer : 5, OptionsPattern[]] := Enclose @ Block[{
     g, ranks, tensors, indices, curIndices, rules, dimensions
