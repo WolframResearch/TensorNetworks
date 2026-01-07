@@ -92,8 +92,6 @@ TensorNetworkSize[tn_ ? TensorNetworkQ] := Length[tn["Hyperedges"]]
 
 TensorNetworkProp[tn_, "Size"] := TensorNetworkSize[tn]
 
-TensorNetworkProp[tn_, "Indices"] := MapIndexed[Thread[Superscript[First[#2], #1]] &, tn["Hyperedges"]]
-
 TensorNetworkProp[tn_, "IndexDimensions"] := TensorNetworkIndexDimensions[tn]
 
 TensorNetworkProp[tn_, "Ranks"] := tensorRank /@ tn["Tensors"]
@@ -107,11 +105,11 @@ TensorNetworkProp[tn_, "GraphData"] := TensorNetworkProp[tn, "GraphData"] = Tens
 TensorNetworkProp[tn_, "Data"] := TensorNetworkProp[tn, "Data"] = TensorNetworkData[tn]
 
 TensorNetworkContractions[tn_ ? TensorNetworkQ]  := With[{
-    hyperedges = tn["Hyperedges"]
+    indices = tn["Indices"]
 },
     Replace[
-        hyperedges,
-        Replace[GroupBy[Catenate[MapIndexed[Thread[Superscript[First[#2], #1]] &, hyperedges]], Last], {x_} :> x, 1],
+        indices,
+        Replace[GroupBy[Catenate[indices], Identity], {x_} :> x, 1],
         {2}
     ]
 ]
@@ -126,12 +124,13 @@ TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
     indices = MapIndexed[Thread[Superscript[First[#2], #1]] &, hyperedges],
     dimensions = tensorDimensions /@ tensors
 }, {
-    indexDimensions = Association @ Catenate @ MapThread[Thread[#1 -> #2] &, {indices, dimensions}],
-    indexGroups = GroupBy[Catenate[indices], Last]
+    indexDimensions = Association @ Catenate @ MapThread[Thread[#1 -> #2] &, {hyperedges, dimensions}],
+    indexGroups = GroupBy[Catenate[hyperedges], Identity]
 },
     <|
         "Tensors" -> tensors,
         "Dimensions" -> dimensions,
+        "Hyperedges" -> hyperedges,
         "Indices" -> indices,
         "Vertices" -> Range[Length[tensors]],
         "FreeIndices" -> Permute[Catenate @ Values @ Select[indexGroups, Length[#] == 1 &], perm],
@@ -222,17 +221,18 @@ TensorNetworkTensors[tn_TensorNetwork ? TensorNetworkQ] := tn["Tensors"]
 TensorNetworkIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["ContractionIndices"]
 TensorNetworkFreeIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["FreeIndices"]
 TensorNetworkIndexDimensions[tn_TensorNetwork ? TensorNetworkQ] :=
-    TensorNetworkIndexDimensions[<|"Indices" -> tn["Indices"], "Dimensions" -> tn["Dimensions"]|>]
+    TensorNetworkIndexDimensions[<|"Indices" -> tn["Hyperedges"], "Dimensions" -> tn["Dimensions"]|>]
 
 SparseTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] :=
     TensorNetwork[If[tensorRank[#] > 0, SparseArray[#], #] & /@ tn["Tensors"], tn["Hyperedges"], tn["Permutation"]]
 
 Options[RandomTensorNetwork] = {Method -> Automatic}
 
-RandomTensorNetwork[{n_Integer, m_Integer}, maxDimension_Integer : 2, maxRank_Integer : 5, OptionsPattern[]] := Enclose @ Block[{
-    g, ranks, tensors, indices, curIndices, rules, dimensions
+RandomTensorNetwork[{n_Integer, m_Integer}, args___] := RandomTensorNetwork[RandomGraph[{n, m}], args];
+
+RandomTensorNetwork[g_ ? GraphQ, maxDimension_Integer : 2, maxRank_Integer : 5, OptionsPattern[]] := Enclose @ Block[{
+    ranks, tensors, indices, curIndices, rules, dimensions
 },
-	g = ConfirmBy[RandomGraph[{n, m}], GraphQ];
     ranks = Table[
         RandomInteger[{minRank, Max[minRank, maxRank]}],
         {minRank, VertexDegree[g]}
