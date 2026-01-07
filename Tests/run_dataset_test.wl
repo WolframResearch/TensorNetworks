@@ -1,6 +1,6 @@
+(* Tests/run_dataset_test.wl *)
 (* Run the example dataset through the Cotengra Wolfram wrappers and print results *)
-PacletDirectoryLoad["TensorNetworks"]
-Needs["Wolfram`TensorNetworks`"]
+Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
 
 inputs = {
   {3}, {1}, {4}, {2}, {5}, {7, 1, 2},
@@ -10,9 +10,9 @@ inputs = {
   {31, 26, 29, 35, 30, 21, 22, 23, 24, 25}, {27, 26},
   {28, 27}, {33, 36, 28, 29, 30}, {32, 34, 31},
   {37, 38, 39, 32, 33, 34, 35, 36}, {40, 41, 42, 37}
-}
+};
 
-output = {40, 41, 42, 38, 39}
+output = {40, 41, 42, 38, 39};
 
 sizes = <|
   3 -> 4, 1 -> 4, 4 -> 2, 2 -> 4, 5 -> 3, 7 -> 4, 9 -> 4, 6 -> 2, 8 -> 3,
@@ -21,14 +21,20 @@ sizes = <|
   31 -> 4, 26 -> 4, 29 -> 2, 35 -> 4, 30 -> 3, 27 -> 4, 28 -> 4, 33 -> 4,
   36 -> 3, 32 -> 4, 34 -> 2, 37 -> 2, 38 -> 4, 39 -> 3, 40 -> 4, 41 -> 4,
   42 -> 2
-|>
+|>;
 
-Print["Running GreedyPath..."]
-gp = GreedyPath[inputs, output, sizes]
-Print["GreedyPath result: " <> ToString[gp]]
+(* Verify GreedyPath returns a valid path structure *)
+VerificationTest[
+    gp = Wolfram`TensorNetworks`PackageScope`GreedyPath[inputs, output, sizes];
+    MatchQ[gp, {{_, _}...}],
+    True,
+    TestID -> "GreedyPath_Dataset"
+]
 
-Print["Running OptimalPath (minimize -> None)..."]
-op = OptimalPath[inputs, output, sizes]
-Print["OptimalPath result: " <> ToString[op]]
-
-Print["Done."]
+(* Verify OptimalPath returns a valid path structure *)
+VerificationTest[
+    op = Wolfram`TensorNetworks`PackageScope`OptimalPath[inputs, output, sizes];
+    MatchQ[op, {{_, _}...}],
+    True,
+    TestID -> "OptimalPath_Dataset"
+]
