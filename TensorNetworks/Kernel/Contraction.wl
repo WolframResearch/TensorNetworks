@@ -1,3 +1,5 @@
+(* ::Package:: *)
+
 Package["Wolfram`TensorNetworks`"]
 
 PackageExport[TensorNetworkFindContractionPath]
@@ -240,7 +242,7 @@ TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
     TensorNetworkContraction[TensorNetworkGraphData[net], args]
 
 TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args___] :=
-    TensorNetworkContraction[TensorNetworkData[BinaryTensorNetwork[net]], args]
+    TensorNetworkContraction[TensorNetworkData[net], args]
 
 TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? PathQ, opts : OptionsPattern[]] := 
     TensorNetworkContraction[data, PathToTreePath[path, vertices], opts]
