@@ -88,6 +88,8 @@ TensorNetworkProp[TensorNetwork[_, _, perm_], "Permutation"] := perm
 
 TensorNetworkProp[tn_, "Dimensions"] := tensorDimensions /@ tn["Tensors"]
 
+TensorNetworkProp[tn_, "Indices"] := MapIndexed[Thread[Labeled[First[#2], #1]] &, tn["Hyperedges"]]
+
 TensorNetworkSize[tn_ ? TensorNetworkQ] := Length[tn["Hyperedges"]]
 
 TensorNetworkProp[tn_, "Size"] := TensorNetworkSize[tn]
@@ -105,11 +107,12 @@ TensorNetworkProp[tn_, "GraphData"] := TensorNetworkProp[tn, "GraphData"] = Tens
 TensorNetworkProp[tn_, "Data"] := TensorNetworkProp[tn, "Data"] = TensorNetworkData[tn]
 
 TensorNetworkContractions[tn_ ? TensorNetworkQ]  := With[{
+    hyperedges = tn["Hyperedges"],
     indices = tn["Indices"]
 },
     Replace[
-        indices,
-        Replace[GroupBy[Catenate[indices], Identity], {x_} :> x, 1],
+        hyperedges,
+        Replace[GroupBy[Catenate[indices], Last], {x_} :> x, 1],
         {2}
     ]
 ]
@@ -121,11 +124,12 @@ TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
     hyperedges = tn["Hyperedges"],
     perm = tn["Permutation"]
 }, {
-    indices = MapIndexed[Thread[Superscript[First[#2], #1]] &, hyperedges],
+    indices = MapIndexed[Thread[Labeled[First[#2], #1]] &, hyperedges],
     dimensions = tensorDimensions /@ tensors
 }, {
-    indexDimensions = Association @ Catenate @ MapThread[Thread[#1 -> #2] &, {hyperedges, dimensions}],
-    indexGroups = GroupBy[Catenate[hyperedges], Identity]
+    indexDimensions = Association @ Catenate @ MapThread[Thread[#1 -> #2] &, {indices, dimensions}],
+    hyperedgeGroups = GroupBy[Catenate[hyperedges], Identity],
+    indexGroups = GroupBy[Catenate[indices], Last]
 },
     <|
         "Tensors" -> tensors,
@@ -133,12 +137,12 @@ TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
         "Hyperedges" -> hyperedges,
         "Indices" -> indices,
         "Vertices" -> Range[Length[tensors]],
-        "FreeIndices" -> Permute[Catenate @ Values @ Select[indexGroups, Length[#] == 1 &], perm],
         "Bonds" -> With[{bondGroups = Select[indexGroups, Length[#] > 1 &]},
             Thread[Values[bondGroups] -> Lookup[indexDimensions, Values[bondGroups][[All, 1]]]]
         ],
         "Contractions" -> Replace[hyperedges, Replace[indexGroups, {x_} :> x, 1], {2}],
-        "ContractionIndices" -> Replace[hyperedges, First /@ indexGroups, {2}]
+        "ContractionIndices" -> Replace[hyperedges, First /@ hyperedgeGroups, {2}],
+        "FreeIndices" -> Permute[Catenate @ Values @ Select[hyperedgeGroups, Length[#] == 1 &], perm]
     |>
 ]
 

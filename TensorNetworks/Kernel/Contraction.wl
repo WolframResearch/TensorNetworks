@@ -17,8 +17,7 @@ Options[TensorNetworkFindContractionPath] = {"ReturnParameters" -> False, Method
 TensorNetworkFindContractionPath[KeyValuePattern[{
     "Dimensions" -> tensorDimensions_,
     "Indices" -> tensorIndices_,
-    "Contractions" -> contractions_,
-    "FreeIndices" -> freeIndices_
+    "Contractions" -> contractions_
 }], OptionsPattern[]] := Enclose @ Block[{
 	dimensions, pairs, rules, indices, normalIndices, input, output
 },
@@ -30,7 +29,7 @@ TensorNetworkFindContractionPath[KeyValuePattern[{
 	indices = Replace[tensorIndices, rules, {2}];
 	normalIndices = Thread[# -> Range[Length[#]]] & [Union @@ indices];
 	input = Replace[indices, normalIndices, {2}];
-	output = Replace[freeIndices, normalIndices, {1}];
+	output = Replace[Cases[Catenate[contractions], Except[{_, _}]], normalIndices, 1];
 	dimensions = KeyMap[Replace[normalIndices], dimensions];
 	If[TrueQ[OptionValue["ReturnParameters"]], Return[{input, output, dimensions}]];
 	CanonicalPath @ Replace[Replace[OptionValue[Method], "Optimal" -> "size"], {

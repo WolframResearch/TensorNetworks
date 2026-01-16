@@ -78,6 +78,8 @@ TensorNetworkFreeIndices[net_Graph ? TensorNetworkGraphQ] :=
 TensorNetworkFreeIndices[indices_List, tags_List] :=
     SortBy[Replace[{Superscript[_, x_] :> {0, x}, Subscript[_, x_] :> {1, x}}]] @ DeleteElements[Catenate[indices], Catenate[tags]]
 
+TensorNetworkFreeIndices[indices_List] := Keys @ Select[Counts[Catenate[indices]], # == 1 &]
+
 
 TensorNetworkIndexDimensions[net_Graph ? TensorNetworkGraphQ] := TensorNetworkIndexDimensions[TensorNetworkGraphData[net]]
 
