@@ -241,12 +241,15 @@ Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"Transpos
 TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
     TensorNetworkContraction[TensorNetworkGraphData[net], args]
 
-TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args___] :=
-    TensorNetworkContraction[TensorNetworkData[net], args]
+TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args__] :=
+    TensorNetworkContraction[TensorNetworkData[BinaryTensorNetwork[net]], args]
+    
+TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ] :=
+    TensorNetworkContraction[TensorNetworkData[net]]
 
 TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? PathQ, opts : OptionsPattern[]] := 
     TensorNetworkContraction[data, PathToTreePath[path, vertices], opts]
-
+    
 TensorNetworkContraction[net_, method_String, opts : OptionsPattern[]] := 
     TensorNetworkContraction[net, TensorNetworkFindContractionPath[net, Method -> method], opts]
 
