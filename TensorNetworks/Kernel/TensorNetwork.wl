@@ -1,3 +1,5 @@
+(* ::Package:: *)
+
 Package["Wolfram`TensorNetworks`"]
 
 PackageExport[TensorNetwork]
@@ -234,11 +236,11 @@ Options[RandomTensorNetwork] = {Method -> Automatic}
 
 RandomTensorNetwork[{n_Integer, m_Integer}, args___] := RandomTensorNetwork[RandomGraph[{n, m}], args];
 
-RandomTensorNetwork[g_ ? GraphQ, maxDimension_Integer : 2, maxRank_Integer : 5, OptionsPattern[]] := Enclose @ Block[{
+RandomTensorNetwork[g_ ? GraphQ, maxDimension_Integer : 2, additionalRank_Integer : 0, OptionsPattern[]] := Enclose @ Block[{
     ranks, tensors, indices, curIndices, rules, dimensions
 },
     ranks = Table[
-        RandomInteger[{minRank, Max[minRank, maxRank]}],
+        RandomInteger[{minRank, minRank+ additionalRank}],
         {minRank, VertexDegree[g]}
     ];
 	
