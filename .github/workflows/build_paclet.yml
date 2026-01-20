@@ -122,6 +122,15 @@ jobs:
           VERSION=$(cat paclet_version.txt)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Upload to Wolfram Cloud
+        if: ${{ !env.ACT }}
+        run: |
+          wolframscript -code '
+            CloudConnect["${{ secrets.WOLFRAM_CLOUD_USER }}", "${{ secrets.WOLFRAM_CLOUD_PASSWORD }}"];
+            CopyFile["${{ steps.find_paclet.outputs.paclet_file }}", CloudObject["TensorNetworks.paclet", Permissions -> "Public"], OverwriteTarget -> True];
+            Print["Uploaded to: ", CloudObject["TensorNetworks.paclet"]];
+          '
+
       - name: Create Release
         if: ${{ !env.ACT }}
         uses: softprops/action-gh-release@v2
