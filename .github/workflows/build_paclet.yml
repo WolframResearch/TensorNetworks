@@ -1,0 +1,133 @@
+name: Build Paclet
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Paclet
+    runs-on: ubuntu-latest
+    container:
+      image: wolframresearch/wolframengine:latest
+      options: --user root
+    
+    env:
+      WOLFRAMSCRIPT_ENTITLEMENTID: ${{ secrets.WOLFRAMSCRIPT_ENTITLEMENTID }}
+      SDKROOT: /nonexistent
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install System Dependencies
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends \
+            curl ca-certificates build-essential pkg-config libssl-dev git \
+            uuid-dev lld mingw-w64 gcc-aarch64-linux-gnu libc6-dev-arm64-cross gcc-x86-64-linux-gnu
+          ln -sf /usr/bin/x86_64-linux-gnu-gcc /usr/bin/x86_64-unknown-linux-gnu-gcc
+          ln -sf /usr/bin/aarch64-linux-gnu-gcc /usr/bin/aarch64-unknown-linux-gnu-gcc
+
+      - name: Cache Toolchains
+        if: ${{ !env.ACT }}
+        id: cache-toolchains
+        uses: actions/cache@v4
+        with:
+          path: |
+            /opt/zig
+            /opt/macos-sysroot
+            /usr/local/bin/zcc
+          key: toolchains-zig-0.13.0-libiconv-1.17-${{ hashFiles('setup_cross_compile.sh', 'zcc') }}
+
+      - name: Setup Cross-Compilation Toolchains
+        if: steps.cache-toolchains.outputs.cache-hit != 'true'
+        run: |
+          chmod +x setup_cross_compile.sh
+          ./setup_cross_compile.sh
+
+      - name: Add Zig to PATH
+        run: echo "/opt/zig" >> $GITHUB_PATH
+
+      - name: Copy zcc wrapper
+        run: |
+          cp zcc /usr/local/bin/zcc
+          chmod +x /usr/local/bin/zcc
+
+      - name: Cache Rust Toolchain
+        if: ${{ !env.ACT }}
+        id: cache-rust
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo
+            ~/.rustup
+          key: rust-${{ hashFiles('setup_rust.sh') }}
+
+      - name: Setup Rust
+        if: steps.cache-rust.outputs.cache-hit != 'true'
+        run: |
+          chmod +x setup_rust.sh
+          ./setup_rust.sh
+
+      - name: Add Rust to PATH
+        run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache Cargo Registry and Build
+        if: ${{ !env.ACT }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
+          restore-keys: |
+            cargo-
+
+      - name: Build All Targets
+        run: |
+          . $HOME/.cargo/env
+          chmod +x build_all_targets.sh
+          ./build_all_targets.sh
+
+      - name: Build Paclet
+        run: wolframscript -f ci_build.wl
+
+      - name: Run Tests
+        run: wolframscript -f Tests/run_tests.wl
+
+      - name: Find Paclet File
+        id: find_paclet
+        run: |
+          PACLET_FILE=$(find . -name "*.paclet" -type f -newer ci_build.wl | head -1)
+          echo "paclet_file=$PACLET_FILE" >> $GITHUB_OUTPUT
+          echo "Found paclet: $PACLET_FILE"
+
+      - name: Upload Paclet Artifact
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: TensorNetworks-paclet
+          path: ${{ steps.find_paclet.outputs.paclet_file }}
+          if-no-files-found: error
+
+      - name: Read Paclet Version
+        id: read_version
+        run: |
+          VERSION=$(cat paclet_version.txt)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        if: ${{ !env.ACT }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Development Build (v${{ steps.read_version.outputs.version }})
+          files: ${{ steps.find_paclet.outputs.paclet_file }}
+          prerelease: true
+          make_latest: true
