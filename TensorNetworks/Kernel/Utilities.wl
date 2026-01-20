@@ -61,9 +61,22 @@ toSymbolicTensor[t_, OptionsPattern[]] := Activate[t /. {
 	IgnoringInactive[Dot[a_, b_]] :> Inactive[Dot][toSymbolicTensor[a], toSymbolicTensor[b]],
 	IgnoringInactive[Verbatim[Table][_, iter : {_, _Integer} ..]] :> ArraySymbol["T", {iter}[[All, 2]]],
 	IgnoringInactive[(h : TensorContract | Transpose)[body_, args__]] :> Inactive[h][toSymbolicTensor[body], args],
+	IgnoringInactive[TensorProduct[args__]] :> ArraySymbol["T", Catenate[symbolicTensorDimensions /@ {args}]],
+	indices : {{_Integer, _Integer} ...} :> indices,
 	tt_ :> ArraySymbol["T", tensorDimensions[tt]]
 }, Except[TensorContract | Dot | ArrayDot | TensorProduct]]
 
+(* Base cases for symbolicTensorDimensions - compute dimensions directly without calling toSymbolicTensor *)
+symbolicTensorDimensions[ArraySymbol[_, dims_List]] := dims
+symbolicTensorDimensions[Inactive[TensorProduct][args__]] := Catenate[symbolicTensorDimensions /@ {args}]
+symbolicTensorDimensions[Inactive[ArrayDot][a_, b_, k_Integer]] := Join[Drop[symbolicTensorDimensions[a], -k], Drop[symbolicTensorDimensions[b], k]]
+symbolicTensorDimensions[Inactive[ArrayDot][a_, b_, indices : {{_Integer, _Integer} ...}]] := Join[
+	Delete[symbolicTensorDimensions[a], List /@ indices[[All, 1]]],
+	Delete[symbolicTensorDimensions[b], List /@ indices[[All, 2]]]
+]
+symbolicTensorDimensions[SymbolicDeltaProductArray[dims_List, _]] := dims
+symbolicTensorDimensions[t_ ? TensorQ] := TensorDimensions[t]
+(* General fallback *)
 symbolicTensorDimensions[t_] := Replace[TensorDimensions[toSymbolicTensor[t, "ArrayDotExpand" -> True]], Except[_List] -> {}]
 
 symbolicTensorRank[t_] := Length[symbolicTensorDimensions[t]]
