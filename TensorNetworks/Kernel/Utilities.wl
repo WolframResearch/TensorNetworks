@@ -76,6 +76,12 @@ symbolicTensorDimensions[Inactive[ArrayDot][a_, b_, indices : {{_Integer, _Integ
 ]
 symbolicTensorDimensions[SymbolicDeltaProductArray[dims_List, _]] := dims
 symbolicTensorDimensions[t_ ? TensorQ] := TensorDimensions[t]
+(* Transpose with Cycles permutation - permute dimensions accordingly *)
+symbolicTensorDimensions[HoldPattern[Transpose[a_, perm_Cycles]]] := Permute[symbolicTensorDimensions[a], perm]
+symbolicTensorDimensions[Inactive[Transpose][a_, perm_Cycles]] := Permute[symbolicTensorDimensions[a], perm]
+(* Transpose with list permutation *)
+symbolicTensorDimensions[HoldPattern[Transpose[a_, perm_List]]] := symbolicTensorDimensions[a][[perm]]
+symbolicTensorDimensions[Inactive[Transpose][a_, perm_List]] := symbolicTensorDimensions[a][[perm]]
 (* General fallback *)
 symbolicTensorDimensions[t_] := Replace[TensorDimensions[toSymbolicTensor[t, "ArrayDotExpand" -> True]], Except[_List] -> {}]
 
