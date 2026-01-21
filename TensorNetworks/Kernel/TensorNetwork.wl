@@ -299,6 +299,34 @@ Options[RandomTensorNetwork] = {Method -> Automatic, "Boundary" -> "Open"}
 
 RandomTensorNetwork[{n_Integer, m_Integer}, args___] := RandomTensorNetwork[RandomGraph[{n, m}], args];
 
+(* Fixed dimension: {dim} means all indices have dimension dim *)
+RandomTensorNetwork[g_ ? GraphQ, {fixedDim_Integer}, additionalRank_Integer : 0, opts : OptionsPattern[]] := 
+    Enclose @ Block[{ranks, tensors, indices, curIndices, rules, dimensions},
+        ranks = Table[
+            RandomInteger[{minRank, minRank + additionalRank}],
+            {minRank, VertexDegree[g]}
+        ];
+        
+        indices = curIndices = TakeList[Range[Total[ranks]], ranks];
+        rules = Map[
+            With[
+                {i = RandomInteger[{1, Length[curIndices[[#]]]}]},
+                {ret = curIndices[[#, i]]},
+                curIndices[[#, i]] = Nothing;
+                ret
+            ] &,
+            Rule @@@ EdgeList[g],
+            {2}
+        ];
+        indices = Replace[indices, rules, {2}];
+        (* All dimensions are fixed to fixedDim *)
+        dimensions = Map[ConstantArray[fixedDim, Length[#]] &, indices];
+        tensors = Switch[OptionValue[Method], "Complex", RandomComplex[{-1 - I, 1 + I}, #], _, RandomReal[{-1, 1}, #]] & /@ dimensions;
+        
+        TensorNetwork[tensors, indices]
+    ]
+
+(* Random dimensions: up to maxDimension *)
 RandomTensorNetwork[g_ ? GraphQ, maxDimension_Integer : 2, additionalRank_Integer : 0, OptionsPattern[]] := Enclose @ Block[{
     ranks, tensors, indices, curIndices, rules, dimensions
 },
