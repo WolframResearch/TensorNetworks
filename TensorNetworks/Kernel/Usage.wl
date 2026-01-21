@@ -19,7 +19,7 @@ PathIndexContractions::usage = "PathIndexContractions[path, indices] returns the
 (* TensorNetwork.wl *)
 TensorNetwork::usage = "TensorNetwork[tensors, indices] or TensorNetwork[graph] creates a tensor network object with a summary box display."
 TensorNetworkQ::usage = "TensorNetworkQ[expr] yields True if expr is a valid TensorNetwork object."
-RandomTensorNetwork::usage = "RandomTensorNetwork[{verticesNumber,edgesNumber}, maxDimension, maxRank] yields a random TN based on RandomGraph[{verticesNumber,edgesNumber}] with tensor dimensions and ranks randomly picked using maxDimension and maxRank."
+RandomTensorNetwork::usage = "RandomTensorNetwork[{verticesNumber,edgesNumber}, maxDimension, maxAdditionalRank] yields a random TN based on RandomGraph[{verticesNumber,edgesNumber}] with tensor dimensions and ranks randomly picked using maxDimension and maxAdditionalRank."
 
 (* ToTensorNetworkGraph.wl *)
 TensorNetworkGraphQ::usage = "TensorNetworkGraphQ[g] yields True if g is a valid tensor network graph."

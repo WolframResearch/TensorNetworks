@@ -17,6 +17,15 @@ PackageExport[RandomTensorNetwork]
 PackageExport[TensorNetworkAdd]
 PackageExport[TensorNetworkDelete]
 
+(* Register autocomplete for RandomTensorNetwork named types *)
+If[$FrontEnd =!= Null,
+    FE`Evaluate[FEPrivate`AddSpecialArgCompletion[
+        "RandomTensorNetwork" -> {
+            {"MPS", "TT", "MPO", "PEPS", "TTN", "MERA"}
+        }
+    ]]
+]
+
 
 
 (* Internal validation function *)
@@ -286,7 +295,7 @@ TensorNetworkIndexDimensions[tn_TensorNetwork ? TensorNetworkQ] :=
 SparseTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] :=
     TensorNetwork[If[tensorRank[#] > 0, SparseArray[#], #] & /@ tn["Tensors"], tn["Hyperedges"], tn["Permutation"]]
 
-Options[RandomTensorNetwork] = {Method -> Automatic}
+Options[RandomTensorNetwork] = {Method -> Automatic, "Boundary" -> "Open"}
 
 RandomTensorNetwork[{n_Integer, m_Integer}, args___] := RandomTensorNetwork[RandomGraph[{n, m}], args];
 
@@ -321,6 +330,205 @@ RandomTensorNetwork[g_ ? GraphQ, maxDimension_Integer : 2, additionalRank_Intege
     
 	TensorNetwork[tensors, indices]
 ]
+
+(* Helper: generate random tensor with given dimensions *)
+randomTensor[dims_, opts___] := With[{method = OptionValue[{opts, Options[RandomTensorNetwork]}, Method]},
+    Switch[method, "Complex", RandomComplex[{-1 - I, 1 + I}, dims], _, RandomReal[{-1, 1}, dims]]
+]
+
+(* ============================================ *)
+(* MPS: Matrix Product State                   *)
+(* ============================================ *)
+RandomTensorNetwork["MPS"[length_Integer, bondDim_Integer, physicalDim_Integer : 2], opts : OptionsPattern[]] := 
+    Block[{tensors, indices, boundary, periodic, physStart},
+        boundary = OptionValue[{opts, Options[RandomTensorNetwork]}, "Boundary"];
+        periodic = boundary === "Periodic";
+        physStart = length + 1;  (* Physical indices start after bond indices *)
+        
+        If[periodic,
+            (* Periodic MPS: all tensors are rank-3 *)
+            tensors = Table[randomTensor[{bondDim, bondDim, physicalDim}, opts], length];
+            indices = Table[{Mod[i - 1, length] + 1, Mod[i, length] + 1, physStart + i - 1}, {i, length}],
+            (* Open MPS: boundaries are rank-2, bulk is rank-3 *)
+            tensors = Join[
+                {randomTensor[{bondDim, physicalDim}, opts]},  (* left boundary *)
+                Table[randomTensor[{bondDim, bondDim, physicalDim}, opts], Max[0, length - 2]],  (* bulk *)
+                If[length > 1, {randomTensor[{bondDim, physicalDim}, opts]}, {}]  (* right boundary *)
+            ];
+            indices = Join[
+                {{1, physStart}},  (* left: bond to right, physical *)
+                Table[{i - 1, i, physStart + i - 1}, {i, 2, length - 1}],  (* bulk *)
+                If[length > 1, {{length - 1, physStart + length - 1}}, {}]  (* right: bond to left, physical *)
+            ]
+        ];
+        
+        TensorNetwork[tensors, indices]
+    ]
+
+(* ============================================ *)
+(* TT: Tensor Train (no physical indices)      *)
+(* ============================================ *)
+RandomTensorNetwork["TT"[length_Integer, bondDim_Integer], opts : OptionsPattern[]] := 
+    Block[{tensors, indices, boundary, periodic},
+        boundary = OptionValue[{opts, Options[RandomTensorNetwork]}, "Boundary"];
+        periodic = boundary === "Periodic";
+        
+        If[periodic,
+            (* Periodic TT (Tensor Ring): all tensors are rank-2 matrices *)
+            tensors = Table[randomTensor[{bondDim, bondDim}, opts], length];
+            indices = Table[{Mod[i - 1, length] + 1, Mod[i, length] + 1}, {i, length}],
+            (* Open TT: boundaries are vectors, bulk is matrices *)
+            tensors = Join[
+                {randomTensor[{bondDim}, opts]},  (* left boundary vector *)
+                Table[randomTensor[{bondDim, bondDim}, opts], Max[0, length - 2]],  (* bulk matrices *)
+                If[length > 1, {randomTensor[{bondDim}, opts]}, {}]  (* right boundary vector *)
+            ];
+            indices = Join[
+                {{1}},  (* left *)
+                Table[{i - 1, i}, {i, 2, length - 1}],  (* bulk *)
+                If[length > 1, {{length - 1}}, {}]  (* right *)
+            ]
+        ];
+        
+        TensorNetwork[tensors, indices]
+    ]
+
+(* ============================================ *)
+(* MPO: Matrix Product Operator                *)
+(* ============================================ *)
+RandomTensorNetwork["MPO"[length_Integer, bondDim_Integer, physicalDim_Integer : 2], opts : OptionsPattern[]] := 
+    Block[{tensors, indices, boundary, periodic, physInStart, physOutStart},
+        boundary = OptionValue[{opts, Options[RandomTensorNetwork]}, "Boundary"];
+        periodic = boundary === "Periodic";
+        physInStart = length + 1;
+        physOutStart = 2 length + 1;
+        
+        If[periodic,
+            (* Periodic MPO: all tensors are rank-4 *)
+            tensors = Table[randomTensor[{bondDim, bondDim, physicalDim, physicalDim}, opts], length];
+            indices = Table[{Mod[i - 1, length] + 1, Mod[i, length] + 1, physInStart + i - 1, physOutStart + i - 1}, {i, length}],
+            (* Open MPO: boundaries are rank-3, bulk is rank-4 *)
+            tensors = Join[
+                {randomTensor[{bondDim, physicalDim, physicalDim}, opts]},  (* left *)
+                Table[randomTensor[{bondDim, bondDim, physicalDim, physicalDim}, opts], Max[0, length - 2]],  (* bulk *)
+                If[length > 1, {randomTensor[{bondDim, physicalDim, physicalDim}, opts]}, {}]  (* right *)
+            ];
+            indices = Join[
+                {{1, physInStart, physOutStart}},  (* left *)
+                Table[{i - 1, i, physInStart + i - 1, physOutStart + i - 1}, {i, 2, length - 1}],  (* bulk *)
+                If[length > 1, {{length - 1, physInStart + length - 1, physOutStart + length - 1}}, {}]  (* right *)
+            ]
+        ];
+        
+        TensorNetwork[tensors, indices]
+    ]
+
+(* ============================================ *)
+(* PEPS: Projected Entangled Pair State        *)
+(* ============================================ *)
+RandomTensorNetwork["PEPS"[{rows_Integer, cols_Integer}, bondDim_Integer, physicalDim_Integer : 2], opts : OptionsPattern[]] := 
+    Block[{tensors = {}, indices = {}, physIdx = 1000, vertBondBase = 100, horizBondBase = 200},
+        Do[
+            With[{
+                (* Determine which bonds exist *)
+                upBond = If[r > 1, vertBondBase + (r - 2) * cols + c, Nothing],
+                downBond = If[r < rows, vertBondBase + (r - 1) * cols + c, Nothing],
+                leftBond = If[c > 1, horizBondBase + (r - 1) * cols + c - 1, Nothing],
+                rightBond = If[c < cols, horizBondBase + (r - 1) * cols + c, Nothing],
+                phys = physIdx++
+            },
+                With[{
+                    bondList = DeleteCases[{upBond, downBond, leftBond, rightBond}, Nothing],
+                    dims = Join[ConstantArray[bondDim, Length @ DeleteCases[{upBond, downBond, leftBond, rightBond}, Nothing]], {physicalDim}]
+                },
+                    AppendTo[tensors, randomTensor[dims, opts]];
+                    AppendTo[indices, Append[bondList, phys]];
+                ]
+            ],
+            {r, rows}, {c, cols}
+        ];
+        
+        TensorNetwork[tensors, indices]
+    ]
+
+(* Alternative PEPS syntax *)
+RandomTensorNetwork["PEPS"[rows_Integer, cols_Integer, bondDim_Integer, physicalDim_Integer : 2], opts___] := 
+    RandomTensorNetwork["PEPS"[{rows, cols}, bondDim, physicalDim], opts]
+
+(* ============================================ *)
+(* TTN: Tree Tensor Network                    *)
+(* ============================================ *)
+RandomTensorNetwork["TTN"[depth_Integer, bondDim_Integer, branching_Integer : 2], opts : OptionsPattern[]] := 
+    Block[{tensors = {}, indices = {}, idx = 1, leafCount, nodesAtLevel},
+        leafCount = branching^(depth - 1);
+        
+        (* Leaves: vectors *)
+        Do[
+            AppendTo[tensors, randomTensor[{bondDim}, opts]];
+            AppendTo[indices, {idx++}],
+            leafCount
+        ];
+        
+        (* Internal nodes level by level *)
+        Do[
+            nodesAtLevel = branching^(depth - 1 - level);
+            Do[
+                With[{
+                    childIndices = Table[idx - nodesAtLevel * branching - branching + (node - 1) * branching + k, {k, branching}],
+                    parentIdx = If[level < depth - 1, idx++, Nothing]
+                },
+                    AppendTo[tensors, randomTensor[
+                        ConstantArray[bondDim, If[level < depth - 1, branching + 1, branching]], 
+                        opts
+                    ]];
+                    AppendTo[indices, DeleteCases[Append[childIndices, parentIdx], Nothing]];
+                ],
+                {node, nodesAtLevel}
+            ],
+            {level, 1, depth - 1}
+        ];
+        
+        TensorNetwork[tensors, indices]
+    ]
+
+(* ============================================ *)
+(* MERA: Multi-scale Entanglement Renormalization Ansatz *)
+(* ============================================ *)
+RandomTensorNetwork["MERA"[width_Integer, bondDim_Integer, layers_Integer : 1], opts : OptionsPattern[]] := 
+    Block[{tensors = {}, indices = {}, idx = 1, disentanglerBase, isometryBase, inputBase, outputBase},
+        Do[
+            inputBase = If[layer == 1, 1000, 3000 + (layer - 2) * width];
+            disentanglerBase = 1000 + (layer - 1) * 2 * width;
+            isometryBase = disentanglerBase + width;
+            outputBase = If[layer == layers, 2000, 3000 + (layer - 1) * width];
+            
+            (* Disentanglers: rank-4 tensors (2 in, 2 out) *)
+            Do[
+                AppendTo[tensors, randomTensor[{bondDim, bondDim, bondDim, bondDim}, opts]];
+                AppendTo[indices, {
+                    inputBase + 2 i - 1,      (* input 1 *)
+                    inputBase + 2 i,          (* input 2 *)
+                    disentanglerBase + 2 i - 1,  (* output 1 to isometry *)
+                    disentanglerBase + 2 i       (* output 2 to isometry *)
+                }],
+                {i, width / 2}
+            ];
+            
+            (* Isometries: rank-3 tensors (2 in, 1 out) *)
+            Do[
+                AppendTo[tensors, randomTensor[{bondDim, bondDim, bondDim}, opts]];
+                AppendTo[indices, {
+                    disentanglerBase + 2 i - 1,  (* from disentangler *)
+                    disentanglerBase + 2 i,      (* from disentangler *)
+                    outputBase + i               (* output *)
+                }],
+                {i, width / 2}
+            ],
+            {layer, layers}
+        ];
+        
+        TensorNetwork[tensors, indices]
+    ]
 
 TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] := Block[{
     hyperedges = net["Hyperedges"],

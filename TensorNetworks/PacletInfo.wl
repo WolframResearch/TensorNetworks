@@ -18,7 +18,8 @@ PacletObject[
       },
       {"Cargo", "Root" -> ".."},
       {"Build", "Actions" -> {"CargoBuild"}},
-      {"Binaries"}
+      {"Binaries"},
+      {"FrontEnd", "Prepend" -> True}
     }
   |>
 ]
