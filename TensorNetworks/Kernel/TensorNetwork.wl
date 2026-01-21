@@ -48,10 +48,60 @@ tn_TensorNetwork /; System`Private`HoldNotValidQ[tn] && tensorNetworkQ[Unevaluat
 (* Normalize 2-arg form to 3-arg form with identity permutation *)
 TensorNetwork[tensors_List, hyperedges : {___List}] := TensorNetwork[tensors, hyperedges, Cycles[{}]]
 
+(* Direct EinsteinSummation-style input: TensorNetwork[arrays, in -> out] *)
+TensorNetwork[arrays_List, in_List -> out_List] := Module[{
+    nonFreePos, freePos, nonFreeIn, nonFreeArray,
+    newArrays, newIn, indexMap
+},
+    (* Check if any output index appears in multiple tensors (needs TensorJoin) *)
+    If[AnyTrue[out, Count[in, {___, #, ___}] > 1 &],
+        (* Use TensorJoin like EinsteinSummation does *)
+        nonFreePos = Catenate @ Position[in, _ ? (ContainsAny[out]), {1}, Heads -> False];
+        freePos = Complement[Range[Length[in]], nonFreePos];
+        {nonFreeIn, nonFreeArray} = TensorJoin[in[[nonFreePos]], arrays[[nonFreePos]]];
+        newArrays = Prepend[arrays[[freePos]], nonFreeArray];
+        newIn = Prepend[in[[freePos]], nonFreeIn],
+        (* No TensorJoin needed *)
+        newArrays = arrays;
+        newIn = in
+    ];
+    
+    (* Build TensorNetwork from (possibly transformed) tensors *)
+    indexMap = First /@ PositionIndex[Catenate[newIn]];
+    TensorNetwork[
+        newArrays,
+        Map[Lookup[indexMap, #] &, newIn, {2}],
+        FindPermutation[
+            SortBy[out, Lookup[indexMap, #] &],
+            out
+        ]
+    ]
+]
+
+(* Without output - identity permutation *)
+TensorNetwork[arrays_List, in_List] /; AllTrue[in, ListQ] := With[{
+    indexMap = First /@ PositionIndex[Catenate[in]]
+},
+    TensorNetwork[
+        arrays,
+        Map[Lookup[indexMap, #] &, in, {2}],
+        Cycles[{}]
+    ]
+]
+
+(* Handle Transpose[Inactive[TensorContract][...], perm] from EinsteinSummation output *)
+(* Store the permutation to be applied to the output *)
+TensorNetwork[HoldPattern[Transpose[expr_, perm_Cycles]]] := With[{
+    tn = TensorNetwork[expr]
+},
+    TensorNetwork[tn["Tensors"], tn["Hyperedges"], perm] /; TensorNetworkQ[tn]
+]
+
+(* Handle TensorContract with multi-index contractions (generalized from binary-only) *)
 TensorNetwork[
     IgnoringInactive @ HoldPattern @ TensorContract[
         TensorProduct[tensors__],
-        edges : {{_Integer, _Integer} ...}
+        contractions : {{__Integer} ...}
     ]
 ] := With[{
     ranks = tensorRank /@ {tensors}
@@ -61,7 +111,10 @@ TensorNetwork[
     TensorNetwork[
         {tensors},
         TakeList[
-            ReplacePart[indices, Thread[edges[[All, 1]] -> indices[[edges[[All, 2]]]]]],
+            (* For each contraction group, map all indices to the first one *)
+            ReplacePart[indices, 
+                Catenate[Thread[Rest[#] -> First[#]] & /@ contractions]
+            ],
             ranks
         ],
         Cycles[{}]
@@ -166,7 +219,7 @@ TensorNetworkProp[tn_, "SparseQ"] := AllTrue[tn["Tensors"], SparseArrayQ]
 
 BinaryTensorNetworkQ[tn_TensorNetwork ? TensorNetworkQ] := AllTrue[Counts[Catenate @ tn["Hyperedges"]], # <= 2 &]
 
-BinaryTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] := Block[{hyperedges = tn["Hyperedges"], indexHyperedges, dimensions, spidersIndices},
+BinaryTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] := Block[{hyperedges = tn["Hyperedges"], perm = tn["Permutation"], indexHyperedges, dimensions, spidersIndices},
     indexHyperedges = Select[
         GroupBy[
             Catenate @ MapIndexed[List, hyperedges, {2}],
@@ -200,7 +253,8 @@ BinaryTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] := Block[{hyperedges = tn
                 Catenate @ spidersIndices
             ],
             Values /@ spidersIndices
-        ]
+        ],
+        perm  (* Preserve the original permutation *)
     ]
     
 ]
@@ -339,9 +393,9 @@ TensorNetwork /: MakeBoxes[tn_TensorNetwork /; TensorNetworkQ[tn], fmt_] := With
     BoxForm`ArrangeSummaryBox[
         TensorNetwork,
         tn,
-        (* Icon *)
-        If[ nTensors > 10,
-            RandomGraph[{8, 10}, EdgeStyle -> LightGray, ImageSize -> 32, AspectRatio -> 1],
+        (* Icon - skip complex hypergraph plot for non-binary networks to avoid crashes *)
+        If[ nTensors > 10 || !tn["BinaryQ"],
+            RandomGraph[{Min[nTensors, 8], Min[nTensors, 10]}, EdgeStyle -> LightGray, ImageSize -> 32, AspectRatio -> 1],
             PacletSymbol["WolframInstitute/Hypergraph", "SimpleHypergraphPlot"][
                 tn["Hyperedges"],
                 ImageSize -> 32, AspectRatio -> 1
