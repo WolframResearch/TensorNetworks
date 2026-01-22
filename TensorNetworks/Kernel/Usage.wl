@@ -21,7 +21,7 @@ ActivateTensors::usage = "ActivateTensors[expr] activates Inactive[TensorProduct
 (* ============================================ *)
 
 TensorNetwork::usage = "TensorNetwork[{A\:2081,A\:2082,\[Ellipsis]}, {h\:2081,h\:2082,\[Ellipsis]}] creates a tensor network from tensors A\:1d62 with hyperedge index lists h\:1d62.
-\[Bullet] TensorNetwork[{A\:2081,A\:2082,\[Ellipsis]}, {i\:2081,i\:2082,\[Ellipsis]}\[Rule]out] creates a tensor network using Einstein summation notation.
+\[Bullet] TensorNetwork[{A\:2081,A\:2082,\[Ellipsis]}, {i\:2081,i\:2082,\[Ellipsis]}\[Rule]output] creates a tensor network using Einstein summation notation.
 \[Bullet] TensorNetwork[expr] constructs a tensor network from TensorContract, Transpose, or TensorProduct expressions.
 \[Bullet] TensorNetwork[graph] creates a tensor network from a directed acyclic graph with tensor annotations."
 
@@ -48,6 +48,13 @@ TensorNetworkAdd::usage = "TensorNetworkAdd[tn, tensor, indices] adds a new tens
 
 TensorNetworkDelete::usage = "TensorNetworkDelete[tn, k] deletes the k-th tensor from the tensor network.
 \[Bullet] TensorNetworkDelete[tn, -1] deletes the last tensor."
+
+
+BinaryTensorNetwork::usage = "BinaryTensorNetwork[tn] transforms tn into a pairwise binary tn by adding SymbolicDeltaProductArray."
+
+BinaryTensorNetworkQ::usage = "BinaryTensorNetworkQ[tn] returns True if tn is a pairwise binary tn."
+
+SparseTensorNetwork::usage = "SparseTensorNetwork[tn] transforms tensors in tn into SparseArray."
 
 (* ============================================ *)
 (* ToTensorNetworkGraph.wl                     *)
@@ -169,4 +176,9 @@ PathToTreePath::usage = "PathToTreePath[path, indices] converts a linear contrac
 CanonicalPath::usage = "CanonicalPath[path, indices] returns a canonical (normalized) representation of the contraction path."
 
 PathIndexContractions::usage = "PathIndexContractions[path, indices] returns the sequence of index sets contracted at each step of the path."
+
+PathQ::usage = "PathQ[path] returns True if Path is a contraction path."
+
+TreePathQ::usage = "PathQ[treePath] returns True if treePath is a Tree-like contraction path."
+
 
