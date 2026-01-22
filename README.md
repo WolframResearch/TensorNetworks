@@ -34,17 +34,19 @@ Needs["Wolfram`TensorNetworks`"]
 ### Contraction Path Optimization
 
 ```wolfram
-net = ToTensorNetworkGraph[RandomGraph[{10, 20}], 
-  Method -> "RandomComplex"]
+(*generate a TN based on a graph with tensors being generated randomly*)
+net = RandomTensorNetwork[StarGraph[5], Method -> "RandomComplex"];
 
+(*contract TN with global indices in TensorContract*)
 TensorNetworkContract[net]
 
+(*find a contraction path using Cotengra*)
 path = TensorNetworkFindContractionPath[net]
 
-Activate /@ 
- AssociationMap[
-  TensorNetworkContraction[net, path, 
-    Method -> #] &, $TensorNetworkContractionMethods]
+(*given different methods for contraction, perform path-dependent contraction*)
+ActivateTensors /@ AssociationMap[
+    TensorNetworkContraction[net, path, 
+        Method -> #] &, $TensorNetworkContractionMethods]
 ```
 
 ---
