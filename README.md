@@ -25,7 +25,7 @@ To install from the source code locally:
 2.  Load the paclet directory:
 
 ```wolfram
-PacletDirectoryLoad["/path/to/Cotengra/TensorNetworks"]
+PacletDirectoryLoad["paclet_path"]
 Needs["Wolfram`TensorNetworks`"]
 ```
 
