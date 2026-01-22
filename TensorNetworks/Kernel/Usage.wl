@@ -42,3 +42,40 @@ TensorNetworkContract::usage = "TensorNetworkContract[net, path] contracts the e
 TensorNetworkFindContractionPath::usage = "TensorNetworkFindContractionPath[net] computes an optimized contraction path for the network."
 TensorNetworkContraction::usage = "TensorNetworkContraction[net, path] returns a contraction expression for the tensor network along a path."
 $TensorNetworkContractionMethods::usage = "$TensorNetworkContractionMethods is a list of available types for contraction expressions."
+
+(* MPS.wl *)
+MPSCanonicalForm::usage = "MPSCanonicalForm[mps, form] transforms an MPS tensor network into canonical form.
+\[Bullet] MPSCanonicalForm[mps, \"Left\"] puts all tensors in left-isometric form (A\[ConjugateTranspose]\[CenterDot]A = I).
+\[Bullet] MPSCanonicalForm[mps, \"Right\"] puts all tensors in right-isometric form (A\[CenterDot]A\[ConjugateTranspose] = I).
+\[Bullet] MPSCanonicalForm[mps, {\"Mixed\", k}] creates mixed canonical form centered at site k."
+
+MPSCanonicalQ::usage = "MPSCanonicalQ[mps, form] returns True if mps is in the specified canonical form.
+\[Bullet] MPSCanonicalQ[mps, \"Left\"] checks left-canonical form.
+\[Bullet] MPSCanonicalQ[mps, \"Right\"] checks right-canonical form.
+\[Bullet] MPSCanonicalQ[mps, {\"Mixed\", k}] checks mixed-canonical form at site k.
+Uses tolerance 10^-10 for numerical comparison."
+
+MPSOverlap::usage = "MPSOverlap[mps1, mps2] computes the inner product \[LeftAngleBracket]\[Psi]\:2081|\[Psi]\:2082\[RightAngleBracket] between two MPS.
+Returns a complex number. For self-overlap MPSOverlap[mps, mps], returns the squared norm.
+The second argument is conjugated in the inner product."
+
+MPSNorm::usage = "MPSNorm[mps] computes the norm of an MPS.
+Returns a non-negative real number. Equivalent to Sqrt[Abs[MPSOverlap[mps, mps]]]."
+
+MPSNormalize::usage = "MPSNormalize[mps] returns an MPS normalized to unit norm.
+After normalization, MPSNorm[result] \[TildeEqual] 1.0.
+The physical state is preserved; only the overall scale factor changes."
+
+MPSEntanglementEntropy::usage = "MPSEntanglementEntropy[mps, site] computes the von Neumann entanglement entropy S = -\[Sum] p log(p) at the bond between site and site+1.
+\[Bullet] Returns 0 for a product state.
+\[Bullet] Returns log(D) for a maximally entangled state with bond dimension D.
+Uses natural logarithm."
+
+MPSSchmidtValues::usage = "MPSSchmidtValues[mps, site] returns the normalized Schmidt coefficients at the bond between site and site+1.
+The values satisfy \[Sum] \[Lambda]^2 = 1 (normalized).
+Number of values equals the bond dimension at that cut."
+
+MPSTruncate::usage = "MPSTruncate[mps, maxBond] compresses an MPS by truncating all bonds to at most maxBond.
+The result is in left-canonical form. Truncation error depends on discarded singular values.
+Use after time evolution or variational updates to control bond dimension growth."
+

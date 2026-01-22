@@ -60,7 +60,7 @@ This section provides a comprehensive list of all public functions exported by t
 | `TensorNetwork` | creates a tensor network object with a summary box display. | `TensorNetwork[...]` object |
 | `TensorNetworkQ` | yields `True` if an expression is a valid `TensorNetwork` object. | `True` or `False` |
 | `ToTensorNetworkGraph` | constructs a tensor network from a graph. | `TensorNetwork[...]` object |
-| `RandomTensorNetwork` | creates a tensor network with random tensors and topology. | `TensorNetwork[...]` object |
+| `RandomTensorNetwork` | creates a random tensor network. Supports specific types: `"MPS"`, `"TT"`, `"MPO"`, `"PEPS"`, `"TTN"`, `"MERA"`. | `TensorNetwork[...]` object |
 | `SparseTensorNetwork` | converts a tensor network's tensors to `SparseArray`. | `TensorNetwork[...]` object |
 | `BinaryTensorNetwork` | converts a tensor network to binary form (at most 2 tensors per index). | `TensorNetwork[...]` object |
 | `BinaryTensorNetworkQ` | yields `True` if a tensor network is in binary form. | `True` or `False` |
@@ -107,6 +107,19 @@ This section provides a comprehensive list of all public functions exported by t
 | `GreedyPath` | finds a contraction path using a greedy heuristic. | `List` (contraction path) |
 | `OptimalPath` | finds an optimal contraction path. | `List` (contraction path) |
 
+### Matrix Product States (MPS)
+
+| Function | Usage | Output |
+| :--- | :--- | :--- |
+| `MPSCanonicalForm` | transforms an MPS into canonical form (`"Left"`, `"Right"`, or `{"Mixed", k}`). | `TensorNetwork[...]` object |
+| `MPSCanonicalQ` | checks if an MPS is in the specified canonical form. | `True` or `False` |
+| `MPSOverlap` | computes the inner product ⟨ψ₁\|ψ₂⟩ between two MPS. | `Complex` number |
+| `MPSNorm` | computes the norm ‖ψ‖ of an MPS. | non-negative `Real` |
+| `MPSNormalize` | normalizes an MPS to unit norm. | `TensorNetwork[...]` object |
+| `MPSEntanglementEntropy` | computes the von Neumann entropy at a bond. | non-negative `Real` |
+| `MPSSchmidtValues` | returns the Schmidt coefficients at a bond. | `List` of `Real` values |
+| `MPSTruncate` | compresses an MPS to a maximum bond dimension. | `TensorNetwork[...]` object |
+
 ### Low-level Utilities
 
 | Function | Usage | Output |
@@ -119,3 +132,28 @@ This section provides a comprehensive list of all public functions exported by t
 | `PathToTreePath` | converts a linear contraction path to a tree-structured path. | nested path `List` |
 | `PathIndexContractions` | returns the sequence of indices contracted at each step. | `List` of index sets |
 | `ContractIndices` | returns the indices that would be contracted between two index sets. | `List` of common indices |
+
+## Specific Tensor Network Types
+
+`RandomTensorNetwork` supports generating specific tensor network architectures:
+
+```wolfram
+(* Matrix Product State with 10 sites, bond dimension 4, physical dimension 2 *)
+mps = RandomTensorNetwork["MPS"[10, 4, 2]]
+
+(* Train Tensor (same as MPS) *)
+tt = RandomTensorNetwork["TT"[8, 3, 4]]
+
+(* Matrix Product Operator *)
+mpo = RandomTensorNetwork["MPO"[6, 3, 2]]
+
+(* PEPS (2D tensor network) *)
+peps = RandomTensorNetwork["PEPS"[{4, 4}, 3, 2]]
+
+(* Tree Tensor Network *)
+ttn = RandomTensorNetwork["TTN"[3, 4, 2]]  (* depth, bond dim, physical dim *)
+
+(* MERA *)
+mera = RandomTensorNetwork["MERA"[3, 4, 2]]  (* layers, bond dim, physical dim *)
+```
+
