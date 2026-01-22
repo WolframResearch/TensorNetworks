@@ -58,7 +58,8 @@ tn_TensorNetwork /; System`Private`HoldNotValidQ[tn] && tensorNetworkQ[Unevaluat
 TensorNetwork[tensors_List, hyperedges : {___List}] := TensorNetwork[tensors, hyperedges, Cycles[{}]]
 
 (* Direct EinsteinSummation-style input: TensorNetwork[arrays, in -> out] *)
-TensorNetwork[arrays_List, in_List -> out_List] := Module[{
+(* Implementation moved to private helper to avoid documentation introspection issues *)
+tensorNetworkFromEinsum[arrays_List, in_List, out_List] := Module[{
     nonFreePos, freePos, nonFreeIn, nonFreeArray,
     newArrays, newIn, indexMap
 },
@@ -87,16 +88,19 @@ TensorNetwork[arrays_List, in_List -> out_List] := Module[{
     ]
 ]
 
+TensorNetwork[arrays_List, in_List -> out_List] := tensorNetworkFromEinsum[arrays, in, out]
+
 (* Without output - identity permutation *)
-TensorNetwork[arrays_List, in_List] /; AllTrue[in, ListQ] := With[{
-    indexMap = First /@ PositionIndex[Catenate[in]]
-},
+tensorNetworkFromIndices[arrays_List, in_List] := Module[{indexMap},
+    indexMap = First /@ PositionIndex[Catenate[in]];
     TensorNetwork[
         arrays,
         Map[Lookup[indexMap, #] &, in, {2}],
         Cycles[{}]
     ]
 ]
+
+TensorNetwork[arrays_List, in_List] /; AllTrue[in, ListQ] := tensorNetworkFromIndices[arrays, in]
 
 (* Handle Transpose[Inactive[TensorContract][...], perm] from EinsteinSummation output *)
 (* Store the permutation to be applied to the output *)
@@ -107,18 +111,11 @@ TensorNetwork[HoldPattern[Transpose[expr_, perm_Cycles]]] := With[{
 ]
 
 (* Handle TensorContract with multi-index contractions (generalized from binary-only) *)
-TensorNetwork[
-    IgnoringInactive @ HoldPattern @ TensorContract[
-        TensorProduct[tensors__],
-        contractions : {{__Integer} ...}
-    ]
-] := With[{
-    ranks = tensorRank /@ {tensors}
-}, {
-    indices = Range[Total[ranks]]
-},
+tensorNetworkFromTensorContract[tensors_List, contractions_List] := Module[{ranks, indices},
+    ranks = tensorRank /@ tensors;
+    indices = Range[Total[ranks]];
     TensorNetwork[
-        {tensors},
+        tensors,
         TakeList[
             (* For each contraction group, map all indices to the first one *)
             ReplacePart[indices, 
@@ -130,6 +127,13 @@ TensorNetwork[
     ]
 ]
 
+TensorNetwork[
+    IgnoringInactive @ HoldPattern @ TensorContract[
+        TensorProduct[tensors__],
+        contractions : {{__Integer} ...}
+    ]
+] := tensorNetworkFromTensorContract[{tensors}, contractions]
+
 TensorNetwork[net_ ? TensorNetworkGraphQ] :=
     TensorNetwork @@ Lookup[TensorNetworkGraphData[net], {"Tensors", "ContractionIndices"}]
 
@@ -139,7 +143,10 @@ TensorNetwork[hypergraph : {___List}, perm : _Cycles : Cycles[{}]] := TensorNetw
     perm
 ]
 
-TensorNetwork[args___, perm : {___Integer}] := TensorNetwork[args, PermutationCycles[perm]]
+(* Helper to convert permutation list to Cycles - prevents introspection issues *)
+tensorNetworkWithPermList[args___, perm_List] := TensorNetwork[args, PermutationCycles[perm]]
+
+TensorNetwork[args___, perm : {___Integer}] := tensorNetworkWithPermList[args, perm]
 
 
 (* Property dispatch - only called when TensorNetworkQ is True *)
@@ -228,7 +235,8 @@ TensorNetworkProp[tn_, "SparseQ"] := AllTrue[tn["Tensors"], SparseArrayQ]
 
 BinaryTensorNetworkQ[tn_TensorNetwork ? TensorNetworkQ] := AllTrue[Counts[Catenate @ tn["Hyperedges"]], # <= 2 &]
 
-BinaryTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] := Block[{hyperedges = tn["Hyperedges"], perm = tn["Permutation"], indexHyperedges, dimensions, spidersIndices},
+(* Helper function to avoid documentation introspection issues *)
+binaryTensorNetworkImpl[tn_] := Block[{hyperedges = tn["Hyperedges"], perm = tn["Permutation"], indexHyperedges, dimensions, spidersIndices},
     indexHyperedges = Select[
         GroupBy[
             Catenate @ MapIndexed[List, hyperedges, {2}],
@@ -267,6 +275,9 @@ BinaryTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] := Block[{hyperedges = tn
     ]
     
 ]
+
+BinaryTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] := binaryTensorNetworkImpl[tn]
+
     
 
 TensorNetworkProp[_, "Properties"] := {
