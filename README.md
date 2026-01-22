@@ -29,11 +29,9 @@ PacletDirectoryLoad["/path/to/Cotengra/TensorNetworks"]
 Needs["Wolfram`TensorNetworks`"]
 ```
 
-## Usage
+## Quick Start
 
 ### Contraction Path Optimization
-
-The paclet provides functions to find optimal contraction paths for tensor networks, leveraging the `Cotengra` library.
 
 ```wolfram
 net = ToTensorNetworkGraph[RandomGraph[{10, 20}], 
@@ -49,111 +47,443 @@ Activate /@
     Method -> #] &, $TensorNetworkContractionMethods]
 ```
 
-## Function List
+---
 
-This section provides a comprehensive list of all public functions exported by the `Wolfram`TensorNetworks`` paclet, organized by category.
+## API Reference
+
+This section provides comprehensive documentation for all public functions.
+
+---
 
 ### Core Tensor Network Construction
 
-| Function | Usage | Output |
-| :--- | :--- | :--- |
-| `TensorNetwork` | creates a tensor network object with a summary box display. | `TensorNetwork[...]` object |
-| `TensorNetworkQ` | yields `True` if an expression is a valid `TensorNetwork` object. | `True` or `False` |
-| `ToTensorNetworkGraph` | constructs a tensor network from a graph. | `TensorNetwork[...]` object |
-| `RandomTensorNetwork` | creates a random tensor network. Supports specific types: `"MPS"`, `"TT"`, `"MPO"`, `"PEPS"`, `"TTN"`, `"MERA"`. | `TensorNetwork[...]` object |
-| `SparseTensorNetwork` | converts a tensor network's tensors to `SparseArray`. | `TensorNetwork[...]` object |
-| `BinaryTensorNetwork` | converts a tensor network to binary form (at most 2 tensors per index). | `TensorNetwork[...]` object |
-| `BinaryTensorNetworkQ` | yields `True` if a tensor network is in binary form. | `True` or `False` |
+#### TensorNetwork
 
-### Graph & Topology
+Creates a tensor network object with a summary box display.
 
-| Function | Usage | Output |
-| :--- | :--- | :--- |
-| `TensorNetworkGraphQ` | yields `True` if a graph is a valid tensor network graph. | `True` or `False` |
-| `TensorNetworkIndexGraph` | returns a graph representing the index connectivity of the network. | `Graph` object |
-| `TensorNetworkToNetGraph` | converts a tensor network into a Neural `NetGraph` object. | `NetGraph` object |
-| `TensorNetworkRemoveCycles` | inserts identity tensors to break cycles in the network graph. | `TensorNetwork[...]` object |
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetwork[{A₁,A₂,…}, {h₁,h₂,…}]` | creates a tensor network from tensors Aᵢ with hyperedge index lists hᵢ |
+| `TensorNetwork[{A₁,A₂,…}, {i₁,i₂,…} → out]` | creates a tensor network using Einstein summation notation |
+| `TensorNetwork[expr]` | constructs from `TensorContract`, `Transpose`, or `TensorProduct` expressions |
+| `TensorNetwork[graph]` | creates from a directed acyclic graph with tensor annotations |
+
+#### TensorNetworkQ
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkQ[tn]` | yields `True` if `tn` is a valid `TensorNetwork` object, `False` otherwise |
+
+#### RandomTensorNetwork
+
+Creates random tensor networks of various architectures.
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `RandomTensorNetwork[{n,m}, maxDim]` | random network based on `RandomGraph[{n,m}]` with dimensions up to `maxDim` |
+| `RandomTensorNetwork[{n,m}, {dim}]` | uses fixed dimension `dim` for all indices |
+| `RandomTensorNetwork[graph, maxDim]` | creates from the specified graph |
+| `RandomTensorNetwork["MPS"[length, bondDim, physicalDim]]` | Matrix Product State |
+| `RandomTensorNetwork["TT"[length, bondDim]]` | Tensor Train (no physical indices) |
+| `RandomTensorNetwork["MPO"[length, bondDim, physicalDim]]` | Matrix Product Operator |
+| `RandomTensorNetwork["PEPS"[{rows,cols}, bondDim, physicalDim]]` | Projected Entangled Pair State |
+| `RandomTensorNetwork["TTN"[depth, bondDim, branching]]` | Tree Tensor Network |
+| `RandomTensorNetwork["MERA"[width, bondDim, layers]]` | Multi-scale Entanglement Renormalization Ansatz |
+
+**Options:**
+- `Method → Automatic` — `"Complex"` for complex-valued tensors
+- `"Boundary" → "Open"` — `"Periodic"` for periodic boundary conditions
+
+#### TensorNetworkData
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkData[tn]` | returns an `Association` with vertices, tensors, indices, dimensions, and contractions |
+
+#### TensorNetworkSize
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkSize[tn]` | returns the total number of elements across all tensors |
+
+#### TensorNetworkContractions
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkContractions[tn]` | returns the list of index contractions in the network |
+
+---
 
 ### Network Manipulation
 
-| Function | Usage | Output |
-| :--- | :--- | :--- |
-| `TensorNetworkAdd` | adds a new tensor to the network with specified indices. | `TensorNetwork[...]` object |
-| `TensorNetworkReplaceIndices` | replaces indices in the network according to rules. | `TensorNetwork[...]` object |
-| `InitializeTensorNetwork` | initializes a tensor network with specific tensors. | `TensorNetwork[...]` object |
+#### TensorNetworkAdd
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkAdd[tn, tensor, indices]` | adds a tensor to the network with specified indices |
+
+Indices matching existing network indices create new contractions.
+
+#### TensorNetworkDelete
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkDelete[tn, k]` | deletes the k-th tensor from the network |
+| `TensorNetworkDelete[tn, -1]` | deletes the last tensor |
+
+#### TensorNetworkReplaceIndices
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkReplaceIndices[net, {i₁→j₁, i₂→j₂, …}]` | replaces indices according to rules |
+
+#### InitializeTensorNetwork
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `InitializeTensorNetwork[net, {t₁,t₂,…}]` | initializes a network graph with numerical tensors |
+
+---
+
+### Graph & Topology
+
+#### ToTensorNetworkGraph
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `ToTensorNetworkGraph[graph]` | constructs a tensor network graph from a directed acyclic graph |
+| `ToTensorNetworkGraph[tn]` | converts a `TensorNetwork` object to graph representation |
+
+**Options:**
+- `Method → "Symbolic"` — uses symbolic tensor representations
+
+#### TensorNetworkGraphQ
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkGraphQ[net]` | yields `True` if `net` is a valid tensor network graph |
+| `TensorNetworkGraphQ[net, True]` | prints diagnostic messages for invalid networks |
+
+#### TensorNetworkIndexGraph
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkIndexGraph[net]` | returns a graph representing the index connectivity |
+
+#### TensorNetworkRemoveCycles
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkRemoveCycles[net]` | inserts identity tensors to break cycles, making the graph acyclic |
+
+#### TensorNetworkToNetGraph
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkToNetGraph[net]` | converts to a Wolfram Neural `NetGraph` object |
+
+---
 
 ### Data & Extraction
 
-| Function | Usage | Output |
-| :--- | :--- | :--- |
-| `TensorNetworkIndices` | returns the index lists for each tensor in the network. | `List` of index lists |
-| `TensorNetworkTensors` | returns the list of tensors stored in the network. | `List` of arrays |
-| `TensorNetworkGraphData` | returns raw data (tensors, indices, dimensions) of the network. | `Association` of raw data |
-| `TensorNetworkIndexDimensions` | returns the dimensions associated with each index. | `Association` |
-| `TensorNetworkFreeIndices` | returns the list of uncontracted (free) indices in the network. | `List` of indices |
-| `TensorNetworkData` | returns an association of all internal data for a `TensorNetwork`. | `Association` |
-| `TensorNetworkSize` | returns the number of tensors in the network. | `Integer` |
-| `TensorNetworkContractions` | returns the tensor network indices grouped by connectivity. | `List` of index groups |
+#### TensorNetworkIndices
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkIndices[net]` | returns the list of index specifications for each tensor vertex |
+
+#### TensorNetworkTensors
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkTensors[net]` | returns the list of tensors stored in the network vertices |
+
+#### TensorNetworkGraphData
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkGraphData[net]` | returns an `Association` with raw data (tensors, indices, dimensions, contractions) |
+
+#### TensorNetworkIndexDimensions
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkIndexDimensions[net]` | returns an `Association` mapping each index to its dimension |
+| `TensorNetworkIndexDimensions[indices, tensors]` | computes dimensions from explicit lists |
+
+#### TensorNetworkFreeIndices
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkFreeIndices[net]` | returns the list of uncontracted (free/open) indices |
+
+---
 
 ### Contraction & Path Optimization
 
-| Function | Usage | Output |
-| :--- | :--- | :--- |
-| `TensorNetworkContract` | contracts the entire tensor network to a single tensor. | `Array` (result of contraction) |
-| `TensorNetworkFindContractionPath` | computes an optimized contraction path for the network. | `List` (contraction path) |
-| `TensorNetworkContraction` | returns a contraction expression for the network along a path. | symbolic `Inactive` expression |
-| `$TensorNetworkContractionMethods` | list of available types for contraction expressions. | `List` of strings |
-| `ContractionTree` | visualizes the contraction process as a tree. | `Tree` object |
-| `GreedyPath` | finds a contraction path using a greedy heuristic. | `List` (contraction path) |
-| `OptimalPath` | finds an optimal contraction path. | `List` (contraction path) |
+#### TensorNetworkContract
+
+Contracts the tensor network to a single tensor.
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkContract[tn]` | contracts using the default (optimal) path |
+| `TensorNetworkContract[tn, path]` | contracts using the specified contraction path |
+| `TensorNetworkContract[data, path]` | contracts using pre-computed network data |
+
+Returns an evaluated numerical tensor (not symbolic).
+
+#### TensorNetworkFindContractionPath
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkFindContractionPath[tn]` | computes an optimized contraction path |
+| `TensorNetworkFindContractionPath[tn, Method → "Greedy"]` | uses greedy optimization |
+| `TensorNetworkFindContractionPath[tn, Method → "Optimal"]` | finds the optimal path (slower for large networks) |
+
+#### TensorNetworkContraction
+
+Returns a symbolic contraction expression.
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorNetworkContraction[tn, path]` | symbolic expression along the given path |
+| `TensorNetworkContraction[tn, treePath]` | uses a tree-structured contraction path |
+| `TensorNetworkContraction[tn, "Greedy"]` | automatically computes a greedy path |
+| `TensorNetworkContraction[tn, "Optimal"]` | automatically computes an optimal path |
+
+**Options:**
+- `Method → "ArrayDot"` — contraction method (`"ArrayDotTranspose"`, `"ArrayDot"`, `"Dot"`, `"TensorContract"`, `"TableSum"`)
+- `"Inactive" → True` — returns inactive expressions
+
+#### ContractionTree
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `ContractionTree[tn]` | returns a `Tree` representing the contraction hierarchy |
+| `ContractionTree[tn, path]` | uses the specified contraction path |
+
+#### $TensorNetworkContractionMethods
+
+List of available contraction methods: `"ArrayDotTranspose"`, `"ArrayDot"`, `"Dot"`, `"TensorContract"`, `"TableSum"`.
+
+---
 
 ### Matrix Product States (MPS)
 
-| Function | Usage | Output |
-| :--- | :--- | :--- |
-| `MPSCanonicalForm` | transforms an MPS into canonical form (`"Left"`, `"Right"`, or `{"Mixed", k}`). | `TensorNetwork[...]` object |
-| `MPSCanonicalQ` | checks if an MPS is in the specified canonical form. | `True` or `False` |
-| `MPSOverlap` | computes the inner product ⟨ψ₁\|ψ₂⟩ between two MPS. | `Complex` number |
-| `MPSNorm` | computes the norm ‖ψ‖ of an MPS. | non-negative `Real` |
-| `MPSNormalize` | normalizes an MPS to unit norm. | `TensorNetwork[...]` object |
-| `MPSEntanglementEntropy` | computes the von Neumann entropy at a bond. | non-negative `Real` |
-| `MPSSchmidtValues` | returns the Schmidt coefficients at a bond. | `List` of `Real` values |
-| `MPSTruncate` | compresses an MPS to a maximum bond dimension. | `TensorNetwork[...]` object |
+#### MPSCanonicalForm
 
-### Low-level Utilities
+Transforms an MPS into canonical form.
 
-| Function | Usage | Output |
-| :--- | :--- | :--- |
-| `EinsteinSummation` | contracts given arrays according to the index specification. | an active `TensorContract` which will be an `Array` resulting from the specified sum over indices. |
-| `TensorJoin` | joins arrays over shared indices. | `Array` (result of join) |
-| `ActivateTensors` | activates `Inactive` tensor operations in an expression. | expression with activated tensors |
-| `CanonicalPath` | returns a canonical representation of a contraction path. | standardized path `List` |
-| `TreePathToPath` | converts a tree-structured path to a linear contraction path. | linear path `List` |
-| `PathToTreePath` | converts a linear contraction path to a tree-structured path. | nested path `List` |
-| `PathIndexContractions` | returns the sequence of indices contracted at each step. | `List` of index sets |
-| `ContractIndices` | returns the indices that would be contracted between two index sets. | `List` of common indices |
+| Calling Form | Description |
+|:-------------|:------------|
+| `MPSCanonicalForm[mps]` | left-canonical form (default) |
+| `MPSCanonicalForm[mps, "Left"]` | left-isometric form where A†·A = I |
+| `MPSCanonicalForm[mps, "Right"]` | right-isometric form where A·A† = I |
+| `MPSCanonicalForm[mps, {"Mixed", k}]` | mixed canonical form centered at site k |
 
-## Specific Tensor Network Types
+#### MPSCanonicalQ
 
-`RandomTensorNetwork` supports generating specific tensor network architectures:
+| Calling Form | Description |
+|:-------------|:------------|
+| `MPSCanonicalQ[mps, "Left"]` | checks left-canonical form |
+| `MPSCanonicalQ[mps, "Right"]` | checks right-canonical form |
+| `MPSCanonicalQ[mps, {"Mixed", k}]` | checks mixed-canonical form at site k |
+
+Uses tolerance 10⁻¹⁰ for numerical comparison.
+
+#### MPSOverlap
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `MPSOverlap[mps₁, mps₂]` | computes the inner product ⟨Ψ₁\|Ψ₂⟩ between two MPS |
+
+The second MPS is conjugated. `MPSOverlap[mps, mps]` returns the squared norm.
+
+#### MPSNorm
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `MPSNorm[mps]` | computes the norm ‖Ψ‖ of an MPS |
+
+Equivalent to `Sqrt[Abs[MPSOverlap[mps, mps]]]`.
+
+#### MPSNormalize
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `MPSNormalize[mps]` | returns an MPS normalized to unit norm |
+
+The physical state is preserved; only the overall scale factor changes.
+
+#### MPSEntanglementEntropy
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `MPSEntanglementEntropy[mps, site]` | von Neumann entropy S = -∑ p log(p) at bond between site and site+1 |
+
+Returns 0 for product states, log(D) for maximally entangled states with bond dimension D. Uses natural logarithm.
+
+#### MPSSchmidtValues
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `MPSSchmidtValues[mps, site]` | normalized Schmidt coefficients λᵢ at the bond between site and site+1 |
+
+Values satisfy ∑ λᵢ² = 1. Number of values equals the bond dimension at that cut.
+
+#### MPSTruncate
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `MPSTruncate[mps, maxBond]` | compresses MPS by truncating all bonds to at most `maxBond` |
+
+Result is in left-canonical form. Truncation error depends on discarded singular values.
+
+---
+
+### Einstein Summation
+
+#### EinsteinSummation
+
+Contracts tensors according to index specification.
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `EinsteinSummation[{i₁,i₂,…} → out, {A₁,A₂,…}]` | contracts tensors according to index specification |
+| `EinsteinSummation[{i₁,i₂,…}, {A₁,A₂,…}]` | auto-determines output from indices appearing once |
+| `EinsteinSummation["ij,jk->ik", {A, B}]` | string notation with comma-separated indices |
+
+#### TensorJoin
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TensorJoin[{i₁,i₂,…}, {A₁,A₂,…}]` | joins tensors over shared indices, broadcasting along non-shared dimensions |
+
+Returns `{indices, tensor}` where tensor is the joined result.
+
+#### ActivateTensors
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `ActivateTensors[expr]` | activates `Inactive[TensorProduct]`, `Inactive[TensorContract]`, and `Inactive[Transpose]` |
+
+Converts symbolic tensor expressions to evaluated numerical tensors.
+
+---
+
+### Path Utilities
+
+#### GreedyPath
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `GreedyPath[inputs, output, sizeDict, …]` | finds a contraction path using a greedy heuristic |
+
+**Arguments:**
+- `inputs` — list of index lists for each tensor
+- `output` — list of indices for the final result
+- `sizeDict` — `Association` mapping indices to dimensions
+
+**Optional:** `costMod`, `temperature`, `maxNeighbors`, `seed`, `simplify`, `useSSA`
+
+#### OptimalPath
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `OptimalPath[inputs, output, sizeDict, …]` | finds an optimal contraction path via dynamic programming |
+
+**Optional:** `minimize`, `costCap`, `searchOuter`, `simplify`, `useSSA`
+
+#### ContractIndices
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `ContractIndices[i, j]` | returns the indices that would be contracted between index sets i and j |
+
+#### TreePathToPath
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `TreePathToPath[treePath, indices]` | converts a tree-structured path to a linear (pairwise) path |
+
+#### PathToTreePath
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `PathToTreePath[path, indices]` | converts a linear path to a tree-structured path |
+
+#### CanonicalPath
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `CanonicalPath[path, indices]` | returns a canonical (normalized) representation of the path |
+
+#### PathIndexContractions
+
+| Calling Form | Description |
+|:-------------|:------------|
+| `PathIndexContractions[path, indices]` | returns the sequence of index sets contracted at each step |
+
+---
+
+## Examples
+
+### Creating Specific Tensor Network Types
 
 ```wolfram
-(* Matrix Product State with 10 sites, bond dimension 4, physical dimension 2 *)
+(* Matrix Product State: 10 sites, bond dimension 4, physical dimension 2 *)
 mps = RandomTensorNetwork["MPS"[10, 4, 2]]
 
-(* Train Tensor (same as MPS) *)
-tt = RandomTensorNetwork["TT"[8, 3, 4]]
+(* Tensor Train: 8 sites, bond dimension 3 *)
+tt = RandomTensorNetwork["TT"[8, 3]]
 
-(* Matrix Product Operator *)
+(* Matrix Product Operator: 6 sites, bond dimension 3, physical dimension 2 *)
 mpo = RandomTensorNetwork["MPO"[6, 3, 2]]
 
-(* PEPS (2D tensor network) *)
+(* PEPS: 4×4 grid, bond dimension 3, physical dimension 2 *)
 peps = RandomTensorNetwork["PEPS"[{4, 4}, 3, 2]]
 
-(* Tree Tensor Network *)
-ttn = RandomTensorNetwork["TTN"[3, 4, 2]]  (* depth, bond dim, physical dim *)
+(* Tree Tensor Network: depth 3, bond dimension 4, branching 2 *)
+ttn = RandomTensorNetwork["TTN"[3, 4, 2]]
 
-(* MERA *)
-mera = RandomTensorNetwork["MERA"[3, 4, 2]]  (* layers, bond dim, physical dim *)
+(* MERA: width 4, bond dimension 4, 2 layers *)
+mera = RandomTensorNetwork["MERA"[4, 4, 2]]
 ```
 
+### MPS Operations
+
+```wolfram
+(* Create and canonicalize an MPS *)
+mps = RandomTensorNetwork["MPS"[10, 4, 2]]
+canonical = MPSCanonicalForm[mps, "Left"]
+
+(* Check canonicality *)
+MPSCanonicalQ[canonical, "Left"]  (* True *)
+
+(* Compute norm and normalize *)
+norm = MPSNorm[mps]
+normalized = MPSNormalize[mps]
+
+(* Compute entanglement entropy at site 5 *)
+entropy = MPSEntanglementEntropy[normalized, 5]
+
+(* Truncate to smaller bond dimension *)
+truncated = MPSTruncate[mps, 2]
+```
+
+### Einstein Summation
+
+```wolfram
+(* Matrix multiplication: C = A.B *)
+A = RandomReal[1, {3, 4}];
+B = RandomReal[1, {4, 5}];
+C = EinsteinSummation[{{i, k}, {k, j}} -> {i, j}, {A, B}]
+
+(* Trace: Tr[A] *)
+M = RandomReal[1, {4, 4}];
+trace = EinsteinSummation[{{i, i}}, {M}]
+
+(* String notation *)
+result = EinsteinSummation["ij,jk->ik", {A, B}]
+```
