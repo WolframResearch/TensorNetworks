@@ -29,7 +29,7 @@ If[$FrontEnd =!= Null,
 
 
 (* Internal validation function *)
-tensorNetworkQ[TensorNetwork[tensors_List, hyperedges : {___List}, perm : _Cycles : Cycles[{}]]] := 
+tensorNetworkQ[TensorNetwork[tensors_List, hyperedges : {___List}, output : _List | Automatic]] := 
     Length[tensors] == Length[hyperedges] && 
     With[{dimensions = tensorDimensions /@ tensors},
         AllTrue[Thread[{dimensions, hyperedges}], Apply[Length[#1] == Length[#2] &]] &&
@@ -37,7 +37,7 @@ tensorNetworkQ[TensorNetwork[tensors_List, hyperedges : {___List}, perm : _Cycle
             AllTrue[PositionIndex[Catenate[hyperedges]], Equal @@ allDimensions[[#]] &]
         ]
     ] &&
-    Length[Select[Counts[Catenate[hyperedges]], # == 1 &]] >= PermutationMax[perm]
+    (output === Automatic || ContainsAll[Catenate[hyperedges], output])
 
 tensorNetworkQ[___] := False
 
@@ -54,53 +54,13 @@ tn_TensorNetwork /; System`Private`HoldNotValidQ[tn] && tensorNetworkQ[Unevaluat
     tn
 )
 
-(* Normalize 2-arg form to 3-arg form with identity permutation *)
-TensorNetwork[tensors_List, hyperedges : {___List}] := TensorNetwork[tensors, hyperedges, Cycles[{}]]
+(* Normalize 3-arg *)
+TensorNetwork[tensors_List, hyperedges : {___List}] := TensorNetwork[tensors, hyperedges, Automatic]
 
-(* Direct EinsteinSummation-style input: TensorNetwork[arrays, in -> out] *)
-(* Implementation moved to private helper to avoid documentation introspection issues *)
-tensorNetworkFromEinsum[arrays_List, in_List, out_List] := Module[{
-    nonFreePos, freePos, nonFreeIn, nonFreeArray,
-    newArrays, newIn, indexMap
-},
-    (* Check if any output index appears in multiple tensors (needs TensorJoin) *)
-    If[AnyTrue[out, Count[in, {___, #, ___}] > 1 &],
-        (* Use TensorJoin like EinsteinSummation does *)
-        nonFreePos = Catenate @ Position[in, _ ? (ContainsAny[out]), {1}, Heads -> False];
-        freePos = Complement[Range[Length[in]], nonFreePos];
-        {nonFreeIn, nonFreeArray} = TensorJoin[in[[nonFreePos]], arrays[[nonFreePos]]];
-        newArrays = Prepend[arrays[[freePos]], nonFreeArray];
-        newIn = Prepend[in[[freePos]], nonFreeIn],
-        (* No TensorJoin needed *)
-        newArrays = arrays;
-        newIn = in
-    ];
-    
-    (* Build TensorNetwork from (possibly transformed) tensors *)
-    indexMap = First /@ PositionIndex[Catenate[newIn]];
-    TensorNetwork[
-        newArrays,
-        Map[Lookup[indexMap, #] &, newIn, {2}],
-        FindPermutation[
-            SortBy[out, Lookup[indexMap, #] &],
-            out
-        ]
-    ]
-]
+TensorNetwork[arrays_List, in_List -> out_List] := TensorNetwork[arrays, in, out]
 
-TensorNetwork[arrays_List, in_List -> out_List] := tensorNetworkFromEinsum[arrays, in, out]
-
-(* Without output - identity permutation *)
-tensorNetworkFromIndices[arrays_List, in_List] := Module[{indexMap},
-    indexMap = First /@ PositionIndex[Catenate[in]];
-    TensorNetwork[
-        arrays,
-        Map[Lookup[indexMap, #] &, in, {2}],
-        Cycles[{}]
-    ]
-]
-
-TensorNetwork[arrays_List, in_List] /; AllTrue[in, ListQ] := tensorNetworkFromIndices[arrays, in]
+TensorNetwork[arrays_List, in_List, perm_Cycles ? PermutationCyclesQ] :=
+    Enclose @ TensorNetwork[arrays, in, ConfirmBy[Permute[TensorNetworkFreeIndices[in], perm], ListQ]]
 
 (* Handle Transpose[Inactive[TensorContract][...], perm] from EinsteinSummation output *)
 (* Store the permutation to be applied to the output *)
@@ -111,7 +71,7 @@ TensorNetwork[HoldPattern[Transpose[expr_, perm_Cycles]]] := With[{
 ]
 
 (* Handle TensorContract with multi-index contractions (generalized from binary-only) *)
-tensorNetworkFromTensorContract[tensors_List, contractions_List] := Module[{ranks, indices},
+tensorNetworkFromTensorContract[tensors_List, contractions_List] := Block[{ranks, indices},
     ranks = tensorRank /@ tensors;
     indices = Range[Total[ranks]];
     TensorNetwork[
@@ -122,8 +82,7 @@ tensorNetworkFromTensorContract[tensors_List, contractions_List] := Module[{rank
                 Catenate[Thread[Rest[#] -> First[#]] & /@ contractions]
             ],
             ranks
-        ],
-        Cycles[{}]
+        ]
     ]
 ]
 
@@ -137,16 +96,13 @@ TensorNetwork[
 TensorNetwork[net_ ? TensorNetworkGraphQ] :=
     TensorNetwork @@ Lookup[TensorNetworkGraphData[net], {"Tensors", "ContractionIndices"}]
 
-TensorNetwork[hypergraph : {___List}, perm : _Cycles : Cycles[{}]] := TensorNetwork[
+TensorNetwork[hypergraph : {___List}] := TensorNetwork[hypergraph -> Automatic]
+
+TensorNetwork[hypergraph : {___List} -> out : _List | Automatic] := TensorNetwork[
     ArraySymbol[\[FormalCapitalT], ConstantArray[\[FormalD], Length[#]]] & /@ hypergraph,
     hypergraph,
-    perm
+    out
 ]
-
-(* Helper to convert permutation list to Cycles - prevents introspection issues *)
-tensorNetworkWithPermList[args___, perm_List] := TensorNetwork[args, PermutationCycles[perm]]
-
-TensorNetwork[args___, perm : {___Integer}] := tensorNetworkWithPermList[args, perm]
 
 
 (* Property dispatch - only called when TensorNetworkQ is True *)
@@ -155,7 +111,9 @@ TensorNetwork[args___, perm : {___Integer}] := tensorNetworkWithPermList[args, p
 (* Property handlers *)
 TensorNetworkProp[TensorNetwork[tensors_, _, _], "Tensors"] := tensors
 TensorNetworkProp[TensorNetwork[_, hyperedges_, _], "Hyperedges"] := hyperedges
-TensorNetworkProp[TensorNetwork[_, _, perm_], "Permutation"] := perm
+TensorNetworkProp[TensorNetwork[_, _, output_], "Output"] := output
+
+TensorNetworkProp[tn_, "FreeIndices"] := Replace[tn["Output"], Automatic :> TensorNetworkFreeIndices[tn["Hyperedges"]]]
 
 TensorNetworkProp[tn_, "Dimensions"] := tensorDimensions /@ tn["Tensors"]
 
@@ -193,7 +151,7 @@ TensorNetworkProp[tn_, "Contractions"] := TensorNetworkContractions[tn]
 TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
     tensors = tn["Tensors"],
     hyperedges = tn["Hyperedges"],
-    perm = tn["Permutation"]
+    freeIndices = tn["FreeIndices"]
 }, {
     indices = MapIndexed[Thread[Superscript[First[#2], #1]] &, hyperedges],
     dimensions = tensorDimensions /@ tensors
@@ -213,7 +171,7 @@ TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
         ],
         "Contractions" -> Replace[hyperedges, Replace[indexGroups, {x_} :> x, 1], {2}],
         "ContractionIndices" -> Replace[hyperedges, First /@ hyperedgeGroups, {2}],
-        "FreeIndices" -> Permute[Catenate @ Values @ Select[hyperedgeGroups, Length[#] == 1 &], perm]
+        "FreeIndices" -> freeIndices
     |>
 ]
 
@@ -221,7 +179,9 @@ TensorNetworkProp[tn_, prop_String] /;
     MemberQ[{"Indices", "Vertices", "FreeIndices", "Bonds", "Contractions", "ContractionIndices"}, prop] :=
         Lookup[tn["Data"], prop]
 
-TensorNetworkProp[tn_, "OutputDimension"] := Times @@ Lookup[TensorNetworkIndexDimensions[tn], tn["FreeIndices"]]
+TensorNetworkProp[tn_, "OutputDimensions"] := Lookup[TensorNetworkIndexDimensions[tn], tn["FreeIndices"]]
+
+TensorNetworkProp[tn_, "OutputDimension"] := Times @@ tn["OutputDimensions"]
 
 TensorNetworkProp[tn_, "Hypergraph", opts___] :=
     PacletSymbol["WolframInstitute/Hypergraph", "Hypergraph"][
@@ -236,7 +196,7 @@ TensorNetworkProp[tn_, "SparseQ"] := AllTrue[tn["Tensors"], SparseArrayQ]
 BinaryTensorNetworkQ[tn_TensorNetwork ? TensorNetworkQ] := AllTrue[Counts[Catenate @ tn["Hyperedges"]], # <= 2 &]
 
 (* Helper function to avoid documentation introspection issues *)
-binaryTensorNetworkImpl[tn_] := Block[{hyperedges = tn["Hyperedges"], perm = tn["Permutation"], indexHyperedges, dimensions, spidersIndices},
+binaryTensorNetworkImpl[tn_] := Block[{hyperedges = tn["Hyperedges"], indexHyperedges, dimensions, spidersIndices},
     indexHyperedges = Select[
         GroupBy[
             Catenate @ MapIndexed[List, hyperedges, {2}],
@@ -271,7 +231,7 @@ binaryTensorNetworkImpl[tn_] := Block[{hyperedges = tn["Hyperedges"], perm = tn[
             ],
             Values /@ spidersIndices
         ],
-        perm  (* Preserve the original permutation *)
+        tn["Output"]
     ]
     
 ]
@@ -281,11 +241,11 @@ BinaryTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] := binaryTensorNetworkImp
     
 
 TensorNetworkProp[_, "Properties"] := {
-    "Tensors", "Hyperedges", "Permutation",
+    "Tensors", "Hyperedges", "FreeIndices",
     "Hypergraph",
     "Dimensions", "Ranks",
     "Indices", "IndexDimensions",
-    "Vertices", "FreeIndices", "Bonds", "Contractions", "ContractionIndices",
+    "Vertices", "Bonds", "Contractions", "ContractionIndices",
     "BinaryQ",
     "SparseQ",
     "Graph", "GraphData", "Data"
@@ -299,12 +259,15 @@ TensorNetworkProp[_, prop_] := Missing["UnknownProperty", prop]
 TensorNetworkGraphData[tn_TensorNetwork ? TensorNetworkQ] := TensorNetworkGraphData[tn["Graph"]]
 TensorNetworkTensors[tn_TensorNetwork ? TensorNetworkQ] := tn["Tensors"]
 TensorNetworkIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["ContractionIndices"]
+
 TensorNetworkFreeIndices[tn_TensorNetwork ? TensorNetworkQ] := tn["FreeIndices"]
+TensorNetworkFreeIndices[indices_List] /; AllTrue[indices, ListQ] := Keys @ Select[Counts[Catenate[indices]], # == 1 &]
+
 TensorNetworkIndexDimensions[tn_TensorNetwork ? TensorNetworkQ] :=
     TensorNetworkIndexDimensions[<|"Indices" -> tn["Hyperedges"], "Dimensions" -> tn["Dimensions"]|>]
 
 SparseTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] :=
-    TensorNetwork[If[tensorRank[#] > 0, SparseArray[#], #] & /@ tn["Tensors"], tn["Hyperedges"], tn["Permutation"]]
+    TensorNetwork[If[tensorRank[#] > 0, SparseArray[#], #] & /@ tn["Tensors"], tn["Hyperedges"], tn["Output"]]
 
 Options[RandomTensorNetwork] = {Method -> Automatic, "Boundary" -> "Open"}
 
@@ -569,89 +532,42 @@ RandomTensorNetwork["MERA"[width_Integer, bondDim_Integer, layers_Integer : 1], 
         TensorNetwork[tensors, indices]
     ]
 
-(* Helper functions to avoid documentation introspection issues *)
-tensorNetworkAddImpl[net_, tensor_, indices_] := Block[{
-    hyperedges = net["Hyperedges"],
-    perm = net["Permutation"],
-    allIndices, existingFreeCount, newFreeIndices, newFreeCount, newPerm
-},
-    allIndices = Catenate[hyperedges];
-    existingFreeCount = Count[Counts[allIndices], 1];
-    
-    (* Find which new indices are free (not contracting with existing indices) *)
-    newFreeIndices = Select[indices, Count[allIndices, #] == 0 &];
-    newFreeCount = Length[newFreeIndices];
-    
-    (* Extend permutation: keep existing, add identity for new positions *)
-    newPerm = If[newFreeCount == 0,
-        perm,
-        PermutationCycles @ Join[
-            PermutationList[perm, existingFreeCount],
-            Range[existingFreeCount + 1, existingFreeCount + newFreeCount]
-        ]
-    ];
-    
-    TensorNetwork[Append[net["Tensors"], tensor], Append[hyperedges, indices], newPerm]
+
+TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] :=
+    TensorNetwork[
+        Append[net["Tensors"], tensor],
+        Append[net["Hyperedges"], indices],
+        (* TODO: figure out whether that's what it should actually do or not *)
+        Replace[net["Output"], Except[Automatic] :> Join[net["FreeIndices"], indices]]
+    ]
+
+TensorNetworkDelete[net_ ? TensorNetworkQ, index_Integer : -1] := With[{hyperedges = net["Hyperedges"]},
+    TensorNetwork[
+        Delete[net["Tensors"], index],
+        Delete[hyperedges, index],
+        Replace[net["Output"], Except[Automatic] :> DeleteElements[net["FreeIndices"], hyperedges[[index]]]]
+    ]
 ]
-
-TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] := tensorNetworkAddImpl[net, tensor, indices]
-SetAttributes[tensorNetworkAddImpl, HoldAll];
-
-tensorNetworkDeleteImpl[net_, index_] := Block[{
-    hyperedges = net["Hyperedges"],
-    perm = net["Permutation"],
-    actualIndex, deletedHyperedge,
-    freeIndicesOrdered, nFree, deletedPositions,
-    remainingPositions, oldPermList, newPerm
-},
-    actualIndex = If[index < 0, Length[hyperedges] + index + 1, index];
-    deletedHyperedge = hyperedges[[actualIndex]];
-    
-    (* Get free indices in order they appear *)
-    freeIndicesOrdered = Keys @ Select[Counts[Catenate[hyperedges]], # == 1 &];
-    nFree = Length[freeIndicesOrdered];
-    
-    (* Which positions (1-indexed) in the free index list are being deleted *)
-    deletedPositions = Catenate @ Lookup[PositionIndex[freeIndicesOrdered], deletedHyperedge, {}];
-    
-    If[ Length[deletedPositions] == 0,
-        (* No free indices deleted, permutation unchanged *)
-        Return[TensorNetwork[Delete[net["Tensors"], index], Delete[hyperedges, index], perm]]
-    ];
-    
-    remainingPositions = Complement[Range[nFree], deletedPositions];
-    
-    (* Get permutation as list *)
-    oldPermList = PermutationList[perm, nFree];
-    
-    (* Filter: keep only positions that remain, and update values *)
-    (* oldPermList[[remainingPositions]] gives which old positions map to remaining output positions *)
-    (* Then we need to renumber: old position -> new position *)
-    newPerm = PermutationCycles @ Ordering @ Ordering @ 
-        (oldPermList[[remainingPositions]] /. Thread[remainingPositions -> Range[Length[remainingPositions]]]);
-    
-    TensorNetwork[Delete[net["Tensors"], index], Delete[hyperedges, index], newPerm]
-]
-SetAttributes[tensorNetworkDeleteImpl, HoldAll];
-
-TensorNetworkDelete[net_ ? TensorNetworkQ, index_Integer : -1] := tensorNetworkDeleteImpl[net, index]
 
 
 (* Summary Box - NoEntry is handled by System`Private`HoldSetNoEntry *)
 TensorNetwork /: MakeBoxes[tn_TensorNetwork /; TensorNetworkQ[tn], fmt_] := With[{
     nTensors = Length[tn["Tensors"]],
+    hyperedges = tn["Hyperedges"],
     freeIndices = tn["FreeIndices"],
-    dims = tn["Dimensions"],
-    perm = tn["Permutation"]
+    dims = tn["Dimensions"]
 },
     BoxForm`ArrangeSummaryBox[
         TensorNetwork,
         tn,
         (* Icon - skip complex hypergraph plot for non-binary networks to avoid crashes *)
         If[ nTensors > 10 || !tn["BinaryQ"],
-            RandomGraph[{Min[nTensors, 8], Min[nTensors, 10]}, EdgeStyle -> LightGray, ImageSize -> 32, AspectRatio -> 1],
+            BlockRandom[
+                RandomGraph[{Min[nTensors, 8], Min[nTensors, 10]}, EdgeStyle -> LightGray, ImageSize -> 32, AspectRatio -> 1],
+                RandomSeeding -> Hash[hyperedges]
+            ],
             PacletSymbol["WolframInstitute/Hypergraph", "SimpleHypergraphPlot"][
-                tn["Hyperedges"],
+                hyperedges,
                 ImageSize -> 32, AspectRatio -> 1
             ]
         ],
@@ -663,8 +579,8 @@ TensorNetwork /: MakeBoxes[tn_TensorNetwork /; TensorNetworkQ[tn], fmt_] := With
         },
         (* Expanded *)
         {
-            BoxForm`SummaryItem[{"Dimensions: ", Pane[dims, 256]}],
-            BoxForm`SummaryItem[{"Permutation: ", perm}]
+            BoxForm`SummaryItem[{"Output dimensions: ", tn["OutputDimensions"]}],
+            BoxForm`SummaryItem[{"Tensor dimensions: ", Pane[dims, 256]}]
         },
         fmt
     ]
