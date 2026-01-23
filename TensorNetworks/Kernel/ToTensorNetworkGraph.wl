@@ -144,11 +144,14 @@ TensorNetworkAdd[net_Graph ? TensorNetworkGraphQ, Labeled[tensor_, label_ : None
 
 TensorNetworkAdd[net_Graph ? TensorNetworkGraphQ, tensor_, index : _List | Automatic : Automatic] := TensorNetworkAdd[net, Labeled[tensor, None], index]
 
-TensorNetworkDelete[net_Graph ? TensorNetworkGraphQ, index_Integer : -1] := With[{
+(* Helper function to avoid documentation introspection issues *)
+tensorNetworkDeleteGraphImpl[net_, index_] := With[{
     vs = VertexList[net]
 },
     VertexDelete[net, vs[[index]]]
 ]
+
+TensorNetworkDelete[net_Graph ? TensorNetworkGraphQ, index_Integer : -1] := tensorNetworkDeleteGraphImpl[net, index]
 
 VertexCompleteGraph[vs_List] := With[{n = Length[vs]}, AdjacencyGraph[vs, SparseArray[Band[{1, 1}] -> 0, {n, n}, 1]]]
 

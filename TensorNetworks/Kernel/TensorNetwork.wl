@@ -159,7 +159,7 @@ TensorNetworkProp[TensorNetwork[_, _, perm_], "Permutation"] := perm
 
 TensorNetworkProp[tn_, "Dimensions"] := tensorDimensions /@ tn["Tensors"]
 
-TensorNetworkProp[tn_, "Indices"] := MapIndexed[Thread[Labeled[First[#2], #1]] &, tn["Hyperedges"]]
+TensorNetworkProp[tn_, "Indices"] := MapIndexed[Thread[Superscript[First[#2], #1]] &, tn["Hyperedges"]]
 
 TensorNetworkSize[tn_ ? TensorNetworkQ] := Length[tn["Hyperedges"]]
 
@@ -195,7 +195,7 @@ TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
     hyperedges = tn["Hyperedges"],
     perm = tn["Permutation"]
 }, {
-    indices = MapIndexed[Thread[Labeled[First[#2], #1]] &, hyperedges],
+    indices = MapIndexed[Thread[Superscript[First[#2], #1]] &, hyperedges],
     dimensions = tensorDimensions /@ tensors
 }, {
     indexDimensions = Association @ Catenate @ MapThread[Thread[#1 -> #2] &, {indices, dimensions}],
@@ -569,7 +569,8 @@ RandomTensorNetwork["MERA"[width_Integer, bondDim_Integer, layers_Integer : 1], 
         TensorNetwork[tensors, indices]
     ]
 
-TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] := Block[{
+(* Helper functions to avoid documentation introspection issues *)
+tensorNetworkAddImpl[net_, tensor_, indices_] := Block[{
     hyperedges = net["Hyperedges"],
     perm = net["Permutation"],
     allIndices, existingFreeCount, newFreeIndices, newFreeCount, newPerm
@@ -593,7 +594,10 @@ TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] := Block[{
     TensorNetwork[Append[net["Tensors"], tensor], Append[hyperedges, indices], newPerm]
 ]
 
-TensorNetworkDelete[net_ ? TensorNetworkQ, index_Integer : -1] := Block[{
+TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] := tensorNetworkAddImpl[net, tensor, indices]
+SetAttributes[tensorNetworkAddImpl, HoldAll];
+
+tensorNetworkDeleteImpl[net_, index_] := Block[{
     hyperedges = net["Hyperedges"],
     perm = net["Permutation"],
     actualIndex, deletedHyperedge,
@@ -628,6 +632,9 @@ TensorNetworkDelete[net_ ? TensorNetworkQ, index_Integer : -1] := Block[{
     
     TensorNetwork[Delete[net["Tensors"], index], Delete[hyperedges, index], newPerm]
 ]
+SetAttributes[tensorNetworkDeleteImpl, HoldAll];
+
+TensorNetworkDelete[net_ ? TensorNetworkQ, index_Integer : -1] := tensorNetworkDeleteImpl[net, index]
 
 
 (* Summary Box - NoEntry is handled by System`Private`HoldSetNoEntry *)
