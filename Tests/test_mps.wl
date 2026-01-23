@@ -36,6 +36,32 @@ VerificationTest[
 ]
 
 (* ============================================ *)
+(* Test: Mixed Canonicalization                *)
+(* ============================================ *)
+
+VerificationTest[
+    mps = RandomTensorNetwork["MPS"[5, 4, 2]];
+    canonical = MPSCanonicalForm[mps, {"Mixed", 3}];
+    MPSCanonicalQ[canonical, {"Mixed", 3}],
+    True,
+    TestID -> "MPSCanonicalForm_Mixed_IsCanonical"
+]
+
+(* ============================================ *)
+(* Test: Right Canonicalization Respects MaxBond *)
+(* ============================================ *)
+
+VerificationTest[
+    mps = RandomTensorNetwork["MPS"[6, 8, 2]];
+    canonical = MPSCanonicalForm[mps, "Right", "MaxBond" -> 3];
+    dims = Dimensions /@ canonical["Tensors"];
+    bondDims = Flatten[Map[If[Length[#] == 2, {First[#]}, {#[[1]], #[[2]]}] &, dims]];
+    Max[bondDims] <= 3,
+    True,
+    TestID -> "MPSCanonicalForm_Right_RespectsMaxBond"
+]
+
+(* ============================================ *)
 (* Test: Overlap is Real and Positive for Self *)
 (* ============================================ *)
 

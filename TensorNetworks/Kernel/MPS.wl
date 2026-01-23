@@ -46,7 +46,7 @@ svdTruncate[matrix_, OptionsPattern[]] := Block[{
     keep = Max[keep, 1];  (* Keep at least 1 *)
     
     (* Compute truncation error *)
-    error = If[keep < Length[svals],
+    error = If[keep < Length[svals] && normSq > 0,
         Sqrt[Total[svals[[keep + 1 ;;]]^2] / normSq],
         0.
     ];
@@ -183,10 +183,11 @@ inferMPSHyperedges[tensors_List] := Block[{n, dims, hyperedges, bondIdx, physIdx
 
 mpsRightCanonical[mps_, opts___] := Block[{
     tensors = mps["Tensors"],
+    hyperedges = mps["Hyperedges"],
     output = mps["Output"],
     n, newTensors, residual, t, dims, mat, i,
-    uFull, sFull, vFull, svals, k,
-    leftDim, rightDim, physDim, absorbed, newHyperedges
+    u, svals, vt, err, k,
+    leftDim, rightDim, physDim, absorbed
 },
     n = Length[tensors];
     newTensors = tensors;
@@ -221,16 +222,12 @@ mpsRightCanonical[mps_, opts___] := Block[{
             If[Length[dims] == 2,
                 (* Boundary tensor {left, phys}: SVD for right isometry *)
                 (* t[left, phys] = U[left, k] . S[k] . V†[k, phys] *)
-                (* Keep V†^T = V[phys, k]^T = ... for right-isometry we want V†[k, phys] *)
-                (* which satisfies V† . V = I_k (rows are orthonormal) *)
-                {uFull, sFull, vFull} = SingularValueDecomposition[t];
-                svals = Diagonal[sFull];
+                (* V† has orthonormal rows, so it is right-isometric *)
+                {u, svals, vt, err} = svdTruncate[t, opts];
                 k = Length[svals];
-                (* vFull is {phys, phys}, we want first k rows of V† = first k columns of vFull^* *)
-                (* V† = ConjugateTranspose[vFull] is {phys, phys}, take first k rows: {k, phys} *)
-                newTensors[[i]] = ConjugateTranspose[vFull][[;; k]];
+                newTensors[[i]] = vt;
                 (* residual = U . S has shape {left, k} *)
-                residual = uFull[[All, ;; k]] . DiagonalMatrix[svals],
+                residual = u . DiagonalMatrix[svals],
                 
                 (* Bulk tensor {left, right, phys}: SVD decomposition *)
                 leftDim = dims[[1]];
@@ -238,24 +235,17 @@ mpsRightCanonical[mps_, opts___] := Block[{
                 physDim = dims[[3]];
                 (* Reshape to {left, right*phys} and SVD *)
                 mat = ArrayReshape[t, {leftDim, rightDim * physDim}];
-                {uFull, sFull, vFull} = SingularValueDecomposition[mat];
-                svals = Diagonal[sFull];
+                {u, svals, vt, err} = svdTruncate[mat, opts];
                 k = Length[svals];
-                (* V† is first k rows of ConjugateTranspose[vFull], shape {k, right*phys} *)
-                (* Reshape to {k, right, phys} *)
-                newTensors[[i]] = ArrayReshape[
-                    ConjugateTranspose[vFull][[;; k]],
-                    {k, rightDim, physDim}
-                ];
+                (* V† has shape {k, right*phys}, reshape to {k, right, phys} *)
+                newTensors[[i]] = ArrayReshape[vt, {k, rightDim, physDim}];
                 (* residual = U . S has shape {left, k} *)
-                residual = uFull[[All, ;; k]] . DiagonalMatrix[svals]
+                residual = u . DiagonalMatrix[svals]
             ]
         ]
     ];
     
-    (* Rebuild TensorNetwork with correct hyperedges based on new tensor dimensions *)
-    newHyperedges = inferMPSHyperedges[newTensors];
-    TensorNetwork[newTensors, newHyperedges, output]
+    TensorNetwork[newTensors, hyperedges, output]
 ]
 
 
@@ -290,9 +280,9 @@ mpsLeftCanonicalUpTo[mps_, k_, opts___] := Block[{
         
         If[i < k,
             If[Length[dims] == 2,
-                matrix = newTensors[[i]];
+                matrix = Transpose[newTensors[[i]]];
                 {u, s, vt, err} = svdTruncate[matrix, opts];
-                newTensors[[i]] = u;
+                newTensors[[i]] = Transpose[u];
                 residual = DiagonalMatrix[s] . vt
                 ,
                 leftDim = dims[[1]];
@@ -378,10 +368,20 @@ tensorAbsorbLeft[tensor_, mat_] := Block[{dims = Dimensions[tensor]},
 
 tensorAbsorbRight[tensor_, mat_] := Block[{dims = Dimensions[tensor]},
     If[Length[dims] == 2,
-        tensor . mat,
-        ArrayReshape[
-            ArrayReshape[tensor, {Times @@ dims[[;; -2]], dims[[-1]]}] . mat,
-            Append[dims[[;; -2]], Dimensions[mat][[2]]]
+        Transpose[mat] . tensor,
+        Module[{leftDim, rightDim, physDim, tmp, reshaped},
+            leftDim = dims[[1]];
+            rightDim = dims[[2]];
+            physDim = dims[[-1]];
+            tmp = ArrayReshape[
+                Transpose[tensor, {1, 3, 2}],
+                {leftDim * physDim, rightDim}
+            ];
+            reshaped = tmp . mat;
+            Transpose[
+                ArrayReshape[reshaped, {leftDim, physDim, Dimensions[mat][[2]]}],
+                {1, 3, 2}
+            ]
         ]
     ]
 ]
@@ -410,6 +410,20 @@ MPSCanonicalQ[mps_TensorNetwork ? TensorNetworkQ, "Right", tol_ : 10^-10] := Blo
     AllTrue[
         tensors[[2 ;;]],
         isRightIsometry[#, tol] &
+    ]
+]
+
+MPSCanonicalQ[mps_TensorNetwork ? TensorNetworkQ, {"Mixed", k_Integer}, tol_ : 10^-10] := Block[{
+    tensors = mps["Tensors"],
+    n, leftTensors, rightTensors
+},
+    n = Length[tensors];
+    If[k < 1 || k > n, Return[False]];
+    leftTensors = If[k > 1, tensors[[;; k - 1]], {}];
+    rightTensors = If[k < n, tensors[[k + 1 ;;]], {}];
+    And[
+        AllTrue[leftTensors, isLeftIsometry[#, tol] &],
+        AllTrue[rightTensors, isRightIsometry[#, tol] &]
     ]
 ]
 
@@ -546,27 +560,33 @@ MPSNormalize[mps_TensorNetwork ? TensorNetworkQ] := Block[{
 (* ============================================ *)
 
 MPSSchmidtValues[mps_TensorNetwork ? TensorNetworkQ, site_Integer] := Block[{
-    canonical, tensors, tensor, dims, matrix, svals, normalization
+    canonical, tensors, tensor, dims, matrix, svals, normalization,
+    leftDim, rightDim, physDim, n
 },
-    (* Use left-canonical form - Schmidt values are singular values of bond matrix between sites *)
-    canonical = MPSCanonicalForm[mps, "Left"];
-    tensors = canonical["Tensors"];
-    
-    (* For bond after site k, we look at tensor k+1 and compute its left singular values *)
-    If[site >= Length[tensors],
-        (* Last site - return {1} for normalized state *)
+    n = Length[mps["Tensors"]];
+    If[site < 1 || site >= n,
         Return[{1.}]
     ];
     
-    tensor = tensors[[site + 1]];
+    (* Use mixed canonical form centered at site to get Schmidt values across bond (site, site+1) *)
+    canonical = MPSCanonicalForm[mps, {"Mixed", site}];
+    tensors = canonical["Tensors"];
+    
+    tensor = tensors[[site]];
     dims = Dimensions[tensor];
     
-    (* Reshape tensor to (left_bond) x (other indices) and compute SVD *)
+    (* Reshape tensor to (left_bond * physical) x (right_bond) and compute SVD *)
     If[Length[dims] == 2,
         (* Boundary tensor: {bond, physical} *)
-        matrix = tensor,
-        (* Bulk tensor: {left, right, physical} -> {left, right*physical} *)
-        matrix = ArrayReshape[tensor, {dims[[1]], Times @@ dims[[2 ;;]]}]
+        matrix = Transpose[tensor],
+        (* Bulk tensor: {left, right, physical} -> {left*physical, right} *)
+        leftDim = dims[[1]];
+        rightDim = dims[[2]];
+        physDim = dims[[3]];
+        matrix = ArrayReshape[
+            Transpose[tensor, {1, 3, 2}],
+            {leftDim * physDim, rightDim}
+        ]
     ];
     
     svals = SingularValueList[matrix];
