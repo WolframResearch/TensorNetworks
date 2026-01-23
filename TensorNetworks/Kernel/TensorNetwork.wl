@@ -533,13 +533,21 @@ RandomTensorNetwork["MERA"[width_Integer, bondDim_Integer, layers_Integer : 1], 
     ]
 
 
-TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] :=
+TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] := With[{
+    newHyperedges = Append[net["Hyperedges"], indices]
+},
     TensorNetwork[
         Append[net["Tensors"], tensor],
-        Append[net["Hyperedges"], indices],
-        (* TODO: figure out whether that's what it should actually do or not *)
-        Replace[net["Output"], Except[Automatic] :> Join[net["FreeIndices"], indices]]
+        newHyperedges,
+        (* Update output: remove indices that become contracted, add new free indices *)
+        Replace[net["Output"], Except[Automatic] :> With[{
+            freeAfter = TensorNetworkFreeIndices[newHyperedges]
+        },
+            (* Keep indices from current output that are still free, then add new free indices *)
+            Join[Select[net["FreeIndices"], MemberQ[freeAfter, #] &], DeleteElements[indices, Catenate[net["Hyperedges"]]]]
+        ]]
     ]
+]
 
 TensorNetworkDelete[net_ ? TensorNetworkQ, index_Integer : -1] := With[{hyperedges = net["Hyperedges"]},
     TensorNetwork[

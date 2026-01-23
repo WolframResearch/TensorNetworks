@@ -87,7 +87,7 @@ MPSCanonicalForm[mps_TensorNetwork ? TensorNetworkQ, opts : OptionsPattern[]] :=
 mpsLeftCanonical[mps_, opts___] := Block[{
     tensors = mps["Tensors"],
     hyperedges = mps["Hyperedges"],
-    perm = mps["Permutation"],
+    output = mps["Output"],
     n, newTensors, residual, dims, matrix, u, s, vt, err,
     leftDim, rightDim, physDim
 },
@@ -140,7 +140,7 @@ mpsLeftCanonical[mps_, opts___] := Block[{
         {i, n}
     ];
     
-    TensorNetwork[newTensors, hyperedges, perm]
+    TensorNetwork[newTensors, hyperedges, output]
 ]
 
 
@@ -183,7 +183,7 @@ inferMPSHyperedges[tensors_List] := Block[{n, dims, hyperedges, bondIdx, physIdx
 
 mpsRightCanonical[mps_, opts___] := Block[{
     tensors = mps["Tensors"],
-    perm = mps["Permutation"],
+    output = mps["Output"],
     n, newTensors, residual, t, dims, mat, i,
     uFull, sFull, vFull, svals, k,
     leftDim, rightDim, physDim, absorbed, newHyperedges
@@ -255,7 +255,7 @@ mpsRightCanonical[mps_, opts___] := Block[{
     
     (* Rebuild TensorNetwork with correct hyperedges based on new tensor dimensions *)
     newHyperedges = inferMPSHyperedges[newTensors];
-    TensorNetwork[newTensors, newHyperedges, perm]
+    TensorNetwork[newTensors, newHyperedges, output]
 ]
 
 
@@ -271,7 +271,7 @@ mpsMixedCanonical[mps_, k_, opts___] := Block[{
 mpsLeftCanonicalUpTo[mps_, k_, opts___] := Block[{
     tensors = mps["Tensors"],
     hyperedges = mps["Hyperedges"],
-    perm = mps["Permutation"],
+    output = mps["Output"],
     n, newTensors, residual, dims, matrix, u, s, vt, err,
     leftDim, rightDim, physDim
 },
@@ -316,13 +316,13 @@ mpsLeftCanonicalUpTo[mps_, k_, opts___] := Block[{
         {i, k}
     ];
     
-    TensorNetwork[newTensors, hyperedges, perm]
+    TensorNetwork[newTensors, hyperedges, output]
 ]
 
 mpsRightCanonicalFrom[mps_, k_, opts___] := Block[{
     tensors = mps["Tensors"],
     hyperedges = mps["Hyperedges"],
-    perm = mps["Permutation"],
+    output = mps["Output"],
     n, newTensors, residual, dims, matrix, u, s, vt, err,
     leftDim, rightDim, physDim
 },
@@ -361,7 +361,7 @@ mpsRightCanonicalFrom[mps_, k_, opts___] := Block[{
         {i, n, k, -1}
     ];
     
-    TensorNetwork[newTensors, hyperedges, perm]
+    TensorNetwork[newTensors, hyperedges, output]
 ]
 
 
@@ -525,7 +525,7 @@ MPSNorm[mps_TensorNetwork ? TensorNetworkQ] := Sqrt[Abs[MPSOverlap[mps, mps]]]
 MPSNormalize[mps_TensorNetwork ? TensorNetworkQ] := Block[{
     tensors = mps["Tensors"],
     hyperedges = mps["Hyperedges"],
-    perm = mps["Permutation"],
+    output = mps["Output"],
     norm, factor
 },
     norm = MPSNorm[mps];
@@ -536,7 +536,7 @@ MPSNormalize[mps_TensorNetwork ? TensorNetworkQ] := Block[{
     TensorNetwork[
         tensors / factor,
         hyperedges,
-        perm
+        output
     ]
 ]
 
