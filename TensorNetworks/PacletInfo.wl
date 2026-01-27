@@ -14,7 +14,7 @@ PacletObject[
       {
         "Kernel",
         "Root" -> "Kernel",
-        "Context" -> {"Wolfram`TensorNetworks`", "Wolfram`TensorNetworks`IndexArray`"}
+        "Context" -> {"Wolfram`TensorNetworks`", "Wolfram`TensorNetworks`IndexArray`", "Wolfram`TensorNetworks`Symmetry`"}
       },
       {"Cargo", "Root" -> ".."},
       {"Build", "Actions" -> {"CargoBuild"}},
