@@ -571,8 +571,8 @@ TensorNetwork /: MakeBoxes[tn_TensorNetwork /; TensorNetworkQ[tn], fmt_] := With
         (* Icon - skip complex hypergraph plot for non-binary networks to avoid crashes *)
         If[ nTensors > 10 || !tn["BinaryQ"],
             BlockRandom[
-                RandomGraph[{Min[nTensors, 8], Min[nTensors, 10]}, EdgeStyle -> LightGray, ImageSize -> 32, AspectRatio -> 1],
-                RandomSeeding -> Hash[hyperedges]
+                RandomGraph[{10, 20}, EdgeStyle -> LightGray, ImageSize -> 32, AspectRatio -> 1],
+                RandomSeeding -> 42
             ],
             PacletSymbol["WolframInstitute/Hypergraph", "SimpleHypergraphPlot"][
                 hyperedges,
