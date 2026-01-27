@@ -3,6 +3,7 @@ Package["Wolfram`TensorNetworks`"]
 
 PackageExport[TreePathQ]
 PackageExport[PathQ]
+PackageExport[CanonicalPathQ]
 PackageExport[TreePathToPath]
 PackageExport[PathToTreePath]
 PackageExport[CanonicalPath]
@@ -50,6 +51,9 @@ PathToTreePath[path_List ? PathQ, indices : _List | Automatic : Automatic] :=
 
 CanonicalPath[path_List ? PathQ, indices : _List | Automatic : Automatic] :=
 	TreePathToPath[PathToTreePath[path, indices], indices]
+
+CanonicalPathQ[{({_Integer, _Integer}) ..}] := True
+CanonicalPathQ[___] := False
 
 ContractIndices[i_, j_] := With[{c = Complement[Join[i, j], SymmetricDifference[i, j]]},
 	c -> {DeleteElements[DeleteDuplicates[i], c], DeleteElements[DeleteDuplicates[j], c]}

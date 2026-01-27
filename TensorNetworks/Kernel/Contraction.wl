@@ -246,7 +246,7 @@ TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args__] :=
 TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ] :=
     TensorNetworkContraction[TensorNetworkData[net]]
 
-TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? PathQ, opts : OptionsPattern[]] := 
+TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? CanonicalPathQ, opts : OptionsPattern[]] := 
     TensorNetworkContraction[data, PathToTreePath[path, vertices], opts]
     
 TensorNetworkContraction[net_, method_String, opts : OptionsPattern[]] := 
@@ -293,7 +293,7 @@ TensorNetworkContraction[
 
 Options[TensorNetworkContract] = Options[TensorNetworkContraction]
 
-TensorNetworkContract[data_ ? AssociationQ, path : Automatic | _String | _ ? PathQ, opts : OptionsPattern[]] :=
+TensorNetworkContract[data_ ? AssociationQ, path : Automatic | _String | _ ? CanonicalPathQ, opts : OptionsPattern[]] :=
 	TensorNetworkContraction[data, path, opts, "Inactive" -> False]
 
 TensorNetworkContract[net_Graph ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkGraphData[net], args]
