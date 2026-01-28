@@ -1,0 +1,419 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     13547,        410]
+NotebookOptionsPosition[      9158,        353]
+NotebookOutlinePosition[      9476,        367]
+CellTagsIndexPosition[      9433,        364]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_paths", "Title",ExpressionUUID->"225b8717-9ad4-4eab-8bda-6111ce135d4e"],
+
+Cell["Comprehensivetests for Paths.wl", "Subtitle",ExpressionUUID->"89b4dbde-7e58-459b-92ff-05471d82ffde"],
+
+Cell["\<\
+(* Tests/test_paths.wl *)
+(* Comprehensive tests for Paths.wl *)
+
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"2f4cb960-c634-41a1-b343-9edb8380ef43"],
+
+Cell["", "Section",ExpressionUUID->"15c854ff-a645-408b-9644-af78cf6109d8"],
+
+Cell["\<\
+VerificationTest[
+    TreePathQ[{1}],
+    True,
+    TestID -> \"TreePathQ_SingleElement\"
+]\
+\>", "Input",ExpressionUUID->"55c1d0be-32d2-425b-8539-f32d6615d694"],
+
+Cell["\<\
+VerificationTest[
+    TreePathQ[{{1}, {2}}],
+    True,
+    TestID -> \"TreePathQ_TwoElements\"
+]\
+\>", "Input",ExpressionUUID->"596580e1-f81b-4a7f-8ff8-185f56314809"],
+
+Cell["\<\
+VerificationTest[
+    TreePathQ[{{{1}, {2}}, {3}}],
+    True,
+    TestID -> \"TreePathQ_NestedStructure\"
+]\
+\>", "Input",ExpressionUUID->"e742ee51-ee90-41ca-a105-0d5de1a98758"],
+
+Cell["\<\
+VerificationTest[
+    TreePathQ[{}],
+    False,
+    TestID -> \"TreePathQ_EmptyList\"
+]\
+\>", "Input",ExpressionUUID->"c6d21226-c7de-4498-b014-1cc7dbf019e2"],
+
+Cell["\<\
+VerificationTest[
+    TreePathQ[\"not a tree path\"],
+    False,
+    TestID -> \"TreePathQ_InvalidInput_String\"
+]\
+\>", "Input",ExpressionUUID->"84848637-3f53-42b5-9e70-6bb1c5941895"],
+
+Cell["\<\
+VerificationTest[
+    TreePathQ[123],
+    False,
+    TestID -> \"TreePathQ_InvalidInput_Number\"
+]\
+\>", "Input",ExpressionUUID->"e7624280-f1a6-462a-a7e3-1188078030df"],
+
+Cell["", "Section",ExpressionUUID->"e6affd97-6bdf-4914-8d1c-f98b7afdfd38"],
+
+Cell["\<\
+VerificationTest[
+    PathQ[{{1, 2}}],
+    True,
+    TestID -> \"PathQ_SinglePair\"
+]\
+\>", "Input",ExpressionUUID->"a25b7993-801c-424a-b8a2-b0af8a640af4"],
+
+Cell["\<\
+VerificationTest[
+    PathQ[{{1, 2}, {1, 2}}],
+    True,
+    TestID -> \"PathQ_MultiplePairs\"
+]\
+\>", "Input",ExpressionUUID->"68ebbdec-a2e1-47b8-800c-50aca0d40eb0"],
+
+Cell["\<\
+VerificationTest[
+    PathQ[{{1}, {2, 3}}],
+    True,
+    TestID -> \"PathQ_MixedSinglesAndPairs\"
+]\
+\>", "Input",ExpressionUUID->"07852dcb-9fc5-4271-9436-218c603dcc4d"],
+
+Cell["\<\
+VerificationTest[
+    PathQ[{}],
+    False,
+    TestID -> \"PathQ_EmptyList\"
+]\
+\>", "Input",ExpressionUUID->"90ea4300-8270-4244-83a9-0496a4dd196b"],
+
+Cell["\<\
+VerificationTest[
+    PathQ[{{1, 2, 3}}],
+    False,
+    TestID -> \"PathQ_InvalidTriple\"
+]\
+\>", "Input",ExpressionUUID->"0b8bd5f4-d176-4dd5-ad46-54c0fdeb8a79"],
+
+Cell["\<\
+VerificationTest[
+    PathQ[\"not a path\"],
+    False,
+    TestID -> \"PathQ_InvalidInput_String\"
+]\
+\>", "Input",ExpressionUUID->"1c62e4bf-00df-4147-90e1-f6f9a7449fba"],
+
+Cell["", "Section",ExpressionUUID->"85ac9bf5-ff10-44b2-82bf-0cb076061bb1"],
+
+Cell["\<\
+VerificationTest[
+    CanonicalPathQ[{{1, 2}}],
+    True,
+    TestID -> \"CanonicalPathQ_SinglePair\"
+]\
+\>", "Input",ExpressionUUID->"e6914249-e30a-44db-a1ce-acb7c33ff338"],
+
+Cell["\<\
+VerificationTest[
+    CanonicalPathQ[{{1, 2}, {1, 2}, {1, 2}}],
+    True,
+    TestID -> \"CanonicalPathQ_MultiplePairs\"
+]\
+\>", "Input",ExpressionUUID->"a171db0c-89e8-456b-9fc3-3e5bb3e960cc"],
+
+Cell["\<\
+VerificationTest[
+    CanonicalPathQ[{{1}}],
+    False,
+    TestID -> \"CanonicalPathQ_SingleElement\"
+]\
+\>", "Input",ExpressionUUID->"5622b0b8-c521-453b-b039-bf7e920ac34b"],
+
+Cell["\<\
+VerificationTest[
+    CanonicalPathQ[{}],
+    False,
+    TestID -> \"CanonicalPathQ_EmptyList\"
+]\
+\>", "Input",ExpressionUUID->"bfe681e3-9bf4-44f4-8959-b1105d8ee46d"],
+
+Cell["", "Section",ExpressionUUID->"23aafcab-9238-4adc-8bbe-9490306dcc96"],
+
+Cell["\<\
+VerificationTest[
+    treePath = PathToTreePath[{{1, 2}}];
+    TreePathQ[treePath],
+    True,
+    TestID -> \"PathToTreePath_Simple\"
+]\
+\>", "Input",ExpressionUUID->"cd652a7e-d667-43cf-b273-2581913d8596"],
+
+Cell["\<\
+VerificationTest[
+    treePath = PathToTreePath[{{1, 2}, {1, 2}}];
+    TreePathQ[treePath],
+    True,
+    TestID -> \"PathToTreePath_TwoPairs\"
+]\
+\>", "Input",ExpressionUUID->"07d02cec-253a-4da0-ba31-cdd4466e4aa2"],
+
+Cell["\<\
+VerificationTest[
+    treePath = PathToTreePath[{{1, 2}, {1, 2}, {1, 2}}];
+    TreePathQ[treePath],
+    True,
+    TestID -> \"PathToTreePath_ThreePairs\"
+]\
+\>", "Input",ExpressionUUID->"93fa089a-d718-42ca-98c5-06a02e53fbf3"],
+
+Cell["\<\
+VerificationTest[
+    treePath = PathToTreePath[{{1, 2}}, {1, 2, 3}];
+    TreePathQ[treePath],
+    True,
+    TestID -> \"PathToTreePath_WithIndices\"
+]\
+\>", "Input",ExpressionUUID->"892841e5-db62-4525-8a79-0567a1aa2315"],
+
+Cell["", "Section",ExpressionUUID->"51d48b76-9809-450d-a733-41b8547db8f2"],
+
+Cell["\<\
+VerificationTest[
+    path = TreePathToPath[{{1}, {2}}];
+    PathQ[path],
+    True,
+    TestID -> \"TreePathToPath_Simple\"
+]\
+\>", "Input",ExpressionUUID->"7b4d82f2-da8f-4ec0-916f-b6586b0e37bb"],
+
+Cell["\<\
+VerificationTest[
+    path = TreePathToPath[{{{1}, {2}}, {3}}];
+    PathQ[path],
+    True,
+    TestID -> \"TreePathToPath_Nested\"
+]\
+\>", "Input",ExpressionUUID->"7a793fa9-3dca-4046-9046-5f3b783ff069"],
+
+Cell["\<\
+VerificationTest[
+    path = TreePathToPath[{{1}, {2}}, {1, 2}];
+    PathQ[path],
+    True,
+    TestID -> \"TreePathToPath_WithIndices\"
+]\
+\>", "Input",ExpressionUUID->"858207c8-7eb9-41a3-b7f1-efe4e489c893"],
+
+Cell["", "Section",ExpressionUUID->"1f114809-c936-48c2-a5ac-addcce9fbe1d"],
+
+Cell["\<\
+VerificationTest[
+    canonical = CanonicalPath[{{1, 2}}];
+    CanonicalPathQ[canonical],
+    True,
+    TestID -> \"CanonicalPath_Simple\"
+]\
+\>", "Input",ExpressionUUID->"f68dd58f-30dc-4e5e-bc3b-8bdfb34a841f"],
+
+Cell["\<\
+VerificationTest[
+    canonical = CanonicalPath[{{1, 2}, {1, 2}}];
+    CanonicalPathQ[canonical],
+    True,
+    TestID -> \"CanonicalPath_TwoPairs\"
+]\
+\>", "Input",ExpressionUUID->"c4cde8cc-c27c-408b-8293-84d1588d186c"],
+
+Cell["\<\
+VerificationTest[
+    canonical = CanonicalPath[{{1, 2}, {1, 2}, {1, 2}}];
+    CanonicalPathQ[canonical],
+    True,
+    TestID -> \"CanonicalPath_ThreePairs\"
+]\
+\>", "Input",ExpressionUUID->"690811fc-c773-4f79-bba4-f66625f90b96"],
+
+Cell["\<\
+VerificationTest[
+    canonical = CanonicalPath[{{2, 3}, {1, 2}}];
+    CanonicalPathQ[canonical],
+    True,
+    TestID -> \"CanonicalPath_OutOfOrder\"
+]\
+\>", "Input",ExpressionUUID->"0157dc92-18b1-4ca9-81dd-887cc8778fbc"],
+
+Cell["", "Section",ExpressionUUID->"47b138b0-5497-4cd6-a872-c8ed75ac83ef"],
+
+Cell["\<\
+VerificationTest[
+    path = {{1, 2}};
+    indices = {{1, 2}, {2, 3}};
+    contractions = PathIndexContractions[path, indices];
+    ListQ[contractions],
+    True,
+    TestID -> \"PathIndexContractions_Simple\"
+]\
+\>", "Input",ExpressionUUID->"4e213388-8e32-4be9-803e-e480b02e45d8"],
+
+Cell["\<\
+VerificationTest[
+    path = {{1, 2}, {1, 2}};
+    indices = {{1, 2}, {2, 3}, {3, 4}};
+    contractions = PathIndexContractions[path, indices];
+    ListQ[contractions],
+    True,
+    TestID -> \"PathIndexContractions_ThreeTensors\"
+]\
+\>", "Input",ExpressionUUID->"ad9665a7-5700-4627-9ccf-ed43239ffc1c"],
+
+Cell["", "Section",ExpressionUUID->"f07a415d-942b-4c67-a106-82b348c1ac67"],
+
+Cell["\<\
+VerificationTest[
+    (* Path -> TreePath -> Path should be canonical *)
+    path = {{1, 2}};
+    treePath = PathToTreePath[path];
+    backToPath = TreePathToPath[treePath];
+    CanonicalPathQ[backToPath],
+    True,
+    TestID -> \"RoundTrip_PathToTreePathToPath_Simple\"
+]\
+\>", "Input",ExpressionUUID->"1413a914-392f-4586-9739-2f429bf52a25"],
+
+Cell["\<\
+VerificationTest[
+    (* Path -> TreePath -> Path should be canonical *)
+    path = {{1, 2}, {1, 2}};
+    treePath = PathToTreePath[path];
+    backToPath = TreePathToPath[treePath];
+    CanonicalPathQ[backToPath],
+    True,
+    TestID -> \"RoundTrip_PathToTreePathToPath_TwoPairs\"
+]\
+\>", "Input",ExpressionUUID->"b4e10f7b-8593-4383-a58e-519a4823146c"],
+
+Cell["\<\
+VerificationTest[
+    (* CanonicalPath should be idempotent *)
+    path = {{1, 2}, {1, 2}};
+    canonical1 = CanonicalPath[path];
+    canonical2 = CanonicalPath[canonical1];
+    canonical1 === canonical2,
+    True,
+    TestID -> \"CanonicalPath_Idempotent\"
+]\
+\>", "Input",ExpressionUUID->"2580e75d-2bd5-4bc6-abc1-69feec6450de"],
+
+Cell["\<\
+VerificationTest[
+    (* Single contraction *)
+    TreePathQ[{1}] || TreePathQ[{{1}}],
+    True,
+    TestID -> \"TreePath_MinimalValid\"
+]\
+\>", "Input",ExpressionUUID->"99774356-b030-44da-98ec-9c624c81af18"],
+
+Cell["\<\
+VerificationTest[
+    (* Deeply nested tree path *)
+    treePath = {{{{1}, {2}}, {3}}, {4}};
+    TreePathQ[treePath],
+    True,
+    TestID -> \"TreePathQ_DeeplyNested\"
+]\
+\>", "Input",ExpressionUUID->"aa463359-89a9-40db-87c2-e95bdde58965"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 82, 0, 70, "Title",ExpressionUUID->"225b8717-9ad4-4eab-8bda-6111ce135d4e"],
+Cell[639, 22, 106, 0, 70, "Subtitle",ExpressionUUID->"89b4dbde-7e58-459b-92ff-05471d82ffde"],
+Cell[748, 24, 246, 7, 70, "Input",ExpressionUUID->"2f4cb960-c634-41a1-b343-9edb8380ef43",
+ InitializationCell->True],
+Cell[997, 33, 74, 0, 70, "Section",ExpressionUUID->"15c854ff-a645-408b-9644-af78cf6109d8"],
+Cell[1074, 35, 171, 6, 70, "Input",ExpressionUUID->"55c1d0be-32d2-425b-8539-f32d6615d694"],
+Cell[1248, 43, 176, 6, 70, "Input",ExpressionUUID->"596580e1-f81b-4a7f-8ff8-185f56314809"],
+Cell[1427, 51, 187, 6, 70, "Input",ExpressionUUID->"e742ee51-ee90-41ca-a105-0d5de1a98758"],
+Cell[1617, 59, 167, 6, 70, "Input",ExpressionUUID->"c6d21226-c7de-4498-b014-1cc7dbf019e2"],
+Cell[1787, 67, 194, 6, 70, "Input",ExpressionUUID->"84848637-3f53-42b5-9e70-6bb1c5941895"],
+Cell[1984, 75, 178, 6, 70, "Input",ExpressionUUID->"e7624280-f1a6-462a-a7e3-1188078030df"],
+Cell[2165, 83, 74, 0, 70, "Section",ExpressionUUID->"e6affd97-6bdf-4914-8d1c-f98b7afdfd38"],
+Cell[2242, 85, 165, 6, 70, "Input",ExpressionUUID->"a25b7993-801c-424a-b8a2-b0af8a640af4"],
+Cell[2410, 93, 176, 6, 70, "Input",ExpressionUUID->"68ebbdec-a2e1-47b8-800c-50aca0d40eb0"],
+Cell[2589, 101, 180, 6, 70, "Input",ExpressionUUID->"07852dcb-9fc5-4271-9436-218c603dcc4d"],
+Cell[2772, 109, 159, 6, 70, "Input",ExpressionUUID->"90ea4300-8270-4244-83a9-0496a4dd196b"],
+Cell[2934, 117, 172, 6, 70, "Input",ExpressionUUID->"0b8bd5f4-d176-4dd5-ad46-54c0fdeb8a79"],
+Cell[3109, 125, 181, 6, 70, "Input",ExpressionUUID->"1c62e4bf-00df-4147-90e1-f6f9a7449fba"],
+Cell[3293, 133, 74, 0, 70, "Section",ExpressionUUID->"85ac9bf5-ff10-44b2-82bf-0cb076061bb1"],
+Cell[3370, 135, 183, 6, 70, "Input",ExpressionUUID->"e6914249-e30a-44db-a1ce-acb7c33ff338"],
+Cell[3556, 143, 202, 6, 70, "Input",ExpressionUUID->"a171db0c-89e8-456b-9fc3-3e5bb3e960cc"],
+Cell[3761, 151, 184, 6, 70, "Input",ExpressionUUID->"5622b0b8-c521-453b-b039-bf7e920ac34b"],
+Cell[3948, 159, 177, 6, 70, "Input",ExpressionUUID->"bfe681e3-9bf4-44f4-8959-b1105d8ee46d"],
+Cell[4128, 167, 74, 0, 70, "Section",ExpressionUUID->"23aafcab-9238-4adc-8bbe-9490306dcc96"],
+Cell[4205, 169, 215, 7, 70, "Input",ExpressionUUID->"cd652a7e-d667-43cf-b273-2581913d8596"],
+Cell[4423, 178, 225, 7, 70, "Input",ExpressionUUID->"07d02cec-253a-4da0-ba31-cdd4466e4aa2"],
+Cell[4651, 187, 235, 7, 70, "Input",ExpressionUUID->"93fa089a-d718-42ca-98c5-06a02e53fbf3"],
+Cell[4889, 196, 231, 7, 70, "Input",ExpressionUUID->"892841e5-db62-4525-8a79-0567a1aa2315"],
+Cell[5123, 205, 74, 0, 70, "Section",ExpressionUUID->"51d48b76-9809-450d-a733-41b8547db8f2"],
+Cell[5200, 207, 205, 7, 70, "Input",ExpressionUUID->"7b4d82f2-da8f-4ec0-916f-b6586b0e37bb"],
+Cell[5408, 216, 212, 7, 70, "Input",ExpressionUUID->"7a793fa9-3dca-4046-9046-5f3b783ff069"],
+Cell[5623, 225, 218, 7, 70, "Input",ExpressionUUID->"858207c8-7eb9-41a3-b7f1-efe4e489c893"],
+Cell[5844, 234, 74, 0, 70, "Section",ExpressionUUID->"1f114809-c936-48c2-a5ac-addcce9fbe1d"],
+Cell[5921, 236, 220, 7, 70, "Input",ExpressionUUID->"f68dd58f-30dc-4e5e-bc3b-8bdfb34a841f"],
+Cell[6144, 245, 230, 7, 70, "Input",ExpressionUUID->"c4cde8cc-c27c-408b-8293-84d1588d186c"],
+Cell[6377, 254, 240, 7, 70, "Input",ExpressionUUID->"690811fc-c773-4f79-bba4-f66625f90b96"],
+Cell[6620, 263, 232, 7, 70, "Input",ExpressionUUID->"0157dc92-18b1-4ca9-81dd-887cc8778fbc"],
+Cell[6855, 272, 74, 0, 70, "Section",ExpressionUUID->"47b138b0-5497-4cd6-a872-c8ed75ac83ef"],
+Cell[6932, 274, 291, 9, 70, "Input",ExpressionUUID->"4e213388-8e32-4be9-803e-e480b02e45d8"],
+Cell[7226, 285, 313, 9, 70, "Input",ExpressionUUID->"ad9665a7-5700-4627-9ccf-ed43239ffc1c"],
+Cell[7542, 296, 74, 0, 70, "Section",ExpressionUUID->"f07a415d-942b-4c67-a106-82b348c1ac67"],
+Cell[7619, 298, 353, 10, 70, "Input",ExpressionUUID->"1413a914-392f-4586-9739-2f429bf52a25"],
+Cell[7975, 310, 363, 10, 70, "Input",ExpressionUUID->"b4e10f7b-8593-4383-a58e-519a4823146c"],
+Cell[8341, 322, 339, 10, 70, "Input",ExpressionUUID->"2580e75d-2bd5-4bc6-abc1-69feec6450de"],
+Cell[8683, 334, 218, 7, 70, "Input",ExpressionUUID->"99774356-b030-44da-98ec-9c624c81af18"],
+Cell[8904, 343, 250, 8, 70, "Input",ExpressionUUID->"aa463359-89a9-40db-87c2-e95bdde58965"]
+}
+]
+*)
+
+(* End of internal cache information *)

@@ -68,6 +68,214 @@ einsumArrayDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Bl
 	]
 ]
 
+
+(* ============================================ *)
+(* Symmetry-Filtered Contraction               *)
+(* ============================================ *)
+
+(* Symmetry-aware ArrayDot that skips zero blocks based on quantum number conservation *)
+(* aCharges/bCharges: Association mapping index labels to charge lists *)
+(* Example: <|"j" -> {-1, 0, 1}|> means index "j" has charges -1, 0, 1 for its 3 values *)
+
+einsumArrayDotWithCharges[
+    {i_, j_} -> out_,
+    a_, b_,
+    aCharges_Association,
+    bCharges_Association,
+    inactiveQ : _ ? BooleanQ : False
+] := Block[{
+    c, al, br, k,
+    aIndex = First /@ PositionIndex[i],
+    bIndex = First /@ PositionIndex[j],
+    contractedChargesA, contractedChargesB,
+    allowedPairs, nAllowed, nTotal,
+    inactive = If[inactiveQ, Function[f, Inactive[f][##] &], Identity]
+},
+    (* Find contracted indices *)
+    c = DeleteElements[
+        DeleteDuplicates @ Join[i, j],
+        Replace[out, Automatic :> SymmetricDifference[i, j]]
+    ];
+    al = DeleteElements[i, c];
+    br = DeleteElements[j, c];
+    k = Length[c];
+
+    (* If no contraction, use standard tensor product *)
+    If[k == 0,
+        Return[einsumArrayDot[{i, j} -> out, a, b, inactiveQ]]
+    ];
+
+    (* Check if we have charge info for all contracted indices *)
+    If[!AllTrue[c, KeyExistsQ[aCharges, #] && KeyExistsQ[bCharges, #] &],
+        (* Missing charge info - fall back to standard contraction *)
+        Return[einsumArrayDot[{i, j} -> out, a, b, inactiveQ]]
+    ];
+
+    (* Get charges for contracted indices *)
+    contractedChargesA = Lookup[aCharges, c];
+    contractedChargesB = Lookup[bCharges, c];
+
+    (* Find allowed contractions (where charges sum to zero) *)
+    allowedPairs = findAllowedChargedPairs[contractedChargesA, contractedChargesB];
+
+    nTotal = Times @@ (Length /@ contractedChargesA);
+    nAllowed = Length[allowedPairs];
+
+    (* If most contractions are allowed (>50%), use standard method - overhead not worth it *)
+    If[nAllowed > 0.5 * nTotal,
+        Return[einsumArrayDot[{i, j} -> out, a, b, inactiveQ]]
+    ];
+
+    (* If no allowed contractions, return zero tensor *)
+    If[nAllowed == 0,
+        Return[zeroResultTensor[a, b, al, br, out, aIndex, bIndex]]
+    ];
+
+    (* Sparse contraction over allowed pairs only *)
+    sparseChargedArrayDot[a, b, allowedPairs, {i, j} -> out, c, aIndex, bIndex, inactive]
+]
+
+(* Helper: Find index value pairs where charges sum to zero *)
+findAllowedChargedPairs[chargesA_List, chargesB_List] := Module[{
+    nIndices = Length[chargesA]
+},
+    If[nIndices == 0, Return[{{}}]];
+
+    (* For single contracted index *)
+    If[nIndices == 1,
+        Return[
+            Select[
+                Tuples[{Range[Length[chargesA[[1]]]], Range[Length[chargesB[[1]]]]}],
+                chargesA[[1, #[[1]]]] + chargesB[[1, #[[2]]]] == 0 &
+            ]
+        ]
+    ];
+
+    (* For multiple contracted indices - find pairs for each and take Cartesian product *)
+    Module[{ranges},
+        ranges = Table[
+            Select[
+                Tuples[{Range[Length[chargesA[[idx]]]], Range[Length[chargesB[[idx]]]]}],
+                chargesA[[idx, #[[1]]]] + chargesB[[idx, #[[2]]]] == 0 &
+            ],
+            {idx, nIndices}
+        ];
+        (* If any index has no allowed pairs, result is empty *)
+        If[AnyTrue[ranges, Length[#] == 0 &],
+            {},
+            Tuples[ranges]
+        ]
+    ]
+]
+
+(* Helper: Create zero tensor with correct output shape *)
+zeroResultTensor[a_, b_, al_, br_, out_, aIndex_, bIndex_] :=
+Module[{aDims, bDims, outDims},
+    aDims = Dimensions[a];
+    bDims = Dimensions[b];
+    outDims = Join[
+        aDims[[Lookup[aIndex, al]]],
+        bDims[[Lookup[bIndex, br]]]
+    ];
+    If[out =!= Automatic,
+        outDims = outDims[[PermutationList[FindPermutation[Join[al, br], out], Length[outDims]]]]
+    ];
+    If[Length[outDims] == 0,
+        0.,
+        ConstantArray[0., outDims]
+    ]
+]
+
+(* Helper: Sparse contraction over allowed index pairs *)
+sparseChargedArrayDot[a_, b_, allowedPairs_, {i_, j_} -> out_, contracted_, aIndex_, bIndex_, inactive_] :=
+Module[{result, aDims, bDims, al, br, outShape},
+    al = DeleteElements[i, contracted];
+    br = DeleteElements[j, contracted];
+    aDims = Dimensions[a];
+    bDims = Dimensions[b];
+
+    (* Compute output shape *)
+    outShape = Join[
+        aDims[[Lookup[aIndex, al]]],
+        bDims[[Lookup[bIndex, br]]]
+    ];
+
+    (* Handle scalar output *)
+    If[Length[outShape] == 0,
+        Return[Total[
+            extractAndMultiplyScalar[a, b, #, contracted, aIndex, bIndex] & /@ allowedPairs
+        ]]
+    ];
+
+    (* Initialize result tensor *)
+    result = ConstantArray[0., outShape];
+
+    (* Sum over allowed pairs only *)
+    Do[
+        result += extractAndMultiply[a, b, pair, contracted, al, br, aIndex, bIndex],
+        {pair, allowedPairs}
+    ];
+
+    (* Apply output permutation if needed *)
+    If[out === Automatic,
+        {result, Join[al, br]},
+        Module[{perm = FindPermutation[Join[al, br], out]},
+            If[perm === Cycles[{}], result, inactive[Transpose][result, perm]]
+        ]
+    ]
+]
+
+(* Helper: Extract tensor slices at given index values and compute outer product *)
+extractAndMultiply[a_, b_, indexPairs_, contracted_, al_, br_, aIndex_, bIndex_] :=
+Module[{aSlice, bSlice, aSpec, bSpec, aDims, bDims},
+    aDims = Dimensions[a];
+    bDims = Dimensions[b];
+
+    (* Build Part specification for tensor a *)
+    aSpec = ConstantArray[All, Length[aDims]];
+    Do[
+        aSpec[[Lookup[aIndex, contracted[[k]]]]] = indexPairs[[k, 1]],
+        {k, Length[contracted]}
+    ];
+    aSlice = Extract[a, {aSpec}][[1]];
+
+    (* Build Part specification for tensor b *)
+    bSpec = ConstantArray[All, Length[bDims]];
+    Do[
+        bSpec[[Lookup[bIndex, contracted[[k]]]]] = indexPairs[[k, 2]],
+        {k, Length[contracted]}
+    ];
+    bSlice = Extract[b, {bSpec}][[1]];
+
+    (* Outer product of remaining indices *)
+    If[Length[al] == 0 && Length[br] == 0,
+        aSlice * bSlice,
+        Outer[Times, aSlice, bSlice]
+    ]
+]
+
+(* Helper: For scalar output case *)
+extractAndMultiplyScalar[a_, b_, indexPairs_, contracted_, aIndex_, bIndex_] :=
+Module[{aSpec, bSpec, aDims, bDims},
+    aDims = Dimensions[a];
+    bDims = Dimensions[b];
+
+    aSpec = ConstantArray[All, Length[aDims]];
+    Do[
+        aSpec[[Lookup[aIndex, contracted[[k]]]]] = indexPairs[[k, 1]],
+        {k, Length[contracted]}
+    ];
+
+    bSpec = ConstantArray[All, Length[bDims]];
+    Do[
+        bSpec[[Lookup[bIndex, contracted[[k]]]]] = indexPairs[[k, 2]],
+        {k, Length[contracted]}
+    ];
+
+    Extract[a, {aSpec}][[1]] * Extract[b, {bSpec}][[1]]
+]
+
+
 einsumArrayDotTranspose[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
 	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
 	k, perm,
@@ -220,22 +428,64 @@ einsumTableSum[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Bl
 ]
 
 
-$TensorNetworkContractionMethods = {"ArrayDotTranspose", "ArrayDot", "Dot", "TensorContract", "TableSum"}
+$TensorNetworkContractionMethods = {"ArrayDotTranspose", "ArrayDot", "SymmetryFiltered", "Dot", "TensorContract", "TableSum"}
 
-Options[contractTensorPair] = {Method -> "ArrayDot", "Inactive" -> True}
+contractTensorPair::nocharges = "Method \"SymmetryFiltered\" requires \"Charges\" option with charge associations for each tensor. Falling back to ArrayDot.";
+
+Options[contractTensorPair] = {Method -> "ArrayDot", "Inactive" -> True, "Charges" -> None}
 
 contractTensorPair[{tensor1_ -> indices1_, tensor2_ -> indices2_}, OptionsPattern[]] :=
-	Switch[
-		OptionValue[Method],
-		"ArrayDotTranspose", einsumArrayDotTranspose,
-		"ArrayDot", einsumArrayDot,
-		"Dot", einsumDot,
-		"TensorContract", einsumTensorContract,
-		"TableSum", einsumTableSum
-	][{indices1, indices2} -> Automatic, tensor1, tensor2, TrueQ[OptionValue["Inactive"]]]
+    With[{
+        charges = OptionValue["Charges"],
+        method = OptionValue[Method],
+        inactiveQ = TrueQ[OptionValue["Inactive"]]
+    },
+        Switch[method,
+            "SymmetryFiltered",
+                If[charges =!= None && AssociationQ[charges[[1]]] && AssociationQ[charges[[2]]],
+                    (* Use symmetry-filtered contraction with charge information *)
+                    einsumArrayDotWithCharges[
+                        {indices1, indices2} -> Automatic,
+                        tensor1, tensor2,
+                        charges[[1]], charges[[2]],
+                        inactiveQ
+                    ],
+                    (* Missing or invalid charges - fall back to ArrayDot with warning *)
+                    Message[contractTensorPair::nocharges];
+                    einsumArrayDot[{indices1, indices2} -> Automatic, tensor1, tensor2, inactiveQ]
+                ],
+            "ArrayDotTranspose",
+                einsumArrayDotTranspose[{indices1, indices2} -> Automatic, tensor1, tensor2, inactiveQ],
+            "ArrayDot",
+                einsumArrayDot[{indices1, indices2} -> Automatic, tensor1, tensor2, inactiveQ],
+            "Dot",
+                einsumDot[{indices1, indices2} -> Automatic, tensor1, tensor2, inactiveQ],
+            "TensorContract",
+                einsumTensorContract[{indices1, indices2} -> Automatic, tensor1, tensor2, inactiveQ],
+            "TableSum",
+                einsumTableSum[{indices1, indices2} -> Automatic, tensor1, tensor2, inactiveQ],
+            _,
+                (* Default to ArrayDot for unknown methods *)
+                einsumArrayDot[{indices1, indices2} -> Automatic, tensor1, tensor2, inactiveQ]
+        ]
+    ]
 
 
-Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"TransposeFunction" -> Transpose}]
+Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"TransposeFunction" -> Transpose, "IndexCharges" -> <||>}]
+
+(* Helper: Extract charges for a tensor's indices from global IndexCharges map *)
+extractTensorCharges[indices_List, indexCharges_Association] :=
+    Association @ Map[
+        If[KeyExistsQ[indexCharges, #], # -> indexCharges[#], Nothing] &,
+        indices
+    ]
+
+(* Helper: Build Charges option for contractTensorPair from IndexCharges *)
+buildChargesOption[indices1_List, indices2_List, indexCharges_Association] :=
+    If[indexCharges === <||>,
+        None,
+        {extractTensorCharges[indices1, indexCharges], extractTensorCharges[indices2, indexCharges]}
+    ]
 
 TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
     TensorNetworkContraction[TensorNetworkGraphData[net], args]
@@ -262,10 +512,17 @@ TensorNetworkContraction[
     treePath_ ? TreePathQ,
     opts : OptionsPattern[]
 ] := With[{
-    contractOpts = FilterRules[{opts}, Options[contractTensorPair]]
+    baseOpts = FilterRules[{opts}, Except["IndexCharges", Options[contractTensorPair]]],
+    indexCharges = OptionValue["IndexCharges"]
 }, {
     tensorPath = FixedPoint[
-        ReplaceAll[{"Pair"[t1_, i1_], "Pair"[t2_, i2_]} :> "Pair" @@ contractTensorPair[{t1 -> i1, t2 -> i2}, contractOpts]],
+        ReplaceAll[{"Pair"[t1_, i1_], "Pair"[t2_, i2_]} :>
+            "Pair" @@ contractTensorPair[
+                {t1 -> i1, t2 -> i2},
+                Sequence @@ baseOpts,
+                "Charges" -> buildChargesOption[i1, i2, indexCharges]
+            ]
+        ],
         Replace[treePath, MapThread[{#1} -> "Pair"[#2, #3] &, {vertices, tensors, contractions}], {-2}]
     ],
     transposeFunction = OptionValue["TransposeFunction"]
@@ -298,7 +555,29 @@ TensorNetworkContract[data_ ? AssociationQ, path : Automatic | _String | _ ? Can
 
 TensorNetworkContract[net_Graph ? TensorNetworkGraphQ, args___] := TensorNetworkContract[TensorNetworkGraphData[net], args]
 
-TensorNetworkContract[net_TensorNetwork ? TensorNetworkQ, args___] := TensorNetworkContract[TensorNetworkData[BinaryTensorNetwork[net]], args]
+(* Auto-detect IndexCharges from TensorNetwork metadata when using SymmetryFiltered *)
+TensorNetworkContract[net_TensorNetwork ? TensorNetworkQ, path : Automatic | _String | _ ? CanonicalPathQ : Automatic, opts : OptionsPattern[]] :=
+    Block[{method, hasExplicitCharges, indexCharges},
+        method = OptionValue[{opts, Options[TensorNetworkContract]}, Method];
+        hasExplicitCharges = MemberQ[{opts}, "IndexCharges" -> _];
+
+        (* If using SymmetryFiltered without explicit IndexCharges, try to get from TensorNetwork *)
+        If[method === "SymmetryFiltered" && !hasExplicitCharges,
+            indexCharges = net["IndexCharges"];
+            If[indexCharges =!= None,
+                Return[TensorNetworkContract[
+                    TensorNetworkData[BinaryTensorNetwork[net]],
+                    path,
+                    Method -> "SymmetryFiltered",
+                    "IndexCharges" -> indexCharges,
+                    opts
+                ]]
+            ]
+        ];
+
+        (* Default: convert to data and call main implementation *)
+        TensorNetworkContract[TensorNetworkData[BinaryTensorNetwork[net]], path, opts]
+    ]
 
 TensorNetworkContract[net_, opts : OptionsPattern[]] := TensorNetworkContraction[net, opts, "Inactive" -> False]
 

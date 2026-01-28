@@ -1,0 +1,780 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     27545,        771]
+NotebookOptionsPosition[     21793,        700]
+NotebookOutlinePosition[     22111,        714]
+CellTagsIndexPosition[     22068,        711]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_mps_comprehensive", "Title",ExpressionUUID->"b3598731-159e-4f3c-9b57-76fbd68fcda1"],
+
+Cell["\<\
+Comprehensivetests for MPS.wl - ALL patterns, ALL options, EXACT verification\
+\
+\>", "Subtitle",ExpressionUUID->"bc7679ef-f07e-4a66-90dc-05285dfde8b7"],
+
+Cell["\<\
+(* Tests/test_mps_comprehensive.wl *)
+(* Comprehensive tests for MPS.wl - ALL patterns, ALL options, EXACT \
+verification *)
+
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"6cb6fe8a-3ccd-4bd5-8e2a-2015ace0e1ab"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    TensorNetworkQ[canonical],
+    True,
+    TestID -> \"MPSCanonicalForm_Left_ReturnsTensorNetwork\"
+]\
+\>", "Input",ExpressionUUID->"1afc9a54-7618-4538-a1c4-323f70c48919"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    MPSCanonicalQ[canonical, \"Left\"],
+    True,
+    TestID -> \"MPSCanonicalForm_Left_PassesCanonicalQ\"
+]\
+\>", "Input",ExpressionUUID->"ac7a29f6-3f99-40be-bd65-ee29c7b37e19"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    tensors = canonical[\"Tensors\"];
+    n = Length[tensors];
+    (* All tensors except last should be left-isometric *)
+    AllTrue[tensors[[;; n - 1]], isLeftIsometricQ],
+    True,
+    TestID -> \"MPSCanonicalForm_Left_TensorsAreLeftIsometric\"
+]\
+\>", "Input",ExpressionUUID->"006df329-03d4-45a9-99fa-783767b3a053"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Right\"];
+    TensorNetworkQ[canonical],
+    True,
+    TestID -> \"MPSCanonicalForm_Right_ReturnsTensorNetwork\"
+]\
+\>", "Input",ExpressionUUID->"75386770-738d-4249-afe7-80b2b6c68715"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Right\"];
+    MPSCanonicalQ[canonical, \"Right\"],
+    True,
+    TestID -> \"MPSCanonicalForm_Right_PassesCanonicalQ\"
+]\
+\>", "Input",ExpressionUUID->"83eed5fd-73b4-4311-b7de-1979777938a4"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    canonical = MPSCanonicalForm[mps, \"Right\"];
+    tensors = canonical[\"Tensors\"];
+    n = Length[tensors];
+    (* All tensors except first should be right-isometric *)
+    AllTrue[tensors[[2 ;;]], isRightIsometricQ],
+    True,
+    TestID -> \"MPSCanonicalForm_Right_TensorsAreRightIsometric\"
+]\
+\>", "Input",ExpressionUUID->"8a178090-1bf9-4e68-bc4a-f7a1f806cef2"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    canonical = MPSCanonicalForm[mps, {\"Mixed\", 3}];
+    TensorNetworkQ[canonical],
+    True,
+    TestID -> \"MPSCanonicalForm_Mixed_ReturnsTensorNetwork\"
+]\
+\>", "Input",ExpressionUUID->"2f6975a9-b85e-4c53-834d-2f9e3f786a37"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    canonical = MPSCanonicalForm[mps, {\"Mixed\", 3}];
+    MPSCanonicalQ[canonical, {\"Mixed\", 3}],
+    True,
+    TestID -> \"MPSCanonicalForm_Mixed_PassesCanonicalQ\"
+]\
+\>", "Input",ExpressionUUID->"d62b8ac3-a74c-40d3-a5b2-b418f108c6d1"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 4, 2]];
+    canonical = MPSCanonicalForm[mps, {\"Mixed\", 3}];
+    tensors = canonical[\"Tensors\"];
+    {
+        (* Tensors 1, 2 should be left-isometric *)
+        AllTrue[tensors[[;; 2]], isLeftIsometricQ],
+        (* Tensors 4, 5, 6 should be right-isometric *)
+        AllTrue[tensors[[4 ;;]], isRightIsometricQ]
+    },
+    {True, True},
+    TestID -> \"MPSCanonicalForm_Mixed_CorrectIsometries\"
+]\
+\>", "Input",ExpressionUUID->"17094461-8147-4a0f-b4c3-4dd683d7e382"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    (* Test mixed canonical at different sites *)
+    canonical1 = MPSCanonicalForm[mps, {\"Mixed\", 1}];
+    canonical2 = MPSCanonicalForm[mps, {\"Mixed\", 2}];
+    canonical5 = MPSCanonicalForm[mps, {\"Mixed\", 5}];
+    {
+        MPSCanonicalQ[canonical1, {\"Mixed\", 1}],
+        MPSCanonicalQ[canonical2, {\"Mixed\", 2}],
+        MPSCanonicalQ[canonical5, {\"Mixed\", 5}]
+    },
+    {True, True, True},
+    TestID -> \"MPSCanonicalForm_Mixed_DifferentSites\"
+]\
+\>", "Input",ExpressionUUID->"e0b5a8d3-d2e2-442a-8e1a-6ea4dbc4d584"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps];
+    MPSCanonicalQ[canonical, \"Left\"],
+    True,
+    TestID -> \"MPSCanonicalForm_DefaultIsLeft\"
+]\
+\>", "Input",ExpressionUUID->"be44a06d-803f-4fa3-b6c2-b2a209c1a5ae"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 8, 2]];
+    canonical = MPSCanonicalForm[mps, \"Left\", \"MaxBond\" -> 3];
+    dims = Dimensions /@ canonical[\"Tensors\"];
+    (* Extract all bond dimensions *)
+    bondDims = Flatten[Cases[dims, {a_, b_, ___} :> {a, b}]];
+    Max[bondDims] <= 3,
+    True,
+    TestID -> \"MPSCanonicalForm_MaxBond_RespectsLimit\"
+]\
+\>", "Input",ExpressionUUID->"68fb0683-5df8-4d99-8d89-df3dec6d179f"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 8, 2]];
+    canonical = MPSCanonicalForm[mps, \"Right\", \"MaxBond\" -> 4];
+    dims = Dimensions /@ canonical[\"Tensors\"];
+    bondDims = Flatten[Cases[dims, {a_, b_, ___} :> {a, b}]];
+    Max[bondDims] <= 4,
+    True,
+    TestID -> \"MPSCanonicalForm_Right_MaxBond\"
+]\
+\>", "Input",ExpressionUUID->"19d663db-f26c-4473-a880-ad31a5bfff24"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 6, 2]];
+    canonical = MPSCanonicalForm[mps, {\"Mixed\", 3}, \"MaxBond\" -> 2];
+    dims = Dimensions /@ canonical[\"Tensors\"];
+    bondDims = Flatten[Cases[dims, {a_, b_, ___} :> {a, b}]];
+    Max[bondDims] <= 2,
+    True,
+    TestID -> \"MPSCanonicalForm_Mixed_MaxBond\"
+]\
+\>", "Input",ExpressionUUID->"e3127e3f-a054-451c-9a64-2131014257a7"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 5, 2]];
+    canonicalZeroTol = MPSCanonicalForm[mps, \"Left\", \"Tolerance\" -> 0];
+    canonicalWithTol = MPSCanonicalForm[mps, \"Left\", \"Tolerance\" -> 0.1];
+    {
+        TensorNetworkQ[canonicalZeroTol],
+        TensorNetworkQ[canonicalWithTol]
+    },
+    {True, True},
+    TestID -> \"MPSCanonicalForm_Tolerance_Option\"
+]\
+\>", "Input",ExpressionUUID->"34592d4c-03a6-4758-b7e5-7fafbb10eeb6"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    {
+        canonical[\"Output\"] === mps[\"Output\"],
+        canonical[\"Hyperedges\"] === mps[\"Hyperedges\"]
+    },
+    {True, True},
+    TestID -> \"MPSCanonicalForm_PreservesStructure\"
+]\
+\>", "Input",ExpressionUUID->"1f6d0d89-21a3-4bcc-8f06-8f27a1249b9f"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    {
+        MPSCanonicalQ[canonical, \"Left\", 10^-10],
+        MPSCanonicalQ[canonical, \"Left\", 10^-5],
+        MPSCanonicalQ[canonical, \"Left\", 0.1]
+    },
+    {True, True, True},
+    TestID -> \"MPSCanonicalQ_Left_WithTolerance\"
+]\
+\>", "Input",ExpressionUUID->"a3b271b4-113d-4571-b164-3cd3a8ba09fc"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Right\"];
+    {
+        MPSCanonicalQ[canonical, \"Right\", 10^-10],
+        MPSCanonicalQ[canonical, \"Right\", 10^-5]
+    },
+    {True, True},
+    TestID -> \"MPSCanonicalQ_Right_WithTolerance\"
+]\
+\>", "Input",ExpressionUUID->"b32df100-0fe7-4e48-8273-045fa64add5b"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    (* After canonicalization, it should be canonical *)
+    MPSCanonicalQ[MPSCanonicalForm[mps, \"Left\"], \"Left\", 10^-5],
+    True,
+    TestID -> \"MPSCanonicalQ_AfterCanonicalization\"
+]\
+\>", "Input",ExpressionUUID->"609e6237-878c-45ae-8e3a-47a5f0d63eef"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    overlap = MPSOverlap[mps, mps];
+    {
+        NumericQ[overlap],
+        Abs[Im[overlap]] < 10^-10,  (* Real *)
+        Re[overlap] > 0  (* Positive *)
+    },
+    {True, True, True},
+    TestID -> \"MPSOverlap_SelfOverlap_RealPositive\"
+]\
+\>", "Input",ExpressionUUID->"80b24d25-8e33-48e2-8f36-9b73df740581"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    leftMPS = MPSCanonicalForm[mps, \"Left\"];
+    rightMPS = MPSCanonicalForm[mps, \"Right\"];
+    overlapOriginal = MPSOverlap[mps, mps];
+    overlapLeft = MPSOverlap[leftMPS, leftMPS];
+    overlapRight = MPSOverlap[rightMPS, rightMPS];
+    {
+        Abs[overlapOriginal - overlapLeft] < 10^-8,
+        Abs[overlapOriginal - overlapRight] < 10^-8
+    },
+    {True, True},
+    TestID -> \"MPSOverlap_GaugeInvariant\"
+]\
+\>", "Input",ExpressionUUID->"b66c10da-0642-4fc4-89f4-2e7ae91809d2"],
+
+Cell["\<\
+VerificationTest[
+    mps1 = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    mps2 = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    overlap12 = MPSOverlap[mps1, mps2];
+    overlap21 = MPSOverlap[mps2, mps1];
+    (* <psi|phi> = conj(<phi|psi>) for complex *)
+    Abs[overlap12 - Conjugate[overlap21]] < 10^-8,
+    True,
+    TestID -> \"MPSOverlap_CrossOverlap_Conjugate\"
+]\
+\>", "Input",ExpressionUUID->"33adb174-0af5-4ac7-b321-6f1813888e0f"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    normalized = MPSNormalize[mps];
+    overlap = MPSOverlap[normalized, normalized];
+    Abs[overlap - 1] < 10^-8,
+    True,
+    TestID -> \"MPSOverlap_NormalizedMPS_OverlapIsOne\"
+]\
+\>", "Input",ExpressionUUID->"aeeb150f-06d7-4f86-939f-aa4c41d8b61b"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    norm = MPSNorm[mps];
+    {
+        NumericQ[norm],
+        norm > 0
+    },
+    {True, True},
+    TestID -> \"MPSNorm_IsPositive\"
+]\
+\>", "Input",ExpressionUUID->"d8d30962-6157-4865-96f1-2bdd13e86773"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    norm = MPSNorm[mps];
+    overlap = MPSOverlap[mps, mps];
+    Abs[norm - Sqrt[Abs[overlap]]] < 10^-8,
+    True,
+    TestID -> \"MPSNorm_EqualsSqrtOverlap\"
+]\
+\>", "Input",ExpressionUUID->"d23e8052-b11a-4d3c-a265-3152cfe23d89"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    leftMPS = MPSCanonicalForm[mps, \"Left\"];
+    rightMPS = MPSCanonicalForm[mps, \"Right\"];
+    {
+        Abs[MPSNorm[mps] - MPSNorm[leftMPS]] < 10^-8,
+        Abs[MPSNorm[mps] - MPSNorm[rightMPS]] < 10^-8
+    },
+    {True, True},
+    TestID -> \"MPSNorm_GaugeInvariant\"
+]\
+\>", "Input",ExpressionUUID->"c0f9ac2f-7d72-4a5b-94bc-71bfee32388f"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    normalized = MPSNormalize[mps];
+    norm = MPSNorm[normalized];
+    Abs[norm - 1] < 10^-8,
+    True,
+    TestID -> \"MPSNormalize_UnitNorm\"
+]\
+\>", "Input",ExpressionUUID->"47b26c7e-3283-4dde-ad79-d938ad419509"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    normalized = MPSNormalize[mps];
+    {
+        TensorNetworkQ[normalized],
+        Length[normalized[\"Tensors\"]] === Length[mps[\"Tensors\"]],
+        normalized[\"Hyperedges\"] === mps[\"Hyperedges\"]
+    },
+    {True, True, True},
+    TestID -> \"MPSNormalize_PreservesStructure\"
+]\
+\>", "Input",ExpressionUUID->"204e13d3-8fac-4906-a20c-7d786443a982"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    normalized = MPSNormalize[mps];
+    doubleNormalized = MPSNormalize[normalized];
+    Abs[MPSNorm[doubleNormalized] - 1] < 10^-8,
+    True,
+    TestID -> \"MPSNormalize_IdempotentOnNormalized\"
+]\
+\>", "Input",ExpressionUUID->"e16debf4-5e95-4faa-8d22-99413ba915c8"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    schmidt = MPSSchmidtValues[mps, 2];
+    {
+        ListQ[schmidt],
+        AllTrue[schmidt, NumericQ],
+        AllTrue[schmidt, # >= 0 &]  (* Non-negative *)
+    },
+    {True, True, True},
+    TestID -> \"MPSSchmidtValues_ValidSite_ReturnsNonNegativeValues\"
+]\
+\>", "Input",ExpressionUUID->"32fe9da3-085e-41e5-a4bf-ef23aab6345d"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    schmidt = MPSSchmidtValues[mps, 2];
+    Abs[Total[schmidt^2] - 1] < 10^-8,
+    True,
+    TestID -> \"MPSSchmidtValues_Normalized\"
+]\
+\>", "Input",ExpressionUUID->"fbbc7641-624b-47bb-83d5-41b43574ccae"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    schmidt1 = MPSSchmidtValues[mps, 1];
+    schmidt2 = MPSSchmidtValues[mps, 2];
+    schmidt3 = MPSSchmidtValues[mps, 3];
+    schmidt4 = MPSSchmidtValues[mps, 4];
+    AllTrue[{schmidt1, schmidt2, schmidt3, schmidt4},
+        Abs[Total[#^2] - 1] < 10^-8 &],
+    True,
+    TestID -> \"MPSSchmidtValues_AllSitesNormalized\"
+]\
+\>", "Input",ExpressionUUID->"6c5b7e71-f5b3-4e9b-ad7a-ccb02fb66c2f"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    schmidtFirst = MPSSchmidtValues[mps, 0];  (* Invalid site *)
+    schmidtLast = MPSSchmidtValues[mps, 5];   (* Edge site (n) - invalid for \
+bond (n, n+1) *)
+    {
+        ListQ[schmidtFirst],
+        ListQ[schmidtLast]
+    },
+    {True, True},
+    TestID -> \"MPSSchmidtValues_EdgeSites\"
+]\
+\>", "Input",ExpressionUUID->"ca655963-10d3-4c54-92eb-9f8909093799"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    entropy = MPSEntanglementEntropy[mps, 2];
+    {
+        NumericQ[entropy],
+        entropy >= -10^-10  (* Allow small numerical errors *)
+    },
+    {True, True},
+    TestID -> \"MPSEntanglementEntropy_NonNegative\"
+]\
+\>", "Input",ExpressionUUID->"c320a398-f275-4aa6-9fdb-61113869e4de"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    site = 2;
+    schmidt = MPSSchmidtValues[mps, site];
+    probabilities = schmidt^2;
+    expectedEntropy = -Total[Select[probabilities, # > 0 &] * \
+Log[Select[probabilities, # > 0 &]]];
+    entropy = MPSEntanglementEntropy[mps, site];
+    Abs[entropy - expectedEntropy] < 10^-8,
+    True,
+    TestID -> \"MPSEntanglementEntropy_MatchesFormula\"
+]\
+\>", "Input",ExpressionUUID->"1f174a2a-ade1-4b1c-8ee7-8006bbbb1639"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    entropy1 = MPSEntanglementEntropy[mps, 1];
+    entropy2 = MPSEntanglementEntropy[mps, 2];
+    entropy3 = MPSEntanglementEntropy[mps, 3];
+    AllTrue[{entropy1, entropy2, entropy3}, # >= -10^-10 &],
+    True,
+    TestID -> \"MPSEntanglementEntropy_AllSitesNonNegative\"
+]\
+\>", "Input",ExpressionUUID->"4abba0c2-6551-4cb6-9cdf-10aae37f7471"],
+
+Cell["\<\
+VerificationTest[
+    (* Product state should have zero entanglement *)
+    mps = RandomTensorNetwork[\"MPS\"[3, 1, 2]];  (* Bond dim 1 = product \
+state *)
+    entropy = MPSEntanglementEntropy[mps, 1];
+    entropy >= -10^-10,  (* Should be non-negative *)
+    True,
+    TestID -> \"MPSEntanglementEntropy_SmallBondDim\"
+]\
+\>", "Input",ExpressionUUID->"9f0c59b3-ab4a-44cb-a441-a07ed9fd88a4"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 8, 2]];
+    truncated = MPSTruncate[mps, 4];
+    TensorNetworkQ[truncated],
+    True,
+    TestID -> \"MPSTruncate_ReturnsTensorNetwork\"
+]\
+\>", "Input",ExpressionUUID->"50ea1d0e-d820-40ab-9f80-6d28d0dd4229"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 8, 2]];
+    truncated = MPSTruncate[mps, 3];
+    dims = Dimensions /@ truncated[\"Tensors\"];
+    bondDims = Flatten[Cases[dims, {a_, b_, ___} :> {a, b}]];
+    Max[bondDims] <= 3,
+    True,
+    TestID -> \"MPSTruncate_RespectsMaxBond\"
+]\
+\>", "Input",ExpressionUUID->"b557e4e4-cae9-497c-8d5d-f85d727340ca"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 8, 2]];
+    truncated = MPSTruncate[mps, 4, \"Normalize\" -> True];
+    norm = MPSNorm[truncated];
+    Abs[norm - 1] < 10^-8,
+    True,
+    TestID -> \"MPSTruncate_Normalize_True\"
+]\
+\>", "Input",ExpressionUUID->"3d317093-f6a1-4506-b5bc-7d0dd273cc57"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 8, 2]];
+    truncated = MPSTruncate[mps, 4];  (* Default should be Normalize -> True *)
+    norm = MPSNorm[truncated];
+    Abs[norm - 1] < 10^-8,
+    True,
+    TestID -> \"MPSTruncate_Normalize_Default\"
+]\
+\>", "Input",ExpressionUUID->"1a3f1b45-cd08-41d0-85e7-e4bbaf69587d"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 8, 2]];
+    truncated = MPSTruncate[mps, 4, \"Normalize\" -> False];
+    {
+        TensorNetworkQ[truncated],
+        (* Norm might not be 1 when not normalized *)
+        NumericQ[MPSNorm[truncated]]
+    },
+    {True, True},
+    TestID -> \"MPSTruncate_Normalize_False\"
+]\
+\>", "Input",ExpressionUUID->"52903142-b8f1-457b-bdec-95ac8f347f6d"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 8, 2]];
+    truncated = MPSTruncate[mps, 4];
+    {
+        Length[truncated[\"Tensors\"]] === Length[mps[\"Tensors\"]],
+        truncated[\"Hyperedges\"] === mps[\"Hyperedges\"]
+    },
+    {True, True},
+    TestID -> \"MPSTruncate_PreservesStructure\"
+]\
+\>", "Input",ExpressionUUID->"e707432f-cfd0-4a19-b394-734f35794d9a"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 6, 2]];
+    truncated = MPSTruncate[mps, 1];
+    dims = Dimensions /@ truncated[\"Tensors\"];
+    bondDims = Flatten[Cases[dims, {a_, b_, ___} :> {a, b}]];
+    Max[bondDims] <= 1,
+    True,
+    TestID -> \"MPSTruncate_MaxBondOne\"
+]\
+\>", "Input",ExpressionUUID->"befc0bb0-1dad-4176-bc93-419bcc9ef520"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    truncated = MPSTruncate[mps, 100];  (* Larger than any possible bond *)
+    {
+        TensorNetworkQ[truncated],
+        Abs[MPSNorm[truncated] - 1] < 10^-8
+    },
+    {True, True},
+    TestID -> \"MPSTruncate_LargeMaxBond_NoTruncation\"
+]\
+\>", "Input",ExpressionUUID->"c356e0c2-b7a8-455a-acda-6151bf8ef1d8"],
+
+Cell["", "Section",ExpressionUUID->"9cc3bd2b-23aa-4312-a3d6-59367944e812"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2], Method -> \"Complex\"];
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    MPSCanonicalQ[canonical, \"Left\"],
+    True,
+    TestID -> \"MPSCanonicalForm_ComplexMPS\"
+]\
+\>", "Input",ExpressionUUID->"220b4dad-fff1-4e01-b6d0-df8357189eec"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2], Method -> \"Complex\"];
+    overlap = MPSOverlap[mps, mps];
+    Re[overlap] > 0,  (* Self-overlap should be positive real *)
+    True,
+    TestID -> \"MPSOverlap_ComplexMPS\"
+]\
+\>", "Input",ExpressionUUID->"3748251a-cea9-4907-b3f0-57d9b02bd689"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[2, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    MPSCanonicalQ[canonical, \"Left\"],
+    True,
+    TestID -> \"MPSCanonicalForm_ShortMPS_Length2\"
+]\
+\>", "Input",ExpressionUUID->"6f5c4116-8b3e-475a-90bb-baf0639478ef"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[1, 3, 2]];
+    norm = MPSNorm[mps];
+    norm > 0,
+    True,
+    TestID -> \"MPSNorm_SingleSiteMPS\"
+]\
+\>", "Input",ExpressionUUID->"65233781-47c2-4e73-a871-f7d9fec2af49"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 4]];  (* Physical dim = 4 *)
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    {
+        TensorNetworkQ[canonical],
+        MPSCanonicalQ[canonical, \"Left\"]
+    },
+    {True, True},
+    TestID -> \"MPSCanonicalForm_PhysicalDim4\"
+]\
+\>", "Input",ExpressionUUID->"4862dc1e-39e2-4e64-86ec-da91a1cf3cab"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 3]];  (* Physical dim = 3 *)
+    normalized = MPSNormalize[mps];
+    Abs[MPSNorm[normalized] - 1] < 10^-8,
+    True,
+    TestID -> \"MPSNormalize_PhysicalDim3\"
+]\
+\>", "Input",ExpressionUUID->"40daeb7d-912c-4bbf-a250-79528da4bf3d"],
+
+Cell["", "Section",ExpressionUUID->"e39c836f-e9f8-4b63-99b7-615351c891db"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2], \"Boundary\" -> \
+\"Periodic\"];
+    norm = MPSNorm[mps];
+    norm > 0,
+    True,
+    TestID -> \"MPSNorm_PeriodicMPS\"
+]\
+\>", "Input",ExpressionUUID->"c2b348c2-6df9-4bc1-8ff7-c26d69f880e2"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2], \"Boundary\" -> \
+\"Periodic\"];
+    overlap = MPSOverlap[mps, mps];
+    Re[overlap] > 0,
+    True,
+    TestID -> \"MPSOverlap_PeriodicMPS\"
+]\
+\>", "Input",ExpressionUUID->"3ca01aa9-2866-4ea3-941c-7ddd80df84a6"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    (* Overlap between original and canonical should be high for normalized \
+versions *)
+    normalized = MPSNormalize[mps];
+    normalizedCanon = MPSNormalize[canonical];
+    Abs[MPSOverlap[normalized, normalizedCanon]] > 0.99,
+    True,
+    TestID -> \"MPSCanonicalForm_PreservesState\"
+]\
+\>", "Input",ExpressionUUID->"09026937-8e07-4fbf-8ac8-159d3cbb2c69"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 94, 0, 70, "Title",ExpressionUUID->"b3598731-159e-4f3c-9b57-76fbd68fcda1"],
+Cell[651, 22, 162, 3, 70, "Subtitle",ExpressionUUID->"bc7679ef-f07e-4a66-90dc-05285dfde8b7"],
+Cell[816, 27, 306, 8, 70, "Input",ExpressionUUID->"6cb6fe8a-3ccd-4bd5-8e2a-2015ace0e1ab",
+ InitializationCell->True],
+Cell[1125, 37, 299, 8, 70, "Input",ExpressionUUID->"1afc9a54-7618-4538-a1c4-323f70c48919"],
+Cell[1427, 47, 304, 8, 70, "Input",ExpressionUUID->"ac7a29f6-3f99-40be-bd65-ee29c7b37e19"],
+Cell[1734, 57, 445, 11, 70, "Input",ExpressionUUID->"006df329-03d4-45a9-99fa-783767b3a053"],
+Cell[2182, 70, 301, 8, 70, "Input",ExpressionUUID->"75386770-738d-4249-afe7-80b2b6c68715"],
+Cell[2486, 80, 307, 8, 70, "Input",ExpressionUUID->"83eed5fd-73b4-4311-b7de-1979777938a4"],
+Cell[2796, 90, 447, 11, 70, "Input",ExpressionUUID->"8a178090-1bf9-4e68-bc4a-f7a1f806cef2"],
+Cell[3246, 103, 306, 8, 70, "Input",ExpressionUUID->"2f6975a9-b85e-4c53-834d-2f9e3f786a37"],
+Cell[3555, 113, 317, 8, 70, "Input",ExpressionUUID->"d62b8ac3-a74c-40d3-a5b2-b418f108c6d1"],
+Cell[3875, 123, 543, 14, 70, "Input",ExpressionUUID->"17094461-8147-4a0f-b4c3-4dd683d7e382"],
+Cell[4421, 139, 611, 15, 70, "Input",ExpressionUUID->"e0b5a8d3-d2e2-442a-8e1a-6ea4dbc4d584"],
+Cell[5035, 156, 286, 8, 70, "Input",ExpressionUUID->"be44a06d-803f-4fa3-b6c2-b2a209c1a5ae"],
+Cell[5324, 166, 455, 11, 70, "Input",ExpressionUUID->"68fb0683-5df8-4d99-8d89-df3dec6d179f"],
+Cell[5782, 179, 410, 10, 70, "Input",ExpressionUUID->"19d663db-f26c-4473-a880-ad31a5bfff24"],
+Cell[6195, 191, 415, 10, 70, "Input",ExpressionUUID->"e3127e3f-a054-451c-9a64-2131014257a7"],
+Cell[6613, 203, 468, 12, 70, "Input",ExpressionUUID->"34592d4c-03a6-4758-b7e5-7fafbb10eeb6"],
+Cell[7084, 217, 391, 11, 70, "Input",ExpressionUUID->"1f6d0d89-21a3-4bcc-8f06-8f27a1249b9f"],
+Cell[7478, 230, 436, 12, 70, "Input",ExpressionUUID->"a3b271b4-113d-4571-b164-3cd3a8ba09fc"],
+Cell[7917, 244, 385, 11, 70, "Input",ExpressionUUID->"b32df100-0fe7-4e48-8273-045fa64add5b"],
+Cell[8305, 257, 338, 8, 70, "Input",ExpressionUUID->"609e6237-878c-45ae-8e3a-47a5f0d63eef"],
+Cell[8646, 267, 389, 12, 70, "Input",ExpressionUUID->"80b24d25-8e33-48e2-8f36-9b73df740581"],
+Cell[9038, 281, 566, 15, 70, "Input",ExpressionUUID->"b66c10da-0642-4fc4-89f4-2e7ae91809d2"],
+Cell[9607, 298, 442, 11, 70, "Input",ExpressionUUID->"33adb174-0af5-4ac7-b321-6f1813888e0f"],
+Cell[10052, 311, 330, 9, 70, "Input",ExpressionUUID->"aeeb150f-06d7-4f86-939f-aa4c41d8b61b"],
+Cell[10385, 322, 282, 11, 70, "Input",ExpressionUUID->"d8d30962-6157-4865-96f1-2bdd13e86773"],
+Cell[10670, 335, 307, 9, 70, "Input",ExpressionUUID->"d23e8052-b11a-4d3c-a265-3152cfe23d89"],
+Cell[10980, 346, 424, 12, 70, "Input",ExpressionUUID->"c0f9ac2f-7d72-4a5b-94bc-71bfee32388f"],
+Cell[11407, 360, 293, 9, 70, "Input",ExpressionUUID->"47b26c7e-3283-4dde-ad79-d938ad419509"],
+Cell[11703, 371, 436, 12, 70, "Input",ExpressionUUID->"204e13d3-8fac-4906-a20c-7d786443a982"],
+Cell[12142, 385, 345, 9, 70, "Input",ExpressionUUID->"e16debf4-5e95-4faa-8d22-99413ba915c8"],
+Cell[12490, 396, 410, 12, 70, "Input",ExpressionUUID->"32fe9da3-085e-41e5-a4bf-ef23aab6345d"],
+Cell[12903, 410, 283, 8, 70, "Input",ExpressionUUID->"fbbc7641-624b-47bb-83d5-41b43574ccae"],
+Cell[13189, 420, 470, 12, 70, "Input",ExpressionUUID->"6c5b7e71-f5b3-4e9b-ad7a-ccb02fb66c2f"],
+Cell[13662, 434, 441, 13, 70, "Input",ExpressionUUID->"ca655963-10d3-4c54-92eb-9f8909093799"],
+Cell[14106, 449, 368, 11, 70, "Input",ExpressionUUID->"c320a398-f275-4aa6-9fdb-61113869e4de"],
+Cell[14477, 462, 497, 13, 70, "Input",ExpressionUUID->"1f174a2a-ade1-4b1c-8ee7-8006bbbb1639"],
+Cell[14977, 477, 421, 10, 70, "Input",ExpressionUUID->"4abba0c2-6551-4cb6-9cdf-10aae37f7471"],
+Cell[15401, 489, 402, 10, 70, "Input",ExpressionUUID->"9f0c59b3-ab4a-44cb-a441-a07ed9fd88a4"],
+Cell[15806, 501, 277, 8, 70, "Input",ExpressionUUID->"50ea1d0e-d820-40ab-9f80-6d28d0dd4229"],
+Cell[16086, 511, 376, 10, 70, "Input",ExpressionUUID->"b557e4e4-cae9-497c-8d5d-f85d727340ca"],
+Cell[16465, 523, 321, 9, 70, "Input",ExpressionUUID->"3d317093-f6a1-4506-b5bc-7d0dd273cc57"],
+Cell[16789, 534, 344, 9, 70, "Input",ExpressionUUID->"1a3f1b45-cd08-41d0-85e7-e4bbaf69587d"],
+Cell[17136, 545, 412, 12, 70, "Input",ExpressionUUID->"52903142-b8f1-457b-bdec-95ac8f347f6d"],
+Cell[17551, 559, 392, 11, 70, "Input",ExpressionUUID->"e707432f-cfd0-4a19-b394-734f35794d9a"],
+Cell[17946, 572, 371, 10, 70, "Input",ExpressionUUID->"befc0bb0-1dad-4176-bc93-419bcc9ef520"],
+Cell[18320, 584, 390, 11, 70, "Input",ExpressionUUID->"c356e0c2-b7a8-455a-acda-6151bf8ef1d8"],
+Cell[18713, 597, 74, 0, 70, "Section",ExpressionUUID->"9cc3bd2b-23aa-4312-a3d6-59367944e812"],
+Cell[18790, 599, 316, 8, 70, "Input",ExpressionUUID->"220b4dad-fff1-4e01-b6d0-df8357189eec"],
+Cell[19109, 609, 322, 8, 70, "Input",ExpressionUUID->"3748251a-cea9-4907-b3f0-57d9b02bd689"],
+Cell[19434, 619, 299, 8, 70, "Input",ExpressionUUID->"6f5c4116-8b3e-475a-90bb-baf0639478ef"],
+Cell[19736, 629, 237, 8, 70, "Input",ExpressionUUID->"65233781-47c2-4e73-a871-f7d9fec2af49"],
+Cell[19976, 639, 378, 11, 70, "Input",ExpressionUUID->"4862dc1e-39e2-4e64-86ec-da91a1cf3cab"],
+Cell[20357, 652, 304, 8, 70, "Input",ExpressionUUID->"40daeb7d-912c-4bbf-a250-79528da4bf3d"],
+Cell[20664, 662, 74, 0, 70, "Section",ExpressionUUID->"e39c836f-e9f8-4b63-99b7-615351c891db"],
+Cell[20741, 664, 267, 9, 70, "Input",ExpressionUUID->"c2b348c2-6df9-4bc1-8ff7-c26d69f880e2"],
+Cell[21011, 675, 288, 9, 70, "Input",ExpressionUUID->"3ca01aa9-2866-4ea3-941c-7ddd80df84a6"],
+Cell[21302, 686, 487, 12, 70, "Input",ExpressionUUID->"09026937-8e07-4fbf-8ac8-159d3cbb2c69"]
+}
+]
+*)
+
+(* End of internal cache information *)

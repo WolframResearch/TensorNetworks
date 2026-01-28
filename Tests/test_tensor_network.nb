@@ -1,0 +1,851 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     28959,        842]
+NotebookOptionsPosition[     21231,        750]
+NotebookOutlinePosition[     21549,        764]
+CellTagsIndexPosition[     21506,        761]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_tensor_network", "Title",ExpressionUUID->"5d3fc592-e295-43a7-81f4-541a4b562f4f"],
+
+Cell["Comprehensivetests for TensorNetwork.wl", "Subtitle",ExpressionUUID->"f71ce9ed-1079-4fb2-a6fb-c617b76581cb"],
+
+Cell["\<\
+(* Tests/test_tensor_network.wl *)
+(* Comprehensive tests for TensorNetwork.wl *)
+
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"abc10b07-898e-4ae2-a96a-1b091c765907"],
+
+Cell["", "Section",ExpressionUUID->"8ea240c9-fa94-4dbf-9c47-1671ccdae6f8"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    TensorNetworkQ[tn],
+    True,
+    TestID -> \"TensorNetwork_Constructor_TwoArguments\"
+]\
+\>", "Input",ExpressionUUID->"e3099b27-be4f-4b71-a4d1-b41d569d298b"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}},
+        {1, 3}
+    ];
+    tn[\"Output\"],
+    {1, 3},
+    TestID -> \"TensorNetwork_Constructor_ThreeArguments_ExplicitOutput\"
+]\
+\>", "Input",ExpressionUUID->"b9256ec0-4429-426d-9efa-f930e659ede1"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}},
+        Automatic
+    ];
+    tn[\"Output\"],
+    Automatic,
+    TestID -> \"TensorNetwork_Constructor_AutomaticOutput\"
+]\
+\>", "Input",ExpressionUUID->"c92bce69-034b-41a8-bac2-3d4e5f050a6e"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}},
+        Cycles[{{1, 2}}]
+    ];
+    tn[\"FreeIndices\"],
+    {3, 1},
+    TestID -> \"TensorNetwork_Constructor_CyclesPermutation\"
+]\
+\>", "Input",ExpressionUUID->"acbc2233-e18f-4778-bb28-b2a0afa1daff"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}} -> {3, 1}
+    ];
+    tn[\"FreeIndices\"],
+    {3, 1},
+    TestID -> \"TensorNetwork_Constructor_RuleForm\"
+]\
+\>", "Input",ExpressionUUID->"466ea776-d560-4c04-aa9a-0e0f1f7281ce"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[{{1, 2}, {2, 3}}];
+    TensorNetworkQ[tn],
+    True,
+    TestID -> \"TensorNetwork_Constructor_HypergraphOnly\"
+]\
+\>", "Input",ExpressionUUID->"130d3e34-b442-4faa-b767-8b299f17a216"],
+
+Cell["", "Section",ExpressionUUID->"1ef485be-b66c-467d-aecb-65a1c0f72866"],
+
+Cell["\<\
+VerificationTest[
+    TensorNetworkQ[TensorNetwork[{RandomReal[{-1, 1}, {2, 3}]}, {{1, 2}}]],
+    True,
+    TestID -> \"TensorNetworkQ_ValidNetwork\"
+]\
+\>", "Input",ExpressionUUID->"99a1cf9f-6e57-4b9a-94ac-0f202bef4c95"],
+
+Cell["\<\
+VerificationTest[
+    (* Empty network - behavior depends on implementation *)
+    TensorNetworkQ[TensorNetwork[{}, {}, {}]],
+    True,
+    TestID -> \"TensorNetworkQ_EmptyNetwork\"
+]\
+\>", "Input",ExpressionUUID->"107f38ab-9be0-4170-bafb-fd9326290cc5"],
+
+Cell["\<\
+VerificationTest[
+    TensorNetworkQ[\"not a tensor network\"],
+    False,
+    TestID -> \"TensorNetworkQ_InvalidInput_String\"
+]\
+\>", "Input",ExpressionUUID->"f329c943-1e00-4df7-a9e4-5fc1c7ac089c"],
+
+Cell["\<\
+VerificationTest[
+    TensorNetworkQ[123],
+    False,
+    TestID -> \"TensorNetworkQ_InvalidInput_Number\"
+]\
+\>", "Input",ExpressionUUID->"8e426674-4f78-429d-b4e4-21887a3f3e91"],
+
+Cell["\<\
+VerificationTest[
+    (* Mismatched tensor dimensions and hyperedges *)
+    TensorNetworkQ[TensorNetwork[{RandomReal[{-1, 1}, {2, 3}]}, {{1, 2, \
+3}}]],
+    False,
+    TestID -> \"TensorNetworkQ_MismatchedDimensions\"
+]\
+\>", "Input",ExpressionUUID->"9e1f8b34-0946-496a-9e04-d0536c7d877a"],
+
+Cell["", "Section",ExpressionUUID->"a0ebc41d-153c-4779-aaf8-3aac6d776861"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {IdentityMatrix[3], RandomReal[{-1, 1}, {3, 4, 5}]},
+        {{1, 2}, {2, 3, 4}}
+    ];
+    tn[\"Tensors\"] // Length,
+    2,
+    TestID -> \"TensorNetwork_Property_Tensors\"
+]\
+\>", "Input",ExpressionUUID->"18b7695e-62bf-4e06-b68d-c4fca2cdecaa"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    tn[\"Hyperedges\"],
+    {{1, 2}, {2, 3}},
+    TestID -> \"TensorNetwork_Property_Hyperedges\"
+]\
+\>", "Input",ExpressionUUID->"8facb403-a718-4e18-b219-65d727efcd66"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    Sort[tn[\"FreeIndices\"]],
+    {1, 3},
+    TestID -> \"TensorNetwork_Property_FreeIndices\"
+]\
+\>", "Input",ExpressionUUID->"ef07ac5e-cac7-4b18-8456-dd329d05b69a"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4, 5}]},
+        {{1, 2}, {2, 3, 4}}
+    ];
+    tn[\"Dimensions\"],
+    {{2, 3}, {3, 4, 5}},
+    TestID -> \"TensorNetwork_Property_Dimensions\"
+]\
+\>", "Input",ExpressionUUID->"85e5b517-cae6-4fc3-8b16-350e9a1c1d76"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4, 5}]},
+        {{1, 2}, {2, 3, 4}}
+    ];
+    tn[\"Ranks\"],
+    {2, 3},
+    TestID -> \"TensorNetwork_Property_Ranks\"
+]\
+\>", "Input",ExpressionUUID->"7f121ae5-9045-4699-953a-a1b3e832ea09"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    TensorNetworkSize[tn],
+    2,
+    TestID -> \"TensorNetwork_Property_Size\"
+]\
+\>", "Input",ExpressionUUID->"b615ec4e-fd44-48cd-a024-64a9c7650865"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}},
+        {1, 3}
+    ];
+    tn[\"OutputDimensions\"],
+    {2, 4},
+    TestID -> \"TensorNetwork_Property_OutputDimensions\"
+]\
+\>", "Input",ExpressionUUID->"8f27422a-0ff9-41a3-b63a-43173b88b364"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}},
+        {1, 3}
+    ];
+    tn[\"OutputDimension\"],
+    8,
+    TestID -> \"TensorNetwork_Property_OutputDimension\"
+]\
+\>", "Input",ExpressionUUID->"fd850381-e315-4e53-8460-33334139da61"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    MemberQ[tn[\"Properties\"], \"Tensors\"],
+    True,
+    TestID -> \"TensorNetwork_Property_Properties\"
+]\
+\>", "Input",ExpressionUUID->"c92095db-39d5-4efc-965e-d86c07152f2b"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    tn[\"UnknownProperty\"],
+    Missing[\"UnknownProperty\", \"UnknownProperty\"],
+    TestID -> \"TensorNetwork_Property_UnknownProperty\"
+]\
+\>", "Input",ExpressionUUID->"434a55b3-d074-4ba3-8554-d1bf72da02df"],
+
+Cell["", "Section",ExpressionUUID->"1d5fb605-de2d-42b3-95eb-182524791d07"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    data = TensorNetworkData[tn];
+    AssociationQ[data] && KeyExistsQ[data, \"Tensors\"] && KeyExistsQ[data, \
+\"Hyperedges\"],
+    True,
+    TestID -> \"TensorNetworkData_ReturnsAssociation\"
+]\
+\>", "Input",ExpressionUUID->"5e3b113c-4ce4-47d5-ad4c-27710ae7240a"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    data = TensorNetworkData[tn];
+    data[\"Vertices\"],
+    {1, 2},
+    TestID -> \"TensorNetworkData_Vertices\"
+]\
+\>", "Input",ExpressionUUID->"9da54870-32f8-44e5-bd36-cb52a35efdf4"],
+
+Cell["", "Section",ExpressionUUID->"d1114361-9bf6-40d0-8820-8b65427aaf56"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    contractions = TensorNetworkContractions[tn];
+    Length[contractions] == 2,
+    True,
+    TestID -> \"TensorNetworkContractions_Basic\"
+]\
+\>", "Input",ExpressionUUID->"6ee917bc-6857-4b05-bf6a-ed4759b43692"],
+
+Cell["", "Section",ExpressionUUID->"61ae2d92-bd41-450d-be4c-64a00f62c15f"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    BinaryTensorNetworkQ[tn],
+    True,
+    TestID -> \"BinaryTensorNetworkQ_IsBinary\"
+]\
+\>", "Input",ExpressionUUID->"3bcbe4d3-7853-46b8-8855-337a650acf78"],
+
+Cell["\<\
+VerificationTest[
+    (* Hyperedge with 3 connections is not binary *)
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}], \
+RandomReal[{-1, 1}, {4, 3}]},
+        {{1, 2}, {2, 3}, {3, 2}}
+    ];
+    BinaryTensorNetworkQ[tn],
+    False,
+    TestID -> \"BinaryTensorNetworkQ_NotBinary\"
+]\
+\>", "Input",ExpressionUUID->"38987d14-846b-4e03-8dac-42be1a44ae66"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    btn = BinaryTensorNetwork[tn];
+    TensorNetworkQ[btn],
+    True,
+    TestID -> \"BinaryTensorNetwork_PreservesValidity\"
+]\
+\>", "Input",ExpressionUUID->"0fc891f0-a278-41fd-aa14-05a5701681d2"],
+
+Cell["", "Section",ExpressionUUID->"2b078f80-1bc9-4c42-bce4-f58b35e27ced"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    stn = SparseTensorNetwork[tn];
+    stn[\"SparseQ\"],
+    True,
+    TestID -> \"SparseTensorNetwork_IsSparse\"
+]\
+\>", "Input",ExpressionUUID->"d98fe5f1-6f6d-4464-86de-53f4238df5ba"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    tn[\"SparseQ\"],
+    False,
+    TestID -> \"TensorNetwork_NotSparse\"
+]\
+\>", "Input",ExpressionUUID->"10a489a5-aead-49d3-b442-931fc04dd0d1"],
+
+Cell["", "Section",ExpressionUUID->"6dc1ecc9-cf7e-4e48-8adb-af745e22effc"],
+
+Cell["\<\
+VerificationTest[
+    rtn = RandomTensorNetwork[{5, 7}, 2, 4];
+    TensorNetworkQ[rtn],
+    True,
+    TestID -> \"RandomTensorNetwork_GraphSpec_Valid\"
+]\
+\>", "Input",ExpressionUUID->"56a62c08-8953-4fa7-a29d-7c6860fe2763"],
+
+Cell["\<\
+VerificationTest[
+    rtn = RandomTensorNetwork[CycleGraph[4], 3];
+    TensorNetworkQ[rtn],
+    True,
+    TestID -> \"RandomTensorNetwork_CycleGraph_Valid\"
+]\
+\>", "Input",ExpressionUUID->"40f795d6-bcb3-435b-a032-844fa7df7ede"],
+
+Cell["\<\
+VerificationTest[
+    rtn = RandomTensorNetwork[{10, 15}, 2, 4, Method -> \"Real\"];
+    tensors = rtn[\"Tensors\"];
+    AllTrue[Flatten[tensors], Element[#, Reals] &],
+    True,
+    TestID -> \"RandomTensorNetwork_Method_Real\"
+]\
+\>", "Input",ExpressionUUID->"c97ed95c-c770-4c50-84c9-88c45507c12e"],
+
+Cell["\<\
+VerificationTest[
+    rtn = RandomTensorNetwork[{10, 15}, 2, 4, Method -> \"Complex\"];
+    tensors = rtn[\"Tensors\"];
+    AnyTrue[Flatten[tensors], !Element[#, Reals] &],
+    True,
+    TestID -> \"RandomTensorNetwork_Method_Complex\"
+]\
+\>", "Input",ExpressionUUID->"4faac1c6-5244-48c9-9f14-d220547771c1"],
+
+Cell["\<\
+VerificationTest[
+    (* Fixed dimension test *)
+    rtn = RandomTensorNetwork[{5, 7}, {4}, 2];
+    dims = Flatten[rtn[\"Dimensions\"]];
+    AllTrue[dims, # == 4 &],
+    True,
+    TestID -> \"RandomTensorNetwork_FixedDimension\"
+]\
+\>", "Input",ExpressionUUID->"62e79896-ff26-4cb9-a7ae-248b9847c4ef"],
+
+Cell["", "Section",ExpressionUUID->"fde0e517-a292-4d61-aa27-c504a3c8b799"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    TensorNetworkQ[mps],
+    True,
+    TestID -> \"RandomTensorNetwork_MPS_Valid\"
+]\
+\>", "Input",ExpressionUUID->"7e354b68-fb67-49e5-8dd7-9674b3835723"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    Length[mps[\"Tensors\"]],
+    4,
+    TestID -> \"RandomTensorNetwork_MPS_CorrectLength\"
+]\
+\>", "Input",ExpressionUUID->"8855a114-e2f5-4497-8202-b3f81e909111"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[1, 3, 2]];
+    TensorNetworkQ[mps] && Length[mps[\"Tensors\"]] == 1,
+    True,
+    TestID -> \"RandomTensorNetwork_MPS_LengthOne\"
+]\
+\>", "Input",ExpressionUUID->"21967ff3-7bbc-4136-a98b-a7dc89342be8"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2], \"Boundary\" -> \
+\"Periodic\"];
+    (* All tensors should be rank-3 for periodic *)
+    AllTrue[mps[\"Ranks\"], # == 3 &],
+    True,
+    TestID -> \"RandomTensorNetwork_MPS_Periodic\"
+]\
+\>", "Input",ExpressionUUID->"60bf9491-5b4d-44a8-b0f3-7702610e6ab3"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2], \"Boundary\" -> \"Open\"];
+    (* Boundary tensors should be rank-2 for open *)
+    mps[\"Ranks\"][[1]] == 2 && mps[\"Ranks\"][[-1]] == 2,
+    True,
+    TestID -> \"RandomTensorNetwork_MPS_Open\"
+]\
+\>", "Input",ExpressionUUID->"12bccd26-bf83-464b-8820-89fa0ce8256d"],
+
+Cell["", "Section",ExpressionUUID->"385c3ce2-ded7-409d-924f-2491b8bd3cad"],
+
+Cell["\<\
+VerificationTest[
+    tt = RandomTensorNetwork[\"TT\"[5, 4]];
+    TensorNetworkQ[tt],
+    True,
+    TestID -> \"RandomTensorNetwork_TT_Valid\"
+]\
+\>", "Input",ExpressionUUID->"27a4307c-55fb-44a1-999e-6da954084920"],
+
+Cell["\<\
+VerificationTest[
+    tt = RandomTensorNetwork[\"TT\"[5, 4]];
+    Length[tt[\"Tensors\"]],
+    5,
+    TestID -> \"RandomTensorNetwork_TT_CorrectLength\"
+]\
+\>", "Input",ExpressionUUID->"0e4006c7-41da-43d9-81b3-f662301ffbd4"],
+
+Cell["\<\
+VerificationTest[
+    tt = RandomTensorNetwork[\"TT\"[5, 4], \"Boundary\" -> \"Periodic\"];
+    AllTrue[tt[\"Ranks\"], # == 2 &],
+    True,
+    TestID -> \"RandomTensorNetwork_TT_Periodic\"
+]\
+\>", "Input",ExpressionUUID->"a0e32d80-abce-4ca0-bbf5-639e82ce3809"],
+
+Cell["", "Section",ExpressionUUID->"9f7be220-b6bc-4ca9-b04e-9fb7284bddc6"],
+
+Cell["\<\
+VerificationTest[
+    mpo = RandomTensorNetwork[\"MPO\"[4, 3, 2]];
+    TensorNetworkQ[mpo],
+    True,
+    TestID -> \"RandomTensorNetwork_MPO_Valid\"
+]\
+\>", "Input",ExpressionUUID->"481465ff-2936-4045-9a87-73ba70df7ed3"],
+
+Cell["\<\
+VerificationTest[
+    mpo = RandomTensorNetwork[\"MPO\"[4, 3, 2], \"Boundary\" -> \"Open\"];
+    (* Boundary tensors should be rank-3 (bond, phys_in, phys_out) for open \
+*)
+    mpo[\"Ranks\"][[1]] == 3 && mpo[\"Ranks\"][[-1]] == 3,
+    True,
+    TestID -> \"RandomTensorNetwork_MPO_Open\"
+]\
+\>", "Input",ExpressionUUID->"0a2d7270-d0b5-495c-8ab2-525404d0cb65"],
+
+Cell["\<\
+VerificationTest[
+    mpo = RandomTensorNetwork[\"MPO\"[4, 3, 2], \"Boundary\" -> \
+\"Periodic\"];
+    AllTrue[mpo[\"Ranks\"], # == 4 &],
+    True,
+    TestID -> \"RandomTensorNetwork_MPO_Periodic\"
+]\
+\>", "Input",ExpressionUUID->"b46b076d-7a0a-4e96-81a7-fa9258719dd8"],
+
+Cell["", "Section",ExpressionUUID->"a5bbe646-14bf-45f5-a87c-50afe23037d4"],
+
+Cell["\<\
+VerificationTest[
+    peps = RandomTensorNetwork[\"PEPS\"[{2, 3}, 2, 2]];
+    TensorNetworkQ[peps],
+    True,
+    TestID -> \"RandomTensorNetwork_PEPS_Valid\"
+]\
+\>", "Input",ExpressionUUID->"f16e713f-f7e0-4f38-bb17-77ff06bc6609"],
+
+Cell["\<\
+VerificationTest[
+    peps = RandomTensorNetwork[\"PEPS\"[{2, 3}, 2, 2]];
+    Length[peps[\"Tensors\"]],
+    6,  (* 2x3 grid *)
+    TestID -> \"RandomTensorNetwork_PEPS_CorrectSize\"
+]\
+\>", "Input",ExpressionUUID->"f2b16e36-2afe-4677-9bfb-a4c47c9a927e"],
+
+Cell["\<\
+VerificationTest[
+    peps = RandomTensorNetwork[\"PEPS\"[2, 3, 2, 2]];
+    TensorNetworkQ[peps],
+    True,
+    TestID -> \"RandomTensorNetwork_PEPS_AlternativeSyntax\"
+]\
+\>", "Input",ExpressionUUID->"86cd3b84-61fa-4e11-86fe-f002df960fc8"],
+
+Cell["", "Section",ExpressionUUID->"19041d18-ffae-44e2-a4b2-b1577d6b6442"],
+
+Cell["\<\
+VerificationTest[
+    ttn = RandomTensorNetwork[\"TTN\"[3, 2, 2]];
+    TensorNetworkQ[ttn],
+    True,
+    TestID -> \"RandomTensorNetwork_TTN_Valid\"
+]\
+\>", "Input",ExpressionUUID->"e8f385f4-04a7-460f-8491-c41f2b73ea3b"],
+
+Cell["", "Section",ExpressionUUID->"14f626c4-a5c6-4114-acea-3fe04003c74b"],
+
+Cell["\<\
+VerificationTest[
+    mera = RandomTensorNetwork[\"MERA\"[4, 2, 1]];
+    TensorNetworkQ[mera],
+    True,
+    TestID -> \"RandomTensorNetwork_MERA_Valid\"
+]\
+\>", "Input",ExpressionUUID->"d0dcd7dc-9c23-464a-9d79-6f3beb7f297d"],
+
+Cell["", "Section",ExpressionUUID->"56b45134-5460-4975-a80d-ee3e9417fcf0"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}]},
+        {{1, 2}}
+    ];
+    newTensor = RandomReal[{-1, 1}, {3, 4}];
+    tnAdded = TensorNetworkAdd[tn, newTensor, {2, 3}];
+    TensorNetworkSize[tnAdded],
+    2,
+    TestID -> \"TensorNetworkAdd_IncreasesSize\"
+]\
+\>", "Input",ExpressionUUID->"5926c7b7-ec0b-4d8b-9b89-50294f4f36ee"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}]},
+        {{1, 2}},
+        {1, 2}
+    ];
+    newTensor = RandomReal[{-1, 1}, {3, 4}];
+    tnAdded = TensorNetworkAdd[tn, newTensor, {2, 3}];
+    Sort[tnAdded[\"FreeIndices\"]],
+    {1, 3},
+    TestID -> \"TensorNetworkAdd_UpdatesFreeIndices\"
+]\
+\>", "Input",ExpressionUUID->"3c2badb6-9b9f-4c7b-ac93-e8dbbc2fd19a"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}]},
+        {{1, 2}},
+        {1, 2}
+    ];
+    newTensor = RandomReal[{-1, 1}, {4, 5}];
+    tnAdded = TensorNetworkAdd[tn, newTensor, {3, 4}];
+    Sort[tnAdded[\"FreeIndices\"]],
+    {1, 2, 3, 4},
+    TestID -> \"TensorNetworkAdd_NoContraction\"
+]\
+\>", "Input",ExpressionUUID->"766c8d87-d3c0-495b-8cfe-af11b2582f26"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}]},
+        {{1, 2}},
+        {1, 2}
+    ];
+    newTensor = RandomReal[{-1, 1}, {2, 3}];
+    tnAdded = TensorNetworkAdd[tn, newTensor, {1, 2}];
+    tnAdded[\"FreeIndices\"],
+    {},
+    TestID -> \"TensorNetworkAdd_FullContraction\"
+]\
+\>", "Input",ExpressionUUID->"b9d5af64-2d3d-4b9c-b5ff-ef9b6049fabc"],
+
+Cell["", "Section",ExpressionUUID->"fadae8c6-f20f-40ef-a583-91dcf4b0855c"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    tnDeleted = TensorNetworkDelete[tn, -1];
+    TensorNetworkSize[tnDeleted],
+    1,
+    TestID -> \"TensorNetworkDelete_DecreasesSize\"
+]\
+\>", "Input",ExpressionUUID->"a1b753a5-d729-404a-a614-d3a1e0347fb6"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    tnDeleted = TensorNetworkDelete[tn, 1];
+    TensorNetworkSize[tnDeleted],
+    1,
+    TestID -> \"TensorNetworkDelete_FirstTensor\"
+]\
+\>", "Input",ExpressionUUID->"7ca08514-96ee-4833-be60-6b52cfa8760b"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2}], RandomReal[{-1, 1}, {3}], RandomReal[{-1, \
+1}, {4}]},
+        {{1}, {2}, {3}},
+        {3, 2, 1}
+    ];
+    tnDeleted = TensorNetworkDelete[tn, 2];
+    tnDeleted[\"FreeIndices\"],
+    {3, 1},
+    TestID -> \"TensorNetworkDelete_UpdatesFreeIndices\"
+]\
+\>", "Input",ExpressionUUID->"4bde5b71-c61c-4623-aa5a-2fd9cb6cc13b"],
+
+Cell["\<\
+VerificationTest[
+    (* Single tensor network *)
+    tn = TensorNetwork[{RandomReal[{-1, 1}, {2, 3, 4}]}, {{1, 2, 3}}];
+    TensorNetworkQ[tn] && TensorNetworkSize[tn] == 1,
+    True,
+    TestID -> \"TensorNetwork_SingleTensor\"
+]\
+\>", "Input",ExpressionUUID->"0e1de847-de37-4481-b8c7-6fd72cc5bb08"],
+
+Cell["\<\
+VerificationTest[
+    (* Large network *)
+    rtn = RandomTensorNetwork[{20, 30}, 2, 2];
+    TensorNetworkQ[rtn] && TensorNetworkSize[rtn] == 20,
+    True,
+    TestID -> \"TensorNetwork_LargeNetwork\"
+]\
+\>", "Input",ExpressionUUID->"ff79e2fe-d51b-461a-86a2-eb231a95bb48"],
+
+Cell["\<\
+VerificationTest[
+    (* Complex-valued tensor network *)
+    tn = TensorNetwork[
+        {RandomComplex[{-1 - I, 1 + I}, {2, 3}], RandomComplex[{-1 - I, 1 + \
+I}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    TensorNetworkQ[tn],
+    True,
+    TestID -> \"TensorNetwork_ComplexTensors\"
+]\
+\>", "Input",ExpressionUUID->"68d13589-6e33-49fc-8b47-a2c6d8025dd8"],
+
+Cell["\<\
+VerificationTest[
+    (* Network with vectors *)
+    tn = TensorNetwork[{RandomReal[{-1, 1}, {3}], RandomReal[{-1, 1}, {3, \
+4}]}, {{1}, {1, 2}}];
+    TensorNetworkQ[tn],
+    True,
+    TestID -> \"TensorNetwork_VectorTensor\"
+]\
+\>", "Input",ExpressionUUID->"8c185b78-19e5-4f6a-8920-43f9bdb79b43"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 91, 0, 70, "Title",ExpressionUUID->"5d3fc592-e295-43a7-81f4-541a4b562f4f"],
+Cell[648, 22, 114, 0, 70, "Subtitle",ExpressionUUID->"f71ce9ed-1079-4fb2-a6fb-c617b76581cb"],
+Cell[765, 24, 263, 7, 70, "Input",ExpressionUUID->"abc10b07-898e-4ae2-a96a-1b091c765907",
+ InitializationCell->True],
+Cell[1031, 33, 74, 0, 70, "Section",ExpressionUUID->"8ea240c9-fa94-4dbf-9c47-1671ccdae6f8"],
+Cell[1108, 35, 314, 10, 70, "Input",ExpressionUUID->"e3099b27-be4f-4b71-a4d1-b41d569d298b"],
+Cell[1425, 47, 345, 11, 70, "Input",ExpressionUUID->"b9256ec0-4429-426d-9efa-f930e659ede1"],
+Cell[1773, 60, 337, 11, 70, "Input",ExpressionUUID->"c92bce69-034b-41a8-bac2-3d4e5f050a6e"],
+Cell[2113, 73, 348, 11, 70, "Input",ExpressionUUID->"acbc2233-e18f-4778-bb28-b2a0afa1daff"],
+Cell[2464, 86, 323, 10, 70, "Input",ExpressionUUID->"466ea776-d560-4c04-aa9a-0e0f1f7281ce"],
+Cell[2790, 98, 234, 7, 70, "Input",ExpressionUUID->"130d3e34-b442-4faa-b767-8b299f17a216"],
+Cell[3027, 107, 74, 0, 70, "Section",ExpressionUUID->"1ef485be-b66c-467d-aecb-65a1c0f72866"],
+Cell[3104, 109, 231, 6, 70, "Input",ExpressionUUID->"99a1cf9f-6e57-4b9a-94ac-0f202bef4c95"],
+Cell[3338, 117, 263, 7, 70, "Input",ExpressionUUID->"107f38ab-9be0-4170-bafb-fd9326290cc5"],
+Cell[3604, 126, 209, 6, 70, "Input",ExpressionUUID->"f329c943-1e00-4df7-a9e4-5fc1c7ac089c"],
+Cell[3816, 134, 188, 6, 70, "Input",ExpressionUUID->"8e426674-4f78-429d-b4e4-21887a3f3e91"],
+Cell[4007, 142, 299, 8, 70, "Input",ExpressionUUID->"9e1f8b34-0946-496a-9e04-d0536c7d877a"],
+Cell[4309, 152, 74, 0, 70, "Section",ExpressionUUID->"a0ebc41d-153c-4779-aaf8-3aac6d776861"],
+Cell[4386, 154, 306, 10, 70, "Input",ExpressionUUID->"18b7695e-62bf-4e06-b68d-c4fca2cdecaa"],
+Cell[4695, 166, 321, 10, 70, "Input",ExpressionUUID->"8facb403-a718-4e18-b219-65d727efcd66"],
+Cell[5019, 178, 319, 10, 70, "Input",ExpressionUUID->"ef07ac5e-cac7-4b18-8456-dd329d05b69a"],
+Cell[5341, 190, 330, 10, 70, "Input",ExpressionUUID->"85e5b517-cae6-4fc3-8b16-350e9a1c1d76"],
+Cell[5674, 202, 307, 10, 70, "Input",ExpressionUUID->"7f121ae5-9045-4699-953a-a1b3e832ea09"],
+Cell[5984, 214, 303, 10, 70, "Input",ExpressionUUID->"b615ec4e-fd44-48cd-a024-64a9c7650865"],
+Cell[6290, 226, 339, 11, 70, "Input",ExpressionUUID->"8f27422a-0ff9-41a3-b63a-43173b88b364"],
+Cell[6632, 239, 332, 11, 70, "Input",ExpressionUUID->"fd850381-e315-4e53-8460-33334139da61"],
+Cell[6967, 252, 331, 10, 70, "Input",ExpressionUUID->"c92095db-39d5-4efc-965e-d86c07152f2b"],
+Cell[7301, 264, 364, 10, 70, "Input",ExpressionUUID->"434a55b3-d074-4ba3-8554-d1bf72da02df"],
+Cell[7668, 276, 74, 0, 70, "Section",ExpressionUUID->"1d5fb605-de2d-42b3-95eb-182524791d07"],
+Cell[7745, 278, 417, 12, 70, "Input",ExpressionUUID->"5e3b113c-4ce4-47d5-ad4c-27710ae7240a"],
+Cell[8165, 292, 338, 11, 70, "Input",ExpressionUUID->"9da54870-32f8-44e5-bd36-cb52a35efdf4"],
+Cell[8506, 305, 74, 0, 70, "Section",ExpressionUUID->"d1114361-9bf6-40d0-8820-8b65427aaf56"],
+Cell[8583, 307, 364, 11, 70, "Input",ExpressionUUID->"6ee917bc-6857-4b05-bf6a-ed4759b43692"],
+Cell[8950, 320, 74, 0, 70, "Section",ExpressionUUID->"61ae2d92-bd41-450d-be4c-64a00f62c15f"],
+Cell[9027, 322, 311, 10, 70, "Input",ExpressionUUID->"3bcbe4d3-7853-46b8-8855-337a650acf78"],
+Cell[9341, 334, 405, 12, 70, "Input",ExpressionUUID->"38987d14-846b-4e03-8dac-42be1a44ae66"],
+Cell[9749, 348, 349, 11, 70, "Input",ExpressionUUID->"0fc891f0-a278-41fd-aa14-05a5701681d2"],
+Cell[10101, 361, 74, 0, 70, "Section",ExpressionUUID->"2b078f80-1bc9-4c42-bce4-f58b35e27ced"],
+Cell[10178, 363, 337, 11, 70, "Input",ExpressionUUID->"d98fe5f1-6f6d-4464-86de-53f4238df5ba"],
+Cell[10518, 376, 297, 10, 70, "Input",ExpressionUUID->"10a489a5-aead-49d3-b442-931fc04dd0d1"],
+Cell[10818, 388, 74, 0, 70, "Section",ExpressionUUID->"6dc1ecc9-cf7e-4e48-8adb-af745e22effc"],
+Cell[10895, 390, 233, 7, 70, "Input",ExpressionUUID->"56a62c08-8953-4fa7-a29d-7c6860fe2763"],
+Cell[11131, 399, 238, 7, 70, "Input",ExpressionUUID->"40f795d6-bcb3-435b-a032-844fa7df7ede"],
+Cell[11372, 408, 310, 8, 70, "Input",ExpressionUUID->"c97ed95c-c770-4c50-84c9-88c45507c12e"],
+Cell[11685, 418, 317, 8, 70, "Input",ExpressionUUID->"4faac1c6-5244-48c9-9f14-d220547771c1"],
+Cell[12005, 428, 310, 9, 70, "Input",ExpressionUUID->"62e79896-ff26-4cb9-a7ae-248b9847c4ef"],
+Cell[12318, 439, 74, 0, 70, "Section",ExpressionUUID->"fde0e517-a292-4d61-aa27-c504a3c8b799"],
+Cell[12395, 441, 231, 7, 70, "Input",ExpressionUUID->"7e354b68-fb67-49e5-8dd7-9674b3835723"],
+Cell[12629, 450, 241, 7, 70, "Input",ExpressionUUID->"8855a114-e2f5-4497-8202-b3f81e909111"],
+Cell[12873, 459, 268, 7, 70, "Input",ExpressionUUID->"21967ff3-7bbc-4136-a98b-a7dc89342be8"],
+Cell[13144, 468, 332, 9, 70, "Input",ExpressionUUID->"60bf9491-5b4d-44a8-b0f3-7702610e6ab3"],
+Cell[13479, 479, 343, 8, 70, "Input",ExpressionUUID->"12bccd26-bf83-464b-8820-89fa0ce8256d"],
+Cell[13825, 489, 74, 0, 70, "Section",ExpressionUUID->"385c3ce2-ded7-409d-924f-2491b8bd3cad"],
+Cell[13902, 491, 224, 7, 70, "Input",ExpressionUUID->"27a4307c-55fb-44a1-999e-6da954084920"],
+Cell[14129, 500, 234, 7, 70, "Input",ExpressionUUID->"0e4006c7-41da-43d9-81b3-f662301ffbd4"],
+Cell[14366, 509, 271, 7, 70, "Input",ExpressionUUID->"a0e32d80-abce-4ca0-bbf5-639e82ce3809"],
+Cell[14640, 518, 74, 0, 70, "Section",ExpressionUUID->"9f7be220-b6bc-4ca9-b04e-9fb7284bddc6"],
+Cell[14717, 520, 231, 7, 70, "Input",ExpressionUUID->"481465ff-2936-4045-9a87-73ba70df7ed3"],
+Cell[14951, 529, 371, 9, 70, "Input",ExpressionUUID->"0a2d7270-d0b5-495c-8ab2-525404d0cb65"],
+Cell[15325, 540, 280, 8, 70, "Input",ExpressionUUID->"b46b076d-7a0a-4e96-81a7-fa9258719dd8"],
+Cell[15608, 550, 74, 0, 70, "Section",ExpressionUUID->"a5bbe646-14bf-45f5-a87c-50afe23037d4"],
+Cell[15685, 552, 240, 7, 70, "Input",ExpressionUUID->"f16e713f-f7e0-4f38-bb17-77ff06bc6609"],
+Cell[15928, 561, 264, 7, 70, "Input",ExpressionUUID->"f2b16e36-2afe-4677-9bfb-a4c47c9a927e"],
+Cell[16195, 570, 250, 7, 70, "Input",ExpressionUUID->"86cd3b84-61fa-4e11-86fe-f002df960fc8"],
+Cell[16448, 579, 74, 0, 70, "Section",ExpressionUUID->"19041d18-ffae-44e2-a4b2-b1577d6b6442"],
+Cell[16525, 581, 231, 7, 70, "Input",ExpressionUUID->"e8f385f4-04a7-460f-8491-c41f2b73ea3b"],
+Cell[16759, 590, 74, 0, 70, "Section",ExpressionUUID->"14f626c4-a5c6-4114-acea-3fe04003c74b"],
+Cell[16836, 592, 235, 7, 70, "Input",ExpressionUUID->"d0dcd7dc-9c23-464a-9d79-6f3beb7f297d"],
+Cell[17074, 601, 74, 0, 70, "Section",ExpressionUUID->"56b45134-5460-4975-a80d-ee3e9417fcf0"],
+Cell[17151, 603, 374, 12, 70, "Input",ExpressionUUID->"5926c7b7-ec0b-4d8b-9b89-50294f4f36ee"],
+Cell[17528, 617, 404, 13, 70, "Input",ExpressionUUID->"3c2badb6-9b9f-4c7b-ac93-e8dbbc2fd19a"],
+Cell[17935, 632, 405, 13, 70, "Input",ExpressionUUID->"766c8d87-d3c0-495b-8cfe-af11b2582f26"],
+Cell[18343, 647, 391, 13, 70, "Input",ExpressionUUID->"b9d5af64-2d3d-4b9c-b5ff-ef9b6049fabc"],
+Cell[18737, 662, 74, 0, 70, "Section",ExpressionUUID->"fadae8c6-f20f-40ef-a583-91dcf4b0855c"],
+Cell[18814, 664, 361, 11, 70, "Input",ExpressionUUID->"a1b753a5-d729-404a-a614-d3a1e0347fb6"],
+Cell[19178, 677, 358, 11, 70, "Input",ExpressionUUID->"7ca08514-96ee-4833-be60-6b52cfa8760b"],
+Cell[19539, 690, 408, 13, 70, "Input",ExpressionUUID->"4bde5b71-c61c-4623-aa5a-2fd9cb6cc13b"],
+Cell[19950, 705, 311, 8, 70, "Input",ExpressionUUID->"0e1de847-de37-4481-b8c7-6fd72cc5bb08"],
+Cell[20264, 715, 282, 8, 70, "Input",ExpressionUUID->"ff79e2fe-d51b-461a-86a2-eb231a95bb48"],
+Cell[20549, 725, 368, 12, 70, "Input",ExpressionUUID->"68d13589-6e33-49fc-8b47-a2c6d8025dd8"],
+Cell[20920, 739, 307, 9, 70, "Input",ExpressionUUID->"8c185b78-19e5-4f6a-8920-43f9bdb79b43"]
+}
+]
+*)
+
+(* End of internal cache information *)

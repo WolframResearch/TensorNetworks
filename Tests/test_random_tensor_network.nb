@@ -1,0 +1,88 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[      2648,         79]
+NotebookOptionsPosition[      1983,         62]
+NotebookOutlinePosition[      2301,         76]
+CellTagsIndexPosition[      2258,         73]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_random_tensor_network", "Title",ExpressionUUID->"434f40fc-671c-4599-a420-089e42814284"],
+
+Cell["\<\
+(* Tests/test_random_tensor_network.wl *)
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"23f507b0-b830-4b2b-9a4a-d694cc3a27c4"],
+
+Cell["\<\
+VerificationTest[
+    rtnAuto = RandomTensorNetwork[{10, 15}, 2, 4];
+    tensorsAuto = rtnAuto[\"Tensors\"];
+    AllTrue[Flatten[tensorsAuto], Element[#, Reals] &],
+    True,
+    TestID -> \"RandomTensorNetwork_Real_Default\"
+]
+
+(* Note: There is a tiny chance RandomComplex returns a real number, but \
+across many tensors it should be complex *)\
+\>", "Input",ExpressionUUID->"5b83bac3-b657-407f-8619-88c6ded8cc63"],
+
+Cell["\<\
+VerificationTest[
+    rtnComplex = RandomTensorNetwork[{10, 15}, 2, 4, Method -> \"Complex\"];
+    tensorsComplex = rtnComplex[\"Tensors\"];
+    AnyTrue[Flatten[tensorsComplex], !Element[#, Reals] &],
+    True,
+    TestID -> \"RandomTensorNetwork_Complex\"
+]\
+\>", "Input",ExpressionUUID->"6ed575b0-617a-4834-b66b-d81ef2cd72e6"],
+
+Cell["\<\
+VerificationTest[
+    rtnReal = RandomTensorNetwork[{10, 15}, 2, 4, Method -> \"Real\"];
+    tensorsReal = rtnReal[\"Tensors\"];
+    AllTrue[Flatten[tensorsReal], Element[#, Reals] &],
+    True,
+    TestID -> \"RandomTensorNetwork_Real_Explicit\"
+]\
+\>", "Input",ExpressionUUID->"f7930492-a198-43b8-9884-42e2972b9d35"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 98, 0, 70, "Title",ExpressionUUID->"434f40fc-671c-4599-a420-089e42814284"],
+Cell[655, 22, 222, 5, 70, "Input",ExpressionUUID->"23f507b0-b830-4b2b-9a4a-d694cc3a27c4",
+ InitializationCell->True],
+Cell[880, 29, 427, 11, 70, "Input",ExpressionUUID->"5b83bac3-b657-407f-8619-88c6ded8cc63"],
+Cell[1310, 42, 338, 8, 70, "Input",ExpressionUUID->"6ed575b0-617a-4834-b66b-d81ef2cd72e6"],
+Cell[1651, 52, 328, 8, 70, "Input",ExpressionUUID->"f7930492-a198-43b8-9884-42e2972b9d35"]
+}
+]
+*)
+
+(* End of internal cache information *)

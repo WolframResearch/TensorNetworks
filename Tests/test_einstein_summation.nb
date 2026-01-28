@@ -1,0 +1,449 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     16396,        440]
+NotebookOptionsPosition[     12537,        389]
+NotebookOutlinePosition[     12855,        403]
+CellTagsIndexPosition[     12812,        400]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_einstein_summation", "Title",ExpressionUUID->"0ee50ee7-f34b-4bc6-810d-fcbfae651748"],
+
+Cell["Comprehensivetests for EinsteinSummation.wl", "Subtitle",ExpressionUUID->"7bb75ace-1f1c-48a9-a4ff-f187b673aab4"],
+
+Cell["\<\
+(* Tests/test_einstein_summation.wl *)
+(* Comprehensive tests for EinsteinSummation.wl *)
+
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"48f640a3-214f-45ec-8e6e-c67a0be44be0"],
+
+Cell["", "Section",ExpressionUUID->"aedb5bc7-423b-4670-8fb9-8a4c75252e1a"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    result = EinsteinSummation[{{\"i\", \"j\"}, {\"j\", \"k\"}} -> {\"i\", \
+\"k\"}, {A, B}];
+    expected = A . B;
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_MatrixMultiplication\"
+]\
+\>", "Input",ExpressionUUID->"878fb0b9-f5f1-49d4-964e-bc8e16bef058"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {3, 3}];
+    result = EinsteinSummation[{{\"i\", \"i\"}}, {A}];
+    expected = Tr[A];
+    Abs[ActivateTensors[result] - expected] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_Trace\"
+]\
+\>", "Input",ExpressionUUID->"86d641ac-fd7c-470f-a686-2f539adf4eb4"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {3, 4}];
+    B = RandomReal[{-1, 1}, {4, 3}];
+    result = EinsteinSummation[{{\"i\", \"j\"}, {\"j\", \"i\"}} -> {}, {A, B}];
+    expected = Tr[A . B];
+    Abs[ActivateTensors[result] - expected] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_FullContraction\"
+]\
+\>", "Input",ExpressionUUID->"605540d6-2799-432f-acd0-c07036add9f1"],
+
+Cell["\<\
+VerificationTest[
+    a = RandomReal[{-1, 1}, {5}];
+    b = RandomReal[{-1, 1}, {5}];
+    result = EinsteinSummation[{{\"i\"}, {\"i\"}} -> {}, {a, b}];
+    expected = a . b;
+    Abs[ActivateTensors[result] - expected] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_VectorDotProduct\"
+]\
+\>", "Input",ExpressionUUID->"000ce965-f5b2-40e4-9443-93bbd42317a7"],
+
+Cell["\<\
+VerificationTest[
+    a = RandomReal[{-1, 1}, {3}];
+    b = RandomReal[{-1, 1}, {4}];
+    result = EinsteinSummation[{{\"i\"}, {\"j\"}} -> {\"i\", \"j\"}, {a, b}];
+    expected = Outer[Times, a, b];
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_OuterProduct\"
+]\
+\>", "Input",ExpressionUUID->"d0a7b101-57a5-4ac4-830e-60bd3ed5cd4a"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3, 4}];
+    B = RandomReal[{-1, 1}, {4, 5, 6}];
+    result = EinsteinSummation[{{\"i\", \"j\", \"k\"}, {\"k\", \"l\", \"m\"}} \
+-> {\"i\", \"j\", \"l\", \"m\"}, {A, B}];
+    activated = ActivateTensors[result];
+    Dimensions[activated],
+    {2, 3, 5, 6},
+    TestID -> \"EinsteinSummation_Rank3Tensors\"
+]\
+\>", "Input",ExpressionUUID->"2ccb3b70-6f43-4fb1-85e3-45b2d8255499"],
+
+Cell["", "Section",ExpressionUUID->"07e67c92-5f91-4a12-aad4-a16159c4a352"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    result = EinsteinSummation[{{\"i\", \"j\"}, {\"j\", \"k\"}}, {A, B}];
+    activated = ActivateTensors[result];
+    Dimensions[activated],
+    {2, 4},
+    TestID -> \"EinsteinSummation_AutomaticOutput\"
+]\
+\>", "Input",ExpressionUUID->"eea5d6fe-426e-413b-a5f7-769f4e3ff49e"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    result = EinsteinSummation[{{\"i\", \"j\"}, {\"j\", \"k\"}} -> Automatic, \
+{A, B}];
+    activated = ActivateTensors[result];
+    Dimensions[activated],
+    {2, 4},
+    TestID -> \"EinsteinSummation_ExplicitAutomatic\"
+]\
+\>", "Input",ExpressionUUID->"3edef28d-0787-453a-94b3-49e0d09c41c5"],
+
+Cell["", "Section",ExpressionUUID->"e0d962b6-0ad6-4e92-8bec-f4b789d2ae79"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    result = EinsteinSummation[\"ij,jk->ik\", {A, B}];
+    expected = A . B;
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_StringInput_MatrixMult\"
+]\
+\>", "Input",ExpressionUUID->"96f7b5e0-f7fe-4579-a588-5b5a88cf082e"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {3, 3}];
+    result = EinsteinSummation[\"ii\", {A}];
+    expected = Tr[A];
+    Abs[ActivateTensors[result] - expected] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_StringInput_Trace\"
+]\
+\>", "Input",ExpressionUUID->"675f8dac-e373-4e0d-993d-b0d15ac4c984"],
+
+Cell["\<\
+VerificationTest[
+    a = RandomReal[{-1, 1}, {3}];
+    b = RandomReal[{-1, 1}, {4}];
+    result = EinsteinSummation[\"i,j->ij\", {a, b}];
+    expected = Outer[Times, a, b];
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_StringInput_OuterProduct\"
+]\
+\>", "Input",ExpressionUUID->"10f651c6-319c-41be-91ac-e49a299a892f"],
+
+Cell["", "Section",ExpressionUUID->"ca7e0149-f957-4722-8d22-835f2246fa5b"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    result = EinsteinSummation[{{\"i\", \"j\"}, {\"j\", \"k\"}} -> {\"k\", \
+\"i\"}, {A, B}];
+    expected = Transpose[A . B];
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_OutputPermutation\"
+]\
+\>", "Input",ExpressionUUID->"371fcde4-1eae-40a5-80bd-fe11c5d82679"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3, 4}];
+    result = EinsteinSummation[{{\"i\", \"j\", \"k\"}} -> {\"k\", \"j\", \
+\"i\"}, {A}];
+    expected = Transpose[A, {3, 2, 1}];
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_Transpose\"
+]\
+\>", "Input",ExpressionUUID->"510f3381-2be8-44ad-9b3c-cb9c083b852e"],
+
+Cell["", "Section",ExpressionUUID->"e879a51a-766f-44e2-896f-7af2b1758566"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    T3 = RandomReal[{-1, 1}, {4, 5}];  (* Renamed from C to avoid conflict \
+with built-in *)
+    result = EinsteinSummation[{{\"i\", \"j\"}, {\"j\", \"k\"}, {\"k\", \
+\"l\"}} -> {\"i\", \"l\"}, {A, B, T3}];
+    expected = A . B . T3;
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_ThreeTensors\"
+]\
+\>", "Input",ExpressionUUID->"2a4c881a-8c24-439c-8b0d-3da2cbf43b6d"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    T3 = RandomReal[{-1, 1}, {4, 5}];  (* Renamed from C to avoid conflict \
+with built-in *)
+    T4 = RandomReal[{-1, 1}, {5, 6}];  (* Renamed from D to avoid conflict \
+with built-in *)
+    result = EinsteinSummation[
+        {{\"a\", \"b\"}, {\"b\", \"c\"}, {\"c\", \"d\"}, {\"d\", \"e\"}} -> {\
+\"a\", \"e\"},
+        {A, B, T3, T4}
+    ];
+    expected = A . B . T3 . T4;
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_FourTensors\"
+]\
+\>", "Input",ExpressionUUID->"71889d92-0f14-4e1e-9ded-3876dbac0b35"],
+
+Cell["", "Section",ExpressionUUID->"cbb17deb-2373-4489-8200-8ba168407dcb"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    scalar = 2.5;
+    result = EinsteinSummation[{{}, {\"i\", \"j\"}} -> {\"i\", \"j\"}, \
+{scalar, A}];
+    expected = scalar * A;
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_ScalarMultiplication\"
+]\
+\>", "Input",ExpressionUUID->"f37c9540-06f2-4140-a385-c1eff1687bf9"],
+
+Cell["\<\
+VerificationTest[
+    scalar1 = 2.0;
+    scalar2 = 3.0;
+    result = EinsteinSummation[{{}, {}} -> {}, {scalar1, scalar2}];
+    expected = 6.0;
+    Abs[ActivateTensors[result] - expected] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_TwoScalars\"
+]\
+\>", "Input",ExpressionUUID->"ea1cf62b-5f98-4f00-be58-801bd81bb851"],
+
+Cell["", "Section",ExpressionUUID->"048a21e0-6894-4864-ad61-93fe3fd854cd"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {4, 3}];
+    {indices, joined} = TensorJoin[{{\"i\", \"k\"}, {\"j\", \"k\"}}, {A, B}];
+    ListQ[indices] && ArrayQ[joined],
+    True,
+    TestID -> \"TensorJoin_Basic\"
+]\
+\>", "Input",ExpressionUUID->"0eb463c3-1a4c-4647-9270-b624d004503a"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {2, 4}];
+    {indices, joined} = TensorJoin[{{\"i\", \"j\"}, {\"i\", \"k\"}}, {A, B}];
+    MemberQ[indices, \"i\"],
+    True,
+    TestID -> \"TensorJoin_SharedIndex\"
+]\
+\>", "Input",ExpressionUUID->"4b012792-15e8-4d5f-871e-7e0e284ce116"],
+
+Cell["", "Section",ExpressionUUID->"c9bc2fe5-6560-4d8d-bad5-0f025caad859"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    inactive = EinsteinSummation[{{\"i\", \"j\"}, {\"j\", \"k\"}} -> {\"i\", \
+\"k\"}, {A, B}];
+    active = ActivateTensors[inactive];
+    ArrayQ[active],
+    True,
+    TestID -> \"ActivateTensors_ProducesArray\"
+]\
+\>", "Input",ExpressionUUID->"b9e522c3-fd96-41ba-8af1-3f48bd09646a"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    active = ActivateTensors[A];
+    active === A,
+    True,
+    TestID -> \"ActivateTensors_AlreadyActive\"
+]\
+\>", "Input",ExpressionUUID->"5be04569-7b59-4329-99ab-cceafc00c039"],
+
+Cell["\<\
+VerificationTest[
+    inactive = Inactive[TensorProduct][RandomReal[{-1, 1}, {2}], \
+RandomReal[{-1, 1}, {3}]];
+    active = ActivateTensors[inactive];
+    ArrayQ[active],
+    True,
+    TestID -> \"ActivateTensors_InactiveTensorProduct\"
+]\
+\>", "Input",ExpressionUUID->"487e66b7-b8e9-466a-9a92-889ac2bcf4f4"],
+
+Cell["", "Section",ExpressionUUID->"abf6e48f-f90e-4553-b0b9-6a33d2adc557"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomComplex[{-1 - I, 1 + I}, {2, 3}];
+    B = RandomComplex[{-1 - I, 1 + I}, {3, 4}];
+    result = EinsteinSummation[{{\"i\", \"j\"}, {\"j\", \"k\"}} -> {\"i\", \
+\"k\"}, {A, B}];
+    expected = A . B;
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_ComplexTensors\"
+]\
+\>", "Input",ExpressionUUID->"e3fbae16-3194-472e-b0af-7554d6170cdf"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {3}];
+    result = EinsteinSummation[{{\"i\"}}, {A}];
+    expected = A;
+    Max[Abs[ActivateTensors[result] - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_SingleVector\"
+]\
+\>", "Input",ExpressionUUID->"9f60992c-75ae-4ebf-8f02-29f08dc0b07a"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3, 4, 5}];
+    B = RandomReal[{-1, 1}, {5, 6, 7}];
+    result = EinsteinSummation[{{\"a\", \"b\", \"c\", \"d\"}, {\"d\", \"e\", \
+\"f\"}} -> {\"a\", \"b\", \"c\", \"e\", \"f\"}, {A, B}];
+    activated = ActivateTensors[result];
+    Dimensions[activated],
+    {2, 3, 4, 6, 7},
+    TestID -> \"EinsteinSummation_HighRankTensors\"
+]\
+\>", "Input",ExpressionUUID->"79865d62-43e1-4f25-98ce-045695787f32"],
+
+Cell["\<\
+VerificationTest[
+    (* Diagonal extraction *)
+    A = RandomReal[{-1, 1}, {3, 3, 4}];
+    result = EinsteinSummation[{{\"i\", \"i\", \"j\"}} -> {\"j\"}, {A}];
+    activated = ActivateTensors[result];
+    expected = Sum[A[[i, i, All]], {i, 3}];
+    Max[Abs[activated - expected]] < 10^-10,
+    True,
+    TestID -> \"EinsteinSummation_DiagonalExtraction\"
+]\
+\>", "Input",ExpressionUUID->"dcb105bc-8b2e-44fc-97e4-519707a4dae2"],
+
+Cell["\<\
+VerificationTest[
+    (* Batched matrix multiplication *)
+    A = RandomReal[{-1, 1}, {2, 3, 4}];  (* Batch of 2 3x4 matrices *)
+    B = RandomReal[{-1, 1}, {2, 4, 5}];  (* Batch of 2 4x5 matrices *)
+    result = EinsteinSummation[{{\"b\", \"i\", \"j\"}, {\"b\", \"j\", \"k\"}} \
+-> {\"b\", \"i\", \"k\"}, {A, B}];
+    activated = ActivateTensors[result];
+    Dimensions[activated],
+    {2, 3, 5},
+    TestID -> \"EinsteinSummation_BatchedMatrixMult\"
+]\
+\>", "Input",ExpressionUUID->"dd5681d3-9d42-4931-9dd2-7897fc49404f"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 95, 0, 70, "Title",ExpressionUUID->"0ee50ee7-f34b-4bc6-810d-fcbfae651748"],
+Cell[652, 22, 118, 0, 70, "Subtitle",ExpressionUUID->"7bb75ace-1f1c-48a9-a4ff-f187b673aab4"],
+Cell[773, 24, 271, 7, 70, "Input",ExpressionUUID->"48f640a3-214f-45ec-8e6e-c67a0be44be0",
+ InitializationCell->True],
+Cell[1047, 33, 74, 0, 70, "Section",ExpressionUUID->"aedb5bc7-423b-4670-8fb9-8a4c75252e1a"],
+Cell[1124, 35, 415, 11, 70, "Input",ExpressionUUID->"878fb0b9-f5f1-49d4-964e-bc8e16bef058"],
+Cell[1542, 48, 319, 9, 70, "Input",ExpressionUUID->"86d641ac-fd7c-470f-a686-2f539adf4eb4"],
+Cell[1864, 59, 395, 10, 70, "Input",ExpressionUUID->"605540d6-2799-432f-acd0-c07036add9f1"],
+Cell[2262, 71, 372, 10, 70, "Input",ExpressionUUID->"000ce965-f5b2-40e4-9443-93bbd42317a7"],
+Cell[2637, 83, 398, 10, 70, "Input",ExpressionUUID->"d0a7b101-57a5-4ac4-830e-60bd3ed5cd4a"],
+Cell[3038, 95, 436, 11, 70, "Input",ExpressionUUID->"2ccb3b70-6f43-4fb1-85e3-45b2d8255499"],
+Cell[3477, 108, 74, 0, 70, "Section",ExpressionUUID->"07e67c92-5f91-4a12-aad4-a16159c4a352"],
+Cell[3554, 110, 379, 10, 70, "Input",ExpressionUUID->"eea5d6fe-426e-413b-a5f7-769f4e3ff49e"],
+Cell[3936, 122, 396, 11, 70, "Input",ExpressionUUID->"3edef28d-0787-453a-94b3-49e0d09c41c5"],
+Cell[4335, 135, 74, 0, 70, "Section",ExpressionUUID->"e0d962b6-0ad6-4e92-8bec-f4b789d2ae79"],
+Cell[4412, 137, 378, 10, 70, "Input",ExpressionUUID->"96f7b5e0-f7fe-4579-a588-5b5a88cf082e"],
+Cell[4793, 149, 321, 9, 70, "Input",ExpressionUUID->"675f8dac-e373-4e0d-993d-b0d15ac4c984"],
+Cell[5117, 160, 385, 10, 70, "Input",ExpressionUUID->"10f651c6-319c-41be-91ac-e49a299a892f"],
+Cell[5505, 172, 74, 0, 70, "Section",ExpressionUUID->"ca7e0149-f957-4722-8d22-835f2246fa5b"],
+Cell[5582, 174, 423, 11, 70, "Input",ExpressionUUID->"371fcde4-1eae-40a5-80bd-fe11c5d82679"],
+Cell[6008, 187, 383, 10, 70, "Input",ExpressionUUID->"510f3381-2be8-44ad-9b3c-cb9c083b852e"],
+Cell[6394, 199, 74, 0, 70, "Section",ExpressionUUID->"e879a51a-766f-44e2-896f-7af2b1758566"],
+Cell[6471, 201, 526, 13, 70, "Input",ExpressionUUID->"2a4c881a-8c24-439c-8b0d-3da2cbf43b6d"],
+Cell[7000, 216, 666, 18, 70, "Input",ExpressionUUID->"71889d92-0f14-4e1e-9ded-3876dbac0b35"],
+Cell[7669, 236, 74, 0, 70, "Section",ExpressionUUID->"cbb17deb-2373-4489-8200-8ba168407dcb"],
+Cell[7746, 238, 394, 11, 70, "Input",ExpressionUUID->"f37c9540-06f2-4140-a385-c1eff1687bf9"],
+Cell[8143, 251, 336, 10, 70, "Input",ExpressionUUID->"ea1cf62b-5f98-4f00-be58-801bd81bb851"],
+Cell[8482, 263, 74, 0, 70, "Section",ExpressionUUID->"048a21e0-6894-4864-ad61-93fe3fd854cd"],
+Cell[8559, 265, 334, 9, 70, "Input",ExpressionUUID->"0eb463c3-1a4c-4647-9270-b624d004503a"],
+Cell[8896, 276, 331, 9, 70, "Input",ExpressionUUID->"4b012792-15e8-4d5f-871e-7e0e284ce116"],
+Cell[9230, 287, 74, 0, 70, "Section",ExpressionUUID->"c9bc2fe5-6560-4d8d-bad5-0f025caad859"],
+Cell[9307, 289, 387, 11, 70, "Input",ExpressionUUID->"b9e522c3-fd96-41ba-8af1-3f48bd09646a"],
+Cell[9697, 302, 245, 8, 70, "Input",ExpressionUUID->"5be04569-7b59-4329-99ab-cceafc00c039"],
+Cell[9945, 312, 319, 9, 70, "Input",ExpressionUUID->"487e66b7-b8e9-466a-9a92-889ac2bcf4f4"],
+Cell[10267, 323, 74, 0, 70, "Section",ExpressionUUID->"abf6e48f-f90e-4553-b0b9-6a33d2adc557"],
+Cell[10344, 325, 431, 11, 70, "Input",ExpressionUUID->"e3fbae16-3194-472e-b0af-7554d6170cdf"],
+Cell[10778, 338, 317, 9, 70, "Input",ExpressionUUID->"9f60992c-75ae-4ebf-8f02-29f08dc0b07a"],
+Cell[11098, 349, 459, 11, 70, "Input",ExpressionUUID->"79865d62-43e1-4f25-98ce-045695787f32"],
+Cell[11560, 362, 437, 11, 70, "Input",ExpressionUUID->"dcb105bc-8b2e-44fc-97e4-519707a4dae2"],
+Cell[12000, 375, 533, 12, 70, "Input",ExpressionUUID->"dd5681d3-9d42-4931-9dd2-7897fc49404f"]
+}
+]
+*)
+
+(* End of internal cache information *)

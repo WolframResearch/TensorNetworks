@@ -2,8 +2,9 @@
 
 ## Overview
 
-The TensorNetworks Wolfram Language package provides symmetry operations via **Young tableaux** - mathematical objects that encode tensor symmetry properties. The symmetry module is located in:
-- [YoungTableaux.wl](YoungTableaux.wl) - Main implementation
+The TensorNetworks Wolfram Language package provides symmetry operations via **Young tableaux** and **quantum numbers** for symmetry-filtered tensor contractions. The symmetry module is located in:
+- [YoungTableaux.wl](YoungTableaux.wl) - Young tableaux implementation
+- [QuantumNumbers.wl](QuantumNumbers.wl) - Quantum numbers for symmetry-filtered contractions
 - [AUsage.wl](AUsage.wl) - Usage documentation
 - [ArrayUtilities.wl](../IndexArray/ArrayUtilities.wl) - Array symmetry utilities
 
@@ -769,6 +770,245 @@ yp = YoungProject[t, YoungTableau[{2}]];
 
 ---
 
+## Quantum Numbers Module
+
+The quantum numbers module provides tools for symmetry-filtered tensor contractions that skip zero blocks based on charge conservation.
+
+### TensorNetwork Integration
+
+When generating symmetric tensor networks with `RandomTensorNetwork`, the `IndexCharges` are automatically stored as a TensorNetwork property:
+
+```mathematica
+(* Generate symmetric MPS - IndexCharges stored automatically *)
+tn = RandomTensorNetwork["MPS"[5, 100, 4], "Symmetry" -> {"U1", 10}]
+
+(* Access symmetry properties *)
+tn["SymmetricQ"]     (* True *)
+tn["SymmetryType"]   (* "U1" *)
+tn["IndexCharges"]   (* <|1 -> {...}, 2 -> {...}, ...|> *)
+tn["Metadata"]       (* <|"IndexCharges" -> ..., "SymmetryType" -> "U1"|> *)
+
+(* Non-symmetric networks return None *)
+tnPlain = RandomTensorNetwork["MPS"[5, 100, 4]]
+tnPlain["SymmetricQ"]    (* False *)
+tnPlain["IndexCharges"]  (* None *)
+```
+
+**Auto-detection in TensorNetworkContract:**
+
+When using `Method -> "SymmetryFiltered"`, the contraction automatically uses `IndexCharges` from the TensorNetwork if available:
+
+```mathematica
+(* These are equivalent: *)
+TensorNetworkContract[tn, "Optimal", Method -> "SymmetryFiltered"]
+TensorNetworkContract[tn, "Optimal", Method -> "SymmetryFiltered",
+    "IndexCharges" -> tn["IndexCharges"]]
+```
+
+### Performance Guidelines
+
+| Scenario | Best Method | Expected Speedup |
+|----------|-------------|------------------|
+| Sparse tensors (from `"Symmetry"` option) | `"ArrayDot"` | ~40x vs dense |
+| Dense tensors, single contracted index | `"SymmetryFiltered"` | 3-5x (if <50% pairs allowed) |
+| Dense tensors, multiple contracted indices | `"SymmetryFiltered"` | 10-30x+ (exponential with # indices) |
+| >50% pairs allowed | `"ArrayDot"` | SymmetryFiltered auto-falls back |
+
+**Key insight:** `"SymmetryFiltered"` excels when there are **multiple contracted indices** because filtering compounds exponentially. With k contracted indices and ~1/n allowed pairs each, speedup is approximately n^k.
+
+### 9. `ChargeVector` - Quantum Number Storage
+
+**Purpose:** Stores quantum numbers (charges) for each value of a tensor index, enabling symmetry-filtered contractions.
+
+**Input Patterns:**
+
+| Pattern | Description |
+|---------|-------------|
+| `ChargeVector[{q1, q2, ..., qn}]` | Creates a charge vector for an n-dimensional index |
+
+**Notes:**
+- For U(1) symmetry: charges are integers representing particle number
+- For Z_N symmetry: charges are integers mod N
+- Contraction conserves charge: `qA + qB = 0` for contracted indices
+
+**Examples:**
+
+```mathematica
+(* Example 1: Simple charge vector *)
+ChargeVector[{0, 1, -1}]
+(* Dimension 3 with charges 0, 1, -1 for indices 1, 2, 3 *)
+
+(* Example 2: All zero charges *)
+ChargeVector[{0, 0, 0}]
+(* All indices have the same charge *)
+
+(* Example 3: Negation for conjugate indices *)
+cv = ChargeVector[{0, 1, -1}];
+-cv
+(* Returns: ChargeVector[{0, -1, 1}] *)
+
+(* Example 4: Mixed positive/negative charges *)
+ChargeVector[{-5, -3, -1, 1, 3, 5}]
+
+(* Example 5: Access the charge list *)
+cv = ChargeVector[{1, 2, 3}];
+cv[[1]]
+(* Returns: {1, 2, 3} *)
+```
+
+---
+
+### 10. `ChargeVectorQ` - Validation Predicate
+
+**Purpose:** Tests whether an expression is a valid ChargeVector.
+
+**Input Patterns:**
+
+| Pattern | Description |
+|---------|-------------|
+| `ChargeVectorQ[expr]` | Returns `True` if expr is a valid ChargeVector, `False` otherwise |
+
+**Examples:**
+
+```mathematica
+(* Example 1: Valid charge vector *)
+ChargeVectorQ[ChargeVector[{1, 2, 3}]]
+(* Returns: True *)
+
+(* Example 2: Invalid - plain list *)
+ChargeVectorQ[{1, 2, 3}]
+(* Returns: False *)
+
+(* Example 3: Invalid - string *)
+ChargeVectorQ["not a charge vector"]
+(* Returns: False *)
+
+(* Example 4: Invalid - non-integer charges *)
+ChargeVectorQ[ChargeVector[{1.5, 2, 3}]]
+(* Returns: False *)
+```
+
+---
+
+### 11. `AllowedContractions` - Find Charge-Conserving Pairs
+
+**Purpose:** Returns all index pairs (i, j) where charges sum to zero. These are the only pairs that contribute to the contraction.
+
+**Input Patterns:**
+
+| Pattern | Description |
+|---------|-------------|
+| `AllowedContractions[cvA, cvB]` | Find pairs from two ChargeVectors |
+| `AllowedContractions[qA, qB]` | Find pairs from two integer lists |
+
+**Examples:**
+
+```mathematica
+(* Example 1: Simple charge conservation *)
+qA = {0, 1, -1};
+qB = {0, -1, 1};
+AllowedContractions[qA, qB]
+(* Returns: {{1, 1}, {2, 3}, {3, 2}} *)
+(* Pairs where qA[i] + qB[j] = 0 *)
+
+(* Example 2: With ChargeVector objects *)
+cvA = ChargeVector[{0, 1, -1}];
+cvB = ChargeVector[{0, -1, 1}];
+AllowedContractions[cvA, cvB]
+(* Returns: {{1, 1}, {2, 3}, {3, 2}} *)
+
+(* Example 3: Non-zero charges *)
+qA = {1, 2, 3};
+qB = {-1, -2, -3};
+AllowedContractions[qA, qB]
+(* Returns: {{1, 1}, {2, 2}, {3, 3}} *)
+
+(* Example 4: All zero charges - all pairs allowed *)
+qA = {0, 0, 0};
+qB = {0, 0, 0};
+Length[AllowedContractions[qA, qB]]
+(* Returns: 9 (all 3x3 pairs) *)
+
+(* Example 5: No allowed contractions *)
+qA = {1, 2, 3};
+qB = {4, 5, 6};
+AllowedContractions[qA, qB]
+(* Returns: {} *)
+```
+
+---
+
+### 12. `ChargesConservedQ` - Check Conservation
+
+**Purpose:** Tests if two charge lists satisfy conservation (sum to zero element-wise).
+
+**Input Patterns:**
+
+| Pattern | Description |
+|---------|-------------|
+| `ChargesConservedQ[cvA, cvB]` | Check ChargeVector conservation |
+| `ChargesConservedQ[qA, qB]` | Check integer list conservation |
+
+**Examples:**
+
+```mathematica
+(* Example 1: Conserved charges *)
+ChargesConservedQ[{1, -1, 0}, {-1, 1, 0}]
+(* Returns: True (element-wise sum is {0, 0, 0}) *)
+
+(* Example 2: Not conserved *)
+ChargesConservedQ[{1, 2, 3}, {1, 2, 3}]
+(* Returns: False (sum is {2, 4, 6}) *)
+
+(* Example 3: With ChargeVector objects *)
+cvA = ChargeVector[{1, -1}];
+cvB = ChargeVector[{-1, 1}];
+ChargesConservedQ[cvA, cvB]
+(* Returns: True *)
+
+(* Example 4: Length mismatch *)
+ChargesConservedQ[{1, 2}, {1, 2, 3}]
+(* Returns: False with error message *)
+```
+
+---
+
+### 13. `IndicesWithCharge` - Select by Charge
+
+**Purpose:** Returns all index positions with a specific charge value.
+
+**Input Patterns:**
+
+| Pattern | Description |
+|---------|-------------|
+| `IndicesWithCharge[cv, charge]` | Get indices from ChargeVector |
+| `IndicesWithCharge[charges, charge]` | Get indices from integer list |
+
+**Examples:**
+
+```mathematica
+(* Example 1: Find indices with charge 0 *)
+cv = ChargeVector[{0, 1, 0, -1, 0}];
+IndicesWithCharge[cv, 0]
+(* Returns: {1, 3, 5} *)
+
+(* Example 2: Find indices with charge 1 *)
+IndicesWithCharge[cv, 1]
+(* Returns: {2} *)
+
+(* Example 3: With plain list *)
+charges = {0, 1, 0, -1, 0};
+IndicesWithCharge[charges, -1]
+(* Returns: {4} *)
+
+(* Example 4: Charge not present *)
+cv = ChargeVector[{1, 2, 3}];
+IndicesWithCharge[cv, 5]
+(* Returns: {} *)
+```
+
+---
+
 ## Mathematical Background
 
 ### Young Tableaux
@@ -818,3 +1058,8 @@ Where hook length at position (r,c) = cells to right + cells below + 1.
 | `TableauDimension[t]` | Irrep dimension | `TableauDimension[tab]` |
 | `YoungSymmetrize[T,t]` | Unnormalized symmetrization | `YoungSymmetrize[tensor,tab]` |
 | `YoungProject[T,t]` | Normalized projection | `YoungProject[tensor,tab]` |
+| `ChargeVector[{q1,...}]` | Create charge vector | `ChargeVector[{0,1,-1}]` |
+| `ChargeVectorQ[cv]` | Validate charge vector | `ChargeVectorQ[cv]` |
+| `AllowedContractions[cvA,cvB]` | Find charge-conserving pairs | `AllowedContractions[cv1,cv2]` |
+| `ChargesConservedQ[cvA,cvB]` | Check charge conservation | `ChargesConservedQ[cv1,cv2]` |
+| `IndicesWithCharge[cv,q]` | Get indices with charge | `IndicesWithCharge[cv,0]` |

@@ -1,0 +1,189 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[      6072,        180]
+NotebookOptionsPosition[      4574,        154]
+NotebookOutlinePosition[      4892,        168]
+CellTagsIndexPosition[      4849,        165]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_mps", "Title",ExpressionUUID->"306d630b-fe24-4441-b114-4a11e1df350a"],
+
+Cell["\<\
+(* Tests/test_mps.wl *)
+(* Tests for MPS algorithms *)
+
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"7d52fd03-85a4-4103-8f9b-de30f9fe033b"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    TensorNetworkQ[canonical],
+    True,
+    TestID -> \"MPSCanonicalForm_Left_ReturnsTensorNetwork\"
+]\
+\>", "Input",ExpressionUUID->"15588780-ba39-4b29-85fc-9843fca68689"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Left\"];
+    MPSCanonicalQ[canonical, \"Left\"],
+    True,
+    TestID -> \"MPSCanonicalForm_Left_IsCanonical\"
+]\
+\>", "Input",ExpressionUUID->"192d17e6-3fba-46a9-924b-a1fc31ae43bd"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    canonical = MPSCanonicalForm[mps, \"Right\"];
+    MPSCanonicalQ[canonical, \"Right\"],
+    True,
+    TestID -> \"MPSCanonicalForm_Right_IsCanonical\"
+]\
+\>", "Input",ExpressionUUID->"cd408a57-25a8-4bc9-9280-e5e0c7db966d"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[5, 4, 2]];
+    canonical = MPSCanonicalForm[mps, {\"Mixed\", 3}];
+    MPSCanonicalQ[canonical, {\"Mixed\", 3}],
+    True,
+    TestID -> \"MPSCanonicalForm_Mixed_IsCanonical\"
+]\
+\>", "Input",ExpressionUUID->"f7083163-da22-4457-849d-95b004248bd8"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 8, 2]];
+    canonical = MPSCanonicalForm[mps, \"Right\", \"MaxBond\" -> 3];
+    dims = Dimensions /@ canonical[\"Tensors\"];
+    bondDims = Flatten[Map[If[Length[#] == 2, {First[#]}, {#[[1]], #[[2]]}] \
+&, dims]];
+    Max[bondDims] <= 3,
+    True,
+    TestID -> \"MPSCanonicalForm_Right_RespectsMaxBond\"
+]\
+\>", "Input",ExpressionUUID->"cd289d47-6b8e-47e7-b083-7a965dc28aeb"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    overlap = MPSOverlap[mps, mps];
+    Abs[Im[overlap]] < 10^-10 && Re[overlap] > 0,
+    True,
+    TestID -> \"MPSOverlap_SelfIsRealPositive\"
+]\
+\>", "Input",ExpressionUUID->"4c7bfa31-583e-4ea5-b364-4905e748d65e"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    leftMPS = MPSCanonicalForm[mps, \"Left\"];
+    Abs[MPSOverlap[mps, mps] - MPSOverlap[leftMPS, leftMPS]] < 10^-8,
+    True,
+    TestID -> \"MPSOverlap_GaugeInvariant\"
+]\
+\>", "Input",ExpressionUUID->"dc643cc3-cd34-4d8b-916d-d5824e21804b"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    MPSNorm[mps] > 0,
+    True,
+    TestID -> \"MPSNorm_IsPositive\"
+]\
+\>", "Input",ExpressionUUID->"a7c9cb64-350d-4b25-ae66-166cf38bc629"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    normalized = MPSNormalize[mps];
+    Abs[MPSNorm[normalized] - 1] < 10^-8,
+    True,
+    TestID -> \"MPSNormalize_UnitNorm\"
+]\
+\>", "Input",ExpressionUUID->"96d32900-7e3a-435d-8d1a-f7e88dac396a"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    entropy = MPSEntanglementEntropy[mps, 2];
+    NumericQ[entropy] && entropy >= -10^-10,  (* Allow small numerical errors \
+*)
+    True,
+    TestID -> \"MPSEntanglementEntropy_NonNegative\"
+]\
+\>", "Input",ExpressionUUID->"94a11c78-3606-4ed4-913f-9015cdf2933c"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    schmidt = MPSSchmidtValues[mps, 2];
+    Abs[Total[schmidt^2] - 1] < 10^-8,
+    True,
+    TestID -> \"MPSSchmidtValues_Normalized\"
+]\
+\>", "Input",ExpressionUUID->"bfd44044-3030-429a-a0e4-fadff702ad3a"],
+
+Cell["\<\
+VerificationTest[
+    mps = RandomTensorNetwork[\"MPS\"[6, 8, 2]];
+    truncated = MPSTruncate[mps, 4];
+    TensorNetworkQ[truncated],
+    True,
+    TestID -> \"MPSTruncate_ReturnsTensorNetwork\"
+]\
+\>", "Input",ExpressionUUID->"66bd49e2-64b1-4b5e-8f43-3317b7aabc8b"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 80, 0, 70, "Title",ExpressionUUID->"306d630b-fe24-4441-b114-4a11e1df350a"],
+Cell[637, 22, 236, 7, 70, "Input",ExpressionUUID->"7d52fd03-85a4-4103-8f9b-de30f9fe033b",
+ InitializationCell->True],
+Cell[876, 31, 299, 8, 70, "Input",ExpressionUUID->"15588780-ba39-4b29-85fc-9843fca68689"],
+Cell[1178, 41, 299, 8, 70, "Input",ExpressionUUID->"192d17e6-3fba-46a9-924b-a1fc31ae43bd"],
+Cell[1480, 51, 302, 8, 70, "Input",ExpressionUUID->"cd408a57-25a8-4bc9-9280-e5e0c7db966d"],
+Cell[1785, 61, 312, 8, 70, "Input",ExpressionUUID->"f7083163-da22-4457-849d-95b004248bd8"],
+Cell[2100, 71, 445, 11, 70, "Input",ExpressionUUID->"cd289d47-6b8e-47e7-b083-7a965dc28aeb"],
+Cell[2548, 84, 292, 8, 70, "Input",ExpressionUUID->"4c7bfa31-583e-4ea5-b364-4905e748d65e"],
+Cell[2843, 94, 319, 8, 70, "Input",ExpressionUUID->"dc643cc3-cd34-4d8b-916d-d5824e21804b"],
+Cell[3165, 104, 217, 7, 70, "Input",ExpressionUUID->"a7c9cb64-350d-4b25-ae66-166cf38bc629"],
+Cell[3385, 113, 276, 8, 70, "Input",ExpressionUUID->"96d32900-7e3a-435d-8d1a-f7e88dac396a"],
+Cell[3664, 123, 340, 9, 70, "Input",ExpressionUUID->"94a11c78-3606-4ed4-913f-9015cdf2933c"],
+Cell[4007, 134, 283, 8, 70, "Input",ExpressionUUID->"bfd44044-3030-429a-a0e4-fadff702ad3a"],
+Cell[4293, 144, 277, 8, 70, "Input",ExpressionUUID->"66bd49e2-64b1-4b5e-8f43-3317b7aabc8b"]
+}
+]
+*)
+
+(* End of internal cache information *)

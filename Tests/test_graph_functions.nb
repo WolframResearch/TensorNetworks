@@ -1,0 +1,456 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     15810,        447]
+NotebookOptionsPosition[     11582,        392]
+NotebookOutlinePosition[     11900,        406]
+CellTagsIndexPosition[     11857,        403]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_graph_functions", "Title",ExpressionUUID->"9c6ab38d-df39-49ab-be41-29417c0da5e5"],
+
+Cell["Comprehensivetests for ToTensorNetworkGraph.wl", "Subtitle",ExpressionUUID->"261b701a-f2a2-4d2f-b025-5b57a2c45d0f"],
+
+Cell["\<\
+(* Tests/test_graph_functions.wl *)
+(* Comprehensive tests for ToTensorNetworkGraph.wl *)
+
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"7356ade8-5576-4db3-be59-1279754ee7a2"],
+
+Cell["", "Section",ExpressionUUID->"2fadb11e-4772-4de6-932c-c17013a01893"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    GraphQ[g],
+    True,
+    TestID -> \"ToTensorNetworkGraph_FromTensorNetwork\"
+]\
+\>", "Input",ExpressionUUID->"b6ea9d33-963d-42dc-9721-31613cea779e"],
+
+Cell["\<\
+VerificationTest[
+    tensors = {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]};
+    hyperedges = {{1, 2}, {2, 3}};
+    g = ToTensorNetworkGraph[tensors, hyperedges];
+    GraphQ[g],
+    True,
+    TestID -> \"ToTensorNetworkGraph_FromTensorsAndHyperedges\"
+]\
+\>", "Input",ExpressionUUID->"7191cf15-e592-4287-8604-aafc6ae25758"],
+
+Cell["\<\
+VerificationTest[
+    g = Graph[{1 -> 2, 2 -> 3}];
+    tng = ToTensorNetworkGraph[g];
+    TensorNetworkGraphQ[tng],
+    True,
+    TestID -> \"ToTensorNetworkGraph_FromDirectedGraph\"
+]\
+\>", "Input",ExpressionUUID->"9029dfcd-b10a-40ed-9196-46469386c792"],
+
+Cell["\<\
+VerificationTest[
+    g = Graph[{1 <-> 2, 2 <-> 3}];
+    tng = ToTensorNetworkGraph[g];
+    TensorNetworkGraphQ[tng],
+    True,
+    TestID -> \"ToTensorNetworkGraph_FromUndirectedGraph\"
+]\
+\>", "Input",ExpressionUUID->"efae9bab-0ff4-427c-b4d4-74e846b85b64"],
+
+Cell["\<\
+VerificationTest[
+    g = Graph[{1 -> 2, 2 -> 3}];
+    tng = ToTensorNetworkGraph[g, Method -> \"Symbolic\"];
+    TensorNetworkGraphQ[tng],
+    True,
+    TestID -> \"ToTensorNetworkGraph_MethodSymbolic\"
+]\
+\>", "Input",ExpressionUUID->"fcd8eb53-03f9-4375-b05b-507fcb6339a9"],
+
+Cell["\<\
+VerificationTest[
+    g = Graph[{1 -> 2, 2 -> 3}];
+    tng = ToTensorNetworkGraph[g, Method -> \"Random\"];
+    TensorNetworkGraphQ[tng],
+    True,
+    TestID -> \"ToTensorNetworkGraph_MethodRandom\"
+]\
+\>", "Input",ExpressionUUID->"831cdd61-dd23-4222-b3c7-71fb383ba9f7"],
+
+Cell["\<\
+VerificationTest[
+    g = Graph[{1 -> 2, 2 -> 3}];
+    tng = ToTensorNetworkGraph[g, Method -> \"Zero\"];
+    TensorNetworkGraphQ[tng],
+    True,
+    TestID -> \"ToTensorNetworkGraph_MethodZero\"
+]\
+\>", "Input",ExpressionUUID->"5e290f3c-756f-4b5e-bf3d-49e3c4ea03bb"],
+
+Cell["", "Section",ExpressionUUID->"604f6588-4a2c-456c-8ada-8c5844836131"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    TensorNetworkGraphQ[g],
+    True,
+    TestID -> \"TensorNetworkGraphQ_ValidGraph\"
+]\
+\>", "Input",ExpressionUUID->"2842eb9c-df98-4139-9323-ed8925a95cac"],
+
+Cell["\<\
+VerificationTest[
+    TensorNetworkGraphQ[Graph[{1 -> 2}]],
+    False,
+    TestID -> \"TensorNetworkGraphQ_PlainGraph\"
+]\
+\>", "Input",ExpressionUUID->"feeb4f41-9917-4d19-8023-c4542f1663bb"],
+
+Cell["\<\
+VerificationTest[
+    TensorNetworkGraphQ[\"not a graph\"],
+    False,
+    TestID -> \"TensorNetworkGraphQ_InvalidInput\"
+]\
+\>", "Input",ExpressionUUID->"fe4a83fc-968e-4ee1-b5c1-c7ae20eaadab"],
+
+Cell["", "Section",ExpressionUUID->"fba600be-0678-4d1c-84ef-ae053b0650c9"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    data = TensorNetworkGraphData[g];
+    AssociationQ[data],
+    True,
+    TestID -> \"TensorNetworkGraphData_ReturnsAssociation\"
+]\
+\>", "Input",ExpressionUUID->"0d43d3f2-e649-44c9-be80-dd7a7456d5a4"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    data = TensorNetworkGraphData[g];
+    KeyExistsQ[data, \"Tensors\"] && KeyExistsQ[data, \"Indices\"],
+    True,
+    TestID -> \"TensorNetworkGraphData_HasRequiredKeys\"
+]\
+\>", "Input",ExpressionUUID->"a41682ca-bd40-4552-b014-9ed23275697c"],
+
+Cell["", "Section",ExpressionUUID->"ea083d47-7b8a-49e0-9dc4-6d71b3f807b9"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    indices = TensorNetworkIndices[g];
+    ListQ[indices],
+    True,
+    TestID -> \"TensorNetworkIndices_ReturnsList\"
+]\
+\>", "Input",ExpressionUUID->"f2f9c243-ad5b-498f-8433-5a68fb32dda4"],
+
+Cell["", "Section",ExpressionUUID->"eb8c37f1-916f-40db-8db3-88f321420629"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    tensors = TensorNetworkTensors[g];
+    ListQ[tensors] && Length[tensors] == 2,
+    True,
+    TestID -> \"TensorNetworkTensors_CorrectCount\"
+]\
+\>", "Input",ExpressionUUID->"71db251f-6ec8-4a87-9147-5f2bfbfa5c16"],
+
+Cell["", "Section",ExpressionUUID->"9e227bd5-8051-4648-a69e-9b1fce5cea37"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    dims = TensorNetworkIndexDimensions[g];
+    AssociationQ[dims] || ListQ[dims],
+    True,
+    TestID -> \"TensorNetworkIndexDimensions_ReturnsMapping\"
+]\
+\>", "Input",ExpressionUUID->"25857634-6725-451f-a92c-1f402fdce0c7"],
+
+Cell["", "Section",ExpressionUUID->"38787a44-5df2-437e-9c89-a953e94d91c3"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    freeIndices = TensorNetworkFreeIndices[g];
+    ListQ[freeIndices],
+    True,
+    TestID -> \"TensorNetworkFreeIndices_Graph_ReturnsList\"
+]\
+\>", "Input",ExpressionUUID->"e26aabdb-d2a8-4b43-a7ec-5211cc8fb61b"],
+
+Cell["", "Section",ExpressionUUID->"606e04a8-aad5-4a93-a7ea-327b0afa5844"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    newTensor = RandomReal[{-1, 1}, {4, 5}];
+    gAdded = TensorNetworkAdd[g, newTensor];
+    TensorNetworkGraphQ[gAdded],
+    True,
+    TestID -> \"TensorNetworkAdd_Graph_AutomaticIndex\"
+]\
+\>", "Input",ExpressionUUID->"c6b9ca28-836d-457d-a0ab-2052f8db3b11"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}]},
+        {{1, 2}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    newTensor = RandomReal[{-1, 1}, {3, 4}];
+    gAdded = TensorNetworkAdd[g, newTensor, Automatic];
+    VertexCount[gAdded] > VertexCount[g],
+    True,
+    TestID -> \"TensorNetworkAdd_Graph_IncreasesVertexCount\"
+]\
+\>", "Input",ExpressionUUID->"94bbcb03-a7be-4d73-b965-f4202dfa0eb8"],
+
+Cell["", "Section",ExpressionUUID->"f14f3272-71a8-48a2-bf8a-4a79a2338939"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    gDeleted = TensorNetworkDelete[g, -1];
+    VertexCount[gDeleted] < VertexCount[g],
+    True,
+    TestID -> \"TensorNetworkDelete_Graph_DecreasesVertexCount\"
+]\
+\>", "Input",ExpressionUUID->"87e62788-a7ba-4d1c-b680-e5f08aaf357e"],
+
+Cell["", "Section",ExpressionUUID->"f6946955-b6f1-4ed7-8657-ed21268feb0e"],
+
+Cell["\<\
+VerificationTest[
+    g = Graph[{1 -> 2, 2 -> 3, 3 -> 1}];  (* Has cycle *)
+    acyclic = TensorNetworkRemoveCycles[g];
+    AcyclicGraphQ[acyclic],
+    True,
+    TestID -> \"TensorNetworkRemoveCycles_RemovesCycle\"
+]\
+\>", "Input",ExpressionUUID->"02b5eeb0-3737-4aed-bac5-892ce6753d78"],
+
+Cell["\<\
+VerificationTest[
+    g = Graph[{1 -> 2, 2 -> 3}];  (* No cycle *)
+    result = TensorNetworkRemoveCycles[g];
+    AcyclicGraphQ[result],
+    True,
+    TestID -> \"TensorNetworkRemoveCycles_AcyclicInput\"
+]\
+\>", "Input",ExpressionUUID->"310b3f9b-df71-436c-8a31-845c36d0ecfe"],
+
+Cell["", "Section",ExpressionUUID->"2c69ca02-2a18-403a-8979-e52179749890"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    gReplaced = TensorNetworkReplaceIndices[g, {Subscript[_, x_] :> \
+Subscript[100, x]}];
+    TensorNetworkGraphQ[gReplaced],
+    True,
+    TestID -> \"TensorNetworkReplaceIndices_PreservesValidity\"
+]\
+\>", "Input",ExpressionUUID->"bdc02a2b-c728-48b4-8e58-cbf5807e5844"],
+
+Cell["", "Section",ExpressionUUID->"5efa12c8-8227-4ef3-ae74-f574d9d0e7be"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    initTensor = RandomReal[{-1, 1}, {2}];
+    initialized = InitializeTensorNetwork[g, initTensor];
+    TensorNetworkGraphQ[initialized],
+    True,
+    TestID -> \"InitializeTensorNetwork_Basic\"
+]\
+\>", "Input",ExpressionUUID->"e2daae9a-185c-4b23-bf5e-eb57d621c238"],
+
+Cell["", "Section",ExpressionUUID->"17d164ff-bf16-458c-8156-16bbfbb20bb2"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    g = ToTensorNetworkGraph[tn];
+    indexGraph = TensorNetworkIndexGraph[g];
+    GraphQ[indexGraph],
+    True,
+    TestID -> \"TensorNetworkIndexGraph_ReturnsGraph\"
+]\
+\>", "Input",ExpressionUUID->"2df823a8-461a-444c-8e72-c3ea68e98f8f"],
+
+Cell["\<\
+VerificationTest[
+    (* Single tensor graph *)
+    tn = TensorNetwork[{RandomReal[{-1, 1}, {2, 3}]}, {{1, 2}}];
+    g = ToTensorNetworkGraph[tn];
+    TensorNetworkGraphQ[g],
+    True,
+    TestID -> \"ToTensorNetworkGraph_SingleTensor\"
+]\
+\>", "Input",ExpressionUUID->"7636a96b-2455-48a3-811a-e5387aad5f6f"],
+
+Cell["\<\
+VerificationTest[
+    (* Large network *)
+    rtn = RandomTensorNetwork[{10, 15}, 2, 2];
+    g = ToTensorNetworkGraph[rtn];
+    TensorNetworkGraphQ[g],
+    True,
+    TestID -> \"ToTensorNetworkGraph_LargeNetwork\"
+]\
+\>", "Input",ExpressionUUID->"907ab4bf-239d-434d-869d-f5dcc34219c9"],
+
+Cell["\<\
+VerificationTest[
+    (* Hyperedge with 3+ tensors *)
+    tensors = {
+        RandomReal[{-1, 1}, {2, 3}],
+        RandomReal[{-1, 1}, {3, 4}],
+        RandomReal[{-1, 1}, {4, 3}]
+    };
+    hyperedges = {{1, 2}, {2, 3}, {3, 2}};
+    g = ToTensorNetworkGraph[tensors, hyperedges];
+    GraphQ[g],
+    True,
+    TestID -> \"ToTensorNetworkGraph_Hyperedge\"
+]\
+\>", "Input",ExpressionUUID->"d6bc0f92-fc16-47af-a8c0-c2d2a73e6f8b"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 92, 0, 70, "Title",ExpressionUUID->"9c6ab38d-df39-49ab-be41-29417c0da5e5"],
+Cell[649, 22, 121, 0, 70, "Subtitle",ExpressionUUID->"261b701a-f2a2-4d2f-b025-5b57a2c45d0f"],
+Cell[773, 24, 271, 7, 70, "Input",ExpressionUUID->"7356ade8-5576-4db3-be59-1279754ee7a2",
+ InitializationCell->True],
+Cell[1047, 33, 74, 0, 70, "Section",ExpressionUUID->"2fadb11e-4772-4de6-932c-c17013a01893"],
+Cell[1124, 35, 339, 11, 70, "Input",ExpressionUUID->"b6ea9d33-963d-42dc-9721-31613cea779e"],
+Cell[1466, 48, 348, 9, 70, "Input",ExpressionUUID->"7191cf15-e592-4287-8604-aafc6ae25758"],
+Cell[1817, 59, 264, 8, 70, "Input",ExpressionUUID->"9029dfcd-b10a-40ed-9196-46469386c792"],
+Cell[2084, 69, 268, 8, 70, "Input",ExpressionUUID->"efae9bab-0ff4-427c-b4d4-74e846b85b64"],
+Cell[2355, 79, 285, 8, 70, "Input",ExpressionUUID->"fcd8eb53-03f9-4375-b05b-507fcb6339a9"],
+Cell[2643, 89, 281, 8, 70, "Input",ExpressionUUID->"831cdd61-dd23-4222-b3c7-71fb383ba9f7"],
+Cell[2927, 99, 277, 8, 70, "Input",ExpressionUUID->"5e290f3c-756f-4b5e-bf3d-49e3c4ea03bb"],
+Cell[3207, 109, 74, 0, 70, "Section",ExpressionUUID->"604f6588-4a2c-456c-8ada-8c5844836131"],
+Cell[3284, 111, 344, 11, 70, "Input",ExpressionUUID->"2842eb9c-df98-4139-9323-ed8925a95cac"],
+Cell[3631, 124, 201, 6, 70, "Input",ExpressionUUID->"feeb4f41-9917-4d19-8023-c4542f1663bb"],
+Cell[3835, 132, 203, 6, 70, "Input",ExpressionUUID->"fe4a83fc-968e-4ee1-b5c1-c7ae20eaadab"],
+Cell[4041, 140, 74, 0, 70, "Section",ExpressionUUID->"fba600be-0678-4d1c-84ef-ae053b0650c9"],
+Cell[4118, 142, 389, 12, 70, "Input",ExpressionUUID->"0d43d3f2-e649-44c9-be80-dd7a7456d5a4"],
+Cell[4510, 156, 430, 12, 70, "Input",ExpressionUUID->"a41682ca-bd40-4552-b014-9ed23275697c"],
+Cell[4943, 170, 74, 0, 70, "Section",ExpressionUUID->"ea083d47-7b8a-49e0-9dc4-6d71b3f807b9"],
+Cell[5020, 172, 377, 12, 70, "Input",ExpressionUUID->"f2f9c243-ad5b-498f-8433-5a68fb32dda4"],
+Cell[5400, 186, 74, 0, 70, "Section",ExpressionUUID->"eb8c37f1-916f-40db-8db3-88f321420629"],
+Cell[5477, 188, 402, 12, 70, "Input",ExpressionUUID->"71db251f-6ec8-4a87-9147-5f2bfbfa5c16"],
+Cell[5882, 202, 74, 0, 70, "Section",ExpressionUUID->"9e227bd5-8051-4648-a69e-9b1fce5cea37"],
+Cell[5959, 204, 412, 12, 70, "Input",ExpressionUUID->"25857634-6725-451f-a92c-1f402fdce0c7"],
+Cell[6374, 218, 74, 0, 70, "Section",ExpressionUUID->"38787a44-5df2-437e-9c89-a953e94d91c3"],
+Cell[6451, 220, 399, 12, 70, "Input",ExpressionUUID->"e26aabdb-d2a8-4b43-a7ec-5211cc8fb61b"],
+Cell[6853, 234, 74, 0, 70, "Section",ExpressionUUID->"606e04a8-aad5-4a93-a7ea-327b0afa5844"],
+Cell[6930, 236, 446, 13, 70, "Input",ExpressionUUID->"c6b9ca28-836d-457d-a0ab-2052f8db3b11"],
+Cell[7379, 251, 435, 13, 70, "Input",ExpressionUUID->"94bbcb03-a7be-4d73-b965-f4202dfa0eb8"],
+Cell[7817, 266, 74, 0, 70, "Section",ExpressionUUID->"f14f3272-71a8-48a2-bf8a-4a79a2338939"],
+Cell[7894, 268, 419, 12, 70, "Input",ExpressionUUID->"87e62788-a7ba-4d1c-b680-e5f08aaf357e"],
+Cell[8316, 282, 74, 0, 70, "Section",ExpressionUUID->"f6946955-b6f1-4ed7-8657-ed21268feb0e"],
+Cell[8393, 284, 296, 8, 70, "Input",ExpressionUUID->"02b5eeb0-3737-4aed-bac5-892ce6753d78"],
+Cell[8692, 294, 285, 8, 70, "Input",ExpressionUUID->"310b3f9b-df71-436c-8a31-845c36d0ecfe"],
+Cell[8980, 304, 74, 0, 70, "Section",ExpressionUUID->"2c69ca02-2a18-403a-8979-e52179749890"],
+Cell[9057, 306, 458, 13, 70, "Input",ExpressionUUID->"bdc02a2b-c728-48b4-8e58-cbf5807e5844"],
+Cell[9518, 321, 74, 0, 70, "Section",ExpressionUUID->"5efa12c8-8227-4ef3-ae74-f574d9d0e7be"],
+Cell[9595, 323, 454, 13, 70, "Input",ExpressionUUID->"e2daae9a-185c-4b23-bf5e-eb57d621c238"],
+Cell[10052, 338, 74, 0, 70, "Section",ExpressionUUID->"17d164ff-bf16-458c-8156-16bbfbb20bb2"],
+Cell[10129, 340, 391, 12, 70, "Input",ExpressionUUID->"2df823a8-461a-444c-8e72-c3ea68e98f8f"],
+Cell[10523, 354, 318, 9, 70, "Input",ExpressionUUID->"7636a96b-2455-48a3-811a-e5387aad5f6f"],
+Cell[10844, 365, 295, 9, 70, "Input",ExpressionUUID->"907ab4bf-239d-434d-869d-f5dcc34219c9"],
+Cell[11142, 376, 436, 14, 70, "Input",ExpressionUUID->"d6bc0f92-fc16-47af-a8c0-c2d2a73e6f8b"]
+}
+]
+*)
+
+(* End of internal cache information *)

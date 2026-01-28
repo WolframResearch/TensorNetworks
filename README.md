@@ -95,6 +95,9 @@ Creates random tensor networks of various architectures.
 **Options:**
 - `Method → Automatic` — `"Complex"` for complex-valued tensors
 - `"Boundary" → "Open"` — `"Periodic"` for periodic boundary conditions
+- `"Symmetry" → None` — `{"U1", nSectors}` generates U(1)-symmetric sparse tensors with charge conservation
+
+When `"Symmetry"` is specified, the returned `TensorNetwork` includes metadata with `IndexCharges` and `SymmetryType` accessible via property syntax (see TensorNetwork Properties below).
 
 #### TensorNetworkData
 
@@ -102,11 +105,25 @@ Creates random tensor networks of various architectures.
 |:-------------|:------------|
 | `TensorNetworkData[tn]` | returns an `Association` with vertices, tensors, indices, dimensions, and contractions |
 
+#### TensorNetwork Properties
+
+Access properties using `tn["Property"]` syntax:
+
+| Property | Description |
+|:---------|:------------|
+| `tn["Tensors"]` | list of tensors in the network |
+| `tn["Indices"]` | list of index specifications |
+| `tn["Output"]` | output/free indices |
+| `tn["Metadata"]` | metadata Association (includes symmetry info) |
+| `tn["IndexCharges"]` | Association mapping index IDs to charge lists (or `None` if no symmetry) |
+| `tn["SymmetryType"]` | symmetry type string (e.g., `"U1"`) or `None` |
+| `tn["SymmetricQ"]` | `True` if the network has symmetry metadata, `False` otherwise |
+
 #### TensorNetworkSize
 
 | Calling Form | Description |
 |:-------------|:------------|
-| `TensorNetworkSize[tn]` | returns the total number of elements across all tensors |
+| `TensorNetworkSize[tn]` | returns the number of tensors in the network |
 
 #### TensorNetworkContractions
 
@@ -235,6 +252,15 @@ Contracts the tensor network to a single tensor.
 
 Returns an evaluated numerical tensor (not symbolic).
 
+**Options:**
+
+| Option | Default | Description |
+|:-------|:--------|:------------|
+| `Method` | `"ArrayDot"` | Contraction method (see `$TensorNetworkContractionMethods`) |
+| `"IndexCharges"` | `<\|\|>` | Charge mapping for symmetry-filtered contraction |
+
+**Auto-detection:** When `Method → "SymmetryFiltered"` is used and no explicit `"IndexCharges"` option is provided, `TensorNetworkContract` automatically uses `tn["IndexCharges"]` if available. This allows seamless contraction of symmetric networks generated with the `"Symmetry"` option.
+
 #### TensorNetworkFindContractionPath
 
 | Calling Form | Description |
@@ -242,6 +268,13 @@ Returns an evaluated numerical tensor (not symbolic).
 | `TensorNetworkFindContractionPath[tn]` | computes an optimized contraction path |
 | `TensorNetworkFindContractionPath[tn, Method → "Greedy"]` | uses greedy optimization |
 | `TensorNetworkFindContractionPath[tn, Method → "Optimal"]` | finds the optimal path (slower for large networks) |
+
+**Options:**
+
+| Option | Default | Description |
+|:-------|:--------|:------------|
+| `Method` | `"Optimal"` | Path algorithm: `"Optimal"`, `"Greedy"`, `"flops"`, `"max"`, `"size"`, `"write"`, `"combo"`, `"limit"` |
+| `"ReturnParameters"` | `False` | If `True`, returns `{inputs, output, dimensions}` instead of path |
 
 #### TensorNetworkContraction
 
@@ -255,8 +288,13 @@ Returns a symbolic contraction expression.
 | `TensorNetworkContraction[tn, "Optimal"]` | automatically computes an optimal path |
 
 **Options:**
-- `Method → "ArrayDot"` — contraction method (`"ArrayDotTranspose"`, `"ArrayDot"`, `"Dot"`, `"TensorContract"`, `"TableSum"`)
-- `"Inactive" → True` — returns inactive expressions
+
+| Option | Default | Description |
+|:-------|:--------|:------------|
+| `Method` | `"ArrayDot"` | Contraction method: `"ArrayDotTranspose"`, `"ArrayDot"`, `"SymmetryFiltered"`, `"Dot"`, `"TensorContract"`, `"TableSum"` |
+| `"Inactive"` | `True` | If `True`, returns inactive tensor expressions |
+| `"TransposeFunction"` | `Transpose` | Function used for output transposition |
+| `"IndexCharges"` | `<\|\|>` | Association mapping indices to charge lists for symmetry-filtered contraction |
 
 #### ContractionTree
 
@@ -265,9 +303,17 @@ Returns a symbolic contraction expression.
 | `ContractionTree[tn]` | returns a `Tree` representing the contraction hierarchy |
 | `ContractionTree[tn, path]` | uses the specified contraction path |
 
+**Options:**
+
+| Option | Default | Description |
+|:-------|:--------|:------------|
+| `"Labels"` | `Automatic` | Label style: `Automatic` or `"Dimensions"` |
+
+Plus all standard `Tree` options.
+
 #### $TensorNetworkContractionMethods
 
-List of available contraction methods: `"ArrayDotTranspose"`, `"ArrayDot"`, `"Dot"`, `"TensorContract"`, `"TableSum"`.
+List of available contraction methods: `"ArrayDotTranspose"`, `"ArrayDot"`, `"SymmetryFiltered"`, `"Dot"`, `"TensorContract"`, `"TableSum"`.
 
 ---
 
@@ -284,6 +330,13 @@ Transforms an MPS into canonical form.
 | `MPSCanonicalForm[mps, "Right"]` | right-isometric form where A·A† = I |
 | `MPSCanonicalForm[mps, {"Mixed", k}]` | mixed canonical form centered at site k |
 
+**Options:**
+
+| Option | Default | Description |
+|:-------|:--------|:------------|
+| `"MaxBond"` | `Infinity` | Maximum bond dimension for truncation |
+| `"Tolerance"` | `0` | Singular value tolerance for truncation |
+
 #### MPSCanonicalQ
 
 | Calling Form | Description |
@@ -291,8 +344,7 @@ Transforms an MPS into canonical form.
 | `MPSCanonicalQ[mps, "Left"]` | checks left-canonical form |
 | `MPSCanonicalQ[mps, "Right"]` | checks right-canonical form |
 | `MPSCanonicalQ[mps, {"Mixed", k}]` | checks mixed-canonical form at site k |
-
-Uses tolerance 10⁻¹⁰ for numerical comparison.
+| `MPSCanonicalQ[mps, form, tol]` | checks with custom tolerance (default 10⁻¹⁰) |
 
 #### MPSOverlap
 
@@ -339,6 +391,12 @@ Values satisfy ∑ λᵢ² = 1. Number of values equals the bond dimension at th
 | Calling Form | Description |
 |:-------------|:------------|
 | `MPSTruncate[mps, maxBond]` | compresses MPS by truncating all bonds to at most `maxBond` |
+
+**Options:**
+
+| Option | Default | Description |
+|:-------|:--------|:------------|
+| `"Normalize"` | `True` | If `True`, normalizes the truncated MPS |
 
 Result is in left-canonical form. Truncation error depends on discarded singular values.
 
@@ -451,6 +509,30 @@ ttn = RandomTensorNetwork["TTN"[3, 4, 2]]
 
 (* MERA: width 4, bond dimension 4, 2 layers *)
 mera = RandomTensorNetwork["MERA"[4, 4, 2]]
+```
+
+### Symmetric Tensor Networks
+
+```wolfram
+(* Generate U(1)-symmetric MPS with block-sparse tensors *)
+tn = RandomTensorNetwork["MPS"[5, 100, 4], "Symmetry" -> {"U1", 10}]
+
+(* Check symmetry properties *)
+tn["SymmetricQ"]     (* True *)
+tn["SymmetryType"]   (* "U1" *)
+tn["IndexCharges"]   (* Association mapping indices to charge lists *)
+
+(* Contract with automatic charge detection *)
+result = TensorNetworkContract[tn, "Optimal", Method -> "SymmetryFiltered"]
+
+(* Performance comparison: Sparse + ArrayDot is fastest for sparse tensors *)
+AbsoluteTiming[TensorNetworkContract[tn, "Optimal", Method -> "ArrayDot"]]
+(* Sparse tensors with ArrayDot: ~40x faster than dense *)
+
+(* Other architectures with symmetry *)
+tt = RandomTensorNetwork["TT"[8, 50], "Symmetry" -> {"U1", 5}]
+ttn = RandomTensorNetwork["TTN"[3, 50, 2], "Symmetry" -> {"U1", 6}]
+mpo = RandomTensorNetwork["MPO"[6, 30, 4], "Symmetry" -> {"U1", 8}]
 ```
 
 ### MPS Operations

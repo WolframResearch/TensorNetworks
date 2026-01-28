@@ -1,0 +1,539 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     19521,        530]
+NotebookOptionsPosition[     15091,        473]
+NotebookOutlinePosition[     15409,        487]
+CellTagsIndexPosition[     15366,        484]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_contraction", "Title",ExpressionUUID->"864e64c0-e47e-4aee-82d4-0d4329db7bca"],
+
+Cell["Comprehensivetests for Contraction.wl", "Subtitle",ExpressionUUID->"37ed14f7-2bed-447d-b0dc-9d0e6d6389f6"],
+
+Cell["\<\
+(* Tests/test_contraction.wl *)
+(* Comprehensive tests for Contraction.wl *)
+
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"c5ef99dd-53e0-4dde-9fc2-c37c02c62d4c"],
+
+Cell["", "Section",ExpressionUUID->"e19c8c88-6d23-4ca9-bad1-f9f7b427b0ea"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    path = TensorNetworkFindContractionPath[tn];
+    ListQ[path],
+    True,
+    TestID -> \"TensorNetworkFindContractionPath_ReturnsPath\"
+]\
+\>", "Input",ExpressionUUID->"24af4feb-3d06-429e-b578-b0fff6bc6905"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}], \
+RandomReal[{-1, 1}, {4, 5}]},
+        {{1, 2}, {2, 3}, {3, 4}}
+    ];
+    path = TensorNetworkFindContractionPath[tn, Method -> \"Greedy\"];
+    ListQ[path],
+    True,
+    TestID -> \"TensorNetworkFindContractionPath_GreedyMethod\"
+]\
+\>", "Input",ExpressionUUID->"78bc5e2e-3d03-41e7-9e94-c147f9649c5a"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    path = TensorNetworkFindContractionPath[tn, Method -> \"Optimal\"];
+    ListQ[path],
+    True,
+    TestID -> \"TensorNetworkFindContractionPath_OptimalMethod\"
+]\
+\>", "Input",ExpressionUUID->"abdcfefb-6c5a-46e1-87fb-d0271fc35656"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    {input, output, dimensions} = TensorNetworkFindContractionPath[tn, \
+\"ReturnParameters\" -> True];
+    ListQ[input] && ListQ[output] && AssociationQ[dimensions],
+    True,
+    TestID -> \"TensorNetworkFindContractionPath_ReturnParameters\"
+]\
+\>", "Input",ExpressionUUID->"a74659cf-c106-4a2c-8097-9220af30a8ac"],
+
+Cell["", "Section",ExpressionUUID->"320e6229-e554-49eb-97d2-ea99ddf95f8b"],
+
+Cell["\<\
+VerificationTest[
+    ListQ[$TensorNetworkContractionMethods],
+    True,
+    TestID -> \"TensorNetworkContractionMethods_IsList\"
+]\
+\>", "Input",ExpressionUUID->"9fbdd19f-c749-4275-aa5f-5f2ad9964223"],
+
+Cell["\<\
+VerificationTest[
+    MemberQ[$TensorNetworkContractionMethods, \"ArrayDot\"],
+    True,
+    TestID -> \"TensorNetworkContractionMethods_ContainsArrayDot\"
+]\
+\>", "Input",ExpressionUUID->"cf0366b4-1003-4021-9b01-873077ad86ff"],
+
+Cell["\<\
+VerificationTest[
+    MemberQ[$TensorNetworkContractionMethods, \"TensorContract\"],
+    True,
+    TestID -> \"TensorNetworkContractionMethods_ContainsTensorContract\"
+]\
+\>", "Input",ExpressionUUID->"96b1a1c2-dffd-4b89-8b39-0a50b6fdeb6a"],
+
+Cell["\<\
+VerificationTest[
+    MemberQ[$TensorNetworkContractionMethods, \"Dot\"],
+    True,
+    TestID -> \"TensorNetworkContractionMethods_ContainsDot\"
+]\
+\>", "Input",ExpressionUUID->"627469f2-8f2e-412d-9cb0-dd55795d33ff"],
+
+Cell["\<\
+VerificationTest[
+    MemberQ[$TensorNetworkContractionMethods, \"ArrayDotTranspose\"],
+    True,
+    TestID -> \"TensorNetworkContractionMethods_ContainsArrayDotTranspose\"
+]\
+\>", "Input",ExpressionUUID->"f055b72c-0f22-40d2-bf73-39d68ee029cd"],
+
+Cell["\<\
+VerificationTest[
+    MemberQ[$TensorNetworkContractionMethods, \"SymmetryFiltered\"],
+    True,
+    TestID -> \"TensorNetworkContractionMethods_ContainsSymmetryFiltered\"
+]\
+\>", "Input",ExpressionUUID->"fc4286c4-7a1a-4b4d-8f56-284995afeaf6"],
+
+Cell["", "Section",ExpressionUUID->"e66fc7c7-841b-44d2-b1e8-94eb94f3d469"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    result = TensorNetworkContraction[tn];
+    (* Should be an inactive expression *)
+    MatchQ[result, _Inactive | _Transpose | _],
+    True,
+    TestID -> \"TensorNetworkContraction_ReturnsInactive\"
+]\
+\>", "Input",ExpressionUUID->"ab60cfd1-30bf-4400-8e56-9cad77cc2116"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    result = TensorNetworkContraction[tn, \"Optimal\"];
+    MatchQ[result, _Inactive | _Transpose | _ArrayDot | _],
+    True,
+    TestID -> \"TensorNetworkContraction_WithOptimalPath\"
+]\
+\>", "Input",ExpressionUUID->"4852e3f1-3b21-425b-8cd6-764fd5dc02c7"],
+
+Cell["", "Section",ExpressionUUID->"5d2380d0-e7a1-47bb-998b-cdb90a67c837"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    result = TensorNetworkContract[tn];
+    expected = A . B;
+    Max[Abs[result - expected]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_MatrixMultiplication\"
+]\
+\>", "Input",ExpressionUUID->"fc99f06f-8dec-49e0-9f14-2dd8fd4165eb"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    result = TensorNetworkContract[tn, \"Optimal\", Method -> \"ArrayDot\"];
+    expected = A . B;
+    Max[Abs[result - expected]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_ArrayDotMethod\"
+]\
+\>", "Input",ExpressionUUID->"e00d3479-3e35-4260-8463-95b625718287"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    result = TensorNetworkContract[tn, \"Optimal\", Method -> \
+\"ArrayDotTranspose\"];
+    expected = A . B;
+    Max[Abs[result - expected]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_ArrayDotTransposeMethod\"
+]\
+\>", "Input",ExpressionUUID->"f853d9fe-4d4c-4a51-8b19-d20f5e5adcf8"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    result = TensorNetworkContract[tn, \"Optimal\", Method -> \"Dot\"];
+    expected = A . B;
+    Max[Abs[result - expected]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_DotMethod\"
+]\
+\>", "Input",ExpressionUUID->"3d2d1cd6-38c7-4461-a6ee-b8f74c11e7c1"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    result = TensorNetworkContract[tn, \"Optimal\", Method -> \
+\"TensorContract\"];
+    expected = A . B;
+    Max[Abs[result - expected]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_TensorContractMethod\"
+]\
+\>", "Input",ExpressionUUID->"47e6983a-e87c-4b8a-8c1b-e4b45779ad0a"],
+
+Cell["\<\
+VerificationTest[
+    (* Test all methods give same result *)
+    A = RandomReal[{-1, 1}, {3, 4}];
+    B = RandomReal[{-1, 1}, {4, 5}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    results = Table[
+        TensorNetworkContract[tn, \"Optimal\", Method -> method],
+        {method, {\"ArrayDot\", \"ArrayDotTranspose\", \"Dot\", \
+\"TensorContract\"}}
+    ];
+    AllTrue[Rest[results], Max[Abs[# - First[results]]] < 10^-10 &],
+    True,
+    TestID -> \"TensorNetworkContract_AllMethodsConsistent\"
+]\
+\>", "Input",ExpressionUUID->"460d8fe8-866d-4679-8010-dcfcf48ad943"],
+
+Cell["\<\
+VerificationTest[
+    (* Three tensor contraction *)
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    T3 = RandomReal[{-1, 1}, {4, 5}];  (* Renamed from C to avoid conflict \
+with built-in *)
+    tn = TensorNetwork[{A, B, T3}, {{1, 2}, {2, 3}, {3, 4}}, {1, 4}];
+    result = TensorNetworkContract[tn];
+    expected = A . B . T3;
+    Max[Abs[result - expected]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_ThreeTensors\"
+]\
+\>", "Input",ExpressionUUID->"97b4338d-22be-48d1-a182-743f200791b2"],
+
+Cell["\<\
+VerificationTest[
+    (* Trace computation via two tensors *)
+    A = RandomReal[{-1, 1}, {3, 3}];
+    identity = IdentityMatrix[3];
+    tn = TensorNetwork[{A, identity}, {{1, 2}, {2, 1}}, {}];
+    result = TensorNetworkContract[tn];
+    expected = Tr[A];
+    Abs[result - expected] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_Trace\"
+]\
+\>", "Input",ExpressionUUID->"84f58a6b-7eb6-47e6-af11-347bb132d8b7"],
+
+Cell["\<\
+VerificationTest[
+    (* Tensor product (no contraction) *)
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {4, 5}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {3, 4}}, {1, 2, 3, 4}];
+    result = TensorNetworkContract[tn];
+    Dimensions[result],
+    {2, 3, 4, 5},
+    TestID -> \"TensorNetworkContract_TensorProduct\"
+]\
+\>", "Input",ExpressionUUID->"41ec91c2-979d-4c6b-a306-e4e1e7c50fd2"],
+
+Cell["\<\
+VerificationTest[
+    (* Rank-3 tensor contraction *)
+    A = RandomReal[{-1, 1}, {2, 3, 4}];
+    B = RandomReal[{-1, 1}, {4, 5, 6}];
+    tn = TensorNetwork[{A, B}, {{1, 2, 3}, {3, 4, 5}}, {1, 2, 4, 5}];
+    result = TensorNetworkContract[tn];
+    Dimensions[result],
+    {2, 3, 5, 6},
+    TestID -> \"TensorNetworkContract_Rank3Tensors\"
+]\
+\>", "Input",ExpressionUUID->"15f548d7-f684-4ce2-9e9f-61254d04b57f"],
+
+Cell["\<\
+VerificationTest[
+    (* Full scalar contraction *)
+    A = RandomReal[{-1, 1}, {3, 4}];
+    B = RandomReal[{-1, 1}, {4, 3}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 1}}, {}];
+    result = TensorNetworkContract[tn];
+    expected = Tr[A . B];
+    Abs[result - expected] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_FullScalarContraction\"
+]\
+\>", "Input",ExpressionUUID->"34f14b74-4347-4212-9fb3-2877669ae3c4"],
+
+Cell["\<\
+VerificationTest[
+    (* Greedy path *)
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    result = TensorNetworkContract[tn, \"Greedy\"];
+    expected = A . B;
+    Max[Abs[result - expected]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_GreedyPath\"
+]\
+\>", "Input",ExpressionUUID->"992af611-f7c3-4f81-afcc-47bb49b4dde5"],
+
+Cell["\<\
+VerificationTest[
+    (* Output permutation *)
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {3, 1}];
+    result = TensorNetworkContract[tn];
+    expected = Transpose[A . B];
+    Max[Abs[result - expected]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_OutputPermutation\"
+]\
+\>", "Input",ExpressionUUID->"18d47f31-2350-4cbe-830b-ddb8601aec8a"],
+
+Cell["", "Section",ExpressionUUID->"8f14d7a3-886c-4529-9329-58bbc1bc3c3f"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomComplex[{-1 - I, 1 + I}, {2, 3}];
+    B = RandomComplex[{-1 - I, 1 + I}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    result = TensorNetworkContract[tn];
+    expected = A . B;
+    Max[Abs[result - expected]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_ComplexTensors\"
+]\
+\>", "Input",ExpressionUUID->"549848cd-76d7-497d-8d66-c9915be6dc10"],
+
+Cell["", "Section",ExpressionUUID->"5478b2d9-f171-4bba-81d9-95e953f89c02"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    contraction = TensorNetworkContraction[tn];
+    tree = ContractionTree[contraction];
+    TreeQ[tree],
+    True,
+    TestID -> \"ContractionTree_ReturnsTree\"
+]\
+\>", "Input",ExpressionUUID->"a07d7ea8-bd58-459f-b1a0-3bff2c81a81d"],
+
+Cell["\<\
+VerificationTest[
+    A = RandomReal[{-1, 1}, {2, 3}];
+    B = RandomReal[{-1, 1}, {3, 4}];
+    T3 = RandomReal[{-1, 1}, {4, 5}];  (* Renamed from C to avoid conflict \
+with built-in *)
+    tn = TensorNetwork[{A, B, T3}, {{1, 2}, {2, 3}, {3, 4}}, {1, 4}];
+    contraction = TensorNetworkContraction[tn, \"Optimal\"];
+    tree = ContractionTree[contraction, \"Labels\" -> \"Dimensions\"];
+    TreeQ[tree],
+    True,
+    TestID -> \"ContractionTree_DimensionLabels\"
+]\
+\>", "Input",ExpressionUUID->"536b21b0-4c77-4259-b3d0-0d2c8aff0567"],
+
+Cell["", "Section",ExpressionUUID->"22eb7966-3eaf-438f-92a4-eb2d3e52cbe5"],
+
+Cell["\<\
+VerificationTest[
+    (* MPS contraction *)
+    mps = RandomTensorNetwork[\"MPS\"[4, 3, 2]];
+    result = TensorNetworkContract[mps];
+    ArrayQ[result],
+    True,
+    TestID -> \"TensorNetworkContract_MPS\"
+]\
+\>", "Input",ExpressionUUID->"4f573d1a-2e46-43de-a5ac-fd2c531a1413"],
+
+Cell["\<\
+VerificationTest[
+    (* TT contraction *)
+    tt = RandomTensorNetwork[\"TT\"[5, 3]];
+    result = TensorNetworkContract[tt];
+    NumericQ[result],  (* Scalar result for TT *)
+    True,
+    TestID -> \"TensorNetworkContract_TT\"
+]\
+\>", "Input",ExpressionUUID->"a84638fa-91c9-49e2-836d-a593afede967"],
+
+Cell["", "Section",ExpressionUUID->"6c17be83-99fe-4049-a1d6-d257b0fa757f"],
+
+Cell["\<\
+VerificationTest[
+    A = SparseArray[RandomReal[{-1, 1}, {3, 4}]];
+    B = SparseArray[RandomReal[{-1, 1}, {4, 5}]];
+    tn = TensorNetwork[{A, B}, {{1, 2}, {2, 3}}, {1, 3}];
+    result = TensorNetworkContract[tn];
+    ArrayQ[result],
+    True,
+    TestID -> \"TensorNetworkContract_SparseTensors\"
+]\
+\>", "Input",ExpressionUUID->"219b708d-9369-4476-b93d-acbc3142ec2c"],
+
+Cell["\<\
+VerificationTest[
+    (* Single tensor, no contraction *)
+    A = RandomReal[{-1, 1}, {2, 3}];
+    tn = TensorNetwork[{A}, {{1, 2}}, {1, 2}];
+    result = TensorNetworkContract[tn];
+    Max[Abs[result - A]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_SingleTensor\"
+]\
+\>", "Input",ExpressionUUID->"0a4fd723-2a61-4f5e-a5f9-63e66cc16b0c"],
+
+Cell["\<\
+VerificationTest[
+    (* Vector dot product *)
+    a = RandomReal[{-1, 1}, {5}];
+    b = RandomReal[{-1, 1}, {5}];
+    tn = TensorNetwork[{a, b}, {{1}, {1}}, {}];
+    result = TensorNetworkContract[tn];
+    expected = a . b;
+    Abs[result - expected] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_VectorDotProduct\"
+]\
+\>", "Input",ExpressionUUID->"b4d74d36-931d-4e44-be17-c083f04f92e4"],
+
+Cell["\<\
+VerificationTest[
+    (* Outer product *)
+    a = RandomReal[{-1, 1}, {3}];
+    b = RandomReal[{-1, 1}, {4}];
+    tn = TensorNetwork[{a, b}, {{1}, {2}}, {1, 2}];
+    result = TensorNetworkContract[tn];
+    expected = Outer[Times, a, b];
+    Max[Abs[result - expected]] < 10^-10,
+    True,
+    TestID -> \"TensorNetworkContract_OuterProduct\"
+]\
+\>", "Input",ExpressionUUID->"f2cd3ece-4545-416b-b2f9-b1f4b280ac62"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 88, 0, 70, "Title",ExpressionUUID->"864e64c0-e47e-4aee-82d4-0d4329db7bca"],
+Cell[645, 22, 112, 0, 70, "Subtitle",ExpressionUUID->"37ed14f7-2bed-447d-b0dc-9d0e6d6389f6"],
+Cell[760, 24, 258, 7, 70, "Input",ExpressionUUID->"c5ef99dd-53e0-4dde-9fc2-c37c02c62d4c",
+ InitializationCell->True],
+Cell[1021, 33, 74, 0, 70, "Section",ExpressionUUID->"e19c8c88-6d23-4ca9-bad1-f9f7b427b0ea"],
+Cell[1098, 35, 362, 11, 70, "Input",ExpressionUUID->"24af4feb-3d06-429e-b578-b0fff6bc6905"],
+Cell[1463, 48, 424, 12, 70, "Input",ExpressionUUID->"78bc5e2e-3d03-41e7-9e94-c147f9649c5a"],
+Cell[1890, 62, 387, 11, 70, "Input",ExpressionUUID->"abdcfefb-6c5a-46e1-87fb-d0271fc35656"],
+Cell[2280, 75, 468, 12, 70, "Input",ExpressionUUID->"a74659cf-c106-4a2c-8097-9220af30a8ac"],
+Cell[2751, 89, 74, 0, 70, "Section",ExpressionUUID->"320e6229-e554-49eb-97d2-ea99ddf95f8b"],
+Cell[2828, 91, 211, 6, 70, "Input",ExpressionUUID->"9fbdd19f-c749-4275-aa5f-5f2ad9964223"],
+Cell[3042, 99, 237, 6, 70, "Input",ExpressionUUID->"cf0366b4-1003-4021-9b01-873077ad86ff"],
+Cell[3282, 107, 249, 6, 70, "Input",ExpressionUUID->"96b1a1c2-dffd-4b89-8b39-0a50b6fdeb6a"],
+Cell[3534, 115, 227, 6, 70, "Input",ExpressionUUID->"627469f2-8f2e-412d-9cb0-dd55795d33ff"],
+Cell[3764, 123, 255, 6, 70, "Input",ExpressionUUID->"f055b72c-0f22-40d2-bf73-39d68ee029cd"],
+Cell[4022, 131, 253, 6, 70, "Input",ExpressionUUID->"fc4286c4-7a1a-4b4d-8f56-284995afeaf6"],
+Cell[4278, 139, 74, 0, 70, "Section",ExpressionUUID->"e66fc7c7-841b-44d2-b1e8-94eb94f3d469"],
+Cell[4355, 141, 434, 11, 70, "Input",ExpressionUUID->"ab60cfd1-30bf-4400-8e56-9cad77cc2116"],
+Cell[4792, 154, 416, 10, 70, "Input",ExpressionUUID->"4852e3f1-3b21-425b-8cd6-764fd5dc02c7"],
+Cell[5211, 166, 74, 0, 70, "Section",ExpressionUUID->"5d2380d0-e7a1-47bb-998b-cdb90a67c837"],
+Cell[5288, 168, 406, 11, 70, "Input",ExpressionUUID->"fc99f06f-8dec-49e0-9f14-2dd8fd4165eb"],
+Cell[5697, 181, 437, 11, 70, "Input",ExpressionUUID->"e00d3479-3e35-4260-8463-95b625718287"],
+Cell[6137, 194, 457, 12, 70, "Input",ExpressionUUID->"f853d9fe-4d4c-4a51-8b19-d20f5e5adcf8"],
+Cell[6597, 208, 427, 11, 70, "Input",ExpressionUUID->"3d2d1cd6-38c7-4461-a6ee-b8f74c11e7c1"],
+Cell[7027, 221, 451, 12, 70, "Input",ExpressionUUID->"47e6983a-e87c-4b8a-8c1b-e4b45779ad0a"],
+Cell[7481, 235, 596, 15, 70, "Input",ExpressionUUID->"460d8fe8-866d-4679-8010-dcfcf48ad943"],
+Cell[8080, 252, 544, 14, 70, "Input",ExpressionUUID->"97b4338d-22be-48d1-a182-743f200791b2"],
+Cell[8627, 268, 430, 12, 70, "Input",ExpressionUUID->"84f58a6b-7eb6-47e6-af11-347bb132d8b7"],
+Cell[9060, 282, 415, 11, 70, "Input",ExpressionUUID->"41ec91c2-979d-4c6b-a306-e4e1e7c50fd2"],
+Cell[9478, 295, 420, 11, 70, "Input",ExpressionUUID->"15f548d7-f684-4ce2-9e9f-61254d04b57f"],
+Cell[9901, 308, 436, 12, 70, "Input",ExpressionUUID->"34f14b74-4347-4212-9fb3-2877669ae3c4"],
+Cell[10340, 322, 430, 12, 70, "Input",ExpressionUUID->"992af611-f7c3-4f81-afcc-47bb49b4dde5"],
+Cell[10773, 336, 443, 12, 70, "Input",ExpressionUUID->"18d47f31-2350-4cbe-830b-ddb8601aec8a"],
+Cell[11219, 350, 74, 0, 70, "Section",ExpressionUUID->"8f14d7a3-886c-4529-9329-58bbc1bc3c3f"],
+Cell[11296, 352, 422, 11, 70, "Input",ExpressionUUID->"549848cd-76d7-497d-8d66-c9915be6dc10"],
+Cell[11721, 365, 74, 0, 70, "Section",ExpressionUUID->"5478b2d9-f171-4bba-81d9-95e953f89c02"],
+Cell[11798, 367, 393, 11, 70, "Input",ExpressionUUID->"a07d7ea8-bd58-459f-b1a0-3bff2c81a81d"],
+Cell[12194, 380, 546, 13, 70, "Input",ExpressionUUID->"536b21b0-4c77-4259-b3d0-0d2c8aff0567"],
+Cell[12743, 395, 74, 0, 70, "Section",ExpressionUUID->"22eb7966-3eaf-438f-92a4-eb2d3e52cbe5"],
+Cell[12820, 397, 289, 9, 70, "Input",ExpressionUUID->"4f573d1a-2e46-43de-a5ac-fd2c531a1413"],
+Cell[13112, 408, 311, 9, 70, "Input",ExpressionUUID->"a84638fa-91c9-49e2-836d-a593afede967"],
+Cell[13426, 419, 74, 0, 70, "Section",ExpressionUUID->"6c17be83-99fe-4049-a1d6-d257b0fa757f"],
+Cell[13503, 421, 381, 10, 70, "Input",ExpressionUUID->"219b708d-9369-4476-b93d-acbc3142ec2c"],
+Cell[13887, 433, 361, 10, 70, "Input",ExpressionUUID->"0a4fd723-2a61-4f5e-a5f9-63e66cc16b0c"],
+Cell[14251, 445, 410, 12, 70, "Input",ExpressionUUID->"b4d74d36-931d-4e44-be17-c083f04f92e4"],
+Cell[14664, 459, 423, 12, 70, "Input",ExpressionUUID->"f2cd3ece-4545-416b-b2f9-b1f4b280ac62"]
+}
+]
+*)
+
+(* End of internal cache information *)

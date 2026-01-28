@@ -1,0 +1,241 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[      7676,        232]
+NotebookOptionsPosition[      6445,        209]
+NotebookOutlinePosition[      6763,        223]
+CellTagsIndexPosition[      6720,        220]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_symmetry_filtered", "Title",ExpressionUUID->"1e100bcf-e58e-4d67-984a-2f8cd48ed9b4"],
+
+Cell["\<\
+(* Tests/test_symmetry_filtered.wl *)
+(* Tests for SymmetryFiltered contraction method *)
+
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];
+
+(* Also load the Symmetry subpackage *)
+Needs[\"Wolfram`TensorNetworks`Symmetry`\"];\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"b1c533f7-a422-4788-a654-3578cceca67b"],
+
+Cell["\<\
+VerificationTest[
+    (* Simple matrix multiplication *)
+    dim = 20;
+    A = RandomReal[{-1, 1}, {dim, dim}];
+    B = RandomReal[{-1, 1}, {dim, dim}];
+
+    (* Create charges (5 sectors) *)
+    charges = Mod[Range[dim], 5] - 2;
+
+    (* Build TensorNetwork *)
+    tn = TensorNetwork[{A, B}, {{1, 3}, {3, 2}}, {1, 2}];
+    indexCharges = <|3 -> charges|>;
+
+    (* Compare methods *)
+    resultArrayDot = TensorNetworkContract[tn, \"Optimal\", Method -> \
+\"ArrayDot\"];
+    resultSymFiltered = TensorNetworkContract[tn, \"Optimal\",
+        Method -> \"SymmetryFiltered\",
+        \"IndexCharges\" -> indexCharges
+    ];
+
+    Max[Abs[resultArrayDot - resultSymFiltered]] < 10^-10,
+    True,
+    TestID -> \"SymmetryFiltered_MatchesArrayDot_Matrix\"
+]\
+\>", "Input",ExpressionUUID->"7b4ead98-e602-4bb0-bd9d-a42073d7c96b"],
+
+Cell["\<\
+VerificationTest[
+    (* MPS-like tensors *)
+    chi = 15;
+    d = 2;
+    A = RandomReal[{-1, 1}, {chi, d, chi}];
+    B = RandomReal[{-1, 1}, {chi, d, chi}];
+
+    (* Create charges for bond dimension *)
+    bondCharges = Mod[Range[chi], 5] - 2;
+
+    (* Build TensorNetwork: contract over right bond of A with left bond of B \
+*)
+    tn = TensorNetwork[{A, B}, {{1, 2, 5}, {5, 3, 4}}, {1, 2, 3, 4}];
+    indexCharges = <|5 -> bondCharges|>;
+
+    (* Compare methods *)
+    resultArrayDot = TensorNetworkContract[tn, \"Optimal\", Method -> \
+\"ArrayDot\"];
+    resultSymFiltered = TensorNetworkContract[tn, \"Optimal\",
+        Method -> \"SymmetryFiltered\",
+        \"IndexCharges\" -> indexCharges
+    ];
+
+    Max[Abs[resultArrayDot - resultSymFiltered]] < 10^-10,
+    True,
+    TestID -> \"SymmetryFiltered_MatchesArrayDot_Rank3\"
+]\
+\>", "Input",ExpressionUUID->"9ce0e9bc-0b06-4ddb-b2db-336f01f626ad"],
+
+Cell["\<\
+VerificationTest[
+    (* When no IndexCharges provided, should fall back to ArrayDot *)
+    dim = 10;
+    A = RandomReal[{-1, 1}, {dim, dim}];
+    B = RandomReal[{-1, 1}, {dim, dim}];
+
+    tn = TensorNetwork[{A, B}, {{1, 3}, {3, 2}}, {1, 2}];
+
+    (* This should issue a warning message and fall back to ArrayDot *)
+    resultSymFiltered = Quiet[
+        TensorNetworkContract[tn, \"Optimal\", Method -> \"SymmetryFiltered\"],
+        {contractTensorPair::nocharges}
+    ];
+    resultArrayDot = TensorNetworkContract[tn, \"Optimal\", Method -> \
+\"ArrayDot\"];
+
+    Max[Abs[resultArrayDot - resultSymFiltered]] < 10^-10,
+    True,
+    TestID -> \"SymmetryFiltered_FallbackWithoutCharges\"
+]\
+\>", "Input",ExpressionUUID->"fcb97b0a-21c9-496f-aeee-f06311951549"],
+
+Cell["\<\
+VerificationTest[
+    MemberQ[$TensorNetworkContractionMethods, \"SymmetryFiltered\"],
+    True,
+    TestID -> \"SymmetryFiltered_InMethodList\"
+]\
+\>", "Input",ExpressionUUID->"1680871c-3301-48df-b500-26f40db72057"],
+
+Cell["\<\
+VerificationTest[
+    dim = 10;
+    A = RandomReal[{-1, 1}, {dim, dim}];
+    B = RandomReal[{-1, 1}, {dim, dim}];
+    tn = TensorNetwork[{A, B}, {{1, 3}, {3, 2}}, {1, 2}];
+
+    (* Test all methods work *)
+    results = Table[
+        TensorNetworkContract[tn, \"Optimal\", Method -> method],
+        {method, {\"ArrayDot\", \"ArrayDotTranspose\", \"Dot\", \
+\"TensorContract\"}}
+    ];
+
+    (* All should give the same result *)
+    AllTrue[Rest[results], Max[Abs[# - First[results]]] < 10^-10 &],
+    True,
+    TestID -> \"AllMethods_StillWork\"
+]\
+\>", "Input",ExpressionUUID->"a8d203a8-8f1b-481d-9e60-cdc5e77b4b35"],
+
+Cell["\<\
+VerificationTest[
+    charges = {0, 1, -1, 0, 1, -1, 2, -2};
+    cv = ChargeVector[charges];
+    ChargeVectorQ[cv],
+    True,
+    TestID -> \"ChargeVector_Creation\"
+]\
+\>", "Input",ExpressionUUID->"b8ecc1ad-1020-4278-aead-6a67eb86473f"],
+
+Cell["\<\
+VerificationTest[
+    (* Test AllowedContractions with plain lists *)
+    qA = {0, 1, -1};
+    qB = {0, -1, 1};
+    allowed = AllowedContractions[qA, qB];
+    (* 0+0=0, 1+(-1)=0, (-1)+1=0 *)
+    Sort[allowed] === Sort[{{1, 1}, {2, 2}, {3, 3}}],
+    True,
+    TestID -> \"AllowedContractions_SimpleCharges\"
+]\
+\>", "Input",ExpressionUUID->"1ebb1d92-c4d1-4bcb-826f-4a00de391cf3"],
+
+Cell["\<\
+VerificationTest[
+    (* Test AllowedContractions with ChargeVector objects *)
+    (* Use unique charges to ensure only diagonal pairs match *)
+    charges = {0, 1, -1};  (* All unique charges *)
+    cvA = ChargeVector[charges];
+    cvB = ChargeVector[-charges];  (* Negated: {0, -1, 1} *)
+    allowed = AllowedContractions[cvA, cvB];
+    (* Pairs where cvA[i] + cvB[j] = 0:
+       (1,1): 0+0=0, (2,2): 1+(-1)=0, (3,3): (-1)+1=0 *)
+    Sort[allowed] === Sort[{{1, 1}, {2, 2}, {3, 3}}],
+    True,
+    TestID -> \"AllowedContractions_ChargeVectorPairs\"
+]\
+\>", "Input",ExpressionUUID->"611719f4-3526-4ec7-b357-f422b8b7a8a6"],
+
+Cell["\<\
+VerificationTest[
+    (* Larger test to verify numerical stability *)
+    dim = 50;
+    nSectors = 10;
+    A = RandomReal[{-1, 1}, {dim, dim}];
+    B = RandomReal[{-1, 1}, {dim, dim}];
+
+    charges = Mod[Range[dim], nSectors] - nSectors/2;
+
+    tn = TensorNetwork[{A, B}, {{1, 3}, {3, 2}}, {1, 2}];
+    indexCharges = <|3 -> charges|>;
+
+    resultArrayDot = TensorNetworkContract[tn, \"Optimal\", Method -> \
+\"ArrayDot\"];
+    resultSymFiltered = TensorNetworkContract[tn, \"Optimal\",
+        Method -> \"SymmetryFiltered\",
+        \"IndexCharges\" -> indexCharges
+    ];
+
+    Max[Abs[resultArrayDot - resultSymFiltered]] < 10^-9,
+    True,
+    TestID -> \"SymmetryFiltered_LargeTensor\"
+]\
+\>", "Input",ExpressionUUID->"36a1d48b-ff51-4ef4-a9a1-3f9b45e0ef92"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 94, 0, 70, "Title",ExpressionUUID->"1e100bcf-e58e-4d67-984a-2f8cd48ed9b4"],
+Cell[651, 22, 357, 10, 70, "Input",ExpressionUUID->"b1c533f7-a422-4788-a654-3578cceca67b",
+ InitializationCell->True],
+Cell[1011, 34, 829, 26, 70, "Input",ExpressionUUID->"7b4ead98-e602-4bb0-bd9d-a42073d7c96b"],
+Cell[1843, 62, 913, 28, 70, "Input",ExpressionUUID->"9ce0e9bc-0b06-4ddb-b2db-336f01f626ad"],
+Cell[2759, 92, 770, 21, 70, "Input",ExpressionUUID->"fcb97b0a-21c9-496f-aeee-f06311951549"],
+Cell[3532, 115, 226, 6, 70, "Input",ExpressionUUID->"1680871c-3301-48df-b500-26f40db72057"],
+Cell[3761, 123, 628, 19, 70, "Input",ExpressionUUID->"a8d203a8-8f1b-481d-9e60-cdc5e77b4b35"],
+Cell[4392, 144, 247, 8, 70, "Input",ExpressionUUID->"b8ecc1ad-1020-4278-aead-6a67eb86473f"],
+Cell[4642, 154, 388, 11, 70, "Input",ExpressionUUID->"1ebb1d92-c4d1-4bcb-826f-4a00de391cf3"],
+Cell[5033, 167, 633, 14, 70, "Input",ExpressionUUID->"611719f4-3526-4ec7-b357-f422b8b7a8a6"],
+Cell[5669, 183, 772, 24, 70, "Input",ExpressionUUID->"36a1d48b-ff51-4ef4-a9a1-3f9b45e0ef92"]
+}
+]
+*)
+
+(* End of internal cache information *)

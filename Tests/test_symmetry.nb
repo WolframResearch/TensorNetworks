@@ -1,0 +1,674 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     22993,        665]
+NotebookOptionsPosition[     16241,        583]
+NotebookOutlinePosition[     16559,        597]
+CellTagsIndexPosition[     16516,        594]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_symmetry", "Title",ExpressionUUID->"9a2a9c86-384f-4cd7-bd7a-7f07b1d91748"],
+
+Cell["\<\
+Comprehensivetests for Symmetry module (YoungTableaux.wl and \
+QuantumNumbers.wl)\
+\>", "Subtitle",ExpressionUUID->"dda94891-6661-4db4-929b-d66f492a289e"],
+
+Cell["\<\
+(* Tests/test_symmetry.wl *)
+(* Comprehensive tests for Symmetry module (YoungTableaux.wl and \
+QuantumNumbers.wl) *)
+
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];
+
+(* Load the Symmetry subpackage *)
+Needs[\"Wolfram`TensorNetworks`Symmetry`\"];\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"4710ef08-685e-4c3c-97e7-c5c9243caccf"],
+
+Cell["", "Section",ExpressionUUID->"f44505c3-4eae-4f56-bd4e-911d14ec6a83"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{{1, 2, 3}, {4, 5}}];
+    YoungTableauQ[yt],
+    True,
+    TestID -> \"YoungTableau_Constructor_Explicit\"
+]\
+\>", "Input",ExpressionUUID->"f4926c74-dcb5-403c-aace-bb747fdf5a36"],
+
+Cell["\<\
+VerificationTest[
+    (* Construct from partition *)
+    yt = YoungTableau[{3, 2}];
+    YoungTableauQ[yt],
+    True,
+    TestID -> \"YoungTableau_Constructor_FromPartition\"
+]\
+\>", "Input",ExpressionUUID->"b0603796-9f50-4635-9669-3a64c1875dd5"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{4, 2, 1}];
+    YoungTableauQ[yt],
+    True,
+    TestID -> \"YoungTableau_Constructor_ThreeRows\"
+]\
+\>", "Input",ExpressionUUID->"f96e157d-6eea-4a75-a285-6dda8158dd5b"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{5}];
+    YoungTableauQ[yt],
+    True,
+    TestID -> \"YoungTableau_Constructor_SingleRow\"
+]\
+\>", "Input",ExpressionUUID->"e03c06c9-661e-4620-aec8-c2b63363ee98"],
+
+Cell["", "Section",ExpressionUUID->"d96db7f4-cb4f-466a-ba41-19f35748b030"],
+
+Cell["\<\
+VerificationTest[
+    YoungTableauQ[YoungTableau[{{1, 2}, {3}}]],
+    True,
+    TestID -> \"YoungTableauQ_Valid\"
+]\
+\>", "Input",ExpressionUUID->"463ceeb3-b1be-4927-ad36-6aa35ffc6423"],
+
+Cell["\<\
+VerificationTest[
+    YoungTableauQ[\"not a tableau\"],
+    False,
+    TestID -> \"YoungTableauQ_InvalidInput_String\"
+]\
+\>", "Input",ExpressionUUID->"cd788e7e-9497-46eb-8867-a4fb5274ff62"],
+
+Cell["\<\
+VerificationTest[
+    YoungTableauQ[123],
+    False,
+    TestID -> \"YoungTableauQ_InvalidInput_Number\"
+]\
+\>", "Input",ExpressionUUID->"9303dede-abdb-4810-90be-311ccddfa203"],
+
+Cell["\<\
+VerificationTest[
+    (* Invalid: row lengths not decreasing *)
+    YoungTableauQ[YoungTableau[{{1}, {2, 3}}]],
+    False,
+    TestID -> \"YoungTableauQ_InvalidRowLengths\"
+]\
+\>", "Input",ExpressionUUID->"c3799eb3-8185-44be-9b21-237e8a42e3cf"],
+
+Cell["\<\
+VerificationTest[
+    (* Invalid: duplicate entries *)
+    YoungTableauQ[YoungTableau[{{1, 1}, {2}}]],
+    False,
+    TestID -> \"YoungTableauQ_DuplicateEntries\"
+]\
+\>", "Input",ExpressionUUID->"df04680f-2f4d-4234-838c-3de5513b4c3e"],
+
+Cell["", "Section",ExpressionUUID->"78f79e4c-f49a-41c3-b80a-bdefc41ff4af"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{{1, 2, 3}, {4, 5}}];
+    TableauShape[yt],
+    {3, 2},
+    TestID -> \"TableauShape_Basic\"
+]\
+\>", "Input",ExpressionUUID->"7f62e41f-6ca3-40ae-8340-060fa43dabc1"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{4, 2, 1}];
+    TableauShape[yt],
+    {4, 2, 1},
+    TestID -> \"TableauShape_FromPartition\"
+]\
+\>", "Input",ExpressionUUID->"39098513-bdb4-48b5-8774-63d3630dbca3"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{5}];
+    TableauShape[yt],
+    {5},
+    TestID -> \"TableauShape_SingleRow\"
+]\
+\>", "Input",ExpressionUUID->"5e5ff9bb-0a77-4fff-92d9-44e6e1c62614"],
+
+Cell["\<\
+VerificationTest[
+    TableauShape[\"not a tableau\"],
+    $Failed,
+    TestID -> \"TableauShape_InvalidInput\"
+]\
+\>", "Input",ExpressionUUID->"1e2dce8a-0474-451f-b75b-3dcb7106ed20"],
+
+Cell["", "Section",ExpressionUUID->"5428466b-e7c6-498d-9666-0dd05c996a81"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{{1, 2, 3}, {4, 5}}];
+    TableauSize[yt],
+    5,
+    TestID -> \"TableauSize_Basic\"
+]\
+\>", "Input",ExpressionUUID->"3b407e2c-e7d7-48ac-a8e5-35c9c94e588d"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{4, 2, 1}];
+    TableauSize[yt],
+    7,
+    TestID -> \"TableauSize_FromPartition\"
+]\
+\>", "Input",ExpressionUUID->"a15e5a6c-bd58-4d40-b2b8-ee9551f441c0"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{1}];
+    TableauSize[yt],
+    1,
+    TestID -> \"TableauSize_SingleBox\"
+]\
+\>", "Input",ExpressionUUID->"0f3b7c8c-9404-42e7-90b2-3582673c9f7f"],
+
+Cell["\<\
+VerificationTest[
+    TableauSize[\"not a tableau\"],
+    $Failed,
+    TestID -> \"TableauSize_InvalidInput\"
+]\
+\>", "Input",ExpressionUUID->"59433ba5-ea3c-41a5-81f9-9e70e144fa6b"],
+
+Cell["", "Section",ExpressionUUID->"21d897b1-fa67-4c03-915b-697be7fe5635"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{{1, 2, 3}, {4, 5}}];
+    HookLength[yt, {1, 1}],
+    4,  (* 3 to the right + 1 below *)
+    TestID -> \"HookLength_TopLeftCorner\"
+]\
+\>", "Input",ExpressionUUID->"c751a519-0f51-4c17-99d2-a4c42673a4af"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{{1, 2, 3}, {4, 5}}];
+    HookLength[yt, {1, 3}],
+    1,  (* Corner box *)
+    TestID -> \"HookLength_Corner\"
+]\
+\>", "Input",ExpressionUUID->"e61aaa9f-3a30-47b3-b9cd-3d32f7703e3a"],
+
+Cell["\<\
+VerificationTest[
+    yt = YoungTableau[{{1, 2, 3}, {4, 5}}];
+    HookLength[yt, {2, 1}],
+    2,  (* 2 to the right, 0 below *)
+    TestID -> \"HookLength_SecondRow\"
+]\
+\>", "Input",ExpressionUUID->"344a6ba3-96cf-4ac0-9c0f-c11e7a222ff9"],
+
+Cell["\<\
+VerificationTest[
+    HookLength[\"not a tableau\", {1, 1}],
+    $Failed,
+    TestID -> \"HookLength_InvalidInput\"
+]\
+\>", "Input",ExpressionUUID->"c9f4400c-bc90-4858-9785-e7d33a8241b0"],
+
+Cell["", "Section",ExpressionUUID->"1090b9f2-14bd-4304-8452-c4b2fb9c5534"],
+
+Cell["\<\
+VerificationTest[
+    (* Standard tableau {2,1}: dimension should be 2 *)
+    yt = YoungTableau[{2, 1}];
+    TableauDimension[yt],
+    2,
+    TestID -> \"TableauDimension_Partition21\"
+]\
+\>", "Input",ExpressionUUID->"0bb3694d-2359-4a8d-8217-af9ba26dcd3d"],
+
+Cell["\<\
+VerificationTest[
+    (* Standard tableau {3}: dimension should be 1 (totally symmetric) *)
+    yt = YoungTableau[{3}];
+    TableauDimension[yt],
+    1,
+    TestID -> \"TableauDimension_TotallySymmetric\"
+]\
+\>", "Input",ExpressionUUID->"22c127b5-4ce1-47cc-9441-02a7f451b890"],
+
+Cell["\<\
+VerificationTest[
+    (* Standard tableau {1,1,1}: dimension should be 1 (totally \
+antisymmetric) *)
+    yt = YoungTableau[{1, 1, 1}];
+    TableauDimension[yt],
+    1,
+    TestID -> \"TableauDimension_TotallyAntisymmetric\"
+]\
+\>", "Input",ExpressionUUID->"fa6b55e7-8f92-4b7a-a150-31b57d37a8f1"],
+
+Cell["\<\
+VerificationTest[
+    (* Standard tableau {2,2}: dimension should be 2 *)
+    yt = YoungTableau[{2, 2}];
+    TableauDimension[yt],
+    2,
+    TestID -> \"TableauDimension_Partition22\"
+]\
+\>", "Input",ExpressionUUID->"034a85d6-5613-456e-a7a5-b3bd6854a304"],
+
+Cell["\<\
+VerificationTest[
+    TableauDimension[\"not a tableau\"],
+    $Failed,
+    TestID -> \"TableauDimension_InvalidInput\"
+]\
+\>", "Input",ExpressionUUID->"2452cecb-a17a-471c-8dbf-e9090721ff40"],
+
+Cell["", "Section",ExpressionUUID->"0b5f7b49-9c2b-412f-80e0-0377d99742e0"],
+
+Cell["\<\
+VerificationTest[
+    (* Symmetrize a rank-3 tensor over {3} partition (totally symmetric) *)
+    T = RandomReal[{-1, 1}, {2, 2, 2}];
+    yt = YoungTableau[{3}];
+    result = YoungSymmetrize[T, yt];
+    ArrayQ[result],
+    True,
+    TestID -> \"YoungSymmetrize_TotallySymmetric\"
+]\
+\>", "Input",ExpressionUUID->"0a9b2174-c078-480f-b76f-053f0250cda7"],
+
+Cell["\<\
+VerificationTest[
+    (* Symmetrize a rank-3 tensor over {1,1,1} partition (totally \
+antisymmetric) *)
+    T = RandomReal[{-1, 1}, {3, 3, 3}];
+    yt = YoungTableau[{1, 1, 1}];
+    result = YoungSymmetrize[T, yt];
+    ArrayQ[result],
+    True,
+    TestID -> \"YoungSymmetrize_TotallyAntisymmetric\"
+]\
+\>", "Input",ExpressionUUID->"932d3b80-86c0-4921-be33-8432e9f9d910"],
+
+Cell["\<\
+VerificationTest[
+    (* Mixed symmetry *)
+    T = RandomReal[{-1, 1}, {2, 2, 2}];
+    yt = YoungTableau[{2, 1}];
+    result = YoungSymmetrize[T, yt];
+    ArrayQ[result],
+    True,
+    TestID -> \"YoungSymmetrize_MixedSymmetry\"
+]\
+\>", "Input",ExpressionUUID->"975bbb30-6fb0-4d54-b949-0aee978dd57a"],
+
+Cell["\<\
+VerificationTest[
+    (* Rank mismatch should fail *)
+    T = RandomReal[{-1, 1}, {2, 2}];  (* Rank 2 *)
+    yt = YoungTableau[{3}];           (* Size 3 *)
+    result = YoungSymmetrize[T, yt];
+    result === $Failed,
+    True,
+    TestID -> \"YoungSymmetrize_RankMismatch\"
+]\
+\>", "Input",ExpressionUUID->"accd802d-6bf9-4547-b0aa-b55504dc8870"],
+
+Cell["", "Section",ExpressionUUID->"00f9b481-45df-4cc3-a6ee-3ed4539c15b9"],
+
+Cell["\<\
+VerificationTest[
+    T = RandomReal[{-1, 1}, {2, 2, 2}];
+    yt = YoungTableau[{3}];
+    result = YoungProject[T, yt];
+    ArrayQ[result],
+    True,
+    TestID -> \"YoungProject_TotallySymmetric\"
+]\
+\>", "Input",ExpressionUUID->"a466c98a-293e-40a5-b1db-d9b48fbd0ea8"],
+
+Cell["\<\
+VerificationTest[
+    T = RandomReal[{-1, 1}, {2, 2, 2}];
+    yt = YoungTableau[{2, 1}];
+    result = YoungProject[T, yt];
+    ArrayQ[result],
+    True,
+    TestID -> \"YoungProject_MixedSymmetry\"
+]\
+\>", "Input",ExpressionUUID->"5302c317-fa18-49ae-9a14-b17523ccc1fb"],
+
+Cell["", "Section",ExpressionUUID->"6098e015-0836-4523-92ad-9cbab2cdaa09"],
+
+Cell["\<\
+VerificationTest[
+    cv = ChargeVector[{0, 1, -1, 0, 1}];
+    ChargeVectorQ[cv],
+    True,
+    TestID -> \"ChargeVector_Constructor_Basic\"
+]\
+\>", "Input",ExpressionUUID->"8081a405-98ef-46f3-86b1-5d9a682c5c5a"],
+
+Cell["\<\
+VerificationTest[
+    cv = ChargeVector[{0, 0, 0}];
+    ChargeVectorQ[cv],
+    True,
+    TestID -> \"ChargeVector_Constructor_AllZero\"
+]\
+\>", "Input",ExpressionUUID->"e722abb9-e674-4af9-b5ae-00bebff27a1a"],
+
+Cell["\<\
+VerificationTest[
+    cv = ChargeVector[{-5, -3, -1, 1, 3, 5}];
+    ChargeVectorQ[cv],
+    True,
+    TestID -> \"ChargeVector_Constructor_MixedCharges\"
+]\
+\>", "Input",ExpressionUUID->"53146e5b-07b6-44ce-a7d5-b917470c9a56"],
+
+Cell["", "Section",ExpressionUUID->"6a2a3644-c342-4d30-881b-d4f2faab6b89"],
+
+Cell["\<\
+VerificationTest[
+    ChargeVectorQ[ChargeVector[{1, 2, 3}]],
+    True,
+    TestID -> \"ChargeVectorQ_Valid\"
+]\
+\>", "Input",ExpressionUUID->"bc307f51-f1b4-4992-936b-09782b7c2cbd"],
+
+Cell["\<\
+VerificationTest[
+    ChargeVectorQ[\"not a charge vector\"],
+    False,
+    TestID -> \"ChargeVectorQ_InvalidInput_String\"
+]\
+\>", "Input",ExpressionUUID->"76878a55-ece2-44a9-872c-c5434ad61dfe"],
+
+Cell["\<\
+VerificationTest[
+    ChargeVectorQ[{1, 2, 3}],
+    False,
+    TestID -> \"ChargeVectorQ_PlainList\"
+]\
+\>", "Input",ExpressionUUID->"00496c8c-7120-4d6c-9510-0829abcd6fba"],
+
+Cell["", "Section",ExpressionUUID->"06873f2d-3454-489a-b045-92b3558f27a5"],
+
+Cell["\<\
+VerificationTest[
+    qA = {0, 1, -1};
+    qB = {0, -1, 1};
+    allowed = AllowedContractions[qA, qB];
+    Sort[allowed] === Sort[{{1, 1}, {2, 2}, {3, 3}}],
+    True,
+    TestID -> \"AllowedContractions_SimpleCharges\"
+]\
+\>", "Input",ExpressionUUID->"09ae8290-33fa-46b9-8035-2125c115c078"],
+
+Cell["\<\
+VerificationTest[
+    cvA = ChargeVector[{0, 1, -1}];
+    cvB = ChargeVector[{0, -1, 1}];
+    allowed = AllowedContractions[cvA, cvB];
+    Sort[allowed] === Sort[{{1, 1}, {2, 2}, {3, 3}}],
+    True,
+    TestID -> \"AllowedContractions_ChargeVectors\"
+]\
+\>", "Input",ExpressionUUID->"65e2702b-9dde-4279-8052-398d5748a76e"],
+
+Cell["\<\
+VerificationTest[
+    qA = {1, 2, 3};
+    qB = {-1, -2, -3};
+    allowed = AllowedContractions[qA, qB];
+    Sort[allowed] === Sort[{{1, 1}, {2, 2}, {3, 3}}],
+    True,
+    TestID -> \"AllowedContractions_NonZeroCharges\"
+]\
+\>", "Input",ExpressionUUID->"0cef8f2b-aa7f-4b18-87f8-1ff823805c07"],
+
+Cell["\<\
+VerificationTest[
+    qA = {0, 0, 0};
+    qB = {0, 0, 0};
+    allowed = AllowedContractions[qA, qB];
+    Length[allowed] == 9,  (* All pairs allowed *)
+    True,
+    TestID -> \"AllowedContractions_AllZero\"
+]\
+\>", "Input",ExpressionUUID->"10c083ef-053a-40b8-80f1-b40b8dca4ba0"],
+
+Cell["\<\
+VerificationTest[
+    qA = {1, 2, 3};
+    qB = {4, 5, 6};  (* No pairs sum to zero *)
+    allowed = AllowedContractions[qA, qB];
+    allowed === {},
+    True,
+    TestID -> \"AllowedContractions_NoAllowed\"
+]\
+\>", "Input",ExpressionUUID->"b2a39058-d244-4693-bd3e-fe1f41f83e3f"],
+
+Cell["", "Section",ExpressionUUID->"2fdd903c-df3c-4afc-a078-600800c22cb3"],
+
+Cell["\<\
+VerificationTest[
+    ChargesConservedQ[{1, -1, 0}, {-1, 1, 0}],
+    True,
+    TestID -> \"ChargesConservedQ_Conserved\"
+]\
+\>", "Input",ExpressionUUID->"80b19092-0b72-4fbd-951f-ca7d3d7b1977"],
+
+Cell["\<\
+VerificationTest[
+    ChargesConservedQ[{1, 2, 3}, {1, 2, 3}],
+    False,
+    TestID -> \"ChargesConservedQ_NotConserved\"
+]\
+\>", "Input",ExpressionUUID->"05766246-794a-46fc-a331-b6c262a1dea7"],
+
+Cell["\<\
+VerificationTest[
+    cvA = ChargeVector[{1, -1}];
+    cvB = ChargeVector[{-1, 1}];
+    ChargesConservedQ[cvA, cvB],
+    True,
+    TestID -> \"ChargesConservedQ_ChargeVectors\"
+]\
+\>", "Input",ExpressionUUID->"375ca39e-da29-40b8-b4c3-5b18b5c30bb7"],
+
+Cell["", "Section",ExpressionUUID->"a4a5e2fb-c73c-495b-8e2c-0934c3e81fb2"],
+
+Cell["\<\
+VerificationTest[
+    cv = ChargeVector[{0, 1, 0, -1, 0}];
+    indices = IndicesWithCharge[cv, 0];
+    Sort[indices] === {1, 3, 5},
+    True,
+    TestID -> \"IndicesWithCharge_ChargeZero\"
+]\
+\>", "Input",ExpressionUUID->"06b1a673-ad4f-45b5-a315-72942d37d763"],
+
+Cell["\<\
+VerificationTest[
+    cv = ChargeVector[{0, 1, 0, -1, 0}];
+    indices = IndicesWithCharge[cv, 1];
+    indices === {2},
+    True,
+    TestID -> \"IndicesWithCharge_ChargeOne\"
+]\
+\>", "Input",ExpressionUUID->"56e876df-1b03-44e8-8cb7-37f07e92a690"],
+
+Cell["\<\
+VerificationTest[
+    charges = {0, 1, 0, -1, 0};
+    indices = IndicesWithCharge[charges, -1];
+    indices === {4},
+    True,
+    TestID -> \"IndicesWithCharge_PlainList\"
+]\
+\>", "Input",ExpressionUUID->"3b032824-a864-4893-a129-7b001c981af1"],
+
+Cell["\<\
+VerificationTest[
+    cv = ChargeVector[{1, 2, 3}];
+    indices = IndicesWithCharge[cv, 5];  (* Charge not present *)
+    indices === {},
+    True,
+    TestID -> \"IndicesWithCharge_NotFound\"
+]\
+\>", "Input",ExpressionUUID->"576ce648-75be-4acd-a632-a0eb2d360bf0"],
+
+Cell["", "Section",ExpressionUUID->"57ba7abe-608f-4cce-b604-22a24654d960"],
+
+Cell["\<\
+VerificationTest[
+    cv = ChargeVector[{1, 2, 3}];
+    negated = -cv;
+    ChargeVectorQ[negated] && negated[[1]] === {-1, -2, -3},
+    True,
+    TestID -> \"ChargeVector_Negation\"
+]\
+\>", "Input",ExpressionUUID->"10036b03-215f-4d1a-aab1-a4d7578c46f3"],
+
+Cell["", "Section",ExpressionUUID->"f0e8707e-2a40-4d5b-9457-abe4c68febc6"],
+
+Cell["\<\
+VerificationTest[
+    (* Symmetry-filtered contraction should give same result as ArrayDot *)
+    (* Note: This test only runs if SymmetryFiltered method is available *)
+    If[MemberQ[$TensorNetworkContractionMethods, \"SymmetryFiltered\"],
+        Module[{dim = 10, A, B, charges, tn, indexCharges, resultArrayDot, \
+resultSymFiltered},
+            A = RandomReal[{-1, 1}, {dim, dim}];
+            B = RandomReal[{-1, 1}, {dim, dim}];
+            charges = Mod[Range[dim], 3] - 1;
+            tn = TensorNetwork[{A, B}, {{1, 3}, {3, 2}}, {1, 2}];
+            indexCharges = <|3 -> charges|>;
+            resultArrayDot = TensorNetworkContract[tn, \"Optimal\", Method -> \
+\"ArrayDot\"];
+            resultSymFiltered = TensorNetworkContract[tn, \"Optimal\",
+                Method -> \"SymmetryFiltered\",
+                \"IndexCharges\" -> indexCharges
+            ];
+            Max[Abs[resultArrayDot - resultSymFiltered]] < 10^-10
+        ],
+        True  (* Skip test if method not available *)
+    ],
+    True,
+    TestID -> \"SymmetryFiltered_Integration_Consistent\"
+]\
+\>", "Input",ExpressionUUID->"3241a2f8-a083-4611-bd80-e760aa8d499f"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 85, 0, 70, "Title",ExpressionUUID->"9a2a9c86-384f-4cd7-bd7a-7f07b1d91748"],
+Cell[642, 22, 164, 3, 70, "Subtitle",ExpressionUUID->"dda94891-6661-4db4-929b-d66f492a289e"],
+Cell[809, 27, 380, 11, 70, "Input",ExpressionUUID->"4710ef08-685e-4c3c-97e7-c5c9243caccf",
+ InitializationCell->True],
+Cell[1192, 40, 74, 0, 70, "Section",ExpressionUUID->"f44505c3-4eae-4f56-bd4e-911d14ec6a83"],
+Cell[1269, 42, 228, 7, 70, "Input",ExpressionUUID->"f4926c74-dcb5-403c-aace-bb747fdf5a36"],
+Cell[1500, 51, 255, 8, 70, "Input",ExpressionUUID->"b0603796-9f50-4635-9669-3a64c1875dd5"],
+Cell[1758, 61, 219, 7, 70, "Input",ExpressionUUID->"f96e157d-6eea-4a75-a285-6dda8158dd5b"],
+Cell[1980, 70, 213, 7, 70, "Input",ExpressionUUID->"e03c06c9-661e-4620-aec8-c2b63363ee98"],
+Cell[2196, 79, 74, 0, 70, "Section",ExpressionUUID->"d96db7f4-cb4f-466a-ba41-19f35748b030"],
+Cell[2273, 81, 195, 6, 70, "Input",ExpressionUUID->"463ceeb3-b1be-4927-ad36-6aa35ffc6423"],
+Cell[2471, 89, 200, 6, 70, "Input",ExpressionUUID->"cd788e7e-9497-46eb-8867-a4fb5274ff62"],
+Cell[2674, 97, 186, 6, 70, "Input",ExpressionUUID->"9303dede-abdb-4810-90be-311ccddfa203"],
+Cell[2863, 105, 254, 7, 70, "Input",ExpressionUUID->"c3799eb3-8185-44be-9b21-237e8a42e3cf"],
+Cell[3120, 114, 244, 7, 70, "Input",ExpressionUUID->"df04680f-2f4d-4234-838c-3de5513b4c3e"],
+Cell[3367, 123, 74, 0, 70, "Section",ExpressionUUID->"78f79e4c-f49a-41c3-b80a-bdefc41ff4af"],
+Cell[3444, 125, 214, 7, 70, "Input",ExpressionUUID->"7f62e41f-6ca3-40ae-8340-060fa43dabc1"],
+Cell[3661, 134, 215, 7, 70, "Input",ExpressionUUID->"39098513-bdb4-48b5-8774-63d3630dbca3"],
+Cell[3879, 143, 199, 7, 70, "Input",ExpressionUUID->"5e5ff9bb-0a77-4fff-92d9-44e6e1c62614"],
+Cell[4081, 152, 193, 6, 70, "Input",ExpressionUUID->"1e2dce8a-0474-451f-b75b-3dcb7106ed20"],
+Cell[4277, 160, 74, 0, 70, "Section",ExpressionUUID->"5428466b-e7c6-498d-9666-0dd05c996a81"],
+Cell[4354, 162, 207, 7, 70, "Input",ExpressionUUID->"3b407e2c-e7d7-48ac-a8e5-35c9c94e588d"],
+Cell[4564, 171, 205, 7, 70, "Input",ExpressionUUID->"a15e5a6c-bd58-4d40-b2b8-ee9551f441c0"],
+Cell[4772, 180, 195, 7, 70, "Input",ExpressionUUID->"0f3b7c8c-9404-42e7-90b2-3582673c9f7f"],
+Cell[4970, 189, 191, 6, 70, "Input",ExpressionUUID->"59433ba5-ea3c-41a5-81f9-9e70e144fa6b"],
+Cell[5164, 197, 74, 0, 70, "Section",ExpressionUUID->"21d897b1-fa67-4c03-915b-697be7fe5635"],
+Cell[5241, 199, 253, 7, 70, "Input",ExpressionUUID->"c751a519-0f51-4c17-99d2-a4c42673a4af"],
+Cell[5497, 208, 232, 7, 70, "Input",ExpressionUUID->"e61aaa9f-3a30-47b3-b9cd-3d32f7703e3a"],
+Cell[5732, 217, 248, 7, 70, "Input",ExpressionUUID->"344a6ba3-96cf-4ac0-9c0f-c11e7a222ff9"],
+Cell[5983, 226, 197, 6, 70, "Input",ExpressionUUID->"c9f4400c-bc90-4858-9785-e7d33a8241b0"],
+Cell[6183, 234, 74, 0, 70, "Section",ExpressionUUID->"1090b9f2-14bd-4304-8452-c4b2fb9c5534"],
+Cell[6260, 236, 266, 8, 70, "Input",ExpressionUUID->"0bb3694d-2359-4a8d-8217-af9ba26dcd3d"],
+Cell[6529, 246, 286, 8, 70, "Input",ExpressionUUID->"22c127b5-4ce1-47cc-9441-02a7f451b890"],
+Cell[6818, 256, 306, 9, 70, "Input",ExpressionUUID->"fa6b55e7-8f92-4b7a-a150-31b57d37a8f1"],
+Cell[7127, 267, 266, 8, 70, "Input",ExpressionUUID->"034a85d6-5613-456e-a7a5-b3bd6854a304"],
+Cell[7396, 277, 201, 6, 70, "Input",ExpressionUUID->"2452cecb-a17a-471c-8dbf-e9090721ff40"],
+Cell[7600, 285, 74, 0, 70, "Section",ExpressionUUID->"0b5f7b49-9c2b-412f-80e0-0377d99742e0"],
+Cell[7677, 287, 361, 10, 70, "Input",ExpressionUUID->"0a9b2174-c078-480f-b76f-053f0250cda7"],
+Cell[8041, 299, 381, 11, 70, "Input",ExpressionUUID->"932d3b80-86c0-4921-be33-8432e9f9d910"],
+Cell[8425, 312, 310, 10, 70, "Input",ExpressionUUID->"975bbb30-6fb0-4d54-b949-0aee978dd57a"],
+Cell[8738, 324, 355, 10, 70, "Input",ExpressionUUID->"accd802d-6bf9-4547-b0aa-b55504dc8870"],
+Cell[9096, 336, 74, 0, 70, "Section",ExpressionUUID->"00f9b481-45df-4cc3-a6ee-3ed4539c15b9"],
+Cell[9173, 338, 279, 9, 70, "Input",ExpressionUUID->"a466c98a-293e-40a5-b1db-d9b48fbd0ea8"],
+Cell[9455, 349, 279, 9, 70, "Input",ExpressionUUID->"5302c317-fa18-49ae-9a14-b17523ccc1fb"],
+Cell[9737, 360, 74, 0, 70, "Section",ExpressionUUID->"6098e015-0836-4523-92ad-9cbab2cdaa09"],
+Cell[9814, 362, 222, 7, 70, "Input",ExpressionUUID->"8081a405-98ef-46f3-86b1-5d9a682c5c5a"],
+Cell[10039, 371, 217, 7, 70, "Input",ExpressionUUID->"e722abb9-e674-4af9-b5ae-00bebff27a1a"],
+Cell[10259, 380, 234, 7, 70, "Input",ExpressionUUID->"53146e5b-07b6-44ce-a7d5-b917470c9a56"],
+Cell[10496, 389, 74, 0, 70, "Section",ExpressionUUID->"6a2a3644-c342-4d30-881b-d4f2faab6b89"],
+Cell[10573, 391, 191, 6, 70, "Input",ExpressionUUID->"bc307f51-f1b4-4992-936b-09782b7c2cbd"],
+Cell[10767, 399, 206, 6, 70, "Input",ExpressionUUID->"76878a55-ece2-44a9-872c-c5434ad61dfe"],
+Cell[10976, 407, 182, 6, 70, "Input",ExpressionUUID->"00496c8c-7120-4d6c-9510-0829abcd6fba"],
+Cell[11161, 415, 74, 0, 70, "Section",ExpressionUUID->"06873f2d-3454-489a-b045-92b3558f27a5"],
+Cell[11238, 417, 300, 9, 70, "Input",ExpressionUUID->"09ae8290-33fa-46b9-8035-2125c115c078"],
+Cell[11541, 428, 332, 9, 70, "Input",ExpressionUUID->"65e2702b-9dde-4279-8052-398d5748a76e"],
+Cell[11876, 439, 302, 9, 70, "Input",ExpressionUUID->"0cef8f2b-aa7f-4b18-87f8-1ff823805c07"],
+Cell[12181, 450, 289, 9, 70, "Input",ExpressionUUID->"10c083ef-053a-40b8-80f1-b40b8dca4ba0"],
+Cell[12473, 461, 288, 9, 70, "Input",ExpressionUUID->"b2a39058-d244-4693-bd3e-fe1f41f83e3f"],
+Cell[12764, 472, 74, 0, 70, "Section",ExpressionUUID->"2fdd903c-df3c-4afc-a078-600800c22cb3"],
+Cell[12841, 474, 202, 6, 70, "Input",ExpressionUUID->"80b19092-0b72-4fbd-951f-ca7d3d7b1977"],
+Cell[13046, 482, 204, 6, 70, "Input",ExpressionUUID->"05766246-794a-46fc-a331-b6c262a1dea7"],
+Cell[13253, 490, 258, 8, 70, "Input",ExpressionUUID->"375ca39e-da29-40b8-b4c3-5b18b5c30bb7"],
+Cell[13514, 500, 74, 0, 70, "Section",ExpressionUUID->"a4a5e2fb-c73c-495b-8e2c-0934c3e81fb2"],
+Cell[13591, 502, 270, 8, 70, "Input",ExpressionUUID->"06b1a673-ad4f-45b5-a315-72942d37d763"],
+Cell[13864, 512, 257, 8, 70, "Input",ExpressionUUID->"56e876df-1b03-44e8-8cb7-37f07e92a690"],
+Cell[14124, 522, 254, 8, 70, "Input",ExpressionUUID->"3b032824-a864-4893-a129-7b001c981af1"],
+Cell[14381, 532, 274, 8, 70, "Input",ExpressionUUID->"576ce648-75be-4acd-a632-a0eb2d360bf0"],
+Cell[14658, 542, 74, 0, 70, "Section",ExpressionUUID->"57ba7abe-608f-4cce-b604-22a24654d960"],
+Cell[14735, 544, 263, 8, 70, "Input",ExpressionUUID->"10036b03-215f-4d1a-aab1-a4d7578c46f3"],
+Cell[15001, 554, 74, 0, 70, "Section",ExpressionUUID->"f0e8707e-2a40-4d5b-9457-abe4c68febc6"],
+Cell[15078, 556, 1159, 25, 70, "Input",ExpressionUUID->"3241a2f8-a083-4611-bd80-e760aa8d499f"]
+}
+]
+*)
+
+(* End of internal cache information *)

@@ -41,7 +41,8 @@ RandomTensorNetwork::usage = "RandomTensorNetwork[{n,m}, maxDim] creates a rando
 \[Bullet] RandomTensorNetwork[\"MPO\"[length, bondDim, physicalDim]] creates a Matrix Product Operator.
 \[Bullet] RandomTensorNetwork[\"PEPS\"[{rows,cols}, bondDim, physicalDim]] creates a Projected Entangled Pair State.
 \[Bullet] RandomTensorNetwork[\"TTN\"[depth, bondDim, branching]] creates a Tree Tensor Network.
-\[Bullet] RandomTensorNetwork[\"MERA\"[width, bondDim, layers]] creates a Multi-scale Entanglement Renormalization Ansatz."
+\[Bullet] RandomTensorNetwork[\"MERA\"[width, bondDim, layers]] creates a Multi-scale Entanglement Renormalization Ansatz.
+\[Bullet] Use \"Symmetry\" \[Rule] {\"U1\", nSectors} to generate U(1)-symmetric sparse tensors with charge conservation. The returned TensorNetwork includes IndexCharges and SymmetryType metadata accessible via tn[\"IndexCharges\"], tn[\"SymmetryType\"], and tn[\"SymmetricQ\"]."
 
 TensorNetworkAdd::usage = "TensorNetworkAdd[tn, tensor, indices] adds a new tensor to the network with the specified indices.
 \[Bullet] Indices matching existing network indices create new contractions."
@@ -105,9 +106,11 @@ TensorNetworkContraction::usage = "TensorNetworkContraction[tn, path] returns a 
 TensorNetworkContract::usage = "TensorNetworkContract[tn] contracts the entire tensor network to a single tensor using the default path.
 \[Bullet] TensorNetworkContract[tn, path] contracts using the specified contraction path.
 \[Bullet] TensorNetworkContract[data, path] contracts using pre-computed network data.
-\[Bullet] Returns an evaluated numerical tensor (not symbolic)."
+\[Bullet] Returns an evaluated numerical tensor (not symbolic).
+\[Bullet] With Method \[Rule] \"SymmetryFiltered\", automatically uses tn[\"IndexCharges\"] if available, enabling efficient symmetry-filtered contraction without explicit charge specification."
 
-$TensorNetworkContractionMethods::usage = "$TensorNetworkContractionMethods is the list of available contraction methods: \"ArrayDotTranspose\", \"ArrayDot\", \"Dot\", \"TensorContract\", \"TableSum\"."
+$TensorNetworkContractionMethods::usage = "$TensorNetworkContractionMethods is the list of available contraction methods: \"ArrayDotTranspose\", \"ArrayDot\", \"SymmetryFiltered\", \"Dot\", \"TensorContract\", \"TableSum\".
+\[Bullet] \"SymmetryFiltered\" skips zero blocks based on charge conservation, providing 10-30x+ speedup with multiple contracted indices."
 
 ContractionTree::usage = "ContractionTree[tn] returns a Tree representing the contraction hierarchy of the tensor network.
 \[Bullet] ContractionTree[tn, path] uses the specified contraction path."

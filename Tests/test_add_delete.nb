@@ -1,0 +1,282 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[      9678,        273]
+NotebookOptionsPosition[      7794,        243]
+NotebookOutlinePosition[      8112,        257]
+CellTagsIndexPosition[      8069,        254]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["test_add_delete", "Title",ExpressionUUID->"d0c1e3b2-8178-47e3-8fda-da94b3b9a2cc"],
+
+Cell["\<\
+(* Setup *)
+Get[FileNameJoin[{DirectoryName[$InputFileName], \"test_setup.wl\"}]];
+
+tensorDimensions = Wolfram`TensorNetworks`PackageScope`tensorDimensions;
+
+(* Helper to create standard test network *)
+makeTestNet[] := TensorNetwork[
+    {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+    {{1, 2}, {2, 3}},
+    Cycles[{{1, 2}}] (* free indices 1, 3 -> positions 1, 2. Swapped. *)
+]\
+\>", "Input",
+ InitializationCell->
+  True,ExpressionUUID->"0db670c5-1d80-4876-b904-be63db2dc734"],
+
+Cell["\<\
+VerificationTest[
+    tensorDimensions[{{1, 2}, {3, 4}}],
+    {2, 2},
+    TestID -> \"Debug_TensorDimensions_Works\"
+]
+
+(* Test TensorNetwork head *)\
+\>", "Input",ExpressionUUID->"4ac7c664-5e7b-4df4-a0e0-4018b96c94c9"],
+
+Cell["\<\
+VerificationTest[
+    rtn = RandomTensorNetwork[{5, 7}, 2, 4];
+    TensorNetworkQ[rtn],
+    True,
+    TestID -> \"RandomTensorNetwork_Valid\"
+]\
+\>", "Input",ExpressionUUID->"e1753ce4-d480-4b06-b627-c048efbabfa6"],
+
+Cell["\<\
+VerificationTest[
+    rtn = RandomTensorNetwork[{5, 7}, 2, 4];
+    sizeOrig = TensorNetworkSize[rtn];
+    newTensor = RandomReal[{-1, 1}, {2, 2}];
+    newIndices = {100, 101};
+    rtnAdded = TensorNetworkAdd[rtn, newTensor, newIndices];
+    sizeAdded = TensorNetworkSize[rtnAdded];
+    sizeAdded == sizeOrig + 1 && Last[rtnAdded[\"Tensors\"]] === newTensor,
+    True,
+    TestID -> \"TensorNetworkAdd_Basic\"
+]\
+\>", "Input",ExpressionUUID->"0405efcf-a1bf-492c-9ce5-85b3c9dfac1e"],
+
+Cell["\<\
+VerificationTest[
+    rtn = RandomTensorNetwork[{5, 7}, 2, 4];
+    newTensor = RandomReal[{-1, 1}, {2, 2}];
+    newIndices = {100, 101};
+    rtnAdded = TensorNetworkAdd[rtn, newTensor, newIndices];
+    sizeOrig = TensorNetworkSize[rtn];
+    rtnDeleted = TensorNetworkDelete[rtnAdded, -1];
+    TensorNetworkSize[rtnDeleted] == sizeOrig,
+    True,
+    TestID -> \"TensorNetworkDelete_Basic\"
+]
+
+(* Test Graph head *)\
+\>", "Input",ExpressionUUID->"cf627336-01a0-44f2-82dc-5655e7250f0d"],
+
+Cell["\<\
+VerificationTest[
+    rtn = RandomTensorNetwork[{5, 7}, 2, 4];
+    g = ToTensorNetworkGraph[rtn];
+    sizeGOrig = VertexCount[g];
+    newTensor = RandomReal[{-1, 1}, {2, 2}];
+    graphAdded = TensorNetworkAdd[g, newTensor, {Subscript[1, 1], \
+Subscript[1, 2]}];
+    If[!GraphQ[graphAdded], graphAdded = gAdded]; 
+    VertexCount[graphAdded] == sizeGOrig + 1,
+    True,
+    TestID -> \"TensorNetworkAdd_Graph\"
+]\
+\>", "Input",ExpressionUUID->"e770069d-3884-491b-92e5-8b3b69cbff90"],
+
+Cell["\<\
+VerificationTest[
+    rtn = RandomTensorNetwork[{5, 7}, 2, 4];
+    g = ToTensorNetworkGraph[rtn];
+    newTensor = RandomReal[{-1, 1}, {2, 2}];
+    graphAdded = TensorNetworkAdd[g, newTensor, {Subscript[1, 1], \
+Subscript[1, 2]}];
+    If[!GraphQ[graphAdded], graphAdded = gAdded];
+    sizeGOrig = VertexCount[g];
+    gDeleted = TensorNetworkDelete[graphAdded, -1];
+    VertexCount[gDeleted] == sizeGOrig,
+    True,
+    TestID -> \"TensorNetworkDelete_Graph\"
+]
+
+(* FreeIndices tests - always test FreeIndices since Output can be Automatic \
+*)\
+\>", "Input",ExpressionUUID->"1c8b0c3b-6d37-482a-a094-dad75b591c73"],
+
+Cell["\<\
+VerificationTest[
+    tn = makeTestNet[];
+    tn[\"FreeIndices\"],
+    {3, 1},  (* Free indices {1, 3} permuted by Cycles[{{1, 2}}] *)
+    TestID -> \"FreeIndices_Initial\"
+]\
+\>", "Input",ExpressionUUID->"2ae8f9c3-0626-48b0-b22b-fdc3421a486d"],
+
+Cell["\<\
+VerificationTest[
+    tn = TensorNetwork[
+        {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
+        {{1, 2}, {2, 3}}
+    ];
+    tn[\"FreeIndices\"],
+    {1, 3},  (* Default ordering when Output is Automatic *)
+    TestID -> \"FreeIndices_Automatic\"
+]\
+\>", "Input",ExpressionUUID->"76734c7e-f709-4900-a3e0-bc014b536a07"],
+
+Cell["\<\
+VerificationTest[
+    tn = makeTestNet[];
+    tnAdded = TensorNetworkAdd[tn, RandomReal[{-1, 1}, {5, 6}], {4, 5}];
+    tnAdded[\"FreeIndices\"],
+    {3, 1, 4, 5},  (* Original free indices {3,1} + new free indices {4,5} *)
+    TestID -> \"FreeIndices_Add_Extension\"
+]\
+\>", "Input",ExpressionUUID->"986754ee-0430-4b14-b342-16cd1a189c25"],
+
+Cell["\<\
+VerificationTest[
+    tn = makeTestNet[];
+    tnAddedContract = TensorNetworkAdd[tn, RandomReal[{-1, 1}, {4, 7}], {3, \
+6}];
+    tnAddedContract[\"FreeIndices\"],
+    {1, 6},  (* Index 3 contracts, leaving {1} from original + {6} from new \
+*)
+    TestID -> \"FreeIndices_Add_Contraction\"
+]\
+\>", "Input",ExpressionUUID->"2ec7cca9-fb1e-4936-9eef-f38a48bf79b5"],
+
+Cell["\<\
+VerificationTest[
+    tn3 = TensorNetwork[
+        {RandomReal[{-1, 1}, {2}], RandomReal[{-1, 1}, {3}], RandomReal[{-1, \
+1}, {4}]},
+        {{1}, {2}, {3}},
+        Cycles[{{1, 3}}]  (* {1,2,3} -> {3,2,1} *)
+    ];
+    tnDel = TensorNetworkDelete[tn3, 2];
+    tnDel[\"FreeIndices\"],
+    {3, 1},  (* Index 2 removed from {3,2,1} *)
+    TestID -> \"FreeIndices_Delete_Middle\"
+]\
+\>", "Input",ExpressionUUID->"a3c066e4-5c1b-4a38-80bc-757913cd6f4d"],
+
+Cell["\<\
+VerificationTest[
+    tn3 = TensorNetwork[
+        {RandomReal[{-1, 1}, {2}], RandomReal[{-1, 1}, {3}], RandomReal[{-1, \
+1}, {4}]},
+        {{1}, {2}, {3}},
+        Cycles[{{1, 3}}]  (* {1,2,3} -> {3,2,1} *)
+    ];
+    tnDelFirst = TensorNetworkDelete[tn3, 1];
+    tnDelFirst[\"FreeIndices\"],
+    {3, 2},  (* Index 1 removed from {3,2,1} *)
+    TestID -> \"FreeIndices_Delete_First\"
+]
+
+(* More sophisticated tests *)\
+\>", "Input",ExpressionUUID->"b6a7c9a3-51ae-4e0b-9aa6-c4e122fd02ca"],
+
+Cell["\<\
+VerificationTest[
+    (* Multiple adds that create a chain *)
+    tn = TensorNetwork[{RandomReal[{-1, 1}, {2, 3}]}, {{1, 2}}, {1, 2}];
+    tn2 = TensorNetworkAdd[tn, RandomReal[{-1, 1}, {3, 4}], {2, 3}];
+    tn3 = TensorNetworkAdd[tn2, RandomReal[{-1, 1}, {4, 5}], {3, 4}];
+    tn3[\"FreeIndices\"],
+    {1, 4},  (* Only endpoints remain free *)
+    TestID -> \"FreeIndices_ChainOfAdds\"
+]\
+\>", "Input",ExpressionUUID->"1a5dfb36-68f4-4592-b5bc-e94fadec79a1"],
+
+Cell["\<\
+VerificationTest[
+    (* Add then delete maintains consistency *)
+    tn = makeTestNet[];
+    tnAdded = TensorNetworkAdd[tn, RandomReal[{-1, 1}, {5, 6}], {4, 5}];
+    tnBack = TensorNetworkDelete[tnAdded, -1];
+    tnBack[\"FreeIndices\"],
+    {3, 1},  (* Back to original after removing added tensor *)
+    TestID -> \"FreeIndices_Add_Then_Delete\"
+]\
+\>", "Input",ExpressionUUID->"c799afaa-5e10-417c-83de-8a207c466123"],
+
+Cell["\<\
+VerificationTest[
+    (* Automatic output propagates through operations *)
+    tn = TensorNetwork[{RandomReal[{-1, 1}, {2, 3}]}, {{1, 2}}];
+    tnAdded = TensorNetworkAdd[tn, RandomReal[{-1, 1}, {3, 4}], {2, 3}];
+    tnAdded[\"Output\"] === Automatic && Sort[tnAdded[\"FreeIndices\"]] === \
+{1, 3},
+    True,
+    TestID -> \"FreeIndices_Automatic_Propagates\"
+]\
+\>", "Input",ExpressionUUID->"bda68176-e902-48be-8156-ac97a9e63e05"],
+
+Cell["\<\
+VerificationTest[
+    (* Full contraction - all indices paired *)
+    tn = TensorNetwork[{RandomReal[{-1, 1}, {2, 3}]}, {{1, 2}}, {1, 2}];
+    tnContract = TensorNetworkAdd[tn, RandomReal[{-1, 1}, {2, 3}], {1, 2}];
+    tnContract[\"FreeIndices\"],
+    {},  (* No free indices - fully contracted *)
+    TestID -> \"FreeIndices_FullContraction\"
+]\
+\>", "Input",ExpressionUUID->"c335d382-50c4-4d6b-9de5-db2d71b60edb"]
+},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 22, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"d14a5cd9-f7d4-40ac-943f-89be004f605d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 87, 0, 70, "Title",ExpressionUUID->"d0c1e3b2-8178-47e3-8fda-da94b3b9a2cc"],
+Cell[644, 22, 505, 14, 70, "Input",ExpressionUUID->"0db670c5-1d80-4876-b904-be63db2dc734",
+ InitializationCell->True],
+Cell[1152, 38, 229, 8, 70, "Input",ExpressionUUID->"4ac7c664-5e7b-4df4-a0e0-4018b96c94c9"],
+Cell[1384, 48, 223, 7, 70, "Input",ExpressionUUID->"e1753ce4-d480-4b06-b627-c048efbabfa6"],
+Cell[1610, 57, 490, 12, 70, "Input",ExpressionUUID->"0405efcf-a1bf-492c-9ce5-85b3c9dfac1e"],
+Cell[2103, 71, 494, 14, 70, "Input",ExpressionUUID->"cf627336-01a0-44f2-82dc-5655e7250f0d"],
+Cell[2600, 87, 491, 13, 70, "Input",ExpressionUUID->"e770069d-3884-491b-92e5-8b3b69cbff90"],
+Cell[3094, 102, 622, 17, 70, "Input",ExpressionUUID->"1c8b0c3b-6d37-482a-a094-dad75b591c73"],
+Cell[3719, 121, 254, 7, 70, "Input",ExpressionUUID->"2ae8f9c3-0626-48b0-b22b-fdc3421a486d"],
+Cell[3976, 130, 349, 10, 70, "Input",ExpressionUUID->"76734c7e-f709-4900-a3e0-bc014b536a07"],
+Cell[4328, 142, 348, 8, 70, "Input",ExpressionUUID->"986754ee-0430-4b14-b342-16cd1a189c25"],
+Cell[4679, 152, 371, 10, 70, "Input",ExpressionUUID->"2ec7cca9-fb1e-4936-9eef-f38a48bf79b5"],
+Cell[5053, 164, 458, 13, 70, "Input",ExpressionUUID->"a3c066e4-5c1b-4a38-80bc-757913cd6f4d"],
+Cell[5514, 179, 499, 15, 70, "Input",ExpressionUUID->"b6a7c9a3-51ae-4e0b-9aa6-c4e122fd02ca"],
+Cell[6016, 196, 469, 10, 70, "Input",ExpressionUUID->"1a5dfb36-68f4-4592-b5bc-e94fadec79a1"],
+Cell[6488, 208, 430, 10, 70, "Input",ExpressionUUID->"c799afaa-5e10-417c-83de-8a207c466123"],
+Cell[6921, 220, 441, 10, 70, "Input",ExpressionUUID->"bda68176-e902-48be-8156-ac97a9e63e05"],
+Cell[7365, 232, 425, 9, 70, "Input",ExpressionUUID->"c335d382-50c4-4d6b-9de5-db2d71b60edb"]
+}
+]
+*)
+
+(* End of internal cache information *)
