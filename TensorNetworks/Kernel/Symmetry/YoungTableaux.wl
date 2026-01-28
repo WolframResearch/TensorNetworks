@@ -7,6 +7,7 @@ Package["Wolfram`TensorNetworks`Symmetry`"]
 PackageExport[YoungTableau]
 PackageExport[YoungTableauQ]
 PackageExport[TableauShape]
+PackageExport[TableauSize]
 PackageExport[HookLength]
 PackageExport[TableauDimension]
 PackageExport[YoungSymmetrize]
@@ -63,7 +64,16 @@ yt_YoungTableau /; System`Private`HoldNotValidQ[yt] && youngTableauQ[Unevaluated
 (* TableauShape returns the partition as a list of row lengths *)
 TableauShape[YoungTableau[rows_List] ? YoungTableauQ] := Length /@ rows
 
-TableauShape[rows_List] /; youngTableauQ[YoungTableau[rows]] := Length /@ rows
+TableauShape::noyt = "TableauShape accepts only YoungTableau as input, got `1`.";
+
+TableauShape[expr_] := (Message[TableauShape::noyt, expr]; $Failed)
+
+(* TableauSize returns the total number of boxes (size/weight of the partition) *)
+TableauSize[YoungTableau[rows_List] ? YoungTableauQ] := Total[Length /@ rows]
+
+TableauSize::noyt = "TableauSize accepts only YoungTableau as input, got `1`.";
+
+TableauSize[expr_] := (Message[TableauSize::noyt, expr]; $Failed)
 
 
 (* ============================================ *)
@@ -83,8 +93,9 @@ HookLength[YoungTableau[rows_List] ? YoungTableauQ, {row_Integer, col_Integer}] 
         rowLen + colLen
     ]
 
-HookLength[rows_List, pos_] /; youngTableauQ[YoungTableau[rows]] :=
-    HookLength[YoungTableau[rows], pos]
+HookLength::noyt = "HookLength accepts only YoungTableau as input, got `1`.";
+
+HookLength[expr_, _] := (Message[HookLength::noyt, expr]; $Failed)
 
 
 (* ============================================ *)
@@ -96,7 +107,7 @@ HookLength[rows_List, pos_] /; youngTableauQ[YoungTableau[rows]] :=
 
 TableauDimension[yt : YoungTableau[rows_List] ? YoungTableauQ] :=
     Module[{n, hooks},
-        n = Total[Length /@ rows];
+        n = TableauSize[yt];
         hooks = Flatten @ Table[
             HookLength[yt, {r, c}],
             {r, Length[rows]},
@@ -105,8 +116,9 @@ TableauDimension[yt : YoungTableau[rows_List] ? YoungTableauQ] :=
         n! / Times @@ hooks
     ]
 
-TableauDimension[rows_List] /; youngTableauQ[YoungTableau[rows]] :=
-    TableauDimension[YoungTableau[rows]]
+TableauDimension::noyt = "TableauDimension accepts only YoungTableau as input, got `1`.";
+
+TableauDimension[expr_] := (Message[TableauDimension::noyt, expr]; $Failed)
 
 
 (* ============================================ *)
@@ -125,7 +137,7 @@ TableauDimension[rows_List] /; youngTableauQ[YoungTableau[rows]] :=
 
 YoungSymmetrize[tensor_ ? ArrayQ, yt : YoungTableau[rows_List] ? YoungTableauQ] :=
     Module[{n, cols, rowSymResult, result},
-        n = Total[Length /@ rows];
+        n = TableauSize[yt];
 
         (* Check tensor rank matches tableau size *)
         If[ArrayDepth[tensor] != n,
@@ -211,7 +223,7 @@ applyIndexPermutation[tensor_, indices_List, perm_List] := Module[{n, fullPerm, 
 
 YoungProject[tensor_ ? ArrayQ, yt : YoungTableau[rows_List] ? YoungTableauQ] :=
     Module[{n, d, symmetrized},
-        n = Total[Length /@ rows];
+        n = TableauSize[yt];
         d = TableauDimension[yt];
         symmetrized = YoungSymmetrize[tensor, yt];
         If[symmetrized === $Failed, Return[$Failed]];
@@ -244,7 +256,7 @@ YoungTableau /: MakeBoxes[yt : YoungTableau[rows_List] /; YoungTableauQ[Unevalua
     With[{
         shape = TableauShape[yt],
         dim = TableauDimension[yt],
-        nBoxes = Total[Length /@ rows]
+        nBoxes = TableauSize[yt]
     },
         BoxForm`ArrangeSummaryBox[
             YoungTableau,
