@@ -10,7 +10,7 @@ EinsteinSummation::usage = "EinsteinSummation[{i\:2081,i\:2082,\[Ellipsis]}\[Rul
 \[Bullet] EinsteinSummation[{i\:2081,i\:2082,\[Ellipsis]}, {A\:2081,A\:2082,\[Ellipsis]}] automatically determines output indices from indices appearing exactly once.
 \[Bullet] EinsteinSummation[\"ij,jk->ik\", {A, B}] uses string notation where commas separate tensor indices and -> specifies output."
 
-TensorJoin::usage = "TensorJoin[{i\:2081,i\:2082,\[Ellipsis]}, {A\:2081,A\:2082,\[Ellipsis]}] joins tensors over shared indices, broadcasting along non-shared dimensions.
+IndexedMultiply::usage = "IndexedMultiply[{i\:2081,i\:2082,\[Ellipsis]}, {A\:2081,A\:2082,\[Ellipsis]}] joins tensors over shared indices, broadcasting along non-shared dimensions.
 \[Bullet] Returns {indices, tensor} where tensor is the joined result padded appropriately."
 
 ActivateTensors::usage = "ActivateTensors[expr] activates Inactive[TensorProduct], Inactive[TensorContract], and Inactive[Transpose] in expr.

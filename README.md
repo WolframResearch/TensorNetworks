@@ -356,11 +356,11 @@ Contracts tensors according to index specification.
 | `EinsteinSummation[{i₁,i₂,…}, {A₁,A₂,…}]` | auto-determines output from indices appearing once |
 | `EinsteinSummation["ij,jk->ik", {A, B}]` | string notation with comma-separated indices |
 
-#### TensorJoin
+#### IndexedMultiply
 
 | Calling Form | Description |
 |:-------------|:------------|
-| `TensorJoin[{i₁,i₂,…}, {A₁,A₂,…}]` | joins tensors over shared indices, broadcasting along non-shared dimensions |
+| `IndexedMultiply[{i₁,i₂,…}, {A₁,A₂,…}]` | joins tensors over shared indices, broadcasting along non-shared dimensions |
 
 Returns `{indices, tensor}` where tensor is the joined result.
 
