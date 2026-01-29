@@ -305,7 +305,7 @@ RandomTensorNetwork[g_ ? GraphQ, maxDimension_Integer : 2, additionalRank_Intege
     ranks, tensors, indices, curIndices, rules, dimensions
 },
     ranks = Table[
-        RandomInteger[{minRank, minRank+ additionalRank}],
+        RandomInteger[{minRank, minRank + additionalRank}],
         {minRank, VertexDegree[g]}
     ];
 	
@@ -317,7 +317,7 @@ RandomTensorNetwork[g_ ? GraphQ, maxDimension_Integer : 2, additionalRank_Intege
             curIndices[[#, i]] = Nothing;
             ret
         ] &,
-        Rule @@@ EdgeList[g],
+        Rule @@@ EdgeList[IndexGraph[g]],
         {2}
     ];
     indices = Replace[indices, rules, {2}];
