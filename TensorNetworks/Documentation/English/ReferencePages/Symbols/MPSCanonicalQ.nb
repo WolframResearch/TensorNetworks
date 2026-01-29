@@ -239,7 +239,7 @@ Cell[BoxData[
  InterpretationBox[GridBox[{
     {
      StyleBox[
-      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"],
      ButtonBox[
       RowBox[{
        RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
@@ -248,6 +248,66 @@ Cell[BoxData[
    }],
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->2121258227,ExpressionUUID->"0bfb6e52-01f1-4fcd-995d-ac25f3beca6d"],
+
+Cell["Check if an MPS is in left-canonical form:", "ExampleText",
+ CellID->850293871,ExpressionUUID->"i6a53d71-1234-4567-89ab-850293871aaa"],
+
+Cell[BoxData[
+ RowBox[{"mps", "=",
+  RowBox[{"RandomTensorNetwork", "[",
+   RowBox[{"\"\<MPS\>\"", "[",
+    RowBox[{"4", ",", "2", ",", "3"}], "]"}], "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->850293872,ExpressionUUID->"i6a53d72-1234-4567-89ab-850293872aaa"],
+
+Cell[BoxData[
+ RowBox[{"leftMPS", "=",
+  RowBox[{"MPSCanonicalForm", "[",
+   RowBox[{"mps", ",", "\"\<Left\>\""}], "]"}]}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->850293873,ExpressionUUID->"i6a53d73-1234-4567-89ab-850293873aaa"],
+
+Cell[BoxData[
+ RowBox[{"MPSCanonicalQ", "[",
+  RowBox[{"leftMPS", ",", "\"\<Left\>\""}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->850293874,ExpressionUUID->"i6a53d74-1234-4567-89ab-850293874aaa"],
+
+Cell["Check for right-canonical form:", "ExampleText",
+ CellID->850293875,ExpressionUUID->"i6a53d75-1234-4567-89ab-850293875aaa"],
+
+Cell[BoxData[
+ RowBox[{"rightMPS", "=",
+  RowBox[{"MPSCanonicalForm", "[",
+   RowBox[{"mps", ",", "\"\<Right\>\""}], "]"}]}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->850293876,ExpressionUUID->"i6a53d76-1234-4567-89ab-850293876aaa"],
+
+Cell[BoxData[
+ RowBox[{"MPSCanonicalQ", "[",
+  RowBox[{"rightMPS", ",", "\"\<Right\>\""}], "]"}]], "Input",
+ CellLabel->"In[5]:=",
+ CellID->850293877,ExpressionUUID->"i6a53d77-1234-4567-89ab-850293877aaa"],
+
+Cell["Check for mixed-canonical form at site 2:", "ExampleText",
+ CellID->850293878,ExpressionUUID->"i6a53d78-1234-4567-89ab-850293878aaa"],
+
+Cell[BoxData[
+ RowBox[{"mixedMPS", "=",
+  RowBox[{"MPSCanonicalForm", "[",
+   RowBox[{"mps", ",",
+    RowBox[{"{",
+     RowBox[{"\"\<Mixed\>\"", ",", "2"}], "}"}]}], "]"}]}]], "Input",
+ CellLabel->"In[6]:=",
+ CellID->850293879,ExpressionUUID->"i6a53d79-1234-4567-89ab-850293879aaa"],
+
+Cell[BoxData[
+ RowBox[{"MPSCanonicalQ", "[",
+  RowBox[{"mixedMPS", ",",
+   RowBox[{"{",
+    RowBox[{"\"\<Mixed\>\"", ",", "2"}], "}"}]}], "]"}]], "Input",
+ CellLabel->"In[7]:=",
+ CellID->850293880,ExpressionUUID->"i6a53d80-1234-4567-89ab-850293880aaa"],
 
 Cell[CellGroupData[{
 

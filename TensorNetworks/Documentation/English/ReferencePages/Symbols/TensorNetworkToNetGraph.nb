@@ -178,7 +178,7 @@ Cell[BoxData[
  InterpretationBox[GridBox[{
     {
      StyleBox[
-      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"],
      ButtonBox[
       RowBox[{
        RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
@@ -187,6 +187,55 @@ Cell[BoxData[
    }],
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->1682921875,ExpressionUUID->"c83f6881-12ea-4131-9b79-407d6ee24f95"],
+
+Cell["Convert a tensor network to a Wolfram Neural NetGraph:", "ExampleText",
+ CellID->798374651,ExpressionUUID->"23456789-0123-4567-abcd-ef1234567912"],
+
+Cell[BoxData[
+ RowBox[{"A", "=",
+  RowBox[{"RandomReal", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+    RowBox[{"{",
+     RowBox[{"3", ",", "4"}], "}"}]}], "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->798374652,ExpressionUUID->"34567890-1234-5678-abcd-ef1234567913"],
+
+Cell[BoxData[
+ RowBox[{"B", "=",
+  RowBox[{"RandomReal", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+    RowBox[{"{",
+     RowBox[{"4", ",", "5"}], "}"}]}], "]"}]}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->798374653,ExpressionUUID->"45678901-2345-6789-abcd-ef1234567914"],
+
+Cell[BoxData[
+ RowBox[{"tn", "=",
+  RowBox[{"TensorNetwork", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{"A", ",", "B"}], "}"}], ",",
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{"i", ",", "j"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}]}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->798374654,ExpressionUUID->"56789012-3456-7890-abcd-ef1234567915"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkToNetGraph", "[",
+  RowBox[{"tn", "[",
+   RowBox[{"\"\<Graph\>\""}], "]"}], "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->798374655,ExpressionUUID->"67890123-4567-8901-abcd-ef1234567916"],
 
 Cell[CellGroupData[{
 

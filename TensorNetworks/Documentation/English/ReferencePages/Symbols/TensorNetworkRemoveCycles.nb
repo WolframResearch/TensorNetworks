@@ -191,6 +191,44 @@ Cell[BoxData[
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->1509633488,ExpressionUUID->"e6a39298-17a1-45cf-ac7f-82f790039893"],
 
+Cell["Break cycles in a tensor network by inserting identity tensors:", "ExampleText",
+ CellID->730001001,ExpressionUUID->"730001001-rmcyc-text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",",
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"3", ",", "2"}], "}"}]}], "]"}]}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{"i", ",", "j"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"j", ",", "i"}], "}"}]}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->730001002,ExpressionUUID->"730001002-rmcyc-input1"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkRemoveCycles", "[", "tn", "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->730001003,ExpressionUUID->"730001003-rmcyc-input2"],
+
 Cell[CellGroupData[{
 
 Cell[TextData[{

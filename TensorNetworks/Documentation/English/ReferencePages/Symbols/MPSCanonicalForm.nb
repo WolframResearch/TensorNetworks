@@ -239,7 +239,7 @@ Cell[BoxData[
  InterpretationBox[GridBox[{
     {
      StyleBox[
-      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"],
      ButtonBox[
       RowBox[{
        RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
@@ -248,6 +248,51 @@ Cell[BoxData[
    }],
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->576210817,ExpressionUUID->"52daa824-8541-46dc-82e3-c1fd5e36c40e"],
+
+Cell["Transform an MPS to left-canonical form (default):", "ExampleText",
+ CellID->450293871,ExpressionUUID->"e6a53d71-1234-4567-89ab-450293871aaa"],
+
+Cell[BoxData[
+ RowBox[{"mps", "=",
+  RowBox[{"RandomTensorNetwork", "[",
+   RowBox[{"\"\<MPS\>\"", "[",
+    RowBox[{"4", ",", "2", ",", "3"}], "]"}], "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->450293872,ExpressionUUID->"e6a53d72-1234-4567-89ab-450293872aaa"],
+
+Cell[BoxData[
+ RowBox[{"MPSCanonicalForm", "[", "mps", "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->450293873,ExpressionUUID->"e6a53d73-1234-4567-89ab-450293873aaa"],
+
+Cell["Explicitly specify left-canonical form:", "ExampleText",
+ CellID->450293874,ExpressionUUID->"e6a53d74-1234-4567-89ab-450293874aaa"],
+
+Cell[BoxData[
+ RowBox[{"MPSCanonicalForm", "[",
+  RowBox[{"mps", ",", "\"\<Left\>\""}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->450293875,ExpressionUUID->"e6a53d75-1234-4567-89ab-450293875aaa"],
+
+Cell["Transform to right-canonical form:", "ExampleText",
+ CellID->450293876,ExpressionUUID->"e6a53d76-1234-4567-89ab-450293876aaa"],
+
+Cell[BoxData[
+ RowBox[{"MPSCanonicalForm", "[",
+  RowBox[{"mps", ",", "\"\<Right\>\""}], "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->450293877,ExpressionUUID->"e6a53d77-1234-4567-89ab-450293877aaa"],
+
+Cell["Create mixed-canonical form centered at site 2:", "ExampleText",
+ CellID->450293878,ExpressionUUID->"e6a53d78-1234-4567-89ab-450293878aaa"],
+
+Cell[BoxData[
+ RowBox[{"MPSCanonicalForm", "[",
+  RowBox[{"mps", ",",
+   RowBox[{"{",
+    RowBox[{"\"\<Mixed\>\"", ",", "2"}], "}"}]}], "]"}]], "Input",
+ CellLabel->"In[5]:=",
+ CellID->450293879,ExpressionUUID->"e6a53d79-1234-4567-89ab-450293879aaa"],
 
 Cell[CellGroupData[{
 
@@ -296,12 +341,34 @@ Cell[BoxData[
   $Line = 0; Null]], "ExampleSubsection",
  CellID->1801156775,ExpressionUUID->"301ae080-ca9a-47fd-91e3-52d29c344107"],
 
+Cell["Limit the maximum bond dimension during canonicalization:", "ExampleText",
+ CellID->450293880,ExpressionUUID->"e6a53d80-1234-4567-89ab-450293880aaa"],
+
+Cell[BoxData[
+ RowBox[{"MPSCanonicalForm", "[",
+  RowBox[{"mps", ",", "\"\<Left\>\"", ",",
+   RowBox[{"\"\<MaxBond\>\"", "->", "2"}]}], "]"}]], "Input",
+ CellLabel->"In[6]:=",
+ CellID->450293881,ExpressionUUID->"e6a53d81-1234-4567-89ab-450293881aaa"],
+
 Cell[BoxData[
  InterpretationBox[Cell[
   "\"Tolerance\"", "ExampleSubsection",ExpressionUUID->
    "83d7bc54-e6c7-4f1c-89f9-efc225fc0775"],
   $Line = 0; Null]], "ExampleSubsection",
- CellID->1112429313,ExpressionUUID->"13265efd-76f3-46e8-9f99-b231872b1e51"]
+ CellID->1112429313,ExpressionUUID->"13265efd-76f3-46e8-9f99-b231872b1e51"],
+
+Cell["Specify tolerance for truncation:", "ExampleText",
+ CellID->450293882,ExpressionUUID->"e6a53d82-1234-4567-89ab-450293882aaa"],
+
+Cell[BoxData[
+ RowBox[{"MPSCanonicalForm", "[",
+  RowBox[{"mps", ",", "\"\<Left\>\"", ",",
+   RowBox[{"\"\<Tolerance\>\"", "->",
+    RowBox[{"10", "^",
+     RowBox[{"-", "6"}]}]}]}], "]"}]], "Input",
+ CellLabel->"In[7]:=",
+ CellID->450293883,ExpressionUUID->"e6a53d83-1234-4567-89ab-450293883aaa"]
 }, Open  ]],
 
 Cell[BoxData[

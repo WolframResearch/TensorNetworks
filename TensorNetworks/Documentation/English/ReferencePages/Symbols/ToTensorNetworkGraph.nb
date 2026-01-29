@@ -780,6 +780,54 @@ Cell[BoxData[
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->287182455,ExpressionUUID->"36327361-6126-4765-a92e-e6d9c7adcb35"],
 
+Cell["Convert a TensorNetwork object to a graph representation:", "ExampleText",
+ CellID->700001001,ExpressionUUID->"700001001-tograph-text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",",
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"3", ",", "4"}], "}"}]}], "]"}]}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{"i", ",", "j"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->700001002,ExpressionUUID->"700001002-tograph-input1"],
+
+Cell[BoxData[
+ RowBox[{"ToTensorNetworkGraph", "[", "tn", "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->700001003,ExpressionUUID->"700001003-tograph-input2"],
+
+Cell["Use symbolic tensor representations:", "ExampleText",
+ CellID->700001004,ExpressionUUID->"700001004-tograph-text2"],
+
+Cell[BoxData[
+ RowBox[{"ToTensorNetworkGraph", "[",
+  RowBox[{"tn", ",",
+   RowBox[{"Method", "->", "\"\<Symbolic\>\""}]}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->700001005,ExpressionUUID->"700001005-tograph-input3"],
+
 Cell[CellGroupData[{
 
 Cell[TextData[{

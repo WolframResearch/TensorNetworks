@@ -196,7 +196,7 @@ Cell[BoxData[
  InterpretationBox[GridBox[{
     {
      StyleBox[
-      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"],
      ButtonBox[
       RowBox[{
        RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
@@ -205,6 +205,24 @@ Cell[BoxData[
    }],
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->32880397,ExpressionUUID->"aba4245d-29c8-44d7-a96a-270990e60b28"],
+
+Cell["Truncate an MPS to a maximum bond dimension:", "ExampleText",
+ CellID->450293871,ExpressionUUID->"n6a53d71-1234-4567-89ab-450293871aaa"],
+
+Cell[BoxData[
+ RowBox[{"mps", "=",
+  RowBox[{"RandomTensorNetwork", "[",
+   RowBox[{"\"\<MPS\>\"", "[",
+    RowBox[{"6", ",", "2", ",", "8"}], "]"}], "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->450293872,ExpressionUUID->"n6a53d72-1234-4567-89ab-450293872aaa"],
+
+Cell[BoxData[
+ RowBox[{"truncatedMPS", "=",
+  RowBox[{"MPSTruncate", "[",
+   RowBox[{"mps", ",", "4"}], "]"}]}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->450293873,ExpressionUUID->"n6a53d73-1234-4567-89ab-450293873aaa"],
 
 Cell[CellGroupData[{
 
@@ -251,7 +269,17 @@ Cell[BoxData[
   "\"Normalize\"", "ExampleSubsection",ExpressionUUID->
    "654a421c-95ed-41e8-acb1-f41534201340"],
   $Line = 0; Null]], "ExampleSubsection",
- CellID->253768529,ExpressionUUID->"d74f1e46-4cbb-42fc-b7ce-9acfebe30364"]
+ CellID->253768529,ExpressionUUID->"d74f1e46-4cbb-42fc-b7ce-9acfebe30364"],
+
+Cell["Disable normalization after truncation:", "ExampleText",
+ CellID->450293874,ExpressionUUID->"n6a53d74-1234-4567-89ab-450293874aaa"],
+
+Cell[BoxData[
+ RowBox[{"MPSTruncate", "[",
+  RowBox[{"mps", ",", "4", ",",
+   RowBox[{"\"\<Normalize\>\"", "->", "False"}]}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->450293875,ExpressionUUID->"n6a53d75-1234-4567-89ab-450293875aaa"]
 }, Open  ]],
 
 Cell[BoxData[

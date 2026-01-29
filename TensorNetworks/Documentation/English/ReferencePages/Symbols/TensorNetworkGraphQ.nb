@@ -206,6 +206,60 @@ Cell[BoxData[
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->1015461638,ExpressionUUID->"9f2e3041-ccaa-4a11-9201-1e3b3933398e"],
 
+Cell["Check if a tensor network graph is valid:", "ExampleText",
+ CellID->660001001,ExpressionUUID->"660001001-graphq-text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",",
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"3", ",", "4"}], "}"}]}], "]"}]}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{"i", ",", "j"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->660001002,ExpressionUUID->"660001002-graphq-input1"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"g", "=",
+   RowBox[{"ToTensorNetworkGraph", "[", "tn", "]"}]}], ";"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->660001003,ExpressionUUID->"660001003-graphq-input2"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkGraphQ", "[", "g", "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->660001004,ExpressionUUID->"660001004-graphq-input3"],
+
+Cell["Use True as second argument to get diagnostic messages:", "ExampleText",
+ CellID->660001005,ExpressionUUID->"660001005-graphq-text2"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkGraphQ", "[",
+  RowBox[{"g", ",", "True"}], "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->660001006,ExpressionUUID->"660001006-graphq-input4"],
+
 Cell[CellGroupData[{
 
 Cell[TextData[{

@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     17957,        499]
-NotebookOptionsPosition[     12101,        373]
-NotebookOutlinePosition[     12882,        399]
-CellTagsIndexPosition[     12803,        394]
+NotebookDataLength[     72016,       1814]
+NotebookOptionsPosition[     64453,       1654]
+NotebookOutlinePosition[     65237,       1680]
+CellTagsIndexPosition[     65157,       1675]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -77,9 +77,11 @@ Cell[TextData[{
    " \[FilledVerySmallSquare] ", "InlineSeparator"]],ExpressionUUID->
     "0e0bfd73-60c1-4005-9fba-f4d2219f5fb0"], 
    DynamicModuleBox[{$CellContext`nbobj$$ = NotebookObject[
-     FrontEndObject[
-      LinkObject["i7bzb_shm", 209, 9]], 22], $CellContext`cellobj$$ = 
-    CellObject[6753]}, 
+    "c7919a0a-af32-48f2-aa53-111e9252a5ab", 
+     "7b27016f-3be5-4345-a805-aeae6633cb57"], $CellContext`cellobj$$ = 
+    CellObject[
+    "6ba7f6a8-9e91-42e9-8c57-8fe0bde6cc38", 
+     "32d9fe65-6745-430c-9341-8c53e7d4a6b3"]}, 
     TemplateBox[{
       GraphicsBox[{{
          Thickness[0.06], 
@@ -181,6 +183,8 @@ Cell[BoxData[
  CellID->357704964,ExpressionUUID->"13cf9921-9d88-4f2a-b7db-c107dd03afd3"]
 }, Open  ]],
 
+Cell[CellGroupData[{
+
 Cell[BoxData[
  InterpretationBox[GridBox[{
     {
@@ -194,6 +198,1283 @@ Cell[BoxData[
    }],
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->1140601995,ExpressionUUID->"c4eeda35-7b9d-4cc5-b8f7-be80d7cafdc5"],
+
+Cell["Create tensors:", "ExampleText",
+ CellChangeTimes->{{3.978654877839095*^9, 3.978654880690455*^9}},
+ CellID->570001001,ExpressionUUID->"f0fced2c-f7b4-4d9c-ad17-a1bf764bb501"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tensors", "=", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"RandomReal", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", "#"}], "]"}], "&"}], "/@", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"2", ",", "2", ",", "2"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"2", ",", "2", ",", "2"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"2", ",", "2", ",", "2"}], "}"}]}], "}"}]}]}], ";"}]], "Input",\
+
+ CellChangeTimes->{{3.978654767962318*^9, 3.978654790697195*^9}, {
+  3.978654847734124*^9, 3.978654847896586*^9}},
+ CellLabel->"In[153]:=",
+ CellID->1017844759,ExpressionUUID->"5e86d217-5694-4d0e-b929-46cfc7609ed9"],
+
+Cell["\<\
+Create a tensor network with the second index shared by three tensors:\
+\>", "ExampleText",
+ CellChangeTimes->{{3.978654883297071*^9, 3.9786549057188377`*^9}},
+ CellID->164740080,ExpressionUUID->"02cef0fc-4647-4e38-93fa-28fc06668148"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{"tensors", ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i1", ",", "i2", ",", "i3"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"i2", ",", "i4", ",", "i5"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"i2", ",", "i3", ",", "i6"}], "}"}]}], "}"}]}], "]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.978654794831191*^9, 3.9786548532713823`*^9}},
+ CellLabel->"In[154]:=",
+ CellID->570001002,ExpressionUUID->"34b2898b-0816-4be8-9782-86950a276ec2"],
+
+Cell["Show the hypergraph", "ExampleText",
+ CellChangeTimes->{{3.9786549079798107`*^9, 3.978654910975885*^9}},
+ CellID->1830503518,ExpressionUUID->"d935ce3a-aab3-4dc6-80eb-f2530bb7a8f1"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"tn", "[", "\"\<Hypergraph\>\"", "]"}]], "Input",
+ CellChangeTimes->{{3.9786547389523773`*^9, 3.978654745526929*^9}},
+ CellLabel->"In[155]:=",
+ CellID->1444778397,ExpressionUUID->"ae8acd65-da43-4e2a-a0e4-7d249c8da9fe"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["Hypergraph",
+   DynamicModuleBox[{Typeset`hg = HoldComplete[
+     WolframInstitute`Hypergraph`Hypergraph[{$CellContext`i1, \
+$CellContext`i2, $CellContext`i3, $CellContext`i4, $CellContext`i5, \
+$CellContext`i6}, 
+      WolframInstitute`Hypergraph`Hyperedges[{$CellContext`i1, \
+$CellContext`i2, $CellContext`i3}, {$CellContext`i2, $CellContext`i4, \
+$CellContext`i5}, {$CellContext`i2, $CellContext`i3, $CellContext`i6}], 
+      VertexLabels -> {All -> Automatic}, 
+      EdgeLabels -> {{$CellContext`i1, $CellContext`i2, $CellContext`i3} -> 
+        1, {$CellContext`i2, $CellContext`i4, $CellContext`i5} -> 
+        2, {$CellContext`i2, $CellContext`i3, $CellContext`i6} -> 3}]]}, 
+    {AbsoluteThickness[Medium], Opacity[0.5], Arrowheads[{{Medium, 0.5}}], {
+      {LightDarkSwitched[
+        Opacity[0.1, 
+         Hue[0.63, 0.66, 0.81]], 
+        GrayLevel[1]], 
+       FilledCurveBox[{
+        BSplineCurve[{{0.20085864726350555`, 0.9379617357583155}, {
+          0.5511442310225351, 1.0591628355625016`}, {1.1218875071905785`, 
+          0.9366090853882774}}], 
+         BSplineCurve[{{1.1218875071905785`, 0.9366090853882774}, {
+          0.5009295692066587, 1.2418098917500546`}, {0., 
+          1.6685499605085272`}}], 
+         BSplineCurve[{{0., 1.6685499605085272`}, {0.27067235422489044`, 
+          1.242148054342564}, {0.20085864726350555`, 
+          0.9379617357583155}}]}], 
+       {Opacity[1], InsetBox[
+         StyleBox["1",
+          StripOnInput->False,
+          LineColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FrontFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          BackFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          GraphicsColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FontColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]]], {0.441082628151776, 1.181369686459281}]}}, 
+      {LightDarkSwitched[
+        Opacity[0.1, 
+         Hue[0.63, 0.66, 0.81]], 
+        GrayLevel[1]], 
+       FilledCurveBox[{
+        BSplineCurve[{{1.1218875071905785`, 0.9366090853882774}, {
+          1.8978491424438926`, 1.0132455501809141`}, {2.5597495851351266`, 
+          0.9377232644090501}}], 
+         BSplineCurve[{{2.5597495851351266`, 0.9377232644090501}, {
+          2.163127796608521, 1.1275038854818864`}, {2.183002123849092, 
+          1.3936424265921663`}}], 
+         BSplineCurve[{{2.183002123849092, 1.3936424265921663`}, {
+          1.8036622771223838`, 1.1272253407266932`}, {1.1218875071905785`, 
+          0.9366090853882774}}]}], 
+       {Opacity[1], InsetBox[
+         StyleBox["2",
+          StripOnInput->False,
+          LineColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FrontFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          BackFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          GraphicsColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FontColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]]], {1.9545046160109631, 1.0890129006975677}]}}, 
+      {LightDarkSwitched[
+        Opacity[0.1, 
+         Hue[0.63, 0.66, 0.81]], 
+        GrayLevel[1]], 
+       FilledCurveBox[{
+        BSplineCurve[{{0.5797555074494727, 0.}, {0.7424943639772723, 
+          0.5465807415381682}, {1.1218875071905785`, 0.9366090853882774}}], 
+         BSplineCurve[{{1.1218875071905785`, 0.9366090853882774}, {
+          0.6477701489307806, 0.7810711754777471}, {0.20085864726350555`, 
+          0.9379617357583155}}], 
+         BSplineCurve[{{0.20085864726350555`, 0.9379617357583155}, {
+          0.512237148995504, 0.5469189041306777}, {0.5797555074494727, 
+          0.}}]}], 
+       {Opacity[1], InsetBox[
+         StyleBox["3",
+          StripOnInput->False,
+          LineColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FrontFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          BackFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          GraphicsColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FontColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]]], {0.6341503113433844, 0.6245993125797307}]}}}, 
+     {Opacity[1], {
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{0., 1.6685499605085272`}, Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{1.1218875071905785`, 0.9366090853882774}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{0.20085864726350555`, 0.9379617357583155}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{2.5597495851351266`, 0.9377232644090501}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{2.183002123849092, 1.3936424265921663`}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{0.5797555074494727, 0.}, Offset[{2., 2.}, {0., 0.}]]}}, {
+       InsetBox[
+        StyleBox["i1",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {0., 1.6685499605085272}, 
+        ImageScaled[{1.0912200143778317, -0.306510318966271}]], InsetBox[
+        StyleBox["i2",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {1.1218875071905785, 0.9366090853882774}, 
+        ImageScaled[{-0.49999892156509584, 0.5014686281506974}]], InsetBox[
+        StyleBox["i3",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {0.20085864726350555, 0.9379617357583155}, 
+        ImageScaled[{1.499998921565096, 0.49853137184930496}]], InsetBox[
+        StyleBox["i4",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {2.5597495851351266, 0.9377232644090501}, 
+        ImageScaled[{-0.4999647660887573, 0.5083944375068719}]], InsetBox[
+        StyleBox["i5",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {2.183002123849092, 1.3936424265921663}, 
+        ImageScaled[{-0.13373388823132315, -0.27355113528919905}]], InsetBox[
+        StyleBox["i6",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {0.5797555074494727, 0.}, 
+        ImageScaled[{0.17674804621571877, 1.446312936810358}]]}}}]],
+  BoxID -> "Hypergraph31",
+  Background->LightDarkSwitched[
+    GrayLevel[1], None],
+  BaseStyle->{
+   GraphicsHighlightColor -> RGBColor[1, 0, 0], 
+    ComponentwiseContextMenu -> {"GraphicsBox" -> {
+        MenuItem["Draw", 
+         KernelExecute[
+          MathLink`CallFrontEnd[
+           FrontEnd`BoxReferenceReplace[
+            FE`BoxReference[
+             EvaluationNotebook[], "Hypergraph31"], 
+            ToBoxes[
+             WolframInstitute`Hypergraph`HypergraphDraw[
+              
+              WolframInstitute`Hypergraph`Hypergraph[{$CellContext`i1, \
+$CellContext`i2, $CellContext`i3, $CellContext`i4, $CellContext`i5, \
+$CellContext`i6}, 
+               
+               WolframInstitute`Hypergraph`Hyperedges[{$CellContext`i1, \
+$CellContext`i2, $CellContext`i3}, {$CellContext`i2, $CellContext`i4, \
+$CellContext`i5}, {$CellContext`i2, $CellContext`i3, $CellContext`i6}], 
+               VertexLabels -> {All -> Automatic}, 
+               EdgeLabels -> {{$CellContext`i1, $CellContext`i2, \
+$CellContext`i3} -> 1, {$CellContext`i2, $CellContext`i4, $CellContext`i5} -> 
+                 2, {$CellContext`i2, $CellContext`i3, $CellContext`i6} -> 
+                 3}]]]]]], MenuEvaluator -> Automatic]}}},
+  FormatType->TraditionalForm,
+  FrameTicks->None]], "Output",
+ CellChangeTimes->{
+  3.978654746155116*^9, {3.978654842722423*^9, 3.978654867002408*^9}},
+ CellLabel->"Out[155]=",
+ CellID->558106950,ExpressionUUID->"dc8ea030-5ec8-4efa-90ec-33ac2eb4041d"]
+}, Open  ]],
+
+Cell["\<\
+Convert the tensor network to binary form with pairwise contractions\
+\>", "ExampleText",
+ CellChangeTimes->{{3.978654913376992*^9, 3.9786549184640102`*^9}},
+ CellID->1994406366,ExpressionUUID->"9b4df41d-ec65-414c-9a32-78ecdc8a4500"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"BinaryTensorNetwork", "[", "tn", "]"}]], "Input",
+ CellLabel->"In[156]:=",
+ CellID->570001003,ExpressionUUID->"a61ac807-6e09-46c3-a2a5-c0e2bb500cf8"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{
+   TagBox["TensorNetwork",
+    "SummaryHead"], "[", 
+   DynamicModuleBox[{Typeset`open$$ = False, Typeset`embedState$$ = "Ready"}, 
+    
+    TemplateBox[{
+      PaneSelectorBox[{False -> GridBox[{{
+            PaneBox[
+             ButtonBox[
+              DynamicBox[
+               FEPrivate`FrontEndResource["FEBitmaps", "SummaryBoxOpener"]], 
+              ButtonFunction :> (Typeset`open$$ = True), Appearance -> None, 
+              BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+              "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+             Dynamic[{
+               Automatic, 
+                3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                 Magnification])}]], 
+            GraphicsBox[{
+              Opacity[0.5], 
+              Arrowheads[{{Medium, 0.5}}], 
+              AbsoluteThickness[Medium], {{
+                LightDarkSwitched[
+                 Opacity[0.1, 
+                  Hue[0.63, 0.66, 0.81]], 
+                 GrayLevel[1]], {
+                 FilledCurveBox[{
+                   
+                   BSplineCurve[{{0.003979793838407408, 0.5626159610456323}, {
+                    0.5501977086330763, 1.0721953361314813`}, {
+                    1.1806961250299148`, 1.2099099167009912`}}], 
+                   
+                   BSplineCurve[{{1.1806961250299148`, 1.2099099167009912`}, {
+                    0.6340768738303874, 1.4320056764756557`}, {
+                    0.33949645462765177`, 2.00185732242233}}], 
+                   
+                   BSplineCurve[{{0.33949645462765177`, 2.00185732242233}, {
+                    0.3398977910325105, 1.270182187561816}, {
+                    0.003979793838407408, 0.5626159610456323}}]}], 
+                 Opacity[1], {}}}, {
+                LightDarkSwitched[
+                 Opacity[0.1, 
+                  Hue[0.63, 0.66, 0.81]], 
+                 GrayLevel[1]], {
+                 FilledCurveBox[{
+                   
+                   BSplineCurve[{{3.6585787139711927`, 1.239232684786228}, {
+                    3.4879338339507466`, 2.0021984510946083`}, {
+                    3.6582698357335097`, 2.7645791301288978`}}], 
+                   
+                   BSplineCurve[{{3.6582698357335097`, 2.7645791301288978`}, {
+                    3.2321595628186293`, 2.1933055722180095`}, {
+                    2.6354816294427237`, 2.003661169279834}}], 
+                   
+                   BSplineCurve[{{2.6354816294427237`, 2.003661169279834}, {
+                    3.23223678237805, 1.8119689608823422`}, {
+                    3.6585787139711927`, 1.239232684786228}}]}], 
+                 Opacity[1], {}}}, {
+                LightDarkSwitched[
+                 Opacity[0.1, 
+                  Hue[0.63, 0.66, 0.81]], 
+                 GrayLevel[1]], {
+                 FilledCurveBox[{
+                   
+                   BSplineCurve[{{0.33949645462765177`, 2.00185732242233}, {
+                    0.6327662720259285, 2.571611931113523}, {
+                    1.1791425982345767`, 2.796001235566132}}], 
+                   
+                   BSplineCurve[{{1.1791425982345767`, 2.796001235566132}, {
+                    0.5478921583690155, 2.9299038984354366`}, {0., 
+                    3.435025191709984}}], 
+                   
+                   BSplineCurve[{{0., 3.435025191709984}, {
+                    0.33798062246728433`, 2.731367920149486}, {
+                    0.33949645462765177`, 2.00185732242233}}]}], 
+                 Opacity[1], {}}}, {
+                LightDarkSwitched[
+                 Opacity[0.1, 
+                  Hue[0.63, 0.66, 0.81]], 
+                 GrayLevel[1]], {
+                 FilledCurveBox[{
+                   
+                   BSplineCurve[{{1.1806961250299148`, 1.2099099167009912`}, {
+                    1.786597830736029, 1.8049881584196992`}, {
+                    2.6354816294427237`, 2.003661169279834}}], 
+                   
+                   BSplineCurve[{{2.6354816294427237`, 2.003661169279834}, {
+                    1.7862094490371945`, 2.2015109881359844`}, {
+                    1.1791425982345767`, 2.796001235566132}}], 
+                   
+                   BSplineCurve[{{1.1791425982345767`, 2.796001235566132}, {
+                    1.4225130729339923`, 2.0030731749912736`}, {
+                    1.1806961250299148`, 1.2099099167009912`}}]}], 
+                 Opacity[1], {}}}}, 
+              Opacity[1], {{
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{0.003979793838407408, 0.5626159610456323}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{1.1806961250299148`, 1.2099099167009912`}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{0.33949645462765177`, 2.00185732242233}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{2.6354816294427237`, 2.003661169279834}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{3.6582698357335097`, 2.7645791301288978`}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{3.6585787139711927`, 1.239232684786228}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{1.1791425982345767`, 2.796001235566132}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{0., 3.435025191709984}, 
+                 Offset[{2., 2.}]]}}, {}}, {
+             AspectRatio -> 1, Background -> LightDarkSwitched[
+                GrayLevel[1], None], FormatType -> TraditionalForm, 
+              FrameTicks -> None, ImageSize -> 32}], 
+            GridBox[{{
+               RowBox[{
+                 TagBox["\"Tensors: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox["4", "SummaryItem"]}], 
+               RowBox[{
+                 TagBox["\"Binary: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox["\"Yes\"", "SummaryItem"]}]}, {
+               RowBox[{
+                 TagBox["\"Free indices: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox["4", "SummaryItem"]}], 
+               RowBox[{
+                 TagBox["\"Sparse: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox["\"No\"", "SummaryItem"]}]}, {
+               RowBox[{
+                 TagBox["\"Output dimension: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox["16", "SummaryItem"]}], ""}}, 
+             GridBoxAlignment -> {
+              "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+             False, GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             GridBoxSpacings -> {"Columns" -> {{2}}, "Rows" -> {{Automatic}}},
+              BaseStyle -> {
+              ShowStringCharacters -> False, NumberMarks -> False, 
+               PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+          GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+          AutoDelete -> False, 
+          GridBoxItemSize -> {
+           "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+          BaselinePosition -> {1, 1}], True -> GridBox[{{
+            PaneBox[
+             ButtonBox[
+              DynamicBox[
+               FEPrivate`FrontEndResource["FEBitmaps", "SummaryBoxCloser"]], 
+              ButtonFunction :> (Typeset`open$$ = False), Appearance -> None, 
+              BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+              "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+             Dynamic[{
+               Automatic, 
+                3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                 Magnification])}]], 
+            GraphicsBox[{
+              Opacity[0.5], 
+              Arrowheads[{{Medium, 0.5}}], 
+              AbsoluteThickness[Medium], {{
+                LightDarkSwitched[
+                 Opacity[0.1, 
+                  Hue[0.63, 0.66, 0.81]], 
+                 GrayLevel[1]], {
+                 FilledCurveBox[{
+                   
+                   BSplineCurve[{{0.003979793838407408, 0.5626159610456323}, {
+                    0.5501977086330763, 1.0721953361314813`}, {
+                    1.1806961250299148`, 1.2099099167009912`}}], 
+                   
+                   BSplineCurve[{{1.1806961250299148`, 1.2099099167009912`}, {
+                    0.6340768738303874, 1.4320056764756557`}, {
+                    0.33949645462765177`, 2.00185732242233}}], 
+                   
+                   BSplineCurve[{{0.33949645462765177`, 2.00185732242233}, {
+                    0.3398977910325105, 1.270182187561816}, {
+                    0.003979793838407408, 0.5626159610456323}}]}], 
+                 Opacity[1], {}}}, {
+                LightDarkSwitched[
+                 Opacity[0.1, 
+                  Hue[0.63, 0.66, 0.81]], 
+                 GrayLevel[1]], {
+                 FilledCurveBox[{
+                   
+                   BSplineCurve[{{3.6585787139711927`, 1.239232684786228}, {
+                    3.4879338339507466`, 2.0021984510946083`}, {
+                    3.6582698357335097`, 2.7645791301288978`}}], 
+                   
+                   BSplineCurve[{{3.6582698357335097`, 2.7645791301288978`}, {
+                    3.2321595628186293`, 2.1933055722180095`}, {
+                    2.6354816294427237`, 2.003661169279834}}], 
+                   
+                   BSplineCurve[{{2.6354816294427237`, 2.003661169279834}, {
+                    3.23223678237805, 1.8119689608823422`}, {
+                    3.6585787139711927`, 1.239232684786228}}]}], 
+                 Opacity[1], {}}}, {
+                LightDarkSwitched[
+                 Opacity[0.1, 
+                  Hue[0.63, 0.66, 0.81]], 
+                 GrayLevel[1]], {
+                 FilledCurveBox[{
+                   
+                   BSplineCurve[{{0.33949645462765177`, 2.00185732242233}, {
+                    0.6327662720259285, 2.571611931113523}, {
+                    1.1791425982345767`, 2.796001235566132}}], 
+                   
+                   BSplineCurve[{{1.1791425982345767`, 2.796001235566132}, {
+                    0.5478921583690155, 2.9299038984354366`}, {0., 
+                    3.435025191709984}}], 
+                   
+                   BSplineCurve[{{0., 3.435025191709984}, {
+                    0.33798062246728433`, 2.731367920149486}, {
+                    0.33949645462765177`, 2.00185732242233}}]}], 
+                 Opacity[1], {}}}, {
+                LightDarkSwitched[
+                 Opacity[0.1, 
+                  Hue[0.63, 0.66, 0.81]], 
+                 GrayLevel[1]], {
+                 FilledCurveBox[{
+                   
+                   BSplineCurve[{{1.1806961250299148`, 1.2099099167009912`}, {
+                    1.786597830736029, 1.8049881584196992`}, {
+                    2.6354816294427237`, 2.003661169279834}}], 
+                   BSplineCurve[{{2.6354816294427237`, 2.003661169279834}, {
+                    1.7862094490371945`, 2.2015109881359844`}, {
+                    1.1791425982345767`, 2.796001235566132}}], 
+                   
+                   BSplineCurve[{{1.1791425982345767`, 2.796001235566132}, {
+                    1.4225130729339923`, 2.0030731749912736`}, {
+                    1.1806961250299148`, 1.2099099167009912`}}]}], 
+                 Opacity[1], {}}}}, 
+              Opacity[1], {{
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{0.003979793838407408, 0.5626159610456323}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{1.1806961250299148`, 1.2099099167009912`}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{0.33949645462765177`, 2.00185732242233}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{2.6354816294427237`, 2.003661169279834}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{3.6582698357335097`, 2.7645791301288978`}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{3.6585787139711927`, 1.239232684786228}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{1.1791425982345767`, 2.796001235566132}, 
+                 Offset[{2., 2.}]]}, {
+                Directive[
+                 LightDarkSwitched[
+                  Hue[0.63, 0.26, 0.89], 
+                  GrayLevel[1]], 
+                 EdgeForm[
+                  LightDarkSwitched[
+                   Opacity[0.95, 
+                    Hue[0.63, 0.7, 0.33]], 
+                   GrayLevel[1]]]], 
+                DiskBox[{0., 3.435025191709984}, 
+                 Offset[{2., 2.}]]}}, {}}, {
+             AspectRatio -> 1, Background -> LightDarkSwitched[
+                GrayLevel[1], None], FormatType -> TraditionalForm, 
+              FrameTicks -> None, ImageSize -> 32}], 
+            GridBox[{{
+               RowBox[{
+                 TagBox["\"Tensors: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox["4", "SummaryItem"]}], 
+               RowBox[{
+                 TagBox["\"Binary: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox["\"Yes\"", "SummaryItem"]}]}, {
+               RowBox[{
+                 TagBox["\"Free indices: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox["4", "SummaryItem"]}], 
+               RowBox[{
+                 TagBox["\"Sparse: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox["\"No\"", "SummaryItem"]}]}, {
+               RowBox[{
+                 TagBox["\"Output dimension: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox["16", "SummaryItem"]}], ""}, {
+               RowBox[{
+                 TagBox["\"Output dimensions: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox[
+                  RowBox[{"{", 
+                    RowBox[{"2", ",", "2", ",", "2", ",", "2"}], "}"}], 
+                  "SummaryItem"]}], ""}, {
+               RowBox[{
+                 TagBox["\"Tensor dimensions: \"", "SummaryItemAnnotation"], 
+                 "\[InvisibleSpace]", 
+                 TagBox[
+                  PaneBox[
+                   RowBox[{"{", 
+                    RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{"2", ",", "2", ",", "2"}], "}"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"2", ",", "2", ",", "2"}], "}"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"2", ",", "2", ",", "2"}], "}"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"2", ",", "2", ",", "2"}], "}"}]}], "}"}], 
+                   ImageSize -> 256], "SummaryItem"]}], ""}}, 
+             GridBoxAlignment -> {
+              "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+             False, GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             GridBoxSpacings -> {"Columns" -> {{2}}, "Rows" -> {{Automatic}}},
+              BaseStyle -> {
+              ShowStringCharacters -> False, NumberMarks -> False, 
+               PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+          GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+          AutoDelete -> False, 
+          GridBoxItemSize -> {
+           "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+          BaselinePosition -> {1, 1}]}, 
+       Dynamic[Typeset`open$$], ImageSize -> Automatic]},
+     "SummaryPanel"],
+    DynamicModuleValues:>{}], "]"}],
+  Wolfram`TensorNetworks`TensorNetwork[{{{{-0.8718044046271034, \
+-0.8807567210199898}, {-0.9662184251546608, -0.1477581331267026}}, {{
+    0.4242341563484082, 0.07716575849071461}, {
+    0.3656869303569068, -0.7057999234971923}}}, {{{
+    0.9591743148497898, -0.41281467525601867`}, {-0.9316106640902491, \
+-0.07557618949925615}}, {{0.6032760532779613, -0.18469498050801247`}, {
+    0.22849193037293514`, 
+    0.9720062714398914}}}, {{{-0.7168399182502396, -0.7135723456974103}, \
+{-0.5348925321423534, 0.8480917913909192}}, {{0.35218823779417896`, 
+    0.8881192631411787}, {0.46702256090246363`, 0.1906637203836654}}}, 
+    SymbolicDeltaProductArray[{2, 2, 2}, {{1, 2, 3}}]}, {{$CellContext`i1, 
+     1 -> $CellContext`i2, $CellContext`i3}, {
+    2 -> $CellContext`i2, $CellContext`i4, $CellContext`i5}, {
+    3 -> $CellContext`i2, $CellContext`i3, $CellContext`i6}, {
+    1 -> $CellContext`i2, 2 -> $CellContext`i2, 3 -> $CellContext`i2}}, 
+   Automatic],
+  Editable->False,
+  SelectWithContents->True,
+  Selectable->False]], "Output",
+ CellChangeTimes->{3.978654920650012*^9},
+ CellLabel->"Out[156]=",
+ CellID->2093716884,ExpressionUUID->"04c9c8f5-dac5-43cb-a2d6-83ae610dad83"]
+}, Open  ]],
+
+Cell["\<\
+Show hypergraph, where all indices are only shared by two tensors:\
+\>", "ExampleText",
+ CellChangeTimes->{{3.978654930095693*^9, 3.978654945811616*^9}},
+ CellID->285339468,ExpressionUUID->"255a0432-bfdf-418f-aca0-b5c57e316b30"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"%", "[", "\"\<Hypergraph\>\"", "]"}]], "Input",
+ CellChangeTimes->{{3.9786549230388327`*^9, 3.978654927680931*^9}},
+ CellLabel->"In[157]:=",
+ CellID->1546190392,ExpressionUUID->"d74b24f1-212d-491f-8f7e-c0dcab98ff9b"],
+
+Cell[BoxData[
+ GraphicsBox[
+  NamespaceBox["Hypergraph",
+   DynamicModuleBox[{Typeset`hg = HoldComplete[
+     WolframInstitute`Hypergraph`Hypergraph[{$CellContext`i1, 
+       1 -> $CellContext`i2, $CellContext`i3, 
+       2 -> $CellContext`i2, $CellContext`i4, $CellContext`i5, 
+       3 -> $CellContext`i2, $CellContext`i6}, 
+      WolframInstitute`Hypergraph`Hyperedges[{$CellContext`i1, 
+        1 -> $CellContext`i2, $CellContext`i3}, {
+       2 -> $CellContext`i2, $CellContext`i4, $CellContext`i5}, {
+       3 -> $CellContext`i2, $CellContext`i3, $CellContext`i6}, {
+       1 -> $CellContext`i2, 2 -> $CellContext`i2, 3 -> $CellContext`i2}], 
+      VertexLabels -> {All -> Automatic}, 
+      EdgeLabels -> {{$CellContext`i1, 1 -> $CellContext`i2, $CellContext`i3} -> 
+        1, {2 -> $CellContext`i2, $CellContext`i4, $CellContext`i5} -> 
+        2, {3 -> $CellContext`i2, $CellContext`i3, $CellContext`i6} -> 
+        3, {1 -> $CellContext`i2, 2 -> $CellContext`i2, 3 -> $CellContext`i2} -> 
+        4}]]}, 
+    {AbsoluteThickness[Medium], Opacity[0.5], Arrowheads[{{Medium, 0.5}}], {
+      {LightDarkSwitched[
+        Opacity[0.1, 
+         Hue[0.63, 0.66, 0.81]], 
+        GrayLevel[1]], 
+       FilledCurveBox[{
+        BSplineCurve[{{0.003979793838407408, 0.3050657684306983}, {
+          0.5501977086330763, 0.5813736487618627}, {1.1806961250299148`, 
+          0.6560462625061808}}], 
+         BSplineCurve[{{1.1806961250299148`, 0.6560462625061808}, {
+          0.6340768738303874, 0.7764726604614327}, {0.33949645462765177`, 
+          1.0854618152289786`}}], 
+         BSplineCurve[{{0.33949645462765177`, 1.0854618152289786`}, {
+          0.3398977910325105, 0.6887275369425622}, {0.003979793838407408, 
+          0.3050657684306983}}]}], 
+       {Opacity[1], InsetBox[
+         StyleBox["1",
+          StripOnInput->False,
+          LineColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FrontFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          BackFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          GraphicsColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FontColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]]], {0.5081602694743845, 0.6820781173953817}]}}, 
+      {LightDarkSwitched[
+        Opacity[0.1, 
+         Hue[0.63, 0.66, 0.81]], 
+        GrayLevel[1]], 
+       FilledCurveBox[{
+        BSplineCurve[{{3.6585787139711927`, 0.6719458696943821}, {
+          3.4879338339507466`, 1.0856467845290831`}, {3.6582698357335097`, 
+          1.4990304490345583`}}], 
+         BSplineCurve[{{3.6582698357335097`, 1.4990304490345583`}, {
+          3.2321595628186297`, 1.1892702946935243`}, {2.6354816294427237`, 
+          1.0864399103521474`}}], 
+         BSplineCurve[{{2.6354816294427237`, 1.0864399103521474`}, {
+          3.2322367823780502`, 0.9824991498584803}, {3.6585787139711927`, 
+          0.6719458696943821}}]}], 
+       {Opacity[1], InsetBox[
+         StyleBox["2",
+          StripOnInput->False,
+          LineColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FrontFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          BackFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          GraphicsColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FontColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]]], {3.3171958826024937, 1.085835728978614}]}}, 
+      {LightDarkSwitched[
+        Opacity[0.1, 
+         Hue[0.63, 0.66, 0.81]], 
+        GrayLevel[1]], 
+       FilledCurveBox[{
+        BSplineCurve[{{0.33949645462765177`, 1.0854618152289786`}, {
+          0.6327662720259285, 1.39439835374146}, {1.1791425982345767`, 
+          1.516068374377282}}], 
+         BSplineCurve[{{1.1791425982345767`, 1.516068374377282}, {
+          0.5478921583690155, 1.5886740620424922`}, {0., 
+          1.8625646484331075`}}], 
+         BSplineCurve[{{0., 1.8625646484331075`}, {0.33798062246728433`, 
+          1.4810224222554162`}, {0.33949645462765177`, 
+          1.0854618152289786`}}]}], 
+       {Opacity[1], InsetBox[
+         StyleBox["3",
+          StripOnInput->False,
+          LineColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FrontFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          BackFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          GraphicsColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FontColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]]], {0.5064763845521993, 1.4882088757995793}]}}, 
+      {LightDarkSwitched[
+        Opacity[0.1, 
+         Hue[0.63, 0.66, 0.81]], 
+        GrayLevel[1]], 
+       FilledCurveBox[{
+        BSplineCurve[{{1.1806961250299148`, 0.6560462625061808}, {
+          1.786597830736029, 0.9787139677538503}, {2.6354816294427237`, 
+          1.0864399103521474`}}], 
+         BSplineCurve[{{2.6354816294427237`, 1.0864399103521474`}, {
+          1.7862094490371945`, 1.1937194957216257`}, {1.1791425982345767`, 
+          1.516068374377282}}], 
+         BSplineCurve[{{1.1791425982345767`, 1.516068374377282}, {
+          1.4225130729339923`, 1.086121083760134}, {1.1806961250299148`, 
+          0.6560462625061808}}]}], 
+       {Opacity[1], InsetBox[
+         StyleBox["4",
+          StripOnInput->False,
+          LineColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FrontFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          BackFaceColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          GraphicsColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]],
+          FontColor->LightDarkSwitched[
+            Hue[0.63, 0.7, 0.5], 
+            GrayLevel[1]]], {1.6655038543493985, 1.0861104690284147}]}}}, 
+     {Opacity[1], {
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{0.003979793838407408, 0.3050657684306983}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{1.1806961250299148`, 0.6560462625061808}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{0.33949645462765177`, 1.0854618152289786`}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{2.6354816294427237`, 1.0864399103521474`}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{3.6582698357335097`, 1.4990304490345583`}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{3.6585787139711927`, 0.6719458696943821}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{1.1791425982345767`, 1.516068374377282}, 
+         Offset[{2., 2.}, {0., 0.}]]}, 
+       {LightDarkSwitched[
+         Hue[0.63, 0.26, 0.89], 
+         GrayLevel[1]], EdgeForm[LightDarkSwitched[
+         Opacity[0.95, 
+          Hue[0.63, 0.7, 0.33]], 
+         GrayLevel[1]]], 
+        DiskBox[{0., 1.8625646484331075`}, Offset[{2., 2.}, {0., 0.}]]}}, {
+       InsetBox[
+        StyleBox["i1",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {0.003979793838407408, 0.3050657684306983}, 
+        ImageScaled[{1.1336935043438594, 1.273584218138141}]], InsetBox[
+        StyleBox[
+         RowBox[{"1", "\[Rule]", "i2"}],
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {1.1806961250299148, 0.6560462625061808}, 
+        ImageScaled[{-0.12793606003210012, 1.278264932083775}]], InsetBox[
+        StyleBox["i3",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {0.33949645462765177, 1.0854618152289786}, 
+        ImageScaled[{1.4999978159221874, 0.49790998783375845}]], InsetBox[
+        StyleBox[
+         RowBox[{"2", "\[Rule]", "i2"}],
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {2.6354816294427237, 1.0864399103521474}, 
+        ImageScaled[{1.4999997839914856, 0.5006572799875466}]], InsetBox[
+        StyleBox["i4",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {3.6582698357335097, 1.4990304490345583}, 
+        ImageScaled[{-0.26401475267019014, -0.145198773791696}]], InsetBox[
+        StyleBox["i5",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {3.6585787139711927, 0.6719458696943821}, 
+        ImageScaled[{-0.26220764432548194, 1.1473326091985476}]], InsetBox[
+        StyleBox[
+         RowBox[{"3", "\[Rule]", "i2"}],
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {1.1791425982345767, 1.516068374377282}, 
+        ImageScaled[{-0.12873093245124134, -0.2776229257030639}]], InsetBox[
+        StyleBox["i6",
+         StripOnInput->False,
+         LineColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FrontFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         BackFaceColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         GraphicsColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]],
+         FontColor->LightDarkSwitched[
+           GrayLevel[0], 
+           GrayLevel[1]]], {0., 1.8625646484331075}, 
+        ImageScaled[{1.1382577371042573, -0.2698227464985383}]]}}}]],
+  BoxID -> "Hypergraph32",
+  Background->LightDarkSwitched[
+    GrayLevel[1], None],
+  BaseStyle->{
+   GraphicsHighlightColor -> RGBColor[1, 0, 0], 
+    ComponentwiseContextMenu -> {"GraphicsBox" -> {
+        MenuItem["Draw", 
+         KernelExecute[
+          MathLink`CallFrontEnd[
+           FrontEnd`BoxReferenceReplace[
+            FE`BoxReference[
+             EvaluationNotebook[], "Hypergraph32"], 
+            ToBoxes[
+             WolframInstitute`Hypergraph`HypergraphDraw[
+              
+              WolframInstitute`Hypergraph`Hypergraph[{$CellContext`i1, 
+                1 -> $CellContext`i2, $CellContext`i3, 
+                2 -> $CellContext`i2, $CellContext`i4, $CellContext`i5, 
+                3 -> $CellContext`i2, $CellContext`i6}, 
+               
+               WolframInstitute`Hypergraph`Hyperedges[{$CellContext`i1, 
+                 1 -> $CellContext`i2, $CellContext`i3}, {
+                2 -> $CellContext`i2, $CellContext`i4, $CellContext`i5}, {
+                3 -> $CellContext`i2, $CellContext`i3, $CellContext`i6}, {
+                1 -> $CellContext`i2, 2 -> $CellContext`i2, 
+                 3 -> $CellContext`i2}], VertexLabels -> {All -> Automatic}, 
+               EdgeLabels -> {{$CellContext`i1, 
+                   1 -> $CellContext`i2, $CellContext`i3} -> 
+                 1, {2 -> $CellContext`i2, $CellContext`i4, $CellContext`i5} -> 
+                 2, {3 -> $CellContext`i2, $CellContext`i3, $CellContext`i6} -> 
+                 3, {1 -> $CellContext`i2, 2 -> $CellContext`i2, 
+                   3 -> $CellContext`i2} -> 4}]]]]]], MenuEvaluator -> 
+         Automatic]}}},
+  FormatType->TraditionalForm,
+  FrameTicks->None]], "Output",
+ CellChangeTimes->{3.978654927953652*^9},
+ CellLabel->"Out[157]=",
+ CellID->1104488248,ExpressionUUID->"86eb4bed-9f9d-40c0-a771-f42917f3d6ac"]
+}, Open  ]]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
@@ -386,14 +1667,14 @@ ExpressionUUID->"c7919a0a-af32-48f2-aa53-111e9252a5ab"
 (*CellTagsOutline
 CellTagsIndex->{
  "ExtendedExamples"->{
-  Cell[6286, 199, 488, 13, 56, "ExtendedExamplesSection",ExpressionUUID->"e763533b-c1d1-4bef-a158-12cb411c43be",
+  Cell[58638, 1480, 488, 13, 56, "ExtendedExamplesSection",ExpressionUUID->"e763533b-c1d1-4bef-a158-12cb411c43be",
    CellTags->"ExtendedExamples",
    CellID->1658696843]}
  }
 *)
 (*CellTagsIndex
 CellTagsIndex->{
- {"ExtendedExamples", 12609, 387}
+ {"ExtendedExamples", 64961, 1668}
  }
 *)
 (*NotebookFileOutline
@@ -409,101 +1690,133 @@ Cell[1459, 45, 97, 1, 26, "Notes",ExpressionUUID->"f64edcc6-9719-4b76-b558-9f541
 Cell[CellGroupData[{
 Cell[1593, 51, 459, 13, 38, "SeeAlsoSection",ExpressionUUID->"2705a5b7-ce28-49f2-a461-f54a4f04539e",
  CellID->1362438126],
-Cell[2055, 66, 1544, 40, 21, "SeeAlso",ExpressionUUID->"80930be3-5199-477c-84e6-3a3ebe0ce004",
+Cell[2055, 66, 1654, 42, 21, "SeeAlso",ExpressionUUID->"80930be3-5199-477c-84e6-3a3ebe0ce004",
  CellID->2026939368]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[3636, 111, 436, 12, 39, "TechNotesSection",ExpressionUUID->"eaed0b2c-ef2c-43f2-8b4f-dd8d6e3cefc5",
+Cell[3746, 113, 436, 12, 39, "TechNotesSection",ExpressionUUID->"eaed0b2c-ef2c-43f2-8b4f-dd8d6e3cefc5",
  CellID->1236865615],
-Cell[4075, 125, 100, 1, 17, "Tutorials",ExpressionUUID->"694ba2ab-7593-4ac6-ae8d-54466ac9baaf",
+Cell[4185, 127, 100, 1, 17, "Tutorials",ExpressionUUID->"694ba2ab-7593-4ac6-ae8d-54466ac9baaf",
  CellID->358688345]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4212, 131, 117, 1, 37, "MoreAboutSection",ExpressionUUID->"171434f8-57cd-41e5-954e-8bec1f52fd40",
+Cell[4322, 133, 117, 1, 37, "MoreAboutSection",ExpressionUUID->"171434f8-57cd-41e5-954e-8bec1f52fd40",
  CellID->488417286],
-Cell[4332, 134, 101, 1, 17, "MoreAbout",ExpressionUUID->"b653f120-17ba-41e4-9d33-c2fbbb2cc418",
+Cell[4442, 136, 101, 1, 17, "MoreAbout",ExpressionUUID->"b653f120-17ba-41e4-9d33-c2fbbb2cc418",
  CellID->1146826968]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4470, 140, 473, 13, 38, "RelatedLinksSection",ExpressionUUID->"f1eba9f6-c885-41d0-bb99-fa27d2d9e004",
+Cell[4580, 142, 473, 13, 38, "RelatedLinksSection",ExpressionUUID->"f1eba9f6-c885-41d0-bb99-fa27d2d9e004",
  CellID->1055119351],
-Cell[4946, 155, 104, 1, 17, "RelatedLinks",ExpressionUUID->"4d166af5-736a-47dc-8b24-5a741c7e7605",
+Cell[5056, 157, 104, 1, 17, "RelatedLinks",ExpressionUUID->"4d166af5-736a-47dc-8b24-5a741c7e7605",
  CellID->1618458978]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[5087, 161, 531, 14, 68, "ExamplesInitializationSection",ExpressionUUID->"369a246a-9d77-439d-8cce-059377fdf108",
+Cell[5197, 163, 531, 14, 68, "ExamplesInitializationSection",ExpressionUUID->"369a246a-9d77-439d-8cce-059377fdf108",
  CellID->1412170344],
-Cell[5621, 177, 182, 3, 46, "ExampleInitialization",ExpressionUUID->"13cf9921-9d88-4f2a-b7db-c107dd03afd3",
+Cell[5731, 179, 182, 3, 46, "ExampleInitialization",ExpressionUUID->"13cf9921-9d88-4f2a-b7db-c107dd03afd3",
  CellID->357704964]
 }, Open  ]],
-Cell[5818, 183, 443, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"c4eeda35-7b9d-4cc5-b8f7-be80d7cafdc5",
- CellID->1140601995],
 Cell[CellGroupData[{
-Cell[6286, 199, 488, 13, 56, "ExtendedExamplesSection",ExpressionUUID->"e763533b-c1d1-4bef-a158-12cb411c43be",
+Cell[5950, 187, 443, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"c4eeda35-7b9d-4cc5-b8f7-be80d7cafdc5",
+ CellID->1140601995],
+Cell[6396, 201, 179, 2, 23, "ExampleText",ExpressionUUID->"f0fced2c-f7b4-4d9c-ad17-a1bf764bb501",
+ CellID->570001001],
+Cell[6578, 205, 741, 22, 26, "Input",ExpressionUUID->"5e86d217-5694-4d0e-b929-46cfc7609ed9",
+ CellID->1017844759],
+Cell[7322, 229, 244, 4, 23, "ExampleText",ExpressionUUID->"02cef0fc-4647-4e38-93fa-28fc06668148",
+ CellID->164740080],
+Cell[7569, 235, 584, 16, 26, "Input",ExpressionUUID->"34b2898b-0816-4be8-9782-86950a276ec2",
+ CellID->570001002],
+Cell[8156, 253, 186, 2, 23, "ExampleText",ExpressionUUID->"d935ce3a-aab3-4dc6-80eb-f2530bb7a8f1",
+ CellID->1830503518],
+Cell[CellGroupData[{
+Cell[8367, 259, 241, 4, 26, "Input",ExpressionUUID->"ae8acd65-da43-4e2a-a0e4-7d249c8da9fe",
+ CellID->1444778397],
+Cell[8611, 265, 11709, 298, 184, "Output",ExpressionUUID->"dc8ea030-5ec8-4efa-90ec-33ac2eb4041d",
+ CellID->558106950]
+}, Open  ]],
+Cell[20335, 566, 243, 4, 23, "ExampleText",ExpressionUUID->"9b4df41d-ec65-414c-9a32-78ecdc8a4500",
+ CellID->1994406366],
+Cell[CellGroupData[{
+Cell[20603, 574, 173, 3, 26, "Input",ExpressionUUID->"a61ac807-6e09-46c3-a2a5-c0e2bb500cf8",
+ CellID->570001003],
+Cell[20779, 579, 21546, 481, 60, "Output",ExpressionUUID->"04c9c8f5-dac5-43cb-a2d6-83ae610dad83",
+ CellID->2093716884]
+}, Open  ]],
+Cell[42340, 1063, 238, 4, 23, "ExampleText",ExpressionUUID->"255a0432-bfdf-418f-aca0-b5c57e316b30",
+ CellID->285339468],
+Cell[CellGroupData[{
+Cell[42603, 1071, 240, 4, 26, "Input",ExpressionUUID->"d74b24f1-212d-491f-8f7e-c0dcab98ff9b",
+ CellID->1546190392],
+Cell[42846, 1077, 15743, 397, 133, "Output",ExpressionUUID->"86eb4bed-9f9d-40c0-a771-f42917f3d6ac",
+ CellID->1104488248]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[58638, 1480, 488, 13, 56, "ExtendedExamplesSection",ExpressionUUID->"e763533b-c1d1-4bef-a158-12cb411c43be",
  CellTags->"ExtendedExamples",
  CellID->1658696843],
-Cell[6777, 214, 242, 5, 32, "ExampleSection",ExpressionUUID->"184c1760-c5d1-4a25-a0ad-87a76f19d522",
+Cell[59129, 1495, 242, 5, 32, "ExampleSection",ExpressionUUID->"184c1760-c5d1-4a25-a0ad-87a76f19d522",
  CellID->1232618594],
-Cell[7022, 221, 265, 5, 20, "ExampleSection",ExpressionUUID->"df7a4c27-35ed-4277-afcc-572109501d27",
+Cell[59374, 1502, 265, 5, 20, "ExampleSection",ExpressionUUID->"df7a4c27-35ed-4277-afcc-572109501d27",
  CellID->1993450396],
 Cell[CellGroupData[{
-Cell[7312, 230, 244, 5, 20, "ExampleSection",ExpressionUUID->"84a7369a-29d0-4056-9276-25822ee7eae7",
+Cell[59664, 1511, 244, 5, 20, "ExampleSection",ExpressionUUID->"84a7369a-29d0-4056-9276-25822ee7eae7",
  CellID->1028428725],
-Cell[7559, 237, 247, 5, 23, "ExampleSubsection",ExpressionUUID->"95a4c56b-41f7-4c3e-ad11-80219f38874b",
+Cell[59911, 1518, 247, 5, 23, "ExampleSubsection",ExpressionUUID->"95a4c56b-41f7-4c3e-ad11-80219f38874b",
  CellID->1853190019],
-Cell[7809, 244, 247, 5, 19, "ExampleSubsection",ExpressionUUID->"8b4c8c93-11d3-4113-a7c3-e46d24166d3c",
+Cell[60161, 1525, 247, 5, 19, "ExampleSubsection",ExpressionUUID->"8b4c8c93-11d3-4113-a7c3-e46d24166d3c",
  CellID->1609316892]
 }, Open  ]],
-Cell[8071, 252, 248, 5, 32, "ExampleSection",ExpressionUUID->"6b6ccc84-e7da-4188-b225-819822067c3d",
+Cell[60423, 1533, 248, 5, 32, "ExampleSection",ExpressionUUID->"6b6ccc84-e7da-4188-b225-819822067c3d",
  CellID->232469879],
-Cell[8322, 259, 258, 5, 20, "ExampleSection",ExpressionUUID->"85a37440-62e6-4c7e-a5f8-eae754ae37fb",
+Cell[60674, 1540, 258, 5, 20, "ExampleSection",ExpressionUUID->"85a37440-62e6-4c7e-a5f8-eae754ae37fb",
  CellID->848502460],
-Cell[8583, 266, 252, 5, 20, "ExampleSection",ExpressionUUID->"d01f67b8-021b-47a5-95ca-b4fa826d085d",
+Cell[60935, 1547, 252, 5, 20, "ExampleSection",ExpressionUUID->"d01f67b8-021b-47a5-95ca-b4fa826d085d",
  CellID->1489429140],
-Cell[8838, 273, 257, 5, 20, "ExampleSection",ExpressionUUID->"76fdc62a-6138-4283-b82e-26ed2c39d24f",
+Cell[61190, 1554, 257, 5, 20, "ExampleSection",ExpressionUUID->"76fdc62a-6138-4283-b82e-26ed2c39d24f",
  CellID->1766166548],
-Cell[9098, 280, 250, 5, 20, "ExampleSection",ExpressionUUID->"004610fb-b982-4a63-9f17-6b98f841a6bd",
+Cell[61450, 1561, 250, 5, 20, "ExampleSection",ExpressionUUID->"004610fb-b982-4a63-9f17-6b98f841a6bd",
  CellID->1442203402]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[9385, 290, 110, 1, 71, "MetadataSection",ExpressionUUID->"b378f59f-9522-4907-b391-467cb37f29c3",
+Cell[61737, 1571, 110, 1, 71, "MetadataSection",ExpressionUUID->"b378f59f-9522-4907-b391-467cb37f29c3",
  CellID->464653725],
-Cell[9498, 293, 477, 12, 25, "History",ExpressionUUID->"ef02d592-aaa0-445b-b0c6-ab2bd4b07d34",
+Cell[61850, 1574, 477, 12, 25, "History",ExpressionUUID->"ef02d592-aaa0-445b-b0c6-ab2bd4b07d34",
  CellID->1184615583],
 Cell[CellGroupData[{
-Cell[10000, 309, 484, 13, 20, "CategorizationSection",ExpressionUUID->"39bd913f-6765-4934-8e07-c403478fbc7a",
+Cell[62352, 1590, 484, 13, 20, "CategorizationSection",ExpressionUUID->"39bd913f-6765-4934-8e07-c403478fbc7a",
  CellID->513212144],
-Cell[10487, 324, 135, 2, 34, "Categorization",ExpressionUUID->"08430321-9217-4700-925c-7f0467927a2f",
+Cell[62839, 1605, 135, 2, 70, "Categorization",ExpressionUUID->"08430321-9217-4700-925c-7f0467927a2f",
  CellID->1262177856],
-Cell[10625, 328, 151, 2, 34, "Categorization",ExpressionUUID->"ca81ff11-99da-468f-a71b-35523fc95d9f",
+Cell[62977, 1609, 151, 2, 70, "Categorization",ExpressionUUID->"ca81ff11-99da-468f-a71b-35523fc95d9f",
  CellID->2013688277],
-Cell[10779, 332, 148, 2, 34, "Categorization",ExpressionUUID->"dbf7955c-bad8-4df2-94f9-1aede97d247f",
+Cell[63131, 1613, 148, 2, 70, "Categorization",ExpressionUUID->"dbf7955c-bad8-4df2-94f9-1aede97d247f",
  CellID->1864078466],
-Cell[10930, 336, 167, 2, 34, "Categorization",ExpressionUUID->"e5d2be8b-6fd8-460f-a34f-7f8e3d39bbe5",
+Cell[63282, 1617, 167, 2, 70, "Categorization",ExpressionUUID->"e5d2be8b-6fd8-460f-a34f-7f8e3d39bbe5",
  CellID->2075335626]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[11134, 343, 110, 1, 20, "KeywordsSection",ExpressionUUID->"8e493c24-4380-41d0-9009-cae5e66a2996",
+Cell[63486, 1624, 110, 1, 20, "KeywordsSection",ExpressionUUID->"8e493c24-4380-41d0-9009-cae5e66a2996",
  CellID->354885368],
-Cell[11247, 346, 99, 1, 70, "Keywords",ExpressionUUID->"bd2e5098-16af-4b76-b590-0554444ddaf0",
+Cell[63599, 1627, 99, 1, 70, "Keywords",ExpressionUUID->"bd2e5098-16af-4b76-b590-0554444ddaf0",
  CellID->996292257]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[11383, 352, 119, 1, 20, "TemplatesSection",ExpressionUUID->"e0608445-a4e3-4228-ae83-bf5143b97f4c",
+Cell[63735, 1633, 119, 1, 20, "TemplatesSection",ExpressionUUID->"e0608445-a4e3-4228-ae83-bf5143b97f4c",
  CellID->753967740],
-Cell[11505, 355, 149, 2, 70, "Template",ExpressionUUID->"1e407eb9-863a-4551-a301-408cb00a3943",
+Cell[63857, 1636, 149, 2, 70, "Template",ExpressionUUID->"1e407eb9-863a-4551-a301-408cb00a3943",
  CellID->1782288880],
-Cell[11657, 359, 138, 2, 70, "Template",ExpressionUUID->"82fc4bca-f83b-4de3-8d2f-a14ee0e711a3",
+Cell[64009, 1640, 138, 2, 70, "Template",ExpressionUUID->"82fc4bca-f83b-4de3-8d2f-a14ee0e711a3",
  CellID->1827297804],
-Cell[11798, 363, 135, 2, 70, "Template",ExpressionUUID->"3b4eb44a-ff07-4300-b927-a06e11b05d20",
+Cell[64150, 1644, 135, 2, 70, "Template",ExpressionUUID->"3b4eb44a-ff07-4300-b927-a06e11b05d20",
  CellID->230556081],
-Cell[11936, 367, 137, 2, 70, "Template",ExpressionUUID->"3c1ebd4f-99c8-4f81-9272-2e36c0b217d8",
+Cell[64288, 1648, 137, 2, 70, "Template",ExpressionUUID->"3c1ebd4f-99c8-4f81-9272-2e36c0b217d8",
  CellID->895554179]
 }, Closed]]
 }, Open  ]]
 }
 ]
 *)
-
-(* End of internal cache information *)
 

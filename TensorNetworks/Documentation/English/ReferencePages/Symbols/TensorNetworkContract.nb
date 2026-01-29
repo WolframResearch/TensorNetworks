@@ -237,7 +237,7 @@ Cell[BoxData[
  InterpretationBox[GridBox[{
     {
      StyleBox[
-      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"],
      ButtonBox[
       RowBox[{
        RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
@@ -246,6 +246,60 @@ Cell[BoxData[
    }],
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->449133492,ExpressionUUID->"33f97202-5a06-48fd-be76-51514446fe17"],
+
+Cell["Contract a tensor network to obtain the result:", "ExampleText",
+ CellID->120000001,ExpressionUUID->"c1000001-0000-0000-0000-000000000001"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"A", "=",
+   RowBox[{"RandomReal", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{"3", ",", "4"}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]",
+ RowBox[{
+  RowBox[{"B", "=",
+   RowBox[{"RandomReal", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{"4", ",", "5"}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]",
+ RowBox[{"tn", "=",
+  RowBox[{"TensorNetwork", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{"A", ",", "B"}], "}"}], ",",
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{"i", ",", "j"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}]}], "\[IndentingNewLine]",
+ RowBox[{"TensorNetworkContract", "[", "tn", "]"}]}], "Input",
+ CellLabel->"In[1]:=",
+ CellID->120000002,ExpressionUUID->"c1000002-0000-0000-0000-000000000002"]
+}, Open  ]],
+
+Cell["Contract with a specified contraction path:", "ExampleText",
+ CellID->120000003,ExpressionUUID->"c1000003-0000-0000-0000-000000000003"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"path", "=",
+  RowBox[{"TensorNetworkFindContractionPath", "[", "tn", "]"}]}], "\[IndentingNewLine]",
+ RowBox[{"TensorNetworkContract", "[",
+  RowBox[{"tn", ",", "path"}], "]"}]}], "Input",
+ CellLabel->"In[2]:=",
+ CellID->120000004,ExpressionUUID->"c1000004-0000-0000-0000-000000000004"]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
@@ -294,6 +348,46 @@ Cell[BoxData[
   $Line = 0; Null]], "ExampleSubsection",
  CellID->1132456444,ExpressionUUID->"a25d81cd-9bf6-4bc9-b577-124b52891635"],
 
+Cell["Specify a contraction method:", "ExampleText",
+ CellID->340982101,ExpressionUUID->"340982101-meth-text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"3", ",", "4"}], "}"}]}], "]"}], ",",
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"4", ",", "5"}], "}"}]}], "]"}]}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{"i", ",", "j"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->340982102,ExpressionUUID->"340982102-meth-input1"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkContract", "[",
+  RowBox[{"tn", ",",
+   RowBox[{"Method", "->", "\"\<Greedy\>\""}]}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->340982103,ExpressionUUID->"340982103-meth-input2"],
+
 Cell[BoxData[
  InterpretationBox[Cell[
   "\"Inactive\"", "ExampleSubsection",ExpressionUUID->
@@ -301,12 +395,92 @@ Cell[BoxData[
   $Line = 0; Null]], "ExampleSubsection",
  CellID->47890947,ExpressionUUID->"07493734-d86d-4f7f-96e7-4fe412687209"],
 
+Cell["Return an inactive result instead of evaluating:", "ExampleText",
+ CellID->340982201,ExpressionUUID->"340982201-inact-text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",",
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"3", ",", "4"}], "}"}]}], "]"}]}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{"i", ",", "j"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->340982202,ExpressionUUID->"340982202-inact-input1"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkContract", "[",
+  RowBox[{"tn", ",",
+   RowBox[{"\"\<Inactive\>\"", "->", "True"}]}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->340982203,ExpressionUUID->"340982203-inact-input2"],
+
 Cell[BoxData[
  InterpretationBox[Cell[
   "\"TransposeFunction\"", "ExampleSubsection",ExpressionUUID->
    "d7d69588-e401-4531-9225-e140056b6d97"],
   $Line = 0; Null]], "ExampleSubsection",
- CellID->1744262251,ExpressionUUID->"2c8edf3a-a772-46fc-a50e-dd6f4c40f314"]
+ CellID->1744262251,ExpressionUUID->"2c8edf3a-a772-46fc-a50e-dd6f4c40f314"],
+
+Cell["Specify a custom transpose function for contraction:", "ExampleText",
+ CellID->340982301,ExpressionUUID->"340982301-trans-text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",",
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"3", ",", "4"}], "}"}]}], "]"}]}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{"i", ",", "j"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->340982302,ExpressionUUID->"340982302-trans-input1"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkContract", "[",
+  RowBox[{"tn", ",",
+   RowBox[{"\"\<TransposeFunction\>\"", "->", "Transpose"}]}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->340982303,ExpressionUUID->"340982303-trans-input2"]
 }, Open  ]],
 
 Cell[BoxData[

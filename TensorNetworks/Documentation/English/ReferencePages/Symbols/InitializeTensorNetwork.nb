@@ -184,7 +184,7 @@ Cell[BoxData[
  InterpretationBox[GridBox[{
     {
      StyleBox[
-      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"],
      ButtonBox[
       RowBox[{
        RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
@@ -193,6 +193,67 @@ Cell[BoxData[
    }],
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->622723338,ExpressionUUID->"7af819f5-b333-4b12-8852-1500abbe0530"],
+
+Cell["Initialize a tensor network graph with numerical tensors:", "ExampleText",
+ CellID->698374651,ExpressionUUID->"78901234-5678-9012-abcd-ef1234567907"],
+
+Cell[BoxData[
+ RowBox[{"tn", "=",
+  RowBox[{"TensorNetwork", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{"a", ",", "b", ",", "c"}], "}"}], ",",
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{"i", ",", "j"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"j", ",", "k"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"k", ",", "l"}], "}"}]}], "}"}]}], "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->698374652,ExpressionUUID->"89012345-6789-0123-abcd-ef1234567908"],
+
+Cell[BoxData[
+ RowBox[{"net", "=",
+  RowBox[{"tn", "[",
+   RowBox[{"\"\<Graph\>\""}], "]"}]}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->698374653,ExpressionUUID->"90123456-7890-1234-abcd-ef1234567909"],
+
+Cell[BoxData[
+ RowBox[{"tensors", "=",
+  RowBox[{"{",
+   RowBox[{
+    RowBox[{"RandomReal", "[",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{
+        RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",",
+    RowBox[{"RandomReal", "[",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{
+        RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"3", ",", "4"}], "}"}]}], "]"}], ",",
+    RowBox[{"RandomReal", "[",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{
+        RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"4", ",", "5"}], "}"}]}], "]"}]}], "}"}]}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->698374654,ExpressionUUID->"01234567-8901-2345-abcd-ef1234567910"],
+
+Cell[BoxData[
+ RowBox[{"InitializeTensorNetwork", "[",
+  RowBox[{"net", ",", "tensors"}], "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->698374655,ExpressionUUID->"12345678-9012-3456-abcd-ef1234567911"],
 
 Cell[CellGroupData[{
 

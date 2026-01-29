@@ -177,7 +177,7 @@ Cell[BoxData[
  InterpretationBox[GridBox[{
     {
      StyleBox[
-      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"],
      ButtonBox[
       RowBox[{
        RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
@@ -186,6 +186,37 @@ Cell[BoxData[
    }],
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->979323439,ExpressionUUID->"554300d8-4bfa-4f42-b445-59b316193883"],
+
+Cell["Check if a path is in tree format:", "ExampleText",
+ CellID->550293871,ExpressionUUID->"o6a53d71-1234-4567-89ab-550293871aaa"],
+
+Cell[BoxData[
+ RowBox[{"tn", "=",
+  RowBox[{"RandomTensorNetwork", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{"4", ",", "5"}], "}"}], ",", "3"}], "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->550293872,ExpressionUUID->"o6a53d72-1234-4567-89ab-550293872aaa"],
+
+Cell[BoxData[
+ RowBox[{"path", "=",
+  RowBox[{"TensorNetworkFindContractionPath", "[", "tn", "]"}]}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->550293873,ExpressionUUID->"o6a53d73-1234-4567-89ab-550293873aaa"],
+
+Cell[BoxData[
+ RowBox[{"treePath", "=",
+  RowBox[{"PathToTreePath", "[",
+   RowBox[{"path", ",",
+    RowBox[{"tn", "[", "\"\<Vertices\>\"", "]"}]}], "]"}]}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->550293874,ExpressionUUID->"o6a53d74-1234-4567-89ab-550293874aaa"],
+
+Cell[BoxData[
+ RowBox[{"TreePathQ", "[", "treePath", "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->550293875,ExpressionUUID->"o6a53d75-1234-4567-89ab-550293875aaa"],
 
 Cell[CellGroupData[{
 

@@ -236,6 +236,73 @@ Cell[BoxData[
   $Line = 0; Null]], "PrimaryExamplesSection",
  CellID->738570650,ExpressionUUID->"157e579e-1495-4b39-8d3a-a4b909f6cc4c"],
 
+Cell["Find an optimized contraction path for a tensor network:", "ExampleText",
+ CellID->690001001,ExpressionUUID->"690001001-findpath-text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",",
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"3", ",", "4"}], "}"}]}], "]"}], ",",
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"4", ",", "5"}], "}"}]}], "]"}]}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{"i", ",", "j"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"j", ",", "k"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"k", ",", "l"}], "}"}]}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->690001002,ExpressionUUID->"690001002-findpath-input1"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkFindContractionPath", "[", "tn", "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->690001003,ExpressionUUID->"690001003-findpath-input2"],
+
+Cell["Use greedy optimization:", "ExampleText",
+ CellID->690001004,ExpressionUUID->"690001004-findpath-text2"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkFindContractionPath", "[",
+  RowBox[{"tn", ",",
+   RowBox[{"Method", "->", "\"\<Greedy\>\""}]}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->690001005,ExpressionUUID->"690001005-findpath-input3"],
+
+Cell["Find the optimal path:", "ExampleText",
+ CellID->690001006,ExpressionUUID->"690001006-findpath-text3"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkFindContractionPath", "[",
+  RowBox[{"tn", ",",
+   RowBox[{"Method", "->", "\"\<Optimal\>\""}]}], "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->690001007,ExpressionUUID->"690001007-findpath-input4"],
+
 Cell[CellGroupData[{
 
 Cell[TextData[{
@@ -283,12 +350,62 @@ Cell[BoxData[
   $Line = 0; Null]], "ExampleSubsection",
  CellID->309215207,ExpressionUUID->"50e31362-49dd-4653-8f49-d2e44c4d8a20"],
 
+Cell["Return optimization parameters along with the path:", "ExampleText",
+ CellID->691001001,ExpressionUUID->"691001001-ret-text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",",
+       RowBox[{"RandomReal", "[",
+        RowBox[{
+         RowBox[{"{",
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+         RowBox[{"{",
+          RowBox[{"3", ",", "4"}], "}"}]}], "]"}]}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{"i", ",", "j"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->691001002,ExpressionUUID->"691001002-ret-input1"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkFindContractionPath", "[",
+  RowBox[{"tn", ",",
+   RowBox[{"\"\<ReturnParameters\>\"", "->", "True"}]}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->691001003,ExpressionUUID->"691001003-ret-input2"],
+
 Cell[BoxData[
  InterpretationBox[Cell[
   "Method", "ExampleSubsection",ExpressionUUID->
    "0c716402-a8ed-43ef-b59a-bf4dc882e2ae"],
   $Line = 0; Null]], "ExampleSubsection",
- CellID->69558309,ExpressionUUID->"f8f33a93-5907-401c-bd0d-f6d0f1d65d37"]
+ CellID->69558309,ExpressionUUID->"f8f33a93-5907-401c-bd0d-f6d0f1d65d37"],
+
+Cell["Use greedy optimization method:", "ExampleText",
+ CellID->691002001,ExpressionUUID->"691002001-meth-text"],
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkFindContractionPath", "[",
+  RowBox[{"tn", ",",
+   RowBox[{"Method", "->", "\"\<Greedy\>\""}]}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->691002002,ExpressionUUID->"691002002-meth-input"]
 }, Open  ]],
 
 Cell[BoxData[
