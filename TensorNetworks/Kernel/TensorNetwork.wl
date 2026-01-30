@@ -104,6 +104,26 @@ TensorNetwork[hypergraph : {___List} -> out : _List | Automatic] := TensorNetwor
     out
 ]
 
+(* New pattern: hypergraph with dimension association *)
+(* Indices can be integers or symbols; dims must cover all indices with integer values *)
+TensorNetwork[
+    hypergraph : {___List} -> out : _List | Automatic,
+    dims_Association
+] /; ContainsAll[Keys[dims], Union @@ hypergraph] && AllTrue[dims, IntegerQ] :=
+    TensorNetwork[
+        ArraySymbol[\[FormalCapitalT], Lookup[dims, #] & /@ #] & /@ hypergraph,
+        hypergraph,
+        out
+    ]
+
+(* New pattern: hypergraph with dimension list *)
+(* Creates association by mapping Union of indices to the dimension list *)
+TensorNetwork[
+    hypergraph : {___List} -> out : _List | Automatic,
+    dims_List
+] /; Length[dims] == Length[Union @@ hypergraph] && AllTrue[dims, IntegerQ] :=
+    TensorNetwork[hypergraph -> out, AssociationThread[Union @@ hypergraph, dims]]
+
 
 (* Property dispatch - only called when TensorNetworkQ is True *)
 (tn_TensorNetwork ? TensorNetworkQ)[prop_, args___] := TensorNetworkProp[tn, prop, args]

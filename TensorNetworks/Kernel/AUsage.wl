@@ -22,6 +22,8 @@ ActivateTensors::usage = "ActivateTensors[expr] activates Inactive[TensorProduct
 
 TensorNetwork::usage = "TensorNetwork[{A\:2081,A\:2082,\[Ellipsis]}, {h\:2081,h\:2082,\[Ellipsis]}] creates a tensor network from tensors A\:1d62 with hyperedge index lists h\:1d62.
 \[Bullet] TensorNetwork[{A\:2081,A\:2082,\[Ellipsis]}, {i\:2081,i\:2082,\[Ellipsis]}\[Rule]output] creates a tensor network using Einstein summation notation.
+\[Bullet] TensorNetwork[{h\:2081,h\:2082,\[Ellipsis]}\[Rule]output, dims] creates a tensor network with symbolic tensors, where dims is an Association mapping indices to integer dimensions.
+\[Bullet] TensorNetwork[{h\:2081,h\:2082,\[Ellipsis]}\[Rule]output, {d\:2081,d\:2082,\[Ellipsis]}] creates a tensor network with symbolic tensors, mapping the union of indices to the dimension list.
 \[Bullet] TensorNetwork[expr] constructs a tensor network from TensorContract, Transpose, or TensorProduct expressions.
 \[Bullet] TensorNetwork[graph] creates a tensor network from a directed acyclic graph with tensor annotations."
 
