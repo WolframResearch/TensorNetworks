@@ -110,3 +110,14 @@ OptimalPath[
 	]
 ]
 
+(* TensorNetwork input patterns *)
+GreedyPath[net_TensorNetwork ? TensorNetworkQ, args___] :=
+    With[{params = TensorNetworkFindContractionPath[net, "ReturnParameters" -> True]},
+        GreedyPath[Sequence @@ params, args]
+    ]
+
+OptimalPath[net_TensorNetwork ? TensorNetworkQ, args___] :=
+    With[{params = TensorNetworkFindContractionPath[net, "ReturnParameters" -> True]},
+        OptimalPath[Sequence @@ params, args]
+    ]
+
