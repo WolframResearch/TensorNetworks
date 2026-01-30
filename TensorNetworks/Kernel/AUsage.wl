@@ -177,8 +177,10 @@ CanonicalPath::usage = "CanonicalPath[path, indices] returns a canonical (normal
 
 PathIndexContractions::usage = "PathIndexContractions[path, indices] returns the sequence of index sets contracted at each step of the path."
 
-PathQ::usage = "PathQ[path] returns True if Path is a contraction path."
+PathQ::usage = "PathQ[path] returns True if path is a contraction path."
 
-TreePathQ::usage = "PathQ[treePath] returns True if treePath is a Tree-like contraction path."
+CanonicalPathQ::usage = "CanonicalPathQ[path] returns True if path is a canonical contraction path (list of integer pairs)."
+
+TreePathQ::usage = "TreePathQ[treePath] returns True if treePath is a tree-like contraction path."
 
 
