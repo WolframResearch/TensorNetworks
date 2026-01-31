@@ -419,7 +419,7 @@ TensorNetworkRemoveCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Grap
 
 
 
-TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ] := TensorNetworkToNetGraph[net, TensorNetworkFindContractionPath[net]]
+TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ] := TensorNetworkToNetGraph[net, OptimalContractionPath[net]]
 
 TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ, path_] := Enclose @ Block[{tensors, indices, freeIndices, g, tensorQueue, addEinsumLayer, n},
     tensors = Chop @* FullSimplify @* N @* Normal /@ TensorNetworkTensors[net];

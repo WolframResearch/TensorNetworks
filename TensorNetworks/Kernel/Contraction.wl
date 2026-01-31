@@ -12,37 +12,22 @@ PackageExport[ContractionTree]
 
 
 
+(* Deprecated - use GreedyContractionPath or OptimalContractionPath directly *)
+TensorNetworkFindContractionPath::deprec = "TensorNetworkFindContractionPath is deprecated. Use GreedyContractionPath or OptimalContractionPath instead."
+
 Options[TensorNetworkFindContractionPath] = {"ReturnParameters" -> False, Method -> "Optimal"}
 
-TensorNetworkFindContractionPath[KeyValuePattern[{
-    "Dimensions" -> tensorDimensions_,
-    "Indices" -> tensorIndices_,
-    "Contractions" -> contractions_
-}], OptionsPattern[]] := Enclose @ Block[{
-	dimensions, pairs, rules, indices, normalIndices, input, output
-},
-	dimensions = AssociationThread[Catenate[tensorIndices], Catenate[tensorDimensions]];
-	pairs = Cases[Catenate[contractions], {_, _}];
-	rules = Rule @@@ pairs;
-	ConfirmAssert[AllTrue[Partition[Lookup[dimensions, Catenate[pairs]], 2], Apply[Equal]]];
-	dimensions = KeyMap[Replace[rules], dimensions];
-	indices = Replace[tensorIndices, rules, {2}];
-	normalIndices = Thread[# -> Range[Length[#]]] & [Union @@ indices];
-	input = Replace[indices, normalIndices, {2}];
-	output = Replace[Cases[Catenate[contractions], Except[{_, _}]], normalIndices, 1];
-	dimensions = KeyMap[Replace[normalIndices], dimensions];
-	If[TrueQ[OptionValue["ReturnParameters"]], Return[{input, output, dimensions}]];
-	CanonicalPath @ Replace[Replace[OptionValue[Method], "Optimal" -> "size"], {
-        method : "flops" | "max" | "size" | "write" | "combo" | "limit" :> OptimalPath[input, output, dimensions, method],
-        _ :> GreedyPath[input, output, dimensions]
-    }]
-]
-
-TensorNetworkFindContractionPath[net_Graph ? TensorNetworkGraphQ, opts : OptionsPattern[]] :=
-    TensorNetworkFindContractionPath[TensorNetworkGraphData[net], opts]
-
-TensorNetworkFindContractionPath[net_TensorNetwork ? TensorNetworkQ, opts : OptionsPattern[]] :=
-    TensorNetworkFindContractionPath[TensorNetworkData[BinaryTensorNetwork[net]], opts]
+TensorNetworkFindContractionPath[net_, opts : OptionsPattern[]] := (
+    Message[TensorNetworkFindContractionPath::deprec];
+    If[TrueQ[OptionValue["ReturnParameters"]],
+        extractContractionParameters[net],
+        Replace[Replace[OptionValue[Method], "Optimal" -> "size"], {
+            method : "flops" | "max" | "size" | "write" | "combo" | "limit" :>
+                OptimalContractionPath[net, Method -> method],
+            _ :> GreedyContractionPath[net]
+        }]
+    ]
+)
 
 einsumArrayDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
 	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
@@ -249,8 +234,11 @@ TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ] :=
 TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? CanonicalPathQ, opts : OptionsPattern[]] := 
     TensorNetworkContraction[data, PathToTreePath[path, vertices], opts]
     
-TensorNetworkContraction[net_, method_String, opts : OptionsPattern[]] := 
-    TensorNetworkContraction[net, TensorNetworkFindContractionPath[net, Method -> method], opts]
+TensorNetworkContraction[net_, "Greedy", opts : OptionsPattern[]] :=
+    TensorNetworkContraction[net, GreedyContractionPath[net], opts]
+
+TensorNetworkContraction[net_, method : "Optimal" | "flops" | "max" | "size" | "write" | "combo" | "limit", opts : OptionsPattern[]] :=
+    TensorNetworkContraction[net, OptimalContractionPath[net, Method -> Replace[method, "Optimal" -> "size"]], opts]
 
 TensorNetworkContraction[
     KeyValuePattern[{

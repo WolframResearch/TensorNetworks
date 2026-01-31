@@ -94,9 +94,17 @@ InitializeTensorNetwork::usage = "InitializeTensorNetwork[net, {t\:2081,t\:2082,
 (* Contraction.wl                              *)
 (* ============================================ *)
 
-TensorNetworkFindContractionPath::usage = "TensorNetworkFindContractionPath[tn] computes an optimized contraction path for the tensor network.
-\[Bullet] TensorNetworkFindContractionPath[tn, Method\[Rule]\"Greedy\"] uses greedy optimization.
-\[Bullet] TensorNetworkFindContractionPath[tn, Method\[Rule]\"Optimal\"] finds the optimal path (slower for large networks)."
+TensorNetworkFindContractionPath::usage = "TensorNetworkFindContractionPath is deprecated. Use GreedyContractionPath or OptimalContractionPath instead."
+
+GreedyContractionPath::usage = "GreedyContractionPath[tn] finds a contraction path using a greedy heuristic.
+\[Bullet] GreedyContractionPath[graph] finds a path for a TensorNetwork graph.
+\[Bullet] GreedyContractionPath[inputs, output, sizeDict] low-level form with explicit parameters.
+\[Bullet] Options: \"MemoryWeight\", \"Temperature\", \"MaxNeighbors\", \"RandomSeed\", \"PreSimplify\", \"FixedIndexing\"."
+
+OptimalContractionPath::usage = "OptimalContractionPath[tn] finds an optimal contraction path via dynamic programming.
+\[Bullet] OptimalContractionPath[graph] finds an optimal path for a TensorNetwork graph.
+\[Bullet] OptimalContractionPath[inputs, output, sizeDict] low-level form with explicit parameters.
+\[Bullet] Options: Method (\"size\", \"flops\", \"max\", \"write\", \"combo\", \"limit\"), \"PruningThreshold\", \"AllowOuterProducts\", \"PreSimplify\", \"FixedIndexing\"."
 
 TensorNetworkContraction::usage = "TensorNetworkContraction[tn, path] returns a symbolic contraction expression for the tensor network along the given path.
 \[Bullet] TensorNetworkContraction[tn, treePath] uses a tree-structured contraction path.
@@ -157,17 +165,19 @@ MPSTruncate::usage = "MPSTruncate[mps, maxBond] compresses an MPS by truncating 
 (* Paths.wl                                    *)
 (* ============================================ *)
 
-GreedyPath::usage = "GreedyPath[inputs, output, sizeDict] finds a contraction path using a greedy heuristic.
+GreedyContractionPath::usage = "GreedyContractionPath[inputs, output, sizeDict] finds a contraction path using a greedy heuristic.
 \[Bullet] inputs is a list of index lists for each tensor.
 \[Bullet] output is the list of indices for the final result.
 \[Bullet] sizeDict is an Association mapping indices to their dimensions.
-\[Bullet] Optional parameters: costMod, temperature, maxNeighbors, seed, simplify, useSSA."
+\[Bullet] Also accepts TensorNetwork or inactive TensorContract/Transpose expressions from TensorNetworkContraction.
+\[Bullet] Options: \"MemoryWeight\", \"Temperature\", \"MaxNeighbors\", \"RandomSeed\", \"PreSimplify\", \"FixedIndexing\"."
 
-OptimalPath::usage = "OptimalPath[inputs, output, sizeDict] finds an optimal contraction path via dynamic programming.
+OptimalContractionPath::usage = "OptimalContractionPath[inputs, output, sizeDict] finds an optimal contraction path via dynamic programming.
 \[Bullet] inputs is a list of index lists for each tensor.
 \[Bullet] output is the list of indices for the final result.
 \[Bullet] sizeDict is an Association mapping indices to their dimensions.
-\[Bullet] Optional parameters: minimize, costCap, searchOuter, simplify, useSSA."
+\[Bullet] Also accepts TensorNetwork or inactive TensorContract/Transpose expressions from TensorNetworkContraction.
+\[Bullet] Options: Method (default \"size\"), \"PruningThreshold\", \"AllowOuterProducts\", \"PreSimplify\", \"FixedIndexing\"."
 
 ContractIndices::usage = "ContractIndices[i, j] returns the list of indices that would be contracted between index sets i and j."
 

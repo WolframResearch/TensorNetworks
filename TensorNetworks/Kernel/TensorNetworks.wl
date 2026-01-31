@@ -1,7 +1,7 @@
 Package["Wolfram`TensorNetworks`"]
 
-PackageScope[GreedyPath]
-PackageScope[OptimalPath]
+PackageExport[GreedyContractionPath]
+PackageExport[OptimalContractionPath]
 
 
 
@@ -58,7 +58,31 @@ libraryFunctions := libraryFunctions = (
 ]
 
 
-GreedyPath[
+Options[GreedyContractionPath] = {
+    "MemoryWeight" -> None,
+    "Temperature" -> None,
+    "MaxNeighbors" -> None,
+    "RandomSeed" -> None,
+    "PreSimplify" -> None,
+    "FixedIndexing" -> None
+};
+
+GreedyContractionPath[
+    input : {{___Integer}...},
+    output : {___Integer},
+    sizeDict : KeyValuePattern[(_Integer -> _Integer) ...] ? AssociationQ,
+    opts : OptionsPattern[]
+] := GreedyContractionPath[
+    input, output, sizeDict,
+    OptionValue["MemoryWeight"],
+    OptionValue["Temperature"],
+    OptionValue["MaxNeighbors"],
+    OptionValue["RandomSeed"],
+    OptionValue["PreSimplify"],
+    OptionValue["FixedIndexing"]
+]
+
+GreedyContractionPath[
 	input : {{___Integer}...},
 	output : {___Integer},
 	sizeDict : KeyValuePattern[(_Integer -> _Integer) ...] ? AssociationQ,
@@ -85,7 +109,45 @@ GreedyPath[
 	]
 ]
 
-OptimalPath[
+Options[OptimalContractionPath] = {
+    Method -> "size",
+    "PruningThreshold" -> None,
+    "AllowOuterProducts" -> None,
+    "PreSimplify" -> None,
+    "FixedIndexing" -> None
+};
+
+(* Pattern using Method option - must come before positional pattern *)
+OptimalContractionPath[
+    input : {{___Integer}...},
+    output : {___Integer},
+    sizeDict : KeyValuePattern[(_Integer -> _Integer) ...] ? AssociationQ,
+    opts : OptionsPattern[]
+] := OptimalContractionPath[
+    input, output, sizeDict,
+    OptionValue[Method],
+    OptionValue["PruningThreshold"],
+    OptionValue["AllowOuterProducts"],
+    OptionValue["PreSimplify"],
+    OptionValue["FixedIndexing"]
+]
+
+(* Pattern with positional minimize for backward compatibility *)
+OptimalContractionPath[
+    input : {{___Integer}...},
+    output : {___Integer},
+    sizeDict : KeyValuePattern[(_Integer -> _Integer) ...] ? AssociationQ,
+    minimize : _String | None,
+    opts : OptionsPattern[]
+] := OptimalContractionPath[
+    input, output, sizeDict, minimize,
+    OptionValue["PruningThreshold"],
+    OptionValue["AllowOuterProducts"],
+    OptionValue["PreSimplify"],
+    OptionValue["FixedIndexing"]
+]
+
+OptimalContractionPath[
 	input : {{___Integer}...},
 	output : {___Integer},
 	sizeDict : KeyValuePattern[(_Integer -> _Integer) ...] ? AssociationQ,
@@ -110,14 +172,88 @@ OptimalPath[
 	]
 ]
 
+(* Internal helper for parameter extraction *)
+extractContractionParameters[KeyValuePattern[{
+    "Dimensions" -> tensorDimensions_,
+    "Indices" -> tensorIndices_,
+    "Contractions" -> contractions_
+}]] := Enclose @ Block[{
+    dimensions, pairs, rules, indices, normalIndices, input, output
+},
+    dimensions = AssociationThread[Catenate[tensorIndices], Catenate[tensorDimensions]];
+    pairs = Cases[Catenate[contractions], {_, _}];
+    rules = Rule @@@ pairs;
+    ConfirmAssert[AllTrue[Partition[Lookup[dimensions, Catenate[pairs]], 2], Apply[Equal]]];
+    dimensions = KeyMap[Replace[rules], dimensions];
+    indices = Replace[tensorIndices, rules, {2}];
+    normalIndices = Thread[# -> Range[Length[#]]] & [Union @@ indices];
+    input = Replace[indices, normalIndices, {2}];
+    output = Replace[Cases[Catenate[contractions], Except[{_, _}]], normalIndices, 1];
+    dimensions = KeyMap[Replace[normalIndices], dimensions];
+    {input, output, dimensions}
+]
+
+extractContractionParameters[net_Graph ? TensorNetworkGraphQ] :=
+    extractContractionParameters[TensorNetworkGraphData[net]]
+
+extractContractionParameters[net_TensorNetwork ? TensorNetworkQ] :=
+    extractContractionParameters[TensorNetworkData[BinaryTensorNetwork[net]]]
+
 (* TensorNetwork input patterns *)
-GreedyPath[net_TensorNetwork ? TensorNetworkQ, args___] :=
-    With[{params = TensorNetworkFindContractionPath[net, "ReturnParameters" -> True]},
-        GreedyPath[Sequence @@ params, args]
+GreedyContractionPath[net_TensorNetwork ? TensorNetworkQ, args___] :=
+    With[{params = extractContractionParameters[net]},
+        CanonicalPath @ GreedyContractionPath[Sequence @@ params, args]
     ]
 
-OptimalPath[net_TensorNetwork ? TensorNetworkQ, args___] :=
-    With[{params = TensorNetworkFindContractionPath[net, "ReturnParameters" -> True]},
-        OptimalPath[Sequence @@ params, args]
+OptimalContractionPath[net_TensorNetwork ? TensorNetworkQ, args___] :=
+    With[{params = extractContractionParameters[net]},
+        CanonicalPath @ OptimalContractionPath[Sequence @@ params, args]
     ]
+
+(* Graph input patterns *)
+GreedyContractionPath[net_Graph ? TensorNetworkGraphQ, args___] :=
+    With[{params = extractContractionParameters[net]},
+        CanonicalPath @ GreedyContractionPath[Sequence @@ params, args]
+    ]
+
+OptimalContractionPath[net_Graph ? TensorNetworkGraphQ, args___] :=
+    With[{params = extractContractionParameters[net]},
+        CanonicalPath @ OptimalContractionPath[Sequence @@ params, args]
+    ]
+
+(* Association/data input patterns *)
+GreedyContractionPath[data : KeyValuePattern[{
+    "Dimensions" -> _, "Indices" -> _, "Contractions" -> _
+}], args___] :=
+    With[{params = extractContractionParameters[data]},
+        CanonicalPath @ GreedyContractionPath[Sequence @@ params, args]
+    ]
+
+OptimalContractionPath[data : KeyValuePattern[{
+    "Dimensions" -> _, "Indices" -> _, "Contractions" -> _
+}], args___] :=
+    With[{params = extractContractionParameters[data]},
+        CanonicalPath @ OptimalContractionPath[Sequence @@ params, args]
+    ]
+
+(* Inactive TensorContract/Transpose input patterns *)
+GreedyContractionPath[
+    expr : IgnoringInactive @ HoldPattern @ TensorContract[TensorProduct[___], _],
+    args___
+] := GreedyContractionPath[TensorNetwork[expr], args]
+
+GreedyContractionPath[
+    expr : HoldPattern[Transpose[_, _Cycles]],
+    args___
+] := GreedyContractionPath[TensorNetwork[expr], args]
+
+OptimalContractionPath[
+    expr : IgnoringInactive @ HoldPattern @ TensorContract[TensorProduct[___], _],
+    args___
+] := OptimalContractionPath[TensorNetwork[expr], args]
+
+OptimalContractionPath[
+    expr : HoldPattern[Transpose[_, _Cycles]],
+    args___
+] := OptimalContractionPath[TensorNetwork[expr], args]
 
