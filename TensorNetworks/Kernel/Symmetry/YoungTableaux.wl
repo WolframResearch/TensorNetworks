@@ -6,9 +6,13 @@ Package["Wolfram`TensorNetworks`Symmetry`"]
 
 PackageExport[YoungTableau]
 PackageExport[YoungTableauQ]
+PackageExport[PartitionQ]
+PackageExport[TransposePartition]
 PackageExport[TableauShape]
 PackageExport[TableauSize]
 PackageExport[HookLength]
+PackageExport[HookLengths]
+PackageExport[HookFactor]
 PackageExport[TableauDimension]
 PackageExport[YoungSymmetrize]
 PackageExport[YoungProject]
@@ -77,6 +81,28 @@ TableauSize[expr_] := (Message[TableauSize::noyt, expr]; $Failed)
 
 
 (* ============================================ *)
+(* Partition Utilities                          *)
+(* ============================================ *)
+
+(* Check if a list is a valid partition (non-increasing positive integers) *)
+PartitionQ[par_List] := And[
+    Length[par] > 0,
+    AllTrue[par, IntegerQ[#] && # > 0 &],
+    OrderedQ[par, GreaterEqual]
+]
+PartitionQ[_] := False
+
+(* Transpose (conjugate) of a partition - O(n) where n = max element
+   Example: {4,2,1} -> {3,2,1,1} (swap rows and columns of Young diagram) *)
+TransposePartition[{}] := {}
+TransposePartition[par_List] /; PartitionQ[par] :=
+    Table[Count[par, x_ /; x >= j], {j, par[[1]]}]
+
+TransposePartition::notpar = "TransposePartition expects a valid partition, got `1`.";
+TransposePartition[expr_] := (Message[TransposePartition::notpar, expr]; $Failed)
+
+
+(* ============================================ *)
 (* Hook Length Formula                          *)
 (* ============================================ *)
 
@@ -84,13 +110,17 @@ TableauSize[expr_] := (Message[TableauSize::noyt, expr]; $Failed)
    - cells to the right in the same row (including current)
    - plus cells below in the same column *)
 
+(* Single cell hook length - O(1) using precomputed transpose *)
 HookLength[YoungTableau[rows_List] ? YoungTableauQ, {row_Integer, col_Integer}] :=
-    Module[{rowLen, colLen},
-        (* Cells to the right including current cell *)
-        rowLen = Length[rows[[row]]] - col + 1;
-        (* Cells below in the same column *)
-        colLen = Count[rows[[row + 1 ;;]], _?(Length[#] >= col &)];
-        rowLen + colLen
+    Module[{partition, transposed, armLength, legLength},
+        partition = Length /@ rows;
+        transposed = TransposePartition[partition];
+        (* Arm length: cells to the right (excluding current) *)
+        armLength = partition[[row]] - col;
+        (* Leg length: cells below (excluding current) *)
+        legLength = transposed[[col]] - row;
+        (* Hook = arm + leg + 1 (current cell) *)
+        armLength + legLength + 1
     ]
 
 HookLength::noyt = "HookLength accepts only YoungTableau as input, got `1`.";
@@ -99,24 +129,83 @@ HookLength[expr_, _] := (Message[HookLength::noyt, expr]; $Failed)
 
 
 (* ============================================ *)
+(* Hook Lengths (All at Once)                   *)
+(* ============================================ *)
+
+(* Compute all hook lengths for a partition efficiently - O(n) where n = total boxes *)
+(* Returns a nested list matching the tableau shape *)
+
+HookLengths[partition_List] /; PartitionQ[partition] :=
+    Module[{transposed},
+        transposed = TransposePartition[partition];
+        Table[
+            (* hook(i,j) = partition[i] - j + transposed[j] - i + 1 *)
+            partition[[i]] - j + transposed[[j]] - i + 1,
+            {i, Length[partition]},
+            {j, partition[[i]]}
+        ]
+    ]
+
+HookLengths[yt_YoungTableau ? YoungTableauQ] := HookLengths[TableauShape[yt]]
+
+HookLengths::notpar = "HookLengths expects a valid partition or YoungTableau, got `1`.";
+
+HookLengths[expr_] := (Message[HookLengths::notpar, expr]; $Failed)
+
+
+(* ============================================ *)
+(* Hook Factor (Frobenius Determinant Formula)  *)
+(* ============================================ *)
+
+(* HookFactor computes 1/(product of hook lengths) using the Frobenius determinant.
+   This is more efficient for partitions with few rows: O(r^3) where r = number of rows.
+
+   Formula: HookFactor[par] = det(C(par[i]-i+r, j-1)) / prod(par[i]-i+r)!
+   where r = Length[par] and C(n,k) = Binomial(n,k)
+
+   The dimension of the irrep is: n! * HookFactor[par] where n = Total[par]
+*)
+
+(* Determinant helper for Frobenius formula *)
+frobeniusDet[{x_Integer}] := 1
+frobeniusDet[list_List] := Det[Outer[Binomial, list, Range[0, Length[list] - 1]]]
+
+HookFactor[partition_List] /; PartitionQ[partition] :=
+    Module[{r, shifted},
+        r = Length[partition];
+        (* Shift: par[i] - i + r *)
+        shifted = partition - Range[r] + r;
+        (* Frobenius formula *)
+        frobeniusDet[shifted] / Times @@ (Factorial /@ shifted)
+    ]
+
+HookFactor[yt_YoungTableau ? YoungTableauQ] := HookFactor[TableauShape[yt]]
+
+HookFactor::notpar = "HookFactor expects a valid partition or YoungTableau, got `1`.";
+
+HookFactor[expr_] := (Message[HookFactor::notpar, expr]; $Failed)
+
+
+(* ============================================ *)
 (* Tableau Dimension (Hook Length Formula)      *)
 (* ============================================ *)
 
 (* The dimension of the irrep corresponding to a Young diagram with n boxes is:
-   d = n! / (product of all hook lengths) *)
+   d = n! / (product of all hook lengths) = n! * HookFactor[partition]
 
-TableauDimension[yt : YoungTableau[rows_List] ? YoungTableauQ] :=
-    Module[{n, hooks},
-        n = TableauSize[yt];
-        hooks = Flatten @ Table[
-            HookLength[yt, {r, c}],
-            {r, Length[rows]},
-            {c, Length[rows[[r]]]}
-        ];
-        n! / Times @@ hooks
-    ]
+   We use the Frobenius determinant formula which is O(r^3) where r = number of rows,
+   much faster than the naive O(n^2) approach for typical partitions.
+*)
 
-TableauDimension::noyt = "TableauDimension accepts only YoungTableau as input, got `1`.";
+(* Fast path: directly from partition using HookFactor *)
+TableauDimension[partition_List] /; PartitionQ[partition] :=
+    Total[partition]! * HookFactor[partition]
+
+(* From YoungTableau: extract shape and use fast path *)
+TableauDimension[yt_YoungTableau ? YoungTableauQ] :=
+    TableauDimension[TableauShape[yt]]
+
+TableauDimension::noyt = "TableauDimension accepts only YoungTableau or partition as input, got `1`.";
 
 TableauDimension[expr_] := (Message[TableauDimension::noyt, expr]; $Failed)
 
