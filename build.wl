@@ -6,13 +6,18 @@ PacletInstall["https://www.wolframcloud.com/obj/nikm/PacletExtensions.paclet", F
 << ExtensionCargo`
 << ExtensionBuild`
 
+pub = "Wolfram"
 name = "TensorNetworks"
 
 PacletDirectoryLoad[name]
-paclet = PacletObject["Wolfram/" <> name]
+paclet = PacletObject[StringTemplate["``/``"][pub, name]]
 
-CargoBuild[paclet]
-pacletFile = CreatePacletArchive[name]
+CargoCollect[paclet]
+
+<< PacletTools`
+build = PacletBuild[name]
+If[FailureQ[build], Print["Build failed."]; Exit[1]]
+pacletFile = build["PacletArchive"]
 
 Echo[StringTemplate["Paclet `` has size ``"][pacletFile, FileSize[pacletFile]]]
 

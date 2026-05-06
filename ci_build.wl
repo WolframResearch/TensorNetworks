@@ -17,7 +17,12 @@ ExtensionCargo`CargoCollect[paclet];
 
 (* Create Paclet Archive *)
 Print["Creating Paclet Archive..."];
-pacletFile = CreatePacletArchive[name];
+
+<< PacletTools`
+build = PacletBuild[name]
+If[FailureQ[build], Print["Build failed."]; Exit[1]]
+pacletFile = build["PacletArchive"]
+
 Print["Paclet created: ", pacletFile];
 Print["Size: ", FileSize[pacletFile]];
 

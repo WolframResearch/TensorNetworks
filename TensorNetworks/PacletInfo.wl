@@ -16,10 +16,11 @@ PacletObject[
         "Root" -> "Kernel",
         "Context" -> {"Wolfram`TensorNetworks`", "Wolfram`TensorNetworks`IndexArray`", "Wolfram`TensorNetworks`Symmetry`"}
       },
-      {"Cargo", "Root" -> ".."},
+      {"Cargo", "Root" -> "Cotengra"},
       {"Build", "Actions" -> {"CargoBuild"}},
       {"Binaries"},
-      {"FrontEnd", "Prepend" -> True}
+      {"FrontEnd", "Prepend" -> True},
+      {"Documentation", "Language" -> "English"}
     }
   |>
 ]
