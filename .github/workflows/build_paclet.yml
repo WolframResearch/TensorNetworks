@@ -94,6 +94,16 @@ jobs:
           chmod +x build_all_targets.sh
           ./build_all_targets.sh
 
+      - name: Activate Wolfram Engine
+        run: |
+          # Trigger an on-demand activation once and let it write a mathpass
+          # to ~/.WolframEngine/Licensing so subsequent wolframscript runs
+          # don't re-activate (which intermittently fails with "No valid
+          # password found" when the entitlement service is rate-limiting or
+          # the per-invocation activation gets refused).
+          wolframscript -code 'Print["Activated: ", $LicenseExpirationDate]; Quit[0]'
+          ls -la /root/.WolframEngine/Licensing/ || true
+
       - name: Build Paclet
         run: wolframscript -f ci_build.wl
 
