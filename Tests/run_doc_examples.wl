@@ -40,6 +40,15 @@ Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`IndexArray`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 
+(* Pre-warm the cotengrust library. The first call into a Rust-backed
+   function (e.g. GreedyContractionPath) lazily fires ExtensionCargo`CargoBuild,
+   which can take longer than the per-input 30 s timeout in CI. Triggering
+   the lazy load now keeps the per-input timeouts honest. *)
+Quiet @ Check[
+  GreedyContractionPath[{{1}}, {}, <|1 -> 2|>],
+  Null
+];
+
 (* Netcon C++ LibraryLink is in hibernation per user directive (2026-05-05).
    Pages whose examples invoke Netcon-backed paths are skipped here so the
    harness does not exercise that code path until Netcon comes back online.
