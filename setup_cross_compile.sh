@@ -1,30 +1,28 @@
 #!/bin/bash
-# setup_cross_compile.sh - Install cacheable cross-compilation tools (Zig, libiconv)
+# setup_cross_compile.sh - Install cacheable cross-compilation tools (Zig, macOS SDK)
 # apt packages are installed separately (not cacheable in CI containers)
 
 set -e
 
+ZIG_VERSION="0.13.0"
+MACOS_SDK_VERSION="12.3"
+MACOS_SDK_URL="https://github.com/joseluisq/macosx-sdks/releases/download/${MACOS_SDK_VERSION}/MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz"
+
 # Install Zig
-echo "Installing Zig..."
+echo "Installing Zig ${ZIG_VERSION}..."
 mkdir -p /opt/zig
-curl -L "https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz" | tar -xJ -C /opt/zig --strip-components=1
+curl -fsSL "https://ziglang.org/download/${ZIG_VERSION}/zig-linux-x86_64-${ZIG_VERSION}.tar.xz" \
+  | tar -xJ -C /opt/zig --strip-components=1
 export PATH="/opt/zig:$PATH"
 
-# Cross-compile libiconv for macOS
-echo "Cross-compiling libiconv for macOS..."
-mkdir -p /tmp/libiconv-build && cd /tmp/libiconv-build
-curl -L "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz" | tar -xz --strip-components=1
+# Download macOS SDK (provides Frameworks/* and usr/lib/libiconv.tbd, libSystem.tbd, ...)
+echo "Downloading macOS SDK ${MACOS_SDK_VERSION}..."
+mkdir -p /opt/macos-sdk
+curl -fsSL "$MACOS_SDK_URL" | tar -xJ -C /opt/macos-sdk
 
-mkdir -p build-x86_64 && cd build-x86_64
-CC="zig cc -target x86_64-macos" LD="zig cc -target x86_64-macos" AR="zig ar" RANLIB="zig ranlib" \
-  ../configure --host=x86_64-apple-darwin --prefix=/opt/macos-sysroot/x86_64 --disable-shared --enable-static
-make -j$(nproc) && make install
-cd ..
-
-mkdir -p build-aarch64 && cd build-aarch64
-CC="zig cc -target aarch64-macos" LD="zig cc -target aarch64-macos" AR="zig ar" RANLIB="zig ranlib" \
-  ../configure --host=aarch64-apple-darwin --prefix=/opt/macos-sysroot/aarch64 --disable-shared --enable-static
-make -j$(nproc) && make install
-cd / && rm -rf /tmp/libiconv-build
+# The tarball extracts to MacOSX${VERSION}.sdk/. Symlink to a stable name.
+ln -sfn "/opt/macos-sdk/MacOSX${MACOS_SDK_VERSION}.sdk" /opt/macos-sdk/MacOSX.sdk
 
 echo "Cross-compilation setup complete!"
+echo "  Zig:       /opt/zig"
+echo "  macOS SDK: /opt/macos-sdk/MacOSX.sdk"

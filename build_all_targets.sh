@@ -13,6 +13,8 @@ TARGETS=(
     "Windows-x86-64:x86_64-pc-windows-gnu"
 )
 
+MACOS_SDK="${MACOS_SDK:-/opt/macos-sdk/MacOSX.sdk}"
+
 echo "Building for all targets..."
 echo
 
@@ -20,7 +22,18 @@ for entry in "${TARGETS[@]}"; do
     system_id="${entry%%:*}"
     target="${entry##*:}"
     echo "=== Building for $system_id ($target) ==="
-    
+
+    case "$target" in
+        *-apple-darwin)
+            # Provide a real SDK so rustc skips xcrun and the linker finds
+            # frameworks (e.g. CoreFoundation pulled in by iana-time-zone).
+            export SDKROOT="$MACOS_SDK"
+            ;;
+        *)
+            unset SDKROOT
+            ;;
+    esac
+
     if cargo build --release --target "$target"; then
         echo "✓ $system_id build succeeded"
     else
@@ -29,6 +42,8 @@ for entry in "${TARGETS[@]}"; do
     fi
     echo
 done
+
+unset SDKROOT
 
 echo "=== All builds completed successfully ==="
 

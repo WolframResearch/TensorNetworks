@@ -5,6 +5,7 @@
 set -e
 
 CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
+MACOS_SDK="${MACOS_SDK:-/opt/macos-sdk/MacOSX.sdk}"
 
 # Install Rust if not present (minimal profile to save space)
 if ! command -v rustup &> /dev/null; then
@@ -27,16 +28,24 @@ rustup target add \
 # Install rustfmt
 rustup component add rustfmt
 
-# Configure Cargo linkers
+# Configure Cargo linkers. For macOS targets, point zig cc at the macOS SDK
+# via -isysroot so the linker can resolve frameworks (CoreFoundation etc.) and
+# libiconv/libSystem stubs from the SDK.
 mkdir -p "$CARGO_HOME"
-cat > "$CARGO_HOME/config.toml" << 'EOF'
+cat > "$CARGO_HOME/config.toml" << EOF
 [target.x86_64-apple-darwin]
 linker = "zcc"
-rustflags = ["-C", "link-arg=-target", "-C", "link-arg=x86_64-macos", "-C", "link-arg=-L/opt/macos-sysroot/x86_64/lib"]
+rustflags = [
+    "-C", "link-arg=-target", "-C", "link-arg=x86_64-macos",
+    "-C", "link-arg=-isysroot", "-C", "link-arg=${MACOS_SDK}",
+]
 
 [target.aarch64-apple-darwin]
 linker = "zcc"
-rustflags = ["-C", "link-arg=-target", "-C", "link-arg=aarch64-macos", "-C", "link-arg=-L/opt/macos-sysroot/aarch64/lib"]
+rustflags = [
+    "-C", "link-arg=-target", "-C", "link-arg=aarch64-macos",
+    "-C", "link-arg=-isysroot", "-C", "link-arg=${MACOS_SDK}",
+]
 
 [target.x86_64-pc-windows-gnu]
 linker = "x86_64-w64-mingw32-gcc"

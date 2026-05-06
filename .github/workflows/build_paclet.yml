@@ -19,7 +19,6 @@ jobs:
     
     env:
       WOLFRAMSCRIPT_ENTITLEMENTID: ${{ secrets.WOLFRAMSCRIPT_ENTITLEMENTID }}
-      SDKROOT: /nonexistent
 
     steps:
       - name: Checkout Code
@@ -40,9 +39,9 @@ jobs:
         with:
           path: |
             /opt/zig
-            /opt/macos-sysroot
+            /opt/macos-sdk
             /usr/local/bin/zcc
-          key: toolchains-zig-0.13.0-libiconv-1.17-${{ hashFiles('setup_cross_compile.sh', 'zcc') }}
+          key: toolchains-zig-0.13.0-macossdk-12.3-${{ hashFiles('setup_cross_compile.sh', 'zcc') }}
 
       - name: Setup Cross-Compilation Toolchains
         if: steps.cache-toolchains.outputs.cache-hit != 'true'
