@@ -579,7 +579,7 @@ TensorNetworkDelete[net_ ? TensorNetworkQ, index_Integer : -1] := With[{hyperedg
 
 
 (* Summary Box - NoEntry is handled by System`Private`HoldSetNoEntry *)
-TensorNetwork /: MakeBoxes[tn_TensorNetwork /; TensorNetworkQ[tn], fmt_] := With[{
+TensorNetwork /: MakeBoxes[tn_TensorNetwork /; TensorNetworkQ[Unevaluated[tn]], fmt_] := With[{
     nTensors = Length[tn["Tensors"]],
     hyperedges = tn["Hyperedges"],
     freeIndices = tn["FreeIndices"],
