@@ -38,6 +38,8 @@ linker = "zcc"
 rustflags = [
     "-C", "link-arg=-target", "-C", "link-arg=x86_64-macos",
     "-C", "link-arg=-isysroot", "-C", "link-arg=${MACOS_SDK}",
+    "-C", "link-arg=-L${MACOS_SDK}/usr/lib",
+    "-C", "link-arg=-F${MACOS_SDK}/System/Library/Frameworks",
 ]
 
 [target.aarch64-apple-darwin]
@@ -45,6 +47,8 @@ linker = "zcc"
 rustflags = [
     "-C", "link-arg=-target", "-C", "link-arg=aarch64-macos",
     "-C", "link-arg=-isysroot", "-C", "link-arg=${MACOS_SDK}",
+    "-C", "link-arg=-L${MACOS_SDK}/usr/lib",
+    "-C", "link-arg=-F${MACOS_SDK}/System/Library/Frameworks",
 ]
 
 [target.x86_64-pc-windows-gnu]
