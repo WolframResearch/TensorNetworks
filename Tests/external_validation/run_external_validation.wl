@@ -74,6 +74,10 @@ Do[
                 fullPath = FileNameJoin[{dirPath, file}];
 
                 Print["  ", bold, file, reset];
+                (* PacletDirectoryLoad shifts Directory[]; restore worktree root
+                   before each TestReport so each tier file's loader resolves
+                   Directory[]-relative paths correctly. *)
+                SetDirectory[$ValidationRoot];
                 report = TestReport[fullPath];
                 results = report["TestResults"];
 

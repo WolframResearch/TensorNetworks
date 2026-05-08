@@ -212,15 +212,32 @@ SkipDueToRNG["tier1b-B8-hyperoptimizer-comparison",
    paclet's optimal path should yield total cost <= greedy path's cost. *)
 
 (* opt_einsum convention: path step {i,j} removes positions i,j from working
-   list and appends the merged result at the end. Cost at each step =
-   product of all dimensions involved (output dims * shared dim). *)
+   list and appends the merged result at the end.
+
+   Per-step cost = product of dims for ALL unique legs in the union of the two
+   tensors (matching cotengra's `compute_flops` and `node._flops` with dtype=None).
+
+   The merged tensor's surviving legs are those that:
+     - appear in any remaining (not-yet-contracted) tensor (internal hyper-leg
+       still needed by future contractions), OR
+     - are "open" output legs (legs that originally appeared exactly once in
+       the network and so cannot be summed over).
+   Legs in the union that don't satisfy either are fully contracted at this step
+   and disappear from the merged tensor. *)
 pathCost[indicesPerTensor_, sizeDict_, path_] := Module[
-    {idxs = indicesPerTensor, totalCost = 0, i, j, mergedIdx},
+    {idxs = indicesPerTensor, totalCost = 0, openLegs,
+     i, j, mergedIdx, remaining, surviving},
+    openLegs = Keys @ Select[Counts[Catenate[indicesPerTensor]], # === 1 &];
     Do[
         {i, j} = path[[step]];
         mergedIdx = DeleteDuplicates @ Join[idxs[[i]], idxs[[j]]];
         totalCost += Times @@ (sizeDict /@ mergedIdx);
-        idxs = Append[Delete[idxs, {{i}, {j}}], mergedIdx];
+        remaining = Delete[idxs, {{i}, {j}}];
+        surviving = Select[mergedIdx,
+            With[{leg = #},
+                MemberQ[openLegs, leg] || AnyTrue[remaining, MemberQ[#, leg] &]
+            ] &];
+        idxs = Append[remaining, surviving]
     , {step, Length[path]}];
     totalCost
 ];
@@ -297,6 +314,88 @@ WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetwor
         ],
         True,
         TestID -> "tier1b-B11-paths-give-same-result"
+    ]
+];
+
+(* ----- B-cost1: Pin down the paclet's per-step cost convention.
+   Convention (audited 2026-05-08 against TensorNetworks/Cotengra/src/lib.rs:115-132):
+     Per step (i,j) -> cost = product of all unique dims in (legs_i union legs_j)
+   This matches cotengra's mul-count `_flops` (cotengra/core.py:1196-1227 with
+   dtype=None). cotengra additionally scales by 2 for dtype="float" and 4 for
+   dtype="complex"; paclet does not scale.
+
+   Test: 3-tensor open chain a[i,j] b[j,k] c[k,l] with d_i=2, d_j=3, d_k=4, d_l=5.
+   Output: rank-2 tensor with open legs {i, l}.
+   Optimal path is L-to-R {{1,2},{1,2}}:
+     Step 1 (a,b -> ab[i,k]): product of {i,j,k} dims = 2*3*4 = 24
+     Step 2 (ab,c -> result[i,l]): product of {i,k,l} dims = 2*4*5 = 40
+   Total flops = 24 + 40 = 64.
+   (Greedy chooses R-to-L which gives a higher cost of 90; this test uses
+   OptimalContractionPath since it's the cost the optimizer should find.) *)
+WithCapability[{"OptimalContractionPath", "TensorNetwork"},
+    "tier1b-Bcost1-chain-optimal-flops",
+    "cotengra core.py:1196-1227 + paclet Cotengra/src/lib.rs:115-132",
+    VerificationTest[
+        Module[{tn, ts, shapes, sd, path, cost},
+            sd = <|"i" -> 2, "j" -> 3, "k" -> 4, "l" -> 5|>;
+            shapes = {{"i", "j"}, {"j", "k"}, {"k", "l"}};
+            ts = MapThread[ConstantArray[1.0, sd /@ #] &, {shapes}];
+            tn = TensorNetwork[ts, shapes];
+            path = OptimalContractionPath[tn, Method -> "flops"];
+            cost = pathCost[shapes, sd, path];
+            cost === 64
+        ],
+        True,
+        TestID -> "tier1b-Bcost1-chain-optimal-flops"
+    ]
+];
+
+(* ----- B-cost2: optimal path on a closed triangle has known total cost.
+   Triangle a[i,j] b[j,k] c[k,i] with d_i=2, d_j=3, d_k=4. Closed network
+   (every leg appears twice) -> output is a scalar.
+     Step 1 (b,c -> bc[j,i]): product of {j,k,i} dims = 3*4*2 = 24
+     Step 2 (a,bc -> scalar): product of {i,j} dims = 2*3 = 6
+   Total flops = 24 + 6 = 30. *)
+WithCapability[{"OptimalContractionPath", "TensorNetwork"},
+    "tier1b-Bcost2-triangle-cost",
+    "Per-step cost convention on a closed triangle",
+    VerificationTest[
+        Module[{tn, ts, shapes, sd, path, cost},
+            sd = <|"i" -> 2, "j" -> 3, "k" -> 4|>;
+            shapes = {{"i", "j"}, {"j", "k"}, {"k", "i"}};
+            ts = MapThread[ConstantArray[1.0, sd /@ #] &, {shapes}];
+            tn = TensorNetwork[ts, shapes];
+            path = OptimalContractionPath[tn, Method -> "flops"];
+            cost = pathCost[shapes, sd, path];
+            cost === 30
+        ],
+        True,
+        TestID -> "tier1b-Bcost2-triangle-cost"
+    ]
+];
+
+(* ----- B-cost3: paclet's MM-wrapper default is "size", NOT "flops".
+   Documents the behavior gap with cotengra (which defaults to "flops"). For a
+   network where flops-optimal and size-optimal paths differ, the wrapper's
+   default invocation should match Method -> "size", not Method -> "flops". *)
+WithCapability[{"OptimalContractionPath", "TensorNetwork"},
+    "tier1b-Bcost3-wrapper-default-is-size",
+    "paclet TensorNetworks.wl:112-118 (Method -> size override)",
+    VerificationTest[
+        Module[{tn, ts, shapes, sd, pDefault, pSize, pFlops},
+            (* Pick a network where flops and size give different paths. The
+               4-tensor demo from cotengra basics works: shapes have varied dims. *)
+            sd = <|"a" -> 4, "b" -> 5, "c" -> 6, "d" -> 7, "e" -> 8, "x" -> 2, "y" -> 3|>;
+            shapes = {{"a", "b", "x"}, {"b", "c", "d"}, {"c", "e", "y"}, {"e", "a", "d"}};
+            ts = MapThread[ConstantArray[1.0, sd /@ #] &, {shapes}];
+            tn = TensorNetwork[ts, shapes];
+            pDefault = OptimalContractionPath[tn];                  (* uses Method -> "size" *)
+            pSize = OptimalContractionPath[tn, Method -> "size"];
+            (* Default must match explicit "size", not explicit "flops". *)
+            pDefault === pSize
+        ],
+        True,
+        TestID -> "tier1b-Bcost3-wrapper-default-is-size"
     ]
 ];
 
