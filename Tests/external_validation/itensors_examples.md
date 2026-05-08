@@ -1,4 +1,4 @@
-# ITensors.jl Parity-Test Catalog
+# ITensors.jl Validation-Test Catalog
 
 Source: `tn-external/numerical/ITensors.jl/`. **For MPS / MPO / DMRG / OpSum / `inner` / `expect` coverage, see [itensormps_examples.md](itensormps_examples.md).**
 
@@ -139,7 +139,7 @@ WL-portable counts: **Yes: 30, Partial: 9, No: 2** (the two No items are GPU-spe
 - **Inputs:** Various `Index` of dims 2, 3, 4, 5, 6 with random fills.
 - **API:** `*`, `permute`, `array`, `scalar`.
 - **Expected output:** Matches the equivalent Julia BLAS computation (`array(C) ≈ ...`).
-- **WL-portable:** Yes — gold-standard parity case.
+- **WL-portable:** Yes — gold-standard validation case.
 
 ### 15. Trace via delta tensor
 - **Source:** `docs/src/examples/ITensor.md:260-291`
@@ -338,7 +338,7 @@ WL-portable counts: **Yes: 30, Partial: 9, No: 2** (the two No items are GPU-spe
 - **Inputs:** `β = 1.1*βc`, `χmax=20`, `nsteps=20`, `svd_alg="divide_and_conquer"`.
 - **API:** `factorize(T, (sh',sv'); maxdim, cutoff, ortho="none", tags, svd_alg)`, `δ`, `*`, indexed slicing `T[]`.
 - **Expected output:** `κ ≈ exp(-β · ising_free_energy(β))` to atol = 1e-4. The exact value of `exp(-β · f(β))` for `β=1.1·βc` is approximately **3.071**. Magnetization comparison: `m ≈ ising_magnetization(β) = (1 - sinh(2β)^(-4))^(1/8) ≈ 0.794`.
-- **WL-portable:** Yes (key parity benchmark).
+- **WL-portable:** Yes (key validation benchmark).
 
 ### 39. Isotropic CTMRG for 2D Ising
 - **Source:** `examples/ctmrg/isotropic/run.jl`, `examples/src/ctmrg_isotropic.jl`, `test/base/test_ctmrg.jl`
@@ -376,14 +376,14 @@ WL-portable counts: **Yes: 30, Partial: 9, No: 2** (the two No items are GPU-spe
 - **HDF5 round-trip examples (`docs/src/HDF5FileFormats.md`, `docs/src/examples/ITensor.md:502-557`):** I/O not numerical computation; skipped from catalog.
 - **Upgrade-guide examples (`docs/src/UpgradeGuide_0.1_to_0.2.md`):** These are migration explanations, not new test cases.
 
-## Recommended parity-test priority order
+## Recommended validation-test priority order
 
 For implementing in the WL TensorNetworks paclet (highest signal first):
-1. Entries #1, #13, #14, #19, #20, #23, #27, #41 — core ITensor + contraction + decomp parity (deterministic numeric tests).
+1. Entries #1, #13, #14, #19, #20, #23, #27, #41 — core ITensor + contraction + decomp validation (deterministic numeric tests).
 2. Entries #38, #39 — TRG and isotropic CTMRG against the closed-form Ising free energy and magnetization.
 3. Entries #34, #35 — operator-on-site dispatch.
 4. Entries #22, #24, #25 — edge-case decomposition behaviour.
-5. Entry #18 — contraction-sequence comparison (mind the convention: paclet `OptimalContractionPath` defaults to `Method->"size"`; pass `Method->"flops"` for parity, per project memory).
+5. Entry #18 — contraction-sequence comparison (mind the convention: paclet `OptimalContractionPath` defaults to `Method->"size"`; pass `Method->"flops"` for cross-validation, per project memory).
 6. Entries #30–#33 — QN/block-sparse; partly out of scope per project memory unless paclet adds block-sparse support.
 
 ## Note: missing MPS/DMRG features

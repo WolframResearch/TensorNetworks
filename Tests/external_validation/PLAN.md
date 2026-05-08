@@ -1,6 +1,6 @@
-# External-Parity Test Plan
+# External-Validation Test Plan
 
-This document is the single source of truth for the external-parity test strategy: scope, structure, tiers, phases, what's done, what's deferred, and what's open. Update this document when the plan changes; the implementation files and `SKIPPED_AND_MISSING.md` should remain consistent with it.
+This document is the single source of truth for the external-validation test strategy: scope, structure, tiers, phases, what's done, what's deferred, and what's open. Update this document when the plan changes; the implementation files and `SKIPPED_AND_MISSING.md` should remain consistent with it.
 
 ## 1. Goal
 
@@ -12,19 +12,19 @@ Verify the Wolfram TensorNetworks paclet against the leading numerical TN+quantu
 
 The catalog (`EXAMPLES_CATALOG.md` + per-package files) captures **503** examples across the six packages; this plan describes which of those translate into actual tests and how.
 
-## 2. Strict vs loose definition of "external parity"
+## 2. Direct vs indirect definition of "external validation"
 
 This distinction matters and was clarified mid-implementation:
 
-- **Loose parity** (what most tests do today): "External package P returns Y on input X. Paclet on input X returns Y'. Compute Y independently in Mathematica from the same X. Verify Y' == Y." Catches gross paclet bugs but anchors to Mathematica's internal computation, not P's.
-- **Strict parity** (what we should aspire to): "P returns specific value Y_P on X (a number lifted directly from the catalog). Paclet returns Y'. Verify Y' == Y_P within tolerance." Anchors to the external package's actual output.
+- **Indirect validation** (what most tests do today): "External package P returns Y on input X. Paclet on input X returns Y'. Compute Y independently in Mathematica from the same X. Verify Y' == Y." Catches gross paclet bugs but anchors to Mathematica's internal computation, not P's.
+- **Direct validation** (what we should aspire to): "P returns specific value Y_P on X (a number lifted directly from the catalog). Paclet returns Y'. Verify Y' == Y_P within tolerance." Anchors to the external package's actual output.
 
-Tier-1 is mostly loose-parity. Tier-2 (proposed) adds strict-parity tests where the catalog has hard numbers.
+Tier-1 is mostly indirect-validation. Tier-2 (proposed) adds direct-validation tests where the catalog has hard numbers.
 
 ## 3. Two-group structure
 
 ```
-Tests/external_parity/
+Tests/external_validation/
   paclet_primitives/   <- tests that genuinely call paclet symbols
   baselines/           <- Mathematica-native sanity checks against catalog values; no paclet calls
 ```
@@ -52,11 +52,11 @@ Reasoning:
 | baseline | `gate_identities.wl` | 7 | Gate matrix identities (HZH=X, Toffoli, QFT unitarity) |
 | baseline | `state_expectations.wl` | 4 | Product-state expectations via vector arithmetic |
 
-### Tier-2 (PROPOSED) — strict external-value parity
+### Tier-2 (PROPOSED) — strict direct external comparison
 
 Goal: lift specific numerical answers from the catalog and use them as oracles. ~30-40 new paclet tests, raising `paclet_primitives/` coverage from 38 to ~70.
 
-| New file | Focus | Strict-parity targets |
+| New file | Focus | Direct-validation targets |
 |---|---|---|
 | `cotengra_benchmarks.wl` | Path cost on cotengra's 8 JSON benchmark networks | lattice[4,5] cost=**1464**, 4-tensor demo cost=**4656**, contract_stats={flops:964,write:293,size:32} |
 | `tensor_algebra_edge.wl` | Edge cases for EinsteinSummation/IndexedMultiply | empty contraction, single-index, dimension-mismatch error, rank>6 |
@@ -82,7 +82,7 @@ The build was structured as discrete phases to keep work incremental. All Tier-1
 
 | Phase | Description | Status |
 |---|---|---|
-| 0 | `Helpers/ParityHelpers.wl` — capability gating, skip recording, ParityClose | done |
+| 0 | `Helpers/ValidationHelpers.wl` — capability gating, skip recording, ValidationClose | done |
 | 1 | Tier-1A tensor algebra — `paclet_primitives/tensor_algebra.wl` | done |
 | 2 | Tier-1B contraction paths — `paclet_primitives/contraction_paths.wl` | done |
 | 3 | Tier-1C decomposition — `baselines/decomposition.wl` | done |
@@ -90,14 +90,14 @@ The build was structured as discrete phases to keep work incremental. All Tier-1
 | 5 | Tier-1E gate identities — `baselines/gate_identities.wl` | done |
 | 6 | Tier-1F TN expectations — split: `paclet/tn_expectations.wl` + `baselines/state_expectations.wl` | done |
 | 6+ | Tier-1G MPS — `paclet_primitives/mps.wl` | done |
-| 7 | Tier-2 strict-parity expansion (5 new files, ~30-40 tests) | proposed |
+| 7 | Tier-2 direct-validation expansion (5 new files, ~30-40 tests) | proposed |
 | 8 | Optional: live cross-language oracle subdir (opt-in) | deferred |
 
 ## 6. Skip categories and their meanings
 
 Auto-tracked in `SKIPPED_AND_MISSING.md`. Three classes:
 
-- **SkipRNG** — Cross-language RNG parity is impossible. NumPy uses PCG64, Julia uses Xoshiro256++, Mathematica has its own; same seed gives different streams. Use `SkipDueToRNG[id, reason, source]`.
+- **SkipRNG** — Cross-language RNG reproducibility is impossible. NumPy uses PCG64, Julia uses Xoshiro256++, Mathematica has its own; same seed gives different streams. Use `SkipDueToRNG[id, reason, source]`.
 - **SkipMissing** — Paclet lacks a required symbol. Use `WithCapability[{symbols}, id, source, body]` (auto-records if any symbol missing) or `RecordSkipMissing[id, syms, source]` for explicit. **Important:** this is a feature gap, NOT a bug. Distinguishes from Error.
 - **Error** — Unexpected exception during a test. This IS a bug. Auto-recorded via `RecordError`.
 
@@ -120,9 +120,9 @@ Not on the current TODO list. Estimated effort: 2-3 days plus ongoing maintenanc
 
 These are choices that would change scope or shape; surfaced for explicit decision before further work:
 
-1. **Strict vs loose tier-2 split.** Should Tier-2 explicitly require strict-parity (every test cites a specific external numerical answer), or accept loose-parity for cases where the external value is also analytic? Recommended: strict-only for Tier-2 to make the distinction visible.
+1. **Direct vs indirect tier-2 split.** Should Tier-2 explicitly require direct-validation (every test cites a specific external numerical answer), or accept indirect-validation for cases where the external value is also analytic? Recommended: strict-only for Tier-2 to make the distinction visible.
 2. **Path-cost convention reconciliation.** cotengra uses `ops = real_flops/2 = complex_flops/8`. The paclet's `OptimalContractionPath` cost convention is currently undocumented in tests. Tier-2 should pin this down and record the mapping.
-3. **CI integration.** `run_external_parity.wl` exits 0/1 and is invokable directly. Should it be added to `Tests/run_tests.wl`'s discovery, or live as a separate CI step? Recommended: separate step, since it imports external clones and may be slower.
+3. **CI integration.** `run_external_validation.wl` exits 0/1 and is invokable directly. Should it be added to `Tests/run_tests.wl`'s discovery, or live as a separate CI step? Recommended: separate step, since it imports external clones and may be slower.
 4. **Test-ID renaming.** Current IDs use `tier1a-A1-name` format from when everything was Tier-1. After the paclet/baseline split, IDs like `paclet-tensor-A1-conjugate` would be clearer. Decision pending; currently keep as-is for catalog cross-reference traceability.
 5. **Catalog freshness.** The catalog was extracted in May 2026. Re-extracting after upstream package updates is a separate workflow (the audit-agent prompts are reproducible from git history). Recommended cadence: after each major external-package release, or quarterly.
 
@@ -135,12 +135,12 @@ To add a tier file:
 3. Each test: `WithCapability[{required_symbols}, id, source, body]` for paclet tests, plain `VerificationTest` otherwise.
 4. For RNG-dependence: `SkipDueToRNG[id, reason, source]`.
 5. For missing features that aren't auto-detected: `RecordSkipMissing[id, syms, source]`.
-6. Add the file name to `run_external_parity.wl`'s `testGroups` list.
+6. Add the file name to `run_external_validation.wl`'s `testGroups` list.
 7. Run the master runner. Commit the regenerated `SKIPPED_AND_MISSING.md`.
 
 ## 10. References
 
-- **Catalogs:** `Tests/external_parity/EXAMPLES_CATALOG.md` (master index) + `<package>_examples.md` (per-package)
-- **Implementation conventions:** `Tests/external_parity/Helpers/ParityHelpers.wl`
-- **Live skip log:** `Tests/external_parity/SKIPPED_AND_MISSING.md` (auto-generated)
-- **Memory:** `~/.claude/projects/.../memory/reference_external_parity_suite.md` (cross-session pointer to this work)
+- **Catalogs:** `Tests/external_validation/EXAMPLES_CATALOG.md` (master index) + `<package>_examples.md` (per-package)
+- **Implementation conventions:** `Tests/external_validation/Helpers/ValidationHelpers.wl`
+- **Live skip log:** `Tests/external_validation/SKIPPED_AND_MISSING.md` (auto-generated)
+- **Memory:** `~/.claude/projects/.../memory/reference_external_validation_suite.md` (cross-session pointer to this work)

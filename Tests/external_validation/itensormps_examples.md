@@ -1,4 +1,4 @@
-# ITensorMPS.jl Parity-Test Catalog
+# ITensorMPS.jl Validation-Test Catalog
 
 Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0.7 (Oct 2024). Owns all MPS/MPO/DMRG/OpSum/`siteinds`/`inner`/`expect`/observer machinery. This catalog complements [itensors_examples.md](itensors_examples.md) which has only tensor primitives + TRG/CTMRG.
 
@@ -19,7 +19,7 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 | DMRG (finite) | 23 | 16 | 4 | 3 |
 | TDVP | 7 | 5 | 2 | 0 |
 | Expectation value (`expect`/`inner`) | 8 | 8 | 0 | 0 |
-| Ground-state energy gold parity | 6 | 6 | 0 | 0 |
+| Ground-state energy validation references | 6 | 6 | 0 | 0 |
 | Correlation function | 5 | 5 | 0 | 0 |
 | Entanglement / Schmidt | 3 | 3 | 0 | 0 |
 | Sampling | 3 | 3 | 0 | 0 |
@@ -34,7 +34,7 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 
 (**Y/P/N** = WL-portable Yes / Partial / No. *Partial* = main numerics fine but some setting requires features the paclet does not yet have, e.g. block-sparse QN flux, AutoMPO row-bypass tricks, or random-circuit test states.)
 
-**Gold parity tests** (analytical or known-numeric reference):
+**Gold validation tests** (analytical or known-numeric reference):
 
 * TFI critical OBC energy, `E = 1 − 1/sin(π/(4N+2))` — `test_dmrg.jl:218-247`, `:271`. For N=32 ≈ −20.1817.
 * Heisenberg S=1 N=100 final energy `E = -138.94008605883985` — README, `index.md`, `examples/dmrg/1d_heisenberg.jl`.
@@ -117,7 +117,7 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 10. **Complex OpSum coefs.** `test_autompo.jl:1037-1053`. With Float64 / QN; verifies `inner(ψud',H,ψdu) = +i`, `inner(ψdu',H,ψud) = -i`. WL-portable: Yes.
 11. **Non-zero QN MPO from single creation operator.** `test_autompo.jl:1055-1084`. `os += "Adag",j` with Boson conserve_qns; matches hand-built op_mpo. WL-portable: Partial.
 12. **Hashing / repeated terms.** `test_autompo.jl:1177-1205`. `os += ("Z",1) + ("Z",1)` — `sortmergeterms` collapses. WL-portable: Yes.
-13. **HardCore boson Hamiltonian on product state.** `test_autompo.jl:1120-1156`. L=20, t=1, V1=1e-3, V2=2e-5; `<ψ0|H|ψ0> = 0.00018` ± 1e-10. **Gold parity test.** WL-portable: No (custom HardCore site type, must port).
+13. **HardCore boson Hamiltonian on product state.** `test_autompo.jl:1120-1156`. L=20, t=1, V1=1e-3, V2=2e-5; `<ψ0|H|ψ0> = 0.00018` ± 1e-10. **Gold validation test.** WL-portable: No (custom HardCore site type, must port).
 
 ## AutoMPO
 
@@ -131,17 +131,17 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 
 ## DMRG (finite)
 
-1. **Heisenberg S=1 N=100 with default sweeps.** README, `docs/src/index.md`, `examples/dmrg/1d_heisenberg.jl`. `nsweeps=5`, `maxdim=[10,20,100,100,200]`, `cutoff=1e-10`. **`Final energy = -138.94008605883985`** — gold parity (Haldane gap region). WL-portable: Yes.
+1. **Heisenberg S=1 N=100 with default sweeps.** README, `docs/src/index.md`, `examples/dmrg/1d_heisenberg.jl`. `nsweeps=5`, `maxdim=[10,20,100,100,200]`, `cutoff=1e-10`. **`Final energy = -138.94008605883985`** — gold validation (Haldane gap region). WL-portable: Yes.
 2. **Heisenberg S=1 N=10 small system.** `test_dmrg.jl:7-31`. Checks `energy < -12`. WL-portable: Yes.
 3. **Heisenberg S=1 N=10 conserving QN.** `test_dmrg.jl:33-58`. Néel state init; `energy < -12`. WL-portable: Partial (block sparse needed for matching low-D blocks).
 4. **Disk-cached Heisenberg S=1 conserve_qns.** `test_dmrg.jl:60-85`. `write_when_maxdim_exceeds=15`. WL-portable: No.
-5. **TFI L=32 critical OBC.** `test_dmrg.jl:198-247`. **Exact `E_exact = 1 − 1/sin(π/(4N+2))`** matched to 1e-4 (gold parity). WL-portable: Yes.
+5. **TFI L=32 critical OBC.** `test_dmrg.jl:198-247`. **Exact `E_exact = 1 − 1/sin(π/(4N+2))`** matched to 1e-4 (gold validation reference). WL-portable: Yes.
 6. **TFI L=32 conserve_szparity.** `test_dmrg.jl:249-274`. Same exact energy. WL-portable: Partial.
 7. **DMRGObserver basic + measurements.** `test_dmrg.jl:276-316`. L=10 S=1/2 transverse-Ising-like; observes Sz/Sx after each sweep. WL-portable: Yes.
 8. **Sum of MPOs as Hamiltonian (`ProjMPOSum`).** `test_dmrg.jl:318-344`, `examples/dmrg/2d_hubbard_conserve_particles.jl`. `dmrg([HZ,HXY], psi, sweeps)`; `energy < -12`. WL-portable: Yes.
 9. **Excited-state DMRG with weight.** `test_dmrg.jl:346-379`, `docs/src/examples/DMRG.md:285-368`. Two-spin-half ends + spin-1 bulk; `energy1 > energy0`, orthogonality `inner(psi1,psi0) < 1e-5`. **TFI gap test:** `Eg = 2|h-1|`. WL-portable: Yes.
 10. **Spinless-fermion DMRG (Cdag…C, with N…N density).** `test_dmrg.jl:381-414`. L=10 t1=1 t2=0.5 V=0.2; `-6.5 < E < -6.4`. WL-portable: Yes.
-11. **Hubbard model DMRG (L=10, Npart=8, t1=1, U=1, V1=0.5).** `test_dmrg.jl:416-442`. **`-8.02 < E < -8.01`** (gold parity). State `["Up","Dn","Dn","Up","Emp","Up","Up","Emp","Dn","Dn"]`. WL-portable: Partial.
+11. **Hubbard model DMRG (L=10, Npart=8, t1=1, U=1, V1=0.5).** `test_dmrg.jl:416-442`. **`-8.02 < E < -8.01`** (gold validation reference). State `["Up","Dn","Dn","Up","Emp","Up","Up","Emp","Dn","Dn"]`. WL-portable: Partial.
 12. **Mixed S=1/2 + S=1 ladder.** `docs/src/examples/DMRG.md:107-167`. `siteinds(n->isodd(n) ? "S=1/2" : "S=1", N)`; couplings `Jho`, `Jhh`, `Joo`. WL-portable: Yes.
 13. **2D Heisenberg cylinder.** `examples/dmrg/2d_heisenberg_conserve_spin.jl`, `docs/src/examples/DMRG.md:184-251`. `square_lattice(Nx=12,Ny=6; yperiodic=false)`; QN conservation; bond dim up to 800. WL-portable: Partial.
 14. **2D Hubbard cylinder.** `examples/dmrg/2d_hubbard_conserve_particles.jl`, `…_momentum.jl`. Nx=6 Ny=3 t=1 U=4; checkerboard initial state. The `momentum`-conserving variant uses custom `ElecK` site type. WL-portable: No.
@@ -176,7 +176,7 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 7. **`inner(ψ',W,ψ)` for MPO operator.** `docs/src/examples/MPSandMPO.md:155-168`, `test_mpo.jl:103-158`. WL-portable: Yes.
 8. **`inner(MPO,MPS)`/`inner(rho,H)`.** `examples/finite_temperature/purification.jl` β-loop computes `inner(rho,H)` as `tr(ρH)`; `inner(ψ',H,ψ)` for thermal energy. WL-portable: Yes.
 
-## Ground-state energy gold parity
+## Ground-state energy validation references
 
 1. **TFI critical OBC `E = 1 − 1/sin(π/(4N+2))`.** `test_dmrg.jl:198-247`, `:271`. WL-portable: Yes.
 2. **Heisenberg S=1 N=100 final energy `-138.94008605883985`.** README, `index.md`. WL-portable: Yes.

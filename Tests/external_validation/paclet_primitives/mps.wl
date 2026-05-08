@@ -1,4 +1,4 @@
-(* Tests/external_parity/tier1g_mps.wl
+(* Tests/external_validation/tier1g_mps.wl
 
 Tier-1G: MPS-specific paclet primitives. Exercises:
   RandomTensorNetwork["MPS"[L, bondDim, physDim]],
@@ -15,18 +15,18 @@ Sources mirrored:
 Module[{candidates, found},
     candidates = DeleteDuplicates @ Select[{
         If[StringQ[$InputFileName] && FileExistsQ[$InputFileName],
-            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ParityHelpers.wl"}], Null],
-        FileNameJoin[{Directory[], "Tests", "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "Helpers", "ParityHelpers.wl"}]
+            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ValidationHelpers.wl"}], Null],
+        FileNameJoin[{Directory[], "Tests", "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "Helpers", "ValidationHelpers.wl"}]
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1g] ERROR: cannot locate ParityHelpers.wl"]; Abort[];
+        Print["[tier1g] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
     ];
     Get[found];
 ];
-ClearParityRecords[];
+ClearValidationRecords[];
 
 (* ----- G1: random MPS produces a valid TensorNetwork *)
 WithCapability[{"RandomTensorNetwork", "TensorNetworkQ"},
@@ -54,7 +54,7 @@ WithCapability[{"RandomTensorNetwork", "MPSOverlap", "MPSNorm"},
             mps = RandomTensorNetwork["MPS"[5, 3, 2]];
             ovrl = MPSOverlap[mps, mps];
             norm = MPSNorm[mps];
-            ParityCloseRel[Re[ovrl], norm^2, 1.*^-10] && Abs[Im[ovrl]] < 1.*^-10
+            ValidationCloseRel[Re[ovrl], norm^2, 1.*^-10] && Abs[Im[ovrl]] < 1.*^-10
         ],
         True,
         TestID -> "tier1g-G2-overlap-equals-norm-sq"
@@ -125,8 +125,8 @@ WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSOverlap", "MPSNor
             normMps = MPSNorm[mps];
             normCanon = MPSNorm[canon];
             ovrl = MPSOverlap[mps, canon];
-            ParityCloseRel[normCanon, normMps, 1.*^-10] &&
-                ParityCloseRel[Abs[ovrl], normMps^2, 1.*^-10]
+            ValidationCloseRel[normCanon, normMps, 1.*^-10] &&
+                ValidationCloseRel[Abs[ovrl], normMps^2, 1.*^-10]
         ],
         True,
         TestID -> "tier1g-G6-canon-preserves-norm"
@@ -147,7 +147,7 @@ WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSSchmidtValues", "
             canon = MPSCanonicalForm[mps, {"Mixed", 3}];
             sv = MPSSchmidtValues[canon, 3];
             sumSq = Total[sv^2];
-            ParityCloseRel[sumSq, 1.0, 1.*^-8]
+            ValidationCloseRel[sumSq, 1.0, 1.*^-8]
         ],
         True,
         TestID -> "tier1g-G7-schmidt-sum-to-one"

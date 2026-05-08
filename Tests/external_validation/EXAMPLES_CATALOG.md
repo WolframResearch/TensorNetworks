@@ -1,6 +1,6 @@
 # External TN Package Examples Catalog
 
-Comprehensive catalog of computational examples extracted from the six leading numerical TN+quantum packages. Goal: reproduce each example in the Wolfram TensorNetworks paclet and compare results, building a parity test suite.
+Comprehensive catalog of computational examples extracted from the six leading numerical TN+quantum packages. Goal: reproduce each example in the Wolfram TensorNetworks paclet and compare results, building a validation test suite.
 
 Source clones live at `tn-external/numerical/` (gitignored via `.git/info/exclude`).
 
@@ -58,9 +58,9 @@ Source clones live at `tn-external/numerical/` (gitignored via `.git/info/exclud
 | OpSum → TTN operator | — | — | — | — | 4 | — |
 | lattices / sweeps / other | — | — | — | 14 | — | — |
 
-## Tier-1 priority parity tests
+## Tier-1 priority validation tests
 
-The most actionable parity tests — deterministic, exact numerical answers, small enough to run quickly. Group A→G in increasing computational cost.
+The most actionable validation tests — deterministic, exact numerical answers, small enough to run quickly. Group A→G in increasing computational cost.
 
 ### A. Pure tensor algebra (instant, exact)
 
@@ -168,7 +168,7 @@ cotengra ships canonical JSON benchmark networks at `tn-external/numerical/coten
 
 For the WL paclet, write a JSON loader → `BinaryTensorNetwork` adapter and round-trip every benchmark.
 
-## Reference RNG conventions for parity testing
+## Reference RNG conventions for validation testing
 
 - **quimb** honors `seed=` kwargs in `MPS_rand_state`, `PEPS.rand`, `MERA.rand`, `rand_tensor`, `rand_ket`, `rand_uni`, `rand_herm`. Match seeds on both sides.
 - **cotengra** seeds: `RandomGreedyOptimizer(seed=…)`, `rand_equation(seed=…)`, `rand_reg_contract(20, 5, seed=42)`.
@@ -193,11 +193,11 @@ These bundle external dependencies the WL paclet does not have. Either skip thes
 ## Recommended workflow
 
 1. **Pick a Tier-1 group** (start with A, B, C — these are zero-dependency).
-2. For each entry, write a `Tests/external_parity/<source-package>/test_<thing>.wl` script that constructs the same input in WL and asserts the expected output.
-3. Run with `wolframscript -file Tests/external_parity/<...>.wl` and compare numerically.
-4. Bundle into a `run_external_parity.wl` master runner (akin to existing `run_dataset_test.wl`).
+2. For each entry, write a `Tests/external_validation/<source-package>/test_<thing>.wl` script that constructs the same input in WL and asserts the expected output.
+3. Run with `wolframscript -file Tests/external_validation/<...>.wl` and compare numerically.
+4. Bundle into a `run_external_validation.wl` master runner (akin to existing `run_dataset_test.wl`).
 5. Tier-1G (algorithmic checks) requires DMRG / TRG / CTMRG primitives in the paclet — gate these with capability checks if not all present.
 
 ## How to refresh this catalog
 
-Re-clone packages with `git clone --depth=1` into `tn-external/numerical/`, then re-run the six parity-audit agents (one per package; see git log for the agent prompts used). Compare the fresh catalog against this one to detect new examples added upstream.
+Re-clone packages with `git clone --depth=1` into `tn-external/numerical/`, then re-run the six validation-audit agents (one per package; see git log for the agent prompts used). Compare the fresh catalog against this one to detect new examples added upstream.

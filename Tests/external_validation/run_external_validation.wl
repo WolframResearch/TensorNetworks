@@ -1,8 +1,8 @@
 #!/usr/bin/env wolframscript
 
-(* Tests/external_parity/run_external_parity.wl
+(* Tests/external_validation/run_external_validation.wl
 
-Master runner for the external-parity test suite. Iterates over two groups:
+Master runner for the external-validation test suite. Iterates over two groups:
 
   paclet_primitives/  - tests that genuinely exercise paclet symbols
                         (TensorNetwork, OptimalContractionPath, EinsteinSummation,
@@ -25,14 +25,14 @@ Outcome classes:
 red = "\033[0;31m"; green = "\033[0;32m"; yellow = "\033[0;33m"; blue = "\033[0;34m";
 bold = "\033[1m"; dim = "\033[2m"; reset = "\033[0m";
 
-$ParityRoot = SelectFirst[
+$ValidationRoot = SelectFirst[
     NestList[ParentDirectory, Directory[], 8],
     DirectoryQ[#] && FileExistsQ[FileNameJoin[{#, "TensorNetworks", "PacletInfo.wl"}]] &,
     Directory[]
 ];
 
-$ParityDir = FileNameJoin[{$ParityRoot, "Tests", "external_parity"}];
-Get[FileNameJoin[{$ParityDir, "Helpers", "ParityHelpers.wl"}]];
+$ValidationDir = FileNameJoin[{$ValidationRoot, "Tests", "external_validation"}];
+Get[FileNameJoin[{$ValidationDir, "Helpers", "ValidationHelpers.wl"}]];
 
 $AllRNGSkipped = <||>;
 $AllMissingSkipped = <||>;
@@ -63,7 +63,7 @@ $GroupRows = <||>;
 Do[
     Module[{groupName, groupFiles, dirPath, rows = {}},
         groupName = First[group]; groupFiles = Last[group];
-        dirPath = FileNameJoin[{$ParityDir, groupName}];
+        dirPath = FileNameJoin[{$ValidationDir, groupName}];
         Print[bold, blue, "==> ", groupName, "/", reset];
 
         Do[
@@ -80,9 +80,9 @@ Do[
                 succeeded = Select[Values[results], #["Outcome"] === "Success" &];
                 failed = Select[Values[results], #["Outcome"] === "Failure" &];
 
-                fileRNG = $ParityRNGSkipped;
-                fileMissing = $ParityMissingSkipped;
-                fileErrors = $ParityErrors;
+                fileRNG = $ValidationRNGSkipped;
+                fileMissing = $ValidationMissingSkipped;
+                fileErrors = $ValidationErrors;
 
                 AssociateTo[$AllRNGSkipped, Normal[fileRNG]];
                 AssociateTo[$AllMissingSkipped, Normal[fileMissing]];
@@ -163,12 +163,12 @@ Module[{groupTotals = <||>, grandPass = 0, grandFail = 0, grandRNG = 0, grandMis
 ];
 
 (* Repopulate globals from aggregator and write SKIPPED_AND_MISSING.md *)
-$ParityRNGSkipped = $AllRNGSkipped;
-$ParityMissingSkipped = $AllMissingSkipped;
-$ParityErrors = $AllErrors;
+$ValidationRNGSkipped = $AllRNGSkipped;
+$ValidationMissingSkipped = $AllMissingSkipped;
+$ValidationErrors = $AllErrors;
 
-skipLogPath = FileNameJoin[{$ParityDir, "SKIPPED_AND_MISSING.md"}];
-ParityWriteSkipLog[
+skipLogPath = FileNameJoin[{$ValidationDir, "SKIPPED_AND_MISSING.md"}];
+ValidationWriteSkipLog[
     skipLogPath,
     Length[$AllSucceeded],
     Length[$AllFailures]

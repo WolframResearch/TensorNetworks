@@ -1,4 +1,4 @@
-(* Tests/external_parity/tier1c_decomposition.wl
+(* Tests/external_validation/tier1c_decomposition.wl
 
 Tier-1C: SVD / QR / truncate parity. Mostly Mathematica-native primitives;
 where the paclet exposes its own decomposition (MPSTruncate), we exercise
@@ -16,18 +16,18 @@ Sources:
 Module[{candidates, found},
     candidates = DeleteDuplicates @ Select[{
         If[StringQ[$InputFileName] && FileExistsQ[$InputFileName],
-            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ParityHelpers.wl"}], Null],
-        FileNameJoin[{Directory[], "Tests", "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "Helpers", "ParityHelpers.wl"}]
+            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ValidationHelpers.wl"}], Null],
+        FileNameJoin[{Directory[], "Tests", "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "Helpers", "ValidationHelpers.wl"}]
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1c] ERROR: cannot locate ParityHelpers.wl"]; Abort[];
+        Print["[tier1c] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
     ];
     Get[found];
 ];
-ClearParityRecords[];
+ClearValidationRecords[];
 
 (* ----- C1: SVD random 10x20 reconstruction (ITensors README:170-194)
    M ≈ U.diag(S).Vt for random 10×20. *)
@@ -37,7 +37,7 @@ VerificationTest[
         m = RandomReal[{-1, 1}, {10, 20}];
         {u, s, vt} = SingularValueDecomposition[m];
         recon = u . s . ConjugateTranspose[vt];
-        ParityClose[recon, m, 1.*^-12]
+        ValidationClose[recon, m, 1.*^-12]
     ],
     True,
     TestID -> "tier1c-C1-svd-10x20"
@@ -54,7 +54,7 @@ VerificationTest[
         {u, s, vt} = SingularValueDecomposition[m];
         mRecon = u . s . ConjugateTranspose[vt];
         tRecon = Transpose[ArrayReshape[mRecon, {4, 4, 4, 4}], {1, 3, 2, 4}];
-        ParityClose[tRecon, t, 1.*^-12]
+        ValidationClose[tRecon, t, 1.*^-12]
     ],
     True,
     TestID -> "tier1c-C2-svd-grouped"
@@ -72,7 +72,7 @@ VerificationTest[
         (* Actually MM convention: m == Transpose[q] . r, with q rows orthonormal. *)
         recon = ConjugateTranspose[q] . r;
         gram = q . ConjugateTranspose[q];
-        ParityClose[recon, m, 1.*^-12] && ParityClose[gram, IdentityMatrix[Length[gram]], 1.*^-10]
+        ValidationClose[recon, m, 1.*^-12] && ValidationClose[gram, IdentityMatrix[Length[gram]], 1.*^-10]
     ],
     True,
     TestID -> "tier1c-C3-qr-tensor"
@@ -85,7 +85,7 @@ VerificationTest[
         m = {{1.0, 2, 5, 4}, {1, 1, 1, 1}, {0, 0.5, 0.5, 1}, {0, 1, 1, 2}};
         {u, s, vt} = SingularValueDecomposition[m];
         recon = u . s . ConjugateTranspose[vt];
-        ParityClose[recon, m, 1.*^-12]
+        ValidationClose[recon, m, 1.*^-12]
     ],
     True,
     TestID -> "tier1c-C4-low-rank-svd"
@@ -120,7 +120,7 @@ VerificationTest[
         recon = uk . sk . ConjugateTranspose[vtk];
         err = Total[Flatten[(m - recon)^2]];
         errPredicted = Total[Diagonal[s][[k + 1 ;;]]^2];
-        ParityCloseRel[err, errPredicted, 1.*^-8]
+        ValidationCloseRel[err, errPredicted, 1.*^-8]
     ],
     True,
     TestID -> "tier1c-C6-truncation-error"

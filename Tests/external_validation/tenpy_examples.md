@@ -1,4 +1,4 @@
-# TeNPy Parity-Test Catalog
+# TeNPy Validation-Test Catalog
 
 Source: `tn-external/numerical/tenpy/`. Especially valuable because examples often have known analytic-limit answers (Ising, XXZ, free fermions).
 
@@ -118,7 +118,7 @@ Additional ED comparison: `examples/z_exact_diag.py:14-46` runs XXZChain L=10, J
 
 ## 8. Ground state energy vs analytic
 
-1. **TFIM finite ED energy** — `tfi_exact.finite_gs_energy(L, J, g)` (`tenpy_toycodes/tfi_exact.py:19-54`). Sparse Kron of σ_z·σ_z and σ_x; eigsh `which='SA'`. Used as parity check throughout. WL-portable: Yes.
+1. **TFIM finite ED energy** — `tfi_exact.finite_gs_energy(L, J, g)` (`tenpy_toycodes/tfi_exact.py:19-54`). Sparse Kron of σ_z·σ_z and σ_x; eigsh `which='SA'`. Used as validation check throughout. WL-portable: Yes.
 2. **TFIM infinite analytic energy density** — `tfi_exact.infinite_gs_energy(J, g)`, lines 72-79. `e₀ = -(1/4π) ∫_{-π}^π 2√(J²-2Jg·cosp+g²) dp`. At J=g=1 gives `e₀ = -4/π ≈ -1.2732`. (Convention: `H = -J ZZ - g X`.) WL-portable: Yes.
 3. **TFIM infinite excitation dispersion** — `tfi_exact.infinite_excitation_dispersion(J,g)` (line 81-84). `ε(p)=2√(J²-2Jg·cosp+g²)`. Gap closes at g=1. WL-portable: Yes.
 4. **TFIM finite ED examples convention (X·X coupling)** — `examples/tfi_exact.py:55-68`. `H = -J Σ XX - g Σ Z`, `e₀ = -(g/2πJ) ∫_{-π}^π √(1+(J/g)²+2(J/g)cos k) dk`. WL-portable: Yes.
@@ -192,7 +192,7 @@ Additional ED comparison: `examples/z_exact_diag.py:14-46` runs XXZChain L=10, J
 
 **Non-portable today**: spinful fermion / spinless fermion / Bose-Hubbard / Haldane / Chern insulator examples (require U(1) particle-number conservation, Jordan-Wigner machinery, complex hopping with flux), purification MPS, multi-species models with `set_common_charges`, segment boundary conditions, irregular lattices, simulation YAML measurement plumbing.
 
-**High-priority WL parity targets** (analytic answers + small bond dimension):
+**High-priority WL validation targets** (analytic answers + small bond dimension):
 - TFIM finite L=10 g=1 → E=-12.3814899996548 (toy DMRG/TEBD).
 - TFIM infinite g=1.5 → E/L = -1.6719262215362, `<σx>=0.87733`, ξ=2.42.
 - TFIM critical L=100 → c=0.5 from CFT entropy fit.

@@ -1,4 +1,4 @@
-# Quimb Parity-Test Catalog
+# Quimb Validation-Test Catalog
 
 Source: `tn-external/numerical/quimb/`. All paths below are relative to that root.
 
@@ -243,7 +243,7 @@ Conventions:
 22. **2D Heisenberg PEPS with U1 symmetry sector + DMRG2.** Source: `docs/operator/operator-basics.ipynb`. Inputs: 4×5 lattice, U1 symmetry, half-filled sector. API: `qop.HilbertSpace`, `qop.SparseOperatorBuilder`, `H.build_sparse_matrix()`, `qu.eigh(H_sparse, k=1)`. Expected: groundstate energy ≈ -32.014. Then `H.build_mpo()`, `qtn.DMRG2(H_mpo).solve(verbosity=1)` → energy -31.8195 (rel err 0.006). WL-portable: Partial.
 23. **Fermi-Hubbard + Jordan-Wigner.** Source: `docs/operator/operator-basics.ipynb`. Inputs: 4×3 spinful (24 sites), t=1, U=8, half-filling. API: `H.jordan_wigner_transform(); H.build_sparse_matrix(); qu.eigh(...)`. Expected: energy/(Lx*Ly) ≈ -0.4094. WL-portable: Partial.
 
-## Notes on parity testing
+## Notes on validation testing
 
 - DMRG/TEBD/SU/FU/TRG numerics are deterministic given matched RNG seeds (where shown). For random-seed-dependent values (e.g., random PEPS contraction = 0.5078), parity is checked by running the *same* RNG seed on both sides — quimb honors `seed=` kwargs in `MPS_rand_state`, `PEPS.rand`, `MERA.rand`, `rand_tensor`, `rand_ket`, `rand_uni`, `rand_herm`, etc.
 - For Heisenberg-energy comparisons, both sides should call `qu.heisenberg_energy(L)` (analytic Bethe ansatz) or compute via `qu.groundenergy(qu.ham_heis(L, ...))` independently.

@@ -1,4 +1,4 @@
-# ITensorNetworks.jl Parity-Test Catalog
+# ITensorNetworks.jl Validation-Test Catalog
 
 Source: `tn-external/numerical/ITensorNetworks.jl/`. General-graph TN built on ITensors.jl. The package's `examples/` and `benchmark/` directories are essentially empty (Literate stub); concrete computations live in `docs/src/*.md` (Documenter `@example` blocks) and `test/*.jl` — both are fully audited below, so the test suite is the source of truth.
 
@@ -198,7 +198,7 @@ Counts per category:
 - **Inputs:** Tree of 4 nodes, S=1/2, χ=2; Heisenberg operator from `OpSum`.
 - **API calls:** `inner`, `loginner`, `scalar`, `inner_network`, `logscalar`.
 - **Expected output:** `bp == exact == exp(logbp)` (BP exact on trees).
-- **WL-portable:** Partial — paclet has exact contraction; BP needed for parity test only.
+- **WL-portable:** Partial — paclet has exact contraction; BP needed for validation test only.
 
 ### 22. BP rescaling — `rescale_messages`, `rescale_partitions`, `rescale`
 - **Source:** Documented `developer_methods.md:333-350`; not directly exercised in tests, but `test/test_normalize.jl` uses `rescale(tn; alg="bp")`.
@@ -418,5 +418,5 @@ Counts per category:
 ## Notes for the Wolfram paclet parity catalog
 
 - The Julia package's `examples/` and `benchmark/` directories contain no real examples — every concrete computation lives either in `docs/src/*.md` (Documenter `@example main` blocks) or `test/*.jl`. So the Mathematica side cannot mimic an `examples/` workload — the test suite is the source of truth.
-- The major gating capabilities for parity testing are: (a) BP cache infrastructure (Items 17-24, 32-34, 36, 38), (b) tree-graph DMRG/TDVP (Items 28-30), (c) QN-symmetric tensors (Items 9, 41-44), (d) auto-fermion logic (Items 42, 44, 45). None of these are implemented in the paclet; the rest of the catalog (≈25 examples) is portable directly via the paclet's existing `BinaryTensorNetwork` / `OptimalContractionPath` / `ArrayContract` machinery.
+- The major gating capabilities for validation testing are: (a) BP cache infrastructure (Items 17-24, 32-34, 36, 38), (b) tree-graph DMRG/TDVP (Items 28-30), (c) QN-symmetric tensors (Items 9, 41-44), (d) auto-fermion logic (Items 42, 44, 45). None of these are implemented in the paclet; the rest of the catalog (≈25 examples) is portable directly via the paclet's existing `BinaryTensorNetwork` / `OptimalContractionPath` / `ArrayContract` machinery.
 - "Partial" ratings indicate the result is reproducible numerically (e.g., expectation on a tree, contract-merge, single-bond truncate, Heisenberg on tree via exact diag) but the underlying gauge / cache machinery would need to be re-implemented to match Julia API semantics rather than just numerical output.

@@ -1,4 +1,4 @@
-(* Tests/external_parity/paclet_primitives/tn_expectations.wl
+(* Tests/external_validation/paclet_primitives/tn_expectations.wl
 
 Paclet-primitive tests for TensorNetwork-based expectation values on simple
 states. Uses paclet's TensorNetwork[...] + TensorNetworkContract[...] to
@@ -12,20 +12,20 @@ Sources:
 Module[{candidates, found},
     candidates = DeleteDuplicates @ Select[{
         If[StringQ[$InputFileName] && FileExistsQ[$InputFileName],
-            FileNameJoin[{DirectoryName[$InputFileName], "..", "Helpers", "ParityHelpers.wl"}], Null],
-        FileNameJoin[{Directory[], "Tests", "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "..", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "Helpers", "ParityHelpers.wl"}]
+            FileNameJoin[{DirectoryName[$InputFileName], "..", "Helpers", "ValidationHelpers.wl"}], Null],
+        FileNameJoin[{Directory[], "Tests", "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "..", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "Helpers", "ValidationHelpers.wl"}]
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tn_expectations] ERROR: cannot locate ParityHelpers.wl. Tried: ", candidates];
+        Print["[tn_expectations] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
         Abort[];
     ];
     Get[found];
 ];
-ClearParityRecords[];
+ClearValidationRecords[];
 
 (* Single-site states *)
 upState = N @ {1, 0};
@@ -50,7 +50,7 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
             ];
             tn = TensorNetwork[allTensors, allInds];
             result = TensorNetworkContract[tn];
-            ParityClose[result, 1.0, 1.*^-12]
+            ValidationClose[result, 1.0, 1.*^-12]
         ],
         True,
         TestID -> "tier1f-F5-product-state-norm"
@@ -79,7 +79,7 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
             ];
             tn = TensorNetwork[allTensors, allInds];
             result = TensorNetworkContract[tn];
-            ParityClose[result, -1.0, 1.*^-12]
+            ValidationClose[result, -1.0, 1.*^-12]
         ],
         True,
         TestID -> "tier1f-F6-tn-sz-expectation"

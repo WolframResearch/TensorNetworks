@@ -1,4 +1,4 @@
-# Cotengra Parity-Test Catalog
+# Cotengra Validation-Test Catalog
 
 Source: `tn-external/numerical/cotengra/`. Direct competitor for our `OptimalContractionPath` / Netcon — most entries are FLOP/size cost comparisons.
 
@@ -23,7 +23,7 @@ WL portability summary: Yes 28, Partial 23, No 16. (No = requires KaHyPar / cmae
 
 ## 1. Benchmark Networks (canonical TN topologies)
 
-Each is a network description that should be reproducible verbatim in the WL paclet for cost-parity tests. The first 8 are stored as ready-to-load JSON in `examples/benchmarks/`.
+Each is a network description that should be reproducible verbatim in the WL paclet for cost-validation tests. The first 8 are stored as ready-to-load JSON in `examples/benchmarks/`.
 
 1. **cubic_6x6x10** — 3D cubic lattice 6×6×10
    - Source: `examples/benchmarks/cubic_6x6x10.json`
@@ -129,7 +129,7 @@ Each is a network description that should be reproducible verbatim in the WL pac
 19. **`OptimalOptimizer` on lattice [4,5]** — `tests/test_paths_basic.py:194-205` (`test_optimal_lattice_eq`)
     - `pb.optimize_optimal(inputs, output, size_dict, minimize='flops')` → tree.contraction_cost() **== 1464** (exact).
     - With `minimize='size'` → `tree.contraction_width() == 5.584962500721156` (i.e. log2(48)).
-    - WL-portable: **Yes** — these are perfect parity-test numbers.
+    - WL-portable: **Yes** — these are perfect validation-test numbers.
 
 20. **`pb.optimize_optimal` on every test_case_eq** — same `test_manual_cases` parametrized with `which='optimal'`. Result: every contracted answer matches `np.einsum(..., optimize=True)`.
     - WL-portable: Yes.
@@ -248,7 +248,7 @@ Each is a network description that should be reproducible verbatim in the WL pac
 
 42. **Slicing preprocessed indices** — `tests/test_tree.py:398-431`
     - `eq = "abc,bde,dfg,fah->"` (4-tensor cycle of triangles); 4 preprocessing steps initially. Slicing preprocessed ind 'c' drops preprocessing to 3; restoring 'c' raises back to 4. Numerical answer preserved across each transformation.
-    - WL-portable: Yes — exact preprocess-count parity test.
+    - WL-portable: Yes — exact preprocess-count validation test.
 
 43. **`SliceInfo` dict** — `tree.sliced_inds` returns `{ind: SliceInfo(inner, ind, size, project)}`.
     - WL-portable: Yes.
@@ -357,7 +357,7 @@ Each is a network description that should be reproducible verbatim in the WL pac
     - `rand_equation(140, 3, n_out=2, seed=666)`, `slicing_reconf_opts={"target_size":2**28}`, `max_repeats=32`. Submits per-slice contract via `jax.jit(tree.contract_core)`.
     - WL-portable: No.
 
-## 10. Plotting (informational — not parity tests)
+## 10. Plotting (informational — not validation tests)
 
 - `tree.plot_flat()`, `tree.plot_tent(order=True)`, `tree.plot_circuit()`, `tree.plot_ring()`, `tree.plot_rubberband()`, `tree.plot_contractions()`, `tree.plot_span()` — sources: `docs/visualization.ipynb`, `tests/test_tree.py:238-267`.
 - `HyperOptimizer.plot_trials(y='flops')`, `plot_scatter(x='size', y='flops')`, `plot_parameters_parallel('greedy')` — `docs/visualization.ipynb`.
@@ -373,7 +373,7 @@ Each is a network description that should be reproducible verbatim in the WL pac
 - **Termination kwargs**: `max_repeats`, `max_time={float | 'rate:N' | 'equil:N'}`.
 - **DiskDict cache** with sharding (v0.7.1+). `directory=True` auto-keys by hash of options.
 
-## Recommended Parity-Test Sets
+## Recommended Validation-Test Sets
 
 **Tier-1 (exact integer/path comparison)** — lowest-risk for cross-checking the WL `OptimalContractionPath`:
 - 4-tensor demo (basics) → cost 4656, path `((0,1),(1,2),(0,1))`.

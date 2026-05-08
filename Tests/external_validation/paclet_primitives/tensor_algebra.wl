@@ -1,6 +1,6 @@
-(* Tests/external_parity/tier1a_tensor_algebra.wl
+(* Tests/external_validation/tier1a_tensor_algebra.wl
 
-Tier-1A: pure tensor-algebra parity tests. Pulled from quimb tests/test_tensor_core.py
+Tier-1A: pure tensor-algebra validation tests. Pulled from quimb tests/test_tensor_core.py
 and ITensors.jl test/base/test_contract.jl. Deterministic, exact-numeric, only need
 EinsteinSummation + ActivateTensors + TensorNetwork primitives.
 
@@ -12,19 +12,19 @@ to obtain the numeric contraction.
 Module[{candidates, found},
     candidates = DeleteDuplicates @ Select[{
         If[StringQ[$InputFileName] && FileExistsQ[$InputFileName],
-            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ParityHelpers.wl"}], Null],
-        FileNameJoin[{Directory[], "Tests", "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "Helpers", "ParityHelpers.wl"}]
+            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ValidationHelpers.wl"}], Null],
+        FileNameJoin[{Directory[], "Tests", "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "Helpers", "ValidationHelpers.wl"}]
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1a] ERROR: cannot locate ParityHelpers.wl. Tried: ", candidates];
+        Print["[tier1a] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
         Abort[];
     ];
     Get[found];
 ];
-ClearParityRecords[];
+ClearValidationRecords[];
 
 contract = ActivateTensors @* EinsteinSummation;
 
@@ -60,7 +60,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A2-triple-contr
                 Sum[a[[i, j, k]] b[[j, k, l]] c[[l, i, m]],
                     {i, 2}, {j, 3}, {k, 4}, {l, 5}],
                 {m, 6}];
-            Dimensions[result] === {6} && ParityClose[result, expected, 1.*^-10]
+            Dimensions[result] === {6} && ValidationClose[result, expected, 1.*^-10]
         ],
         True,
         TestID -> "tier1a-A2-triple-contract"
@@ -79,7 +79,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A3-hyper-index"
                 {id, id, id}
             ];
             expected = Table[If[a === b && b === c, 1.0, 0.0], {a, 2}, {b, 2}, {c, 2}];
-            ParityClose[result, expected, 1.*^-12]
+            ValidationClose[result, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A3-hyper-index"
@@ -96,7 +96,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A4-trace-pair",
             t = RandomReal[{-1, 1}, {3, 3, 3}];
             traced = contract[{{"i", "j", "i"}} -> {"j"}, {t}];
             expected = Table[Sum[t[[i, j, i]], {i, 3}], {j, 3}];
-            ParityClose[traced, expected, 1.*^-12]
+            ValidationClose[traced, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A4-trace-pair"
@@ -113,7 +113,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A5-sum-reduce",
             t = RandomReal[{-1, 1}, {2, 3, 4}];
             reduced = contract[{{"a", "b", "c"}} -> {"b", "c"}, {t}];
             expected = Total[t, {1}];
-            Dimensions[reduced] === {3, 4} && ParityClose[reduced, expected, 1.*^-12]
+            Dimensions[reduced] === {3, 4} && ValidationClose[reduced, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A5-sum-reduce"
@@ -131,7 +131,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A6-vector-reduc
             g = RandomReal[{-1, 1}, {3}];
             reduced = contract[{{"a", "b", "c"}, {"b"}} -> {"a", "c"}, {t, g}];
             expected = Table[Sum[t[[a, b, c]] g[[b]], {b, 3}], {a, 2}, {c, 4}];
-            Dimensions[reduced] === {2, 4} && ParityClose[reduced, expected, 1.*^-12]
+            Dimensions[reduced] === {2, 4} && ValidationClose[reduced, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A6-vector-reduce"
@@ -149,7 +149,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A7-gemm",
             b = RandomReal[{-1, 1}, {4, 5}];
             c = contract[{{"i", "k"}, {"k", "j"}} -> {"i", "j"}, {a, b}];
             expected = a . b;
-            Dimensions[c] === {3, 5} && ParityClose[c, expected, 1.*^-10]
+            Dimensions[c] === {3, 5} && ValidationClose[c, expected, 1.*^-10]
         ],
         True,
         TestID -> "tier1a-A7-gemm"
@@ -167,7 +167,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A8-outer",
             w = RandomReal[{-1, 1}, {4}];
             c = contract[{{"i"}, {"j"}} -> {"i", "j"}, {v, w}];
             expected = Outer[Times, v, w];
-            Dimensions[c] === {3, 4} && ParityClose[c, expected, 1.*^-12]
+            Dimensions[c] === {3, 4} && ValidationClose[c, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A8-outer"
@@ -185,7 +185,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A9-dot",
             w = RandomReal[{-1, 1}, {5}];
             c = contract[{{"i"}, {"i"}} -> {}, {v, w}];
             expected = v . w;
-            ParityClose[c, expected, 1.*^-12]
+            ValidationClose[c, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A9-dot"
@@ -209,7 +209,7 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"}, "tier1a-A10-closed4",
             ];
             result = TensorNetworkContract[tn];
             expected = Tr[t1 . t2 . t3 . t4];
-            ParityClose[result, expected, 1.*^-10]
+            ValidationClose[result, expected, 1.*^-10]
         ],
         True,
         TestID -> "tier1a-A10-closed4"
@@ -226,7 +226,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A11-frobenius",
             t = RandomComplex[{-1 - I, 1 + I}, {3, 4}];
             sq = contract[{{"i", "j"}, {"i", "j"}} -> {}, {Conjugate[t], t}];
             expected = Total[Abs[Flatten[t]]^2];
-            ParityClose[Re[sq], expected, 1.*^-10]
+            ValidationClose[Re[sq], expected, 1.*^-10]
         ],
         True,
         TestID -> "tier1a-A11-frobenius"
@@ -254,7 +254,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A12-multi-trace
             ];
             (* contract uses repeated indices to denote contraction *)
             traced = contract[{{"a", "b", "b", "d", "a"}} -> {"d"}, {t}];
-            ParityClose[traced, expected, 1.*^-12]
+            ValidationClose[traced, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A12-multi-trace"
@@ -275,7 +275,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A13-named-trans
                -> new positions (a@6, b@5, c@1, d@2, e@4, f@3) = {6,5,1,2,4,3}. *)
             transposed = contract[{{"a", "b", "c", "d", "e", "f"}} -> {"c", "d", "f", "e", "b", "a"}, {t}];
             expected = Transpose[t, {6, 5, 1, 2, 4, 3}];
-            Dimensions[transposed] === {4, 5, 2, 2, 3, 2} && ParityClose[transposed, expected, 1.*^-12]
+            Dimensions[transposed] === {4, 5, 2, 2, 3, 2} && ValidationClose[transposed, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A13-named-transpose"
@@ -294,7 +294,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A14-rank1-outer
             w = RandomReal[{-1, 1}, {4}];
             t = contract[{{"a"}, {"b"}, {"c"}} -> {"a", "b", "c"}, {u, v, w}];
             expected = Outer[Times, u, v, w];
-            Dimensions[t] === {2, 3, 4} && ParityClose[t, expected, 1.*^-12]
+            Dimensions[t] === {2, 3, 4} && ValidationClose[t, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A14-rank1-outer"
@@ -316,8 +316,8 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A15-associative
             way2 = contract[{{"i", "k"}, {"k", "l"}} -> {"i", "l"},
                 {contract[{{"i", "j"}, {"j", "k"}} -> {"i", "k"}, {a, b}], c}];
             expected = a . b . c;
-            ParityClose[way1, expected, 1.*^-10] && ParityClose[way2, expected, 1.*^-10] &&
-                ParityClose[way1, way2, 1.*^-10]
+            ValidationClose[way1, expected, 1.*^-10] && ValidationClose[way2, expected, 1.*^-10] &&
+                ValidationClose[way1, way2, 1.*^-10]
         ],
         True,
         TestID -> "tier1a-A15-associative"
@@ -333,7 +333,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A16-scalar",
             t = RandomReal[{-1, 1}, {4, 4}];
             scalar = contract[{{"i", "i"}} -> {}, {t}];
             expected = Tr[t];
-            ParityClose[scalar, expected, 1.*^-12]
+            ValidationClose[scalar, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A16-scalar"
@@ -359,7 +359,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A17-quad-hypere
                 Sum[t1[[i, x]] t2[[j, x]] t3[[k, x]] t4[[l, x]], {x, 5}],
                 {i, 2}, {j, 3}, {k, 2}, {l, 3}
             ];
-            ParityClose[r, expected, 1.*^-10]
+            ValidationClose[r, expected, 1.*^-10]
         ],
         True,
         TestID -> "tier1a-A17-quad-hyperedge"
@@ -377,7 +377,7 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A18-identity-te
             t = RandomReal[{-1, 1}, {3, 4}];
             contracted = contract[{{"i", "j"}, {"i", "k"}} -> {"j", "k"}, {id, t}];
             expected = t;
-            ParityClose[contracted, expected, 1.*^-12]
+            ValidationClose[contracted, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1a-A18-identity-tensor"

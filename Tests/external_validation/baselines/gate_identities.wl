@@ -1,4 +1,4 @@
-(* Tests/external_parity/tier1e_gates.wl
+(* Tests/external_validation/tier1e_gates.wl
 
 Tier-1E: gate identities. The paclet has no native circuit primitives, so we
 build gates as KroneckerProducts and verify identities at the matrix level.
@@ -15,18 +15,18 @@ Sources:
 Module[{candidates, found},
     candidates = DeleteDuplicates @ Select[{
         If[StringQ[$InputFileName] && FileExistsQ[$InputFileName],
-            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ParityHelpers.wl"}], Null],
-        FileNameJoin[{Directory[], "Tests", "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "Helpers", "ParityHelpers.wl"}]
+            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ValidationHelpers.wl"}], Null],
+        FileNameJoin[{Directory[], "Tests", "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "Helpers", "ValidationHelpers.wl"}]
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1e] ERROR: cannot locate ParityHelpers.wl"]; Abort[];
+        Print["[tier1e] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
     ];
     Get[found];
 ];
-ClearParityRecords[];
+ClearValidationRecords[];
 
 (* Single-qubit gates *)
 gateI = IdentityMatrix[2];
@@ -63,7 +63,7 @@ VerificationTest[
         U = KroneckerProduct[gateI, gateCNOT];
         finalState = U . psi0;
         ghz3 = N @ Normalize[SparseArray[{1 -> 1, 8 -> 1}, 8]];
-        ParityClose[Abs[Re[Conjugate[ghz3] . finalState]], 1.0, 1.*^-12]
+        ValidationClose[Abs[Re[Conjugate[ghz3] . finalState]], 1.0, 1.*^-12]
     ],
     True,
     TestID -> "tier1e-E1-ghz3-prep"
@@ -79,7 +79,7 @@ VerificationTest[
               ] + KroneckerProduct[
                 IdentityMatrix[4] - DiagonalMatrix[{0, 0, 0, 1}], gateI
               ];
-        ParityClose[N @ ccx, toffoliMat, 1.*^-12]
+        ValidationClose[N @ ccx, toffoliMat, 1.*^-12]
     ],
     True,
     TestID -> "tier1e-E2-toffoli-ccx"
@@ -91,7 +91,7 @@ VerificationTest[
     Module[{cswap, expected},
         cswap = KroneckerProduct[{{0, 0}, {0, 1}}, gateSWAP] +
                 KroneckerProduct[{{1, 0}, {0, 0}}, IdentityMatrix[4]];
-        ParityClose[N @ cswap, fredkinMat, 1.*^-12]
+        ValidationClose[N @ cswap, fredkinMat, 1.*^-12]
     ],
     True,
     TestID -> "tier1e-E3-fredkin-cswap"
@@ -106,7 +106,7 @@ VerificationTest[
         omega = Exp[2 Pi I / N];
         qft = (1/Sqrt[N]) * Table[omega^((j - 1)(k - 1)), {j, N}, {k, N}];
         prod = qft . ConjugateTranspose[qft];
-        ParityClose[prod, IdentityMatrix[N], 1.*^-12]
+        ValidationClose[prod, IdentityMatrix[N], 1.*^-12]
     ],
     True,
     TestID -> "tier1e-E4-qft4-unitary"
@@ -114,21 +114,21 @@ VerificationTest[
 
 (* ----- E5: HCH = Z (Hadamard sandwich identity) *)
 VerificationTest[
-    ParityClose[gateH . gateZ . gateH, gateX, 1.*^-12],
+    ValidationClose[gateH . gateZ . gateH, gateX, 1.*^-12],
     True,
     TestID -> "tier1e-E5-hch-equals-x"
 ];
 
 (* ----- E6: H Z H = X (alternative form) — sanity *)
 VerificationTest[
-    ParityClose[gateH . gateX . gateH, gateZ, 1.*^-12],
+    ValidationClose[gateH . gateX . gateH, gateZ, 1.*^-12],
     True,
     TestID -> "tier1e-E6-hxh-equals-z"
 ];
 
 (* ----- E7: T² = S (gate identity) *)
 VerificationTest[
-    ParityClose[gateT . gateT, gateS, 1.*^-12],
+    ValidationClose[gateT . gateT, gateS, 1.*^-12],
     True,
     TestID -> "tier1e-E7-tsquared-equals-s"
 ];

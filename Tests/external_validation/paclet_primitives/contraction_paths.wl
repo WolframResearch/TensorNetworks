@@ -1,4 +1,4 @@
-(* Tests/external_parity/tier1b_contraction_paths.wl
+(* Tests/external_validation/tier1b_contraction_paths.wl
 
 Tier-1B: contraction-path parity vs cotengra. The paclet's
 OptimalContractionPath / GreedyContractionPath should match cotengra's path
@@ -17,19 +17,19 @@ Sources:
 Module[{candidates, found},
     candidates = DeleteDuplicates @ Select[{
         If[StringQ[$InputFileName] && FileExistsQ[$InputFileName],
-            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ParityHelpers.wl"}], Null],
-        FileNameJoin[{Directory[], "Tests", "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "Helpers", "ParityHelpers.wl"}]
+            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ValidationHelpers.wl"}], Null],
+        FileNameJoin[{Directory[], "Tests", "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "Helpers", "ValidationHelpers.wl"}]
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1b] ERROR: cannot locate ParityHelpers.wl. Tried: ", candidates];
+        Print["[tier1b] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
         Abort[];
     ];
     Get[found];
 ];
-ClearParityRecords[];
+ClearValidationRecords[];
 
 contract = ActivateTensors @* EinsteinSummation;
 
@@ -77,7 +77,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContrac
             contracted = TensorNetworkContract[tn];
             expected = a . b . c;
             Length[path] === 2 && Dimensions[contracted] === {8, 8} &&
-                ParityClose[contracted, expected, 1.*^-10]
+                ValidationClose[contracted, expected, 1.*^-10]
         ],
         True,
         TestID -> "tier1b-B2-chain3"
@@ -102,7 +102,7 @@ WithCapability[{"GreedyContractionPath", "TensorNetwork", "TensorNetworkContract
             path = GreedyContractionPath[tn];
             contracted = TensorNetworkContract[tn];
             expected = t1 . t2 . t3;
-            Length[path] === 2 && ParityClose[contracted, expected, 1.*^-12]
+            Length[path] === 2 && ValidationClose[contracted, expected, 1.*^-12]
         ],
         True,
         TestID -> "tier1b-B3-edgesort-chain"
@@ -162,7 +162,7 @@ WithCapability[{"OptimalContractionPath", "GreedyContractionPath",
             cOptimal = TensorNetworkContract[tn];
             Length[pGreedy] === Length[shapes] - 1 &&
                 Length[pOptimal] === Length[shapes] - 1 &&
-                ParityClose[cGreedy, cOptimal, 1.*^-10]
+                ValidationClose[cGreedy, cOptimal, 1.*^-10]
         ],
         True,
         TestID -> "tier1b-B5-greedy-vs-optimal"
@@ -186,7 +186,7 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
             expected = Sum[
                 ts[[1]][[i, j, x]] ts[[2]][[j, k]] ts[[3]][[k, l, x]] ts[[4]][[l, i]],
                 {i, 2}, {j, 3}, {k, 4}, {l, 5}, {x, 2}];
-            ParityClose[contracted, expected, 1.*^-10]
+            ValidationClose[contracted, expected, 1.*^-10]
         ],
         True,
         TestID -> "tier1b-B6-contract-correctness"
@@ -197,12 +197,12 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
    cotengra uses "ops = real_flops/2 = complex_flops/8". The paclet may use a
    different convention. Hard parity is recorded as a TODO until conventions
    are normalized. *)
-SkipDueToRNG["tier1b-B7-flop-count-parity",
+SkipDueToRNG["tier1b-B7-flop-count-comparison",
     "cotengra cost convention (ops = real_flops/2) differs from paclet's; pending normalization",
     "cotengra docs/contraction.ipynb (cost convention)"];
 
 (* ----- B8: skip — exact path match for HyperOptimizer (RNG / KaHyPar dep) *)
-SkipDueToRNG["tier1b-B8-hyperoptimizer-parity",
+SkipDueToRNG["tier1b-B8-hyperoptimizer-comparison",
     "cotengra HyperOptimizer requires KaHyPar + cmaes/optuna RNG; cross-language seed parity infeasible",
     "cotengra tests/test_optimizers.py:139-167"];
 
@@ -293,7 +293,7 @@ WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetwor
             tn = TensorNetwork[ts, shapes];
             resultDefault = TensorNetworkContract[tn];
             resultExplicit = TensorNetworkContract[tn];  (* default uses optimal *)
-            ParityClose[resultDefault, resultExplicit, 1.*^-10]
+            ValidationClose[resultDefault, resultExplicit, 1.*^-10]
         ],
         True,
         TestID -> "tier1b-B11-paths-give-same-result"

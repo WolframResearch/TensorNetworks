@@ -1,4 +1,4 @@
-(* Tests/external_parity/tier1d_analytic.wl
+(* Tests/external_validation/tier1d_analytic.wl
 
 Tier-1D: small-system analytic ground states. We build Hamiltonians as dense
 matrices and use Mathematica's Eigensystem. The paclet has no DMRG, so the
@@ -16,18 +16,18 @@ Sources:
 Module[{candidates, found},
     candidates = DeleteDuplicates @ Select[{
         If[StringQ[$InputFileName] && FileExistsQ[$InputFileName],
-            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ParityHelpers.wl"}], Null],
-        FileNameJoin[{Directory[], "Tests", "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "Helpers", "ParityHelpers.wl"}]
+            FileNameJoin[{DirectoryName[$InputFileName], "Helpers", "ValidationHelpers.wl"}], Null],
+        FileNameJoin[{Directory[], "Tests", "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "Helpers", "ValidationHelpers.wl"}]
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1d] ERROR: cannot locate ParityHelpers.wl"]; Abort[];
+        Print["[tier1d] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
     ];
     Get[found];
 ];
-ClearParityRecords[];
+ClearValidationRecords[];
 
 (* Pauli matrices and spin-1 helpers *)
 sigmaX = {{0, 1}, {1, 0}};
@@ -75,7 +75,7 @@ VerificationTest[
     Module[{H, vals},
         H = N @ heisenbergH[2];
         vals = Sort @ Eigenvalues[H];
-        ParityClose[First[vals], -3/4, 1.*^-12]
+        ValidationClose[First[vals], -3/4, 1.*^-12]
     ],
     True,
     TestID -> "tier1d-D1-heisenberg-2qubit"
@@ -89,7 +89,7 @@ VerificationTest[
         H = N @ heisenbergH[4];
         gsED = First @ Sort @ Re @ Eigenvalues[H];
         gsExpected = -1.6160254037844388;  (* exact dense-ED reference, OBC, AFM *)
-        ParityClose[gsED, gsExpected, 1.*^-10]
+        ValidationClose[gsED, gsExpected, 1.*^-10]
     ],
     True,
     TestID -> "tier1d-D2-heisenberg-4qubit"
@@ -103,7 +103,7 @@ VerificationTest[
         H = N @ tfimH[L, J, g];
         gsED = First @ Sort @ Eigenvalues[H];
         gsExpected = 1 - 1/Sin[Pi / (4 L + 2)];
-        ParityClose[gsED, gsExpected, 1.*^-2]  (* finite-size correction expected *)
+        ValidationClose[gsED, gsExpected, 1.*^-2]  (* finite-size correction expected *)
     ],
     True,
     TestID -> "tier1d-D3-tfim-L4-critical"
@@ -118,7 +118,7 @@ VerificationTest[
         gap1 = eps[0., 1., 1.];
         (* At g = 0.5, J = 1, gap = ε(0) = 2|J - g| = 1 *)
         gap2 = eps[0., 1., 0.5];
-        ParityClose[gap1, 0., 1.*^-12] && ParityClose[gap2, 1., 1.*^-12]
+        ValidationClose[gap1, 0., 1.*^-12] && ValidationClose[gap2, 1., 1.*^-12]
     ],
     True,
     TestID -> "tier1d-D4-tfim-dispersion"
@@ -139,9 +139,9 @@ VerificationTest[
         sortedAbs = Reverse @ Sort @ Abs[vals];
         lambda2 = sortedAbs[[2]];
         xi = -1 / Log[lambda2];
-        ParityClose[sortedAbs[[1]], 1.0, 1.*^-10] &&
-            ParityClose[lambda2, 1./3., 1.*^-10] &&
-            ParityClose[xi, 1./Log[3.], 1.*^-8]
+        ValidationClose[sortedAbs[[1]], 1.0, 1.*^-10] &&
+            ValidationClose[lambda2, 1./3., 1.*^-10] &&
+            ValidationClose[xi, 1./Log[3.], 1.*^-8]
     ],
     True,
     TestID -> "tier1d-D5-aklt-correlation-length"

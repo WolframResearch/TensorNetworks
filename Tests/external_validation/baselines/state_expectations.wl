@@ -1,6 +1,6 @@
-(* Tests/external_parity/baselines/state_expectations.wl
+(* Tests/external_validation/baselines/state_expectations.wl
 
-Baseline (non-paclet) parity tests for product-state expectations. These use
+Baseline (non-paclet) validation tests for product-state expectations. These use
 plain Mathematica vector arithmetic - they verify that the analytic answers
 catalogued from external packages are reproducible at all, independent of any
 paclet primitives.
@@ -19,20 +19,20 @@ Sources:
 Module[{candidates, found},
     candidates = DeleteDuplicates @ Select[{
         If[StringQ[$InputFileName] && FileExistsQ[$InputFileName],
-            FileNameJoin[{DirectoryName[$InputFileName], "..", "Helpers", "ParityHelpers.wl"}], Null],
-        FileNameJoin[{Directory[], "Tests", "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "external_parity", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "..", "Helpers", "ParityHelpers.wl"}],
-        FileNameJoin[{Directory[], "Helpers", "ParityHelpers.wl"}]
+            FileNameJoin[{DirectoryName[$InputFileName], "..", "Helpers", "ValidationHelpers.wl"}], Null],
+        FileNameJoin[{Directory[], "Tests", "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "external_validation", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "..", "Helpers", "ValidationHelpers.wl"}],
+        FileNameJoin[{Directory[], "Helpers", "ValidationHelpers.wl"}]
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[state_expectations] ERROR: cannot locate ParityHelpers.wl. Tried: ", candidates];
+        Print["[state_expectations] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
         Abort[];
     ];
     Get[found];
 ];
-ClearParityRecords[];
+ClearValidationRecords[];
 
 upState = N @ {1, 0};
 dnState = N @ {0, 1};
@@ -50,7 +50,7 @@ VerificationTest[
         sites = Table[If[OddQ[i], upState, dnState], {i, L}];
         observables = Table[sites[[i]] . sigmaZ . sites[[i]], {i, L}];
         expected = Table[If[OddQ[i], 1, -1], {i, L}];
-        ParityClose[observables, N @ expected, 1.*^-12]
+        ValidationClose[observables, N @ expected, 1.*^-12]
     ],
     True,
     TestID -> "tier1f-F1-neel-Z-pattern"
@@ -68,7 +68,7 @@ VerificationTest[
             (upAll[[i]] . Sz . upAll[[i]] + dnAll[[i]] . Sz . dnAll[[i]]) / ghzNorm
         );
         szTotal = Table[szAt[i], {i, L}];
-        AllTrue[szTotal, ParityClose[#, 0.0, 1.*^-12] &]
+        AllTrue[szTotal, ValidationClose[#, 0.0, 1.*^-12] &]
     ],
     True,
     TestID -> "tier1f-F2-2x2-ghz-Sz-zero"
@@ -82,7 +82,7 @@ VerificationTest[
         sites = Table[If[OddQ[i], upState, dnState], {i, L}];
         expectations = Table[sites[[i]] . Sz . sites[[i]], {i, L}];
         expected = Table[If[OddQ[i], 0.5, -0.5], {i, L}];
-        ParityClose[expectations, N @ expected, 1.*^-12]
+        ValidationClose[expectations, N @ expected, 1.*^-12]
     ],
     True,
     TestID -> "tier1f-F3-comb-tree-alternating"
@@ -101,7 +101,7 @@ VerificationTest[
         , {i, L - 1}];
         totalE = Total[bondE];
         expected = -(L - 1)/4;
-        ParityClose[totalE, N @ expected, 1.*^-12]
+        ValidationClose[totalE, N @ expected, 1.*^-12]
     ],
     True,
     TestID -> "tier1f-F4-heis6-neel-energy"
