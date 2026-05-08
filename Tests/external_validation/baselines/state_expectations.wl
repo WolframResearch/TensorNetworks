@@ -27,7 +27,7 @@ Module[{candidates, found},
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[state_expectations] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
+        Print["[baseline-state] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
         Abort[];
     ];
     Get[found];
@@ -53,7 +53,7 @@ VerificationTest[
         ValidationClose[observables, N @ expected, 1.*^-12]
     ],
     True,
-    TestID -> "tier1f-F1-neel-Z-pattern"
+    TestID -> "baseline-state-F1-neel-Z-pattern"
 ];
 
 (* ----- F2: 2x2 grid GHZ-like state <Sz>=0 via state-sum
@@ -71,7 +71,7 @@ VerificationTest[
         AllTrue[szTotal, ValidationClose[#, 0.0, 1.*^-12] &]
     ],
     True,
-    TestID -> "tier1f-F2-2x2-ghz-Sz-zero"
+    TestID -> "baseline-state-F2-2x2-ghz-Sz-zero"
 ];
 
 (* ----- F3: comb-tree alternating Up/Dn -> <Sz_v> = +/-0.5
@@ -85,7 +85,7 @@ VerificationTest[
         ValidationClose[expectations, N @ expected, 1.*^-12]
     ],
     True,
-    TestID -> "tier1f-F3-comb-tree-alternating"
+    TestID -> "baseline-state-F3-comb-tree-alternating"
 ];
 
 (* ----- F4: Heisenberg L=6 Neel state <H> = -5/4 = -1.25
@@ -104,5 +104,5 @@ VerificationTest[
         ValidationClose[totalE, N @ expected, 1.*^-12]
     ],
     True,
-    TestID -> "tier1f-F4-heis6-neel-energy"
+    TestID -> "baseline-state-F4-heis6-neel-energy"
 ];

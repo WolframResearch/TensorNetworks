@@ -1,6 +1,6 @@
-(* Tests/external_validation/tier1c_decomposition.wl
+(* Tests/external_validation/baselines/decomposition.wl
 
-Tier-1C: SVD / QR / truncate parity. Mostly Mathematica-native primitives;
+Baseline tests: SVD / QR / truncate parity. Mostly Mathematica-native primitives;
 where the paclet exposes its own decomposition (MPSTruncate), we exercise
 that. The paclet has no index-aware SVD wrapper — those entries are recorded
 as missing-feature skips so the gap is visible.
@@ -23,7 +23,7 @@ Module[{candidates, found},
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1c] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
+        Print["[baseline-decomp] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
     ];
     Get[found];
 ];
@@ -40,7 +40,7 @@ VerificationTest[
         ValidationClose[recon, m, 1.*^-12]
     ],
     True,
-    TestID -> "tier1c-C1-svd-10x20"
+    TestID -> "baseline-decomp-C1-svd-10x20"
 ];
 
 (* ----- C2: SVD of order-4 tensor with grouped indices (ITensors README:196-230)
@@ -57,7 +57,7 @@ VerificationTest[
         ValidationClose[tRecon, t, 1.*^-12]
     ],
     True,
-    TestID -> "tier1c-C2-svd-grouped"
+    TestID -> "baseline-decomp-C2-svd-grouped"
 ];
 
 (* ----- C3: QR factorization of an order-3 tensor (ITensors test_decomp.jl:164-200)
@@ -75,7 +75,7 @@ VerificationTest[
         ValidationClose[recon, m, 1.*^-12] && ValidationClose[gram, IdentityMatrix[Length[gram]], 1.*^-10]
     ],
     True,
-    TestID -> "tier1c-C3-qr-tensor"
+    TestID -> "baseline-decomp-C3-qr-tensor"
 ];
 
 (* ----- C4: low-rank 4×4 SVD reconstruction (ITensors test_svd.jl:10-19)
@@ -88,7 +88,7 @@ VerificationTest[
         ValidationClose[recon, m, 1.*^-12]
     ],
     True,
-    TestID -> "tier1c-C4-low-rank-svd"
+    TestID -> "baseline-decomp-C4-low-rank-svd"
 ];
 
 (* ----- C5: Truncated SVD — count singular values above cutoff
@@ -102,7 +102,7 @@ VerificationTest[
         Length[kept] === 2 && First[dropped] === 1.*^-13
     ],
     True,
-    TestID -> "tier1c-C5-truncate-cutoff-tuple"
+    TestID -> "baseline-decomp-C5-truncate-cutoff-tuple"
 ];
 
 (* ----- C6: SVD truncation error norm (quimb tensor-basics + ITensors)
@@ -123,17 +123,17 @@ VerificationTest[
         ValidationCloseRel[err, errPredicted, 1.*^-8]
     ],
     True,
-    TestID -> "tier1c-C6-truncation-error"
+    TestID -> "baseline-decomp-C6-truncation-error"
 ];
 
 (* ----- C7: skip — index-aware tensor SVD (paclet has no exported wrapper)
    ITensors svd(T, (i, k)) auto-handles the row/col grouping. The paclet's
    index-aware SVD primitive is not currently exported. *)
-RecordSkipMissing["tier1c-C7-index-aware-svd",
+RecordSkipMissing["baseline-decomp-C7-index-aware-svd",
     {"TensorSVD"},  (* hypothetical exported name *)
     "ITensors.jl test/base/test_svd.jl:77-145 (svd(T, indices))"];
 
 (* ----- C8: skip — block-sparse SVD with QN structure (no QN support) *)
-RecordSkipMissing["tier1c-C8-blocksparse-svd",
+RecordSkipMissing["baseline-decomp-C8-blocksparse-svd",
     {"QN", "BlockSparse"},
     "ITensors.jl NDTensors/test/test_blocksparse.jl"];

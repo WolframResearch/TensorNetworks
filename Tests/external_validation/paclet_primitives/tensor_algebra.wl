@@ -1,6 +1,6 @@
-(* Tests/external_validation/tier1a_tensor_algebra.wl
+(* Tests/external_validation/paclet_primitives/tensor_algebra.wl
 
-Tier-1A: pure tensor-algebra validation tests. Pulled from quimb tests/test_tensor_core.py
+Paclet-primitive tests: pure tensor-algebra validation tests. Pulled from quimb tests/test_tensor_core.py
 and ITensors.jl test/base/test_contract.jl. Deterministic, exact-numeric, only need
 EinsteinSummation + ActivateTensors + TensorNetwork primitives.
 
@@ -19,7 +19,7 @@ Module[{candidates, found},
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1a] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
+        Print["[paclet-tensor] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
         Abort[];
     ];
     Get[found];
@@ -29,7 +29,7 @@ ClearValidationRecords[];
 contract = ActivateTensors @* EinsteinSummation;
 
 (* ----- A1: complex tensor conjugate (quimb test_tensor_core.py:36-52) ----- *)
-WithCapability[{}, "tier1a-A1-conjugate",
+WithCapability[{}, "paclet-tensor-A1-conjugate",
     "quimb tests/test_tensor/test_tensor_core.py:36-52",
     VerificationTest[
         Module[{a},
@@ -38,13 +38,13 @@ WithCapability[{}, "tier1a-A1-conjugate",
             Conjugate[Conjugate[a]] === a && Dimensions[a] == {2, 3, 4}
         ],
         True,
-        TestID -> "tier1a-A1-conjugate"
+        TestID -> "paclet-tensor-A1-conjugate"
     ]
 ];
 
 (* ----- A2: triple contraction (quimb test_tensor_core.py:421-430) -----
    a[i,j,k] (2,3,4), b[j,k,l] (3,4,5), c[l,i,m] (5,2,6) -> result[m] (6,) *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A2-triple-contract",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A2-triple-contract",
     "quimb tests/test_tensor/test_tensor_core.py:421-430",
     VerificationTest[
         Module[{a, b, c, result, expected},
@@ -63,13 +63,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A2-triple-contr
             Dimensions[result] === {6} && ValidationClose[result, expected, 1.*^-10]
         ],
         True,
-        TestID -> "tier1a-A2-triple-contract"
+        TestID -> "paclet-tensor-A2-triple-contract"
     ]
 ];
 
 (* ----- A3: hyper-index sum (quimb tensor-design.ipynb)
    T[a,b,c] = sum_x I[a,x] I[b,x] I[c,x] = delta(a,b,c). *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A3-hyper-index",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A3-hyper-index",
     "quimb docs/tensor/tensor-design.ipynb",
     VerificationTest[
         Module[{id, result, expected},
@@ -82,13 +82,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A3-hyper-index"
             ValidationClose[result, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A3-hyper-index"
+        TestID -> "paclet-tensor-A3-hyper-index"
     ]
 ];
 
 (* ----- A4: trace pair of indices (quimb test_tensor_core.py:185-203)
    t[i,j,i] -> sum_i t[i,j,i] for each j. *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A4-trace-pair",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A4-trace-pair",
     "quimb tests/test_tensor/test_tensor_core.py:185-203",
     VerificationTest[
         Module[{t, traced, expected},
@@ -99,13 +99,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A4-trace-pair",
             ValidationClose[traced, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A4-trace-pair"
+        TestID -> "paclet-tensor-A4-trace-pair"
     ]
 ];
 
 (* ----- A5: sum-reduce one index (quimb test_tensor_core.py:213-226)
    t[a,b,c] (2,3,4); sum_a -> (3,4). *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A5-sum-reduce",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A5-sum-reduce",
     "quimb tests/test_tensor/test_tensor_core.py:213-226",
     VerificationTest[
         Module[{t, reduced, expected},
@@ -116,13 +116,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A5-sum-reduce",
             Dimensions[reduced] === {3, 4} && ValidationClose[reduced, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A5-sum-reduce"
+        TestID -> "paclet-tensor-A5-sum-reduce"
     ]
 ];
 
 (* ----- A6: vector reduce — single-index inner product (quimb test_tensor_core.py:228-234)
    einsum("abc,b->ac", t, g). *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A6-vector-reduce",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A6-vector-reduce",
     "quimb tests/test_tensor/test_tensor_core.py:228-234",
     VerificationTest[
         Module[{t, g, reduced, expected},
@@ -134,13 +134,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A6-vector-reduc
             Dimensions[reduced] === {2, 4} && ValidationClose[reduced, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A6-vector-reduce"
+        TestID -> "paclet-tensor-A6-vector-reduce"
     ]
 ];
 
 (* ----- A7: matrix * matrix (ITensors test_contract.jl, GEMM)
    einsum("ik,kj->ij", A, B) == A.B *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A7-gemm",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A7-gemm",
     "ITensors test/base/test_contract.jl:7-150 (GEMM)",
     VerificationTest[
         Module[{a, b, c, expected},
@@ -152,13 +152,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A7-gemm",
             Dimensions[c] === {3, 5} && ValidationClose[c, expected, 1.*^-10]
         ],
         True,
-        TestID -> "tier1a-A7-gemm"
+        TestID -> "paclet-tensor-A7-gemm"
     ]
 ];
 
 (* ----- A8: outer product (ITensors test_contract.jl, vector outer product)
    einsum("i,j->ij", v, w) == Outer[Times, v, w] *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A8-outer",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A8-outer",
     "ITensors test/base/test_contract.jl:7-150 (outer product)",
     VerificationTest[
         Module[{v, w, c, expected},
@@ -170,13 +170,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A8-outer",
             Dimensions[c] === {3, 4} && ValidationClose[c, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A8-outer"
+        TestID -> "paclet-tensor-A8-outer"
     ]
 ];
 
 (* ----- A9: vector dot vector (ITensors test_contract.jl)
    einsum("i,i->", v, w) == v.w *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A9-dot",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A9-dot",
     "ITensors test/base/test_contract.jl:7-150 (vᵀv scalar)",
     VerificationTest[
         Module[{v, w, c, expected},
@@ -188,13 +188,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A9-dot",
             ValidationClose[c, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A9-dot"
+        TestID -> "paclet-tensor-A9-dot"
     ]
 ];
 
 (* ----- A10: 4-tensor closed network -> trace
    t1[a,b], t2[b,c], t3[c,d], t4[d,a] => Tr[t1.t2.t3.t4] *)
-WithCapability[{"TensorNetwork", "TensorNetworkContract"}, "tier1a-A10-closed4",
+WithCapability[{"TensorNetwork", "TensorNetworkContract"}, "paclet-tensor-A10-closed4",
     "cotengra docs/basics.ipynb (closed-network variant)",
     VerificationTest[
         Module[{tn, result, expected, t1, t2, t3, t4},
@@ -212,13 +212,13 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"}, "tier1a-A10-closed4",
             ValidationClose[result, expected, 1.*^-10]
         ],
         True,
-        TestID -> "tier1a-A10-closed4"
+        TestID -> "paclet-tensor-A10-closed4"
     ]
 ];
 
 (* ----- A11: Frobenius norm (quimb tensor-basics.ipynb)
    ||T||^2 = sum_ij T_ij conj(T_ij) *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A11-frobenius",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A11-frobenius",
     "quimb docs/tensor/tensor-basics.ipynb (Frobenius via tn.H @ tn)",
     VerificationTest[
         Module[{t, sq, expected},
@@ -229,13 +229,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A11-frobenius",
             ValidationClose[Re[sq], expected, 1.*^-10]
         ],
         True,
-        TestID -> "tier1a-A11-frobenius"
+        TestID -> "paclet-tensor-A11-frobenius"
     ]
 ];
 
 (* ----- A12: multi-index trace (quimb test_tensor_core.py:205-211)
    T[a,b,c,d,e] (3,3,3,3,3); trace([a,c],[e,b]) = sum over (a=e) and (c=b). *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A12-multi-trace",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A12-multi-trace",
     "quimb tests/test_tensor/test_tensor_core.py:205-211",
     VerificationTest[
         Module[{t, traced, expected},
@@ -257,13 +257,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A12-multi-trace
             ValidationClose[traced, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A12-multi-trace"
+        TestID -> "paclet-tensor-A12-multi-trace"
     ]
 ];
 
 (* ----- A13: transpose by named order (quimb test_tensor_core.py:167-174)
    T (2,3,4,5,2,2) inds "abcdef"; transpose to "cdfeba" — exact rank-6 permutation. *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A13-named-transpose",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A13-named-transpose",
     "quimb tests/test_tensor/test_tensor_core.py:167-174",
     VerificationTest[
         Module[{t, transposed, expected},
@@ -278,13 +278,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A13-named-trans
             Dimensions[transposed] === {4, 5, 2, 2, 3, 2} && ValidationClose[transposed, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A13-named-transpose"
+        TestID -> "paclet-tensor-A13-named-transpose"
     ]
 ];
 
 (* ----- A14: tensor outer product with shared free index
    Build T[a,b,c] = u[a] v[b] w[c] (rank-1 outer product). *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A14-rank1-outer",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A14-rank1-outer",
     "quimb tensor-design.ipynb (factorizable tensor)",
     VerificationTest[
         Module[{u, v, w, t, expected},
@@ -297,13 +297,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A14-rank1-outer
             Dimensions[t] === {2, 3, 4} && ValidationClose[t, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A14-rank1-outer"
+        TestID -> "paclet-tensor-A14-rank1-outer"
     ]
 ];
 
 (* ----- A15: chain matrix product equivalence (ITensors test_contract.jl)
    Three matrices A.B.C should give same result whether we contract (A.B).C or A.(B.C). *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A15-associative",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A15-associative",
     "ITensors test/base/test_contract.jl (associativity)",
     VerificationTest[
         Module[{a, b, c, way1, way2, expected},
@@ -320,12 +320,12 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A15-associative
                 ValidationClose[way1, way2, 1.*^-10]
         ],
         True,
-        TestID -> "tier1a-A15-associative"
+        TestID -> "paclet-tensor-A15-associative"
     ]
 ];
 
 (* ----- A16: scalar contraction — fully traced expression -> single number *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A16-scalar",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A16-scalar",
     "quimb test_tensor_core.py (full trace)",
     VerificationTest[
         Module[{t, scalar, expected},
@@ -336,13 +336,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A16-scalar",
             ValidationClose[scalar, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A16-scalar"
+        TestID -> "paclet-tensor-A16-scalar"
     ]
 ];
 
 (* ----- A17: 4-tensor closed network with hyper-edge — sum over a triple-shared index
    T1[i,x] T2[j,x] T3[k,x] T4[l,x] -> R[i,j,k,l] *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A17-quad-hyperedge",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A17-quad-hyperedge",
     "quimb tensor-design.ipynb (hyper-index sum)",
     VerificationTest[
         Module[{t1, t2, t3, t4, r, expected},
@@ -362,13 +362,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A17-quad-hypere
             ValidationClose[r, expected, 1.*^-10]
         ],
         True,
-        TestID -> "tier1a-A17-quad-hyperedge"
+        TestID -> "paclet-tensor-A17-quad-hyperedge"
     ]
 ];
 
 (* ----- A18: sparse-friendly identity tensor as delta
    The identity matrix as a 2-index tensor satisfies sum_i I[i,j] T[i,k] = T[j,k]. *)
-WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A18-identity-tensor",
+WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A18-identity-tensor",
     "ITensors delta tensor (test_itensor.jl:140-168)",
     VerificationTest[
         Module[{id, t, contracted, expected},
@@ -380,6 +380,6 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "tier1a-A18-identity-te
             ValidationClose[contracted, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1a-A18-identity-tensor"
+        TestID -> "paclet-tensor-A18-identity-tensor"
     ]
 ];

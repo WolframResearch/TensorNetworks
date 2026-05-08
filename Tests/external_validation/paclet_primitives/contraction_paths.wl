@@ -1,6 +1,6 @@
-(* Tests/external_validation/tier1b_contraction_paths.wl
+(* Tests/external_validation/paclet_primitives/contraction_paths.wl
 
-Tier-1B: contraction-path parity vs cotengra. The paclet's
+Paclet-primitive tests: contraction-path parity vs cotengra. The paclet's
 OptimalContractionPath / GreedyContractionPath should match cotengra's path
 structure on canonical small cases. Exact FLOP-count matching is treated as a
 soft check because cotengra's cost convention ("ops = real_flops/2") may differ
@@ -24,7 +24,7 @@ Module[{candidates, found},
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1b] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
+        Print["[paclet-paths] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
         Abort[];
     ];
     Get[found];
@@ -37,7 +37,7 @@ contract = ActivateTensors @* EinsteinSummation;
    Inputs: T1[a,b,x], T2[b,c,d], T3[c,e,y], T4[e,a,d] with output (x,y).
    cotengra's path is ((0,1),(1,2),(0,1)) — three pair contractions, opt_einsum
    convention. Translate to paclet's 1-indexed: {{1,2},{2,3},{1,2}}. *)
-WithCapability[{"OptimalContractionPath", "TensorNetwork"}, "tier1b-B1-4tensor-path",
+WithCapability[{"OptimalContractionPath", "TensorNetwork"}, "paclet-paths-B1-4tensor-path",
     "cotengra docs/basics.ipynb (4-tensor demo)",
     VerificationTest[
         Module[{tn, path, expectedPath, sd, shapes, ts},
@@ -55,7 +55,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"}, "tier1b-B1-4tensor-p
                 AllTrue[path, MatchQ[#, {_Integer, _Integer}] && #[[1]] != #[[2]] &]
         ],
         True,
-        TestID -> "tier1b-B1-4tensor-path"
+        TestID -> "paclet-paths-B1-4tensor-path"
     ]
 ];
 
@@ -63,7 +63,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"}, "tier1b-B1-4tensor-p
    a-b-c where each is (8,8); shared bonds. Optimal path has length 2.
    The contracted scalar should equal Tr[a.b.c] for a closed chain or a.b.c for open. *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContract"},
-    "tier1b-B2-chain3",
+    "paclet-paths-B2-chain3",
     "quimb tests/test_tensor_core.py:1095-1101",
     VerificationTest[
         Module[{tn, path, contracted, expected, a, b, c},
@@ -80,7 +80,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContrac
                 ValidationClose[contracted, expected, 1.*^-10]
         ],
         True,
-        TestID -> "tier1b-B2-chain3"
+        TestID -> "paclet-paths-B2-chain3"
     ]
 ];
 
@@ -89,7 +89,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContrac
    should find ((1,2),(0,1)) [opt_einsum] = paclet {{2,3},{1,2}}.
    We just check path has length 2 and contracts correctly. *)
 WithCapability[{"GreedyContractionPath", "TensorNetwork", "TensorNetworkContract"},
-    "tier1b-B3-edgesort-chain",
+    "paclet-paths-B3-edgesort-chain",
     "cotengra tests/test_paths_basic.py:221-243 (edgesort chain)",
     VerificationTest[
         Module[{tn, path, contracted, expected, t1, t2, t3},
@@ -105,7 +105,7 @@ WithCapability[{"GreedyContractionPath", "TensorNetwork", "TensorNetworkContract
             Length[path] === 2 && ValidationClose[contracted, expected, 1.*^-12]
         ],
         True,
-        TestID -> "tier1b-B3-edgesort-chain"
+        TestID -> "paclet-paths-B3-edgesort-chain"
     ]
 ];
 
@@ -114,7 +114,7 @@ WithCapability[{"GreedyContractionPath", "TensorNetwork", "TensorNetworkContract
    cotengra's reported flops=1464 (with d_max=3) — we test path validity, not
    exact cost-match (cost convention may differ). *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContract"},
-    "tier1b-B4-lattice45-path",
+    "paclet-paths-B4-lattice45-path",
     "cotengra tests/test_paths_basic.py:194-205 (lattice[4,5])",
     VerificationTest[
         Module[{Lx, Ly, dim, sd, shapes, ts, tn, path, contracted},
@@ -138,7 +138,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContrac
             Length[path] === Lx * Ly - 1 && NumericQ[contracted]
         ],
         True,
-        TestID -> "tier1b-B4-lattice45-path"
+        TestID -> "paclet-paths-B4-lattice45-path"
     ]
 ];
 
@@ -146,7 +146,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContrac
    on a small random hypergraph. *)
 WithCapability[{"OptimalContractionPath", "GreedyContractionPath",
     "TensorNetwork", "TensorNetworkContract"},
-    "tier1b-B5-greedy-vs-optimal",
+    "paclet-paths-B5-greedy-vs-optimal",
     "cotengra tests/test_optimizers.py (random regular contraction)",
     VerificationTest[
         Module[{ts, shapes, sd, tn, pGreedy, pOptimal, cGreedy, cOptimal},
@@ -165,7 +165,7 @@ WithCapability[{"OptimalContractionPath", "GreedyContractionPath",
                 ValidationClose[cGreedy, cOptimal, 1.*^-10]
         ],
         True,
-        TestID -> "tier1b-B5-greedy-vs-optimal"
+        TestID -> "paclet-paths-B5-greedy-vs-optimal"
     ]
 ];
 
@@ -173,7 +173,7 @@ WithCapability[{"OptimalContractionPath", "GreedyContractionPath",
    "test_manual_cases"). Verify TensorNetworkContract == ground-truth einsum
    on a 5-tensor hypergraph including a hyper-index. *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "tier1b-B6-contract-correctness",
+    "paclet-paths-B6-contract-correctness",
     "cotengra tests/test_paths_basic.py:97-110 (test_manual_cases)",
     VerificationTest[
         Module[{ts, shapes, tn, contracted, expected, sd},
@@ -189,7 +189,7 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
             ValidationClose[contracted, expected, 1.*^-10]
         ],
         True,
-        TestID -> "tier1b-B6-contract-correctness"
+        TestID -> "paclet-paths-B6-contract-correctness"
     ]
 ];
 
@@ -197,12 +197,12 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
    cotengra uses "ops = real_flops/2 = complex_flops/8". The paclet may use a
    different convention. Hard parity is recorded as a TODO until conventions
    are normalized. *)
-SkipDueToRNG["tier1b-B7-flop-count-comparison",
+SkipDueToRNG["paclet-paths-B7-flop-count-comparison",
     "cotengra cost convention (ops = real_flops/2) differs from paclet's; pending normalization",
     "cotengra docs/contraction.ipynb (cost convention)"];
 
 (* ----- B8: skip — exact path match for HyperOptimizer (RNG / KaHyPar dep) *)
-SkipDueToRNG["tier1b-B8-hyperoptimizer-comparison",
+SkipDueToRNG["paclet-paths-B8-hyperoptimizer-comparison",
     "cotengra HyperOptimizer requires KaHyPar + cmaes/optuna RNG; cross-language seed parity infeasible",
     "cotengra tests/test_optimizers.py:139-167"];
 
@@ -244,7 +244,7 @@ pathCost[indicesPerTensor_, sizeDict_, path_] := Module[
 
 (* ----- B9: optimal path cost <= greedy path cost on a 5-tensor random hypergraph *)
 WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetwork"},
-    "tier1b-B9-optimal-le-greedy",
+    "paclet-paths-B9-optimal-le-greedy",
     "cotengra tests/test_optimizers.py (speedup invariant)",
     VerificationTest[
         Module[{sd, shapes, ts, tn, pGreedy, pOptimal, costGreedy, costOptimal},
@@ -261,7 +261,7 @@ WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetwor
             costOptimal <= costGreedy
         ],
         True,
-        TestID -> "tier1b-B9-optimal-le-greedy"
+        TestID -> "paclet-paths-B9-optimal-le-greedy"
     ]
 ];
 
@@ -269,7 +269,7 @@ WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetwor
    working list. opt_einsum convention: list shrinks by 1 each step (remove 2,
    append 1). *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork"},
-    "tier1b-B10-path-bijective",
+    "paclet-paths-B10-path-bijective",
     "Path-data structural invariant",
     VerificationTest[
         Module[{tn, ts, shapes, sd, path, n, listLen, allValid},
@@ -292,14 +292,14 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"},
             allValid && Length[path] === n - 1
         ],
         True,
-        TestID -> "tier1b-B10-path-bijective"
+        TestID -> "paclet-paths-B10-path-bijective"
     ]
 ];
 
 (* ----- B11: contraction along OptimalContractionPath equals greedy result.
    Different paths but same numeric answer (associativity/commutativity). *)
 WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetworkContract", "TensorNetwork"},
-    "tier1b-B11-paths-give-same-result",
+    "paclet-paths-B11-paths-give-same-result",
     "cotengra contract correctness invariant",
     VerificationTest[
         Module[{tn, ts, shapes, sd, resultDefault, resultExplicit},
@@ -313,7 +313,7 @@ WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetwor
             ValidationClose[resultDefault, resultExplicit, 1.*^-10]
         ],
         True,
-        TestID -> "tier1b-B11-paths-give-same-result"
+        TestID -> "paclet-paths-B11-paths-give-same-result"
     ]
 ];
 
@@ -333,7 +333,7 @@ WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetwor
    (Greedy chooses R-to-L which gives a higher cost of 90; this test uses
    OptimalContractionPath since it's the cost the optimizer should find.) *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork"},
-    "tier1b-Bcost1-chain-optimal-flops",
+    "paclet-paths-Bcost1-chain-optimal-flops",
     "cotengra core.py:1196-1227 + paclet Cotengra/src/lib.rs:115-132",
     VerificationTest[
         Module[{tn, ts, shapes, sd, path, cost},
@@ -346,7 +346,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"},
             cost === 64
         ],
         True,
-        TestID -> "tier1b-Bcost1-chain-optimal-flops"
+        TestID -> "paclet-paths-Bcost1-chain-optimal-flops"
     ]
 ];
 
@@ -357,7 +357,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"},
      Step 2 (a,bc -> scalar): product of {i,j} dims = 2*3 = 6
    Total flops = 24 + 6 = 30. *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork"},
-    "tier1b-Bcost2-triangle-cost",
+    "paclet-paths-Bcost2-triangle-cost",
     "Per-step cost convention on a closed triangle",
     VerificationTest[
         Module[{tn, ts, shapes, sd, path, cost},
@@ -370,7 +370,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"},
             cost === 30
         ],
         True,
-        TestID -> "tier1b-Bcost2-triangle-cost"
+        TestID -> "paclet-paths-Bcost2-triangle-cost"
     ]
 ];
 
@@ -379,7 +379,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"},
    network where flops-optimal and size-optimal paths differ, the wrapper's
    default invocation should match Method -> "size", not Method -> "flops". *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork"},
-    "tier1b-Bcost3-wrapper-default-is-size",
+    "paclet-paths-Bcost3-wrapper-default-is-size",
     "paclet TensorNetworks.wl:112-118 (Method -> size override)",
     VerificationTest[
         Module[{tn, ts, shapes, sd, pDefault, pSize, pFlops},
@@ -395,7 +395,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"},
             pDefault === pSize
         ],
         True,
-        TestID -> "tier1b-Bcost3-wrapper-default-is-size"
+        TestID -> "paclet-paths-Bcost3-wrapper-default-is-size"
     ]
 ];
 
@@ -403,7 +403,7 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"},
    On a network where flop-optimal differs from size-optimal, both should still
    give same numeric answer but different paths. *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContract"},
-    "tier1b-B12-method-flops-vs-size",
+    "paclet-paths-B12-method-flops-vs-size",
     "paclet OptimalContractionPath Method options",
     VerificationTest[
         Module[{tn, ts, shapes, sd, pFlops, pSize, result},
@@ -420,6 +420,6 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContrac
                 Dimensions[result] === {sd["a"], sd["e"]}
         ],
         True,
-        TestID -> "tier1b-B12-method-flops-vs-size"
+        TestID -> "paclet-paths-B12-method-flops-vs-size"
     ]
 ];

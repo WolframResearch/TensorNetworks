@@ -1,9 +1,9 @@
-(* Tests/external_validation/tier1d_analytic.wl
+(* Tests/external_validation/baselines/analytic_grounds.wl
 
-Tier-1D: small-system analytic ground states. We build Hamiltonians as dense
+Baseline tests: small-system analytic ground states. We build Hamiltonians as dense
 matrices and use Mathematica's Eigensystem. The paclet has no DMRG, so the
 matching test that goes via paclet primitives uses TensorNetworkContract on a
-ground-state MPS once it's been computed (see tier1f). Here we just check that
+ground-state MPS once it's been computed (see paclet_primitives/tn_expectations.wl). Here we just check that
 analytic / dense-ED answers reproduce the catalogued numbers.
 
 Sources:
@@ -23,7 +23,7 @@ Module[{candidates, found},
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1d] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
+        Print["[baseline-analytic] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
     ];
     Get[found];
 ];
@@ -78,7 +78,7 @@ VerificationTest[
         ValidationClose[First[vals], -3/4, 1.*^-12]
     ],
     True,
-    TestID -> "tier1d-D1-heisenberg-2qubit"
+    TestID -> "baseline-analytic-D1-heisenberg-2qubit"
 ];
 
 (* ----- D2: 4-qubit OBC Heisenberg ground via dense ED.
@@ -92,7 +92,7 @@ VerificationTest[
         ValidationClose[gsED, gsExpected, 1.*^-10]
     ],
     True,
-    TestID -> "tier1d-D2-heisenberg-4qubit"
+    TestID -> "baseline-analytic-D2-heisenberg-4qubit"
 ];
 
 (* ----- D3: TFIM L=4 ground at g=1 (critical) — finite-system analytic
@@ -106,7 +106,7 @@ VerificationTest[
         ValidationClose[gsED, gsExpected, 1.*^-2]  (* finite-size correction expected *)
     ],
     True,
-    TestID -> "tier1d-D3-tfim-L4-critical"
+    TestID -> "baseline-analytic-D3-tfim-L4-critical"
 ];
 
 (* ----- D4: TFIM dispersion ε(p)=2√(J²-2Jg·cosp+g²)
@@ -121,7 +121,7 @@ VerificationTest[
         ValidationClose[gap1, 0., 1.*^-12] && ValidationClose[gap2, 1., 1.*^-12]
     ],
     True,
-    TestID -> "tier1d-D4-tfim-dispersion"
+    TestID -> "baseline-analytic-D4-tfim-dispersion"
 ];
 
 (* ----- D5: AKLT exact correlation decay C(n) = (-1/3)^n × const.
@@ -144,14 +144,14 @@ VerificationTest[
             ValidationClose[xi, 1./Log[3.], 1.*^-8]
     ],
     True,
-    TestID -> "tier1d-D5-aklt-correlation-length"
+    TestID -> "baseline-analytic-D5-aklt-correlation-length"
 ];
 
 (* ----- D6: 4x4 Heisenberg ground / site comparison to quimb-stated value
    quimb PEPS #7: qu.groundenergy(qu.ham_heis_2D(4,4,sparse=True)) / 16
    = -0.5743254415745597. Skip - 16-site dense ED is 2^16 x 2^16 = 4G entries,
    needs sparse + Lanczos, which is out of scope here. *)
-RecordSkipMissing["tier1d-D6-heis2d-4x4-ground",
+RecordSkipMissing["baseline-analytic-D6-heis2d-4x4-ground",
     {"SparseArrayHam", "Lanczos"},
     "quimb docs/tensor/tensor-2d.ipynb (4x4 Heisenberg ground -0.5743254...)"];
 
@@ -168,7 +168,7 @@ VerificationTest[
         decreasing
     ],
     True,
-    TestID -> "tier1d-D7-tfim-monotone-g"
+    TestID -> "baseline-analytic-D7-tfim-monotone-g"
 ];
 
 (* ----- D8: 6-qubit Heisenberg AFM ground via dense ED
@@ -184,5 +184,5 @@ VerificationTest[
         Im[gs] < 1.*^-10 && Re[gs] < neelE
     ],
     True,
-    TestID -> "tier1d-D8-heisenberg-6qubit-below-neel"
+    TestID -> "baseline-analytic-D8-heisenberg-6qubit-below-neel"
 ];

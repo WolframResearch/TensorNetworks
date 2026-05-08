@@ -20,7 +20,7 @@ Module[{candidates, found},
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tn_expectations] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
+        Print["[paclet-tn] ERROR: cannot locate ValidationHelpers.wl. Tried: ", candidates];
         Abort[];
     ];
     Get[found];
@@ -36,7 +36,7 @@ sigmaZ = N @ {{1, 0}, {0, -1}};
    Build |Up,Dn,Up,Dn> as paclet TensorNetwork; close ket-bra via shared phys
    indices. Result = <psi|psi> = 1. *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "tier1f-F5-product-state-norm",
+    "paclet-tn-F5-product-state-norm",
     "quimb docs/tensor/tensor-1d.ipynb (MPS norm)",
     VerificationTest[
         Module[{L, ketTensors, braTensors, allTensors, allInds, tn, result},
@@ -53,14 +53,14 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
             ValidationClose[result, 1.0, 1.*^-12]
         ],
         True,
-        TestID -> "tier1f-F5-product-state-norm"
+        TestID -> "paclet-tn-F5-product-state-norm"
     ]
 ];
 
 (* ----- F6: TensorNetwork Sz expectation on product state
    <psi|Z_2|psi> for |Up,Dn,Up,Dn> at site 2 = -1. *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "tier1f-F6-tn-sz-expectation",
+    "paclet-tn-F6-tn-sz-expectation",
     "ITensorMPS expect (test_mps.jl:880-935 pattern)",
     VerificationTest[
         Module[{L, ketTensors, braTensors, allTensors, allInds, tn, result},
@@ -82,16 +82,16 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
             ValidationClose[result, -1.0, 1.*^-12]
         ],
         True,
-        TestID -> "tier1f-F6-tn-sz-expectation"
+        TestID -> "paclet-tn-F6-tn-sz-expectation"
     ]
 ];
 
 (* ----- F7: skip - cross-language random MPS *)
-SkipDueToRNG["tier1f-F7-random-mps-cross-lang",
+SkipDueToRNG["paclet-tn-F7-random-mps-cross-lang",
     "Random MPS reference values (e.g. quimb 'PEPS norm = 0.5078' at seed=666) require seed parity that NumPy/Julia/WL don't share",
     "quimb docs/tensor/tensor-2d.ipynb (random PEPS norm)"];
 
 (* ----- F8: skip - DMRG-based ground state expectation *)
-RecordSkipMissing["tier1f-F8-dmrg-ground-expectation",
+RecordSkipMissing["paclet-tn-F8-dmrg-ground-expectation",
     {"DMRG"},
     "ITensorMPS expect on DMRG ground state (test_dmrg.jl:276-316)"];

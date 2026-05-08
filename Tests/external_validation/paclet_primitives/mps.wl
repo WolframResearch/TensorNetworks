@@ -1,6 +1,6 @@
-(* Tests/external_validation/tier1g_mps.wl
+(* Tests/external_validation/paclet_primitives/mps.wl
 
-Tier-1G: MPS-specific paclet primitives. Exercises:
+Paclet-primitive tests: MPS-specific paclet primitives. Exercises:
   RandomTensorNetwork["MPS"[L, bondDim, physDim]],
   MPSCanonicalForm, MPSCanonicalQ, MPSOverlap, MPSNorm,
   MPSEntanglementEntropy, MPSSchmidtValues, MPSTruncate.
@@ -22,7 +22,7 @@ Module[{candidates, found},
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1g] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
+        Print["[paclet-mps] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
     ];
     Get[found];
 ];
@@ -30,7 +30,7 @@ ClearValidationRecords[];
 
 (* ----- G1: random MPS produces a valid TensorNetwork *)
 WithCapability[{"RandomTensorNetwork", "TensorNetworkQ"},
-    "tier1g-G1-random-mps-tn",
+    "paclet-mps-G1-random-mps-tn",
     "ITensorMPS test/base/test_mps.jl:200-214 (random_mps)",
     VerificationTest[
         Module[{mps},
@@ -39,14 +39,14 @@ WithCapability[{"RandomTensorNetwork", "TensorNetworkQ"},
             TensorNetworkQ[mps]
         ],
         True,
-        TestID -> "tier1g-G1-random-mps-tn"
+        TestID -> "paclet-mps-G1-random-mps-tn"
     ]
 ];
 
 (* ----- G2: MPSOverlap[mps,mps] == MPSNorm[mps]^2 (real-positive)
    ITensorMPS test_mps.jl:241-253 (inner consistency). *)
 WithCapability[{"RandomTensorNetwork", "MPSOverlap", "MPSNorm"},
-    "tier1g-G2-overlap-equals-norm-sq",
+    "paclet-mps-G2-overlap-equals-norm-sq",
     "ITensorMPS test/base/test_mps.jl:241-253 (inner = norm^2)",
     VerificationTest[
         Module[{mps, ovrl, norm},
@@ -57,14 +57,14 @@ WithCapability[{"RandomTensorNetwork", "MPSOverlap", "MPSNorm"},
             ValidationCloseRel[Re[ovrl], norm^2, 1.*^-10] && Abs[Im[ovrl]] < 1.*^-10
         ],
         True,
-        TestID -> "tier1g-G2-overlap-equals-norm-sq"
+        TestID -> "paclet-mps-G2-overlap-equals-norm-sq"
     ]
 ];
 
 (* ----- G3: MPSCanonicalForm Left produces a left-canonical state
    ITensorMPS test_mps.jl:680-754 (orthogonalize!). *)
 WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
-    "tier1g-G3-canonical-left",
+    "paclet-mps-G3-canonical-left",
     "ITensorMPS test/base/test_mps.jl:680-754 (left orthogonality)",
     VerificationTest[
         Module[{mps, canon},
@@ -74,13 +74,13 @@ WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
             MPSCanonicalQ[canon, "Left"]
         ],
         True,
-        TestID -> "tier1g-G3-canonical-left"
+        TestID -> "paclet-mps-G3-canonical-left"
     ]
 ];
 
 (* ----- G4: MPSCanonicalForm Right produces a right-canonical state. *)
 WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
-    "tier1g-G4-canonical-right",
+    "paclet-mps-G4-canonical-right",
     "ITensorMPS test/base/test_mps.jl (right orthogonality)",
     VerificationTest[
         Module[{mps, canon},
@@ -90,13 +90,13 @@ WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
             MPSCanonicalQ[canon, "Right"]
         ],
         True,
-        TestID -> "tier1g-G4-canonical-right"
+        TestID -> "paclet-mps-G4-canonical-right"
     ]
 ];
 
 (* ----- G5: MPSCanonicalForm Mixed at site k. *)
 WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
-    "tier1g-G5-canonical-mixed",
+    "paclet-mps-G5-canonical-mixed",
     "ITensorMPS test/base/test_mps.jl (mixed canonical at site k)",
     VerificationTest[
         Module[{mps, canon, k},
@@ -107,7 +107,7 @@ WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
             MPSCanonicalQ[canon, {"Mixed", k}]
         ],
         True,
-        TestID -> "tier1g-G5-canonical-mixed"
+        TestID -> "paclet-mps-G5-canonical-mixed"
     ]
 ];
 
@@ -115,7 +115,7 @@ WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
    For a normalized MPS, canon(mps) and mps should have the same overlap with each other
    equal to the squared norm. ITensorMPS test_mps.jl norm preservation. *)
 WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSOverlap", "MPSNorm"},
-    "tier1g-G6-canon-preserves-norm",
+    "paclet-mps-G6-canon-preserves-norm",
     "ITensorMPS test/base/test_mps.jl (canonical-form preserves overlap)",
     VerificationTest[
         Module[{mps, canon, normMps, normCanon, ovrl},
@@ -129,7 +129,7 @@ WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSOverlap", "MPSNor
                 ValidationCloseRel[Abs[ovrl], normMps^2, 1.*^-10]
         ],
         True,
-        TestID -> "tier1g-G6-canon-preserves-norm"
+        TestID -> "paclet-mps-G6-canon-preserves-norm"
     ]
 ];
 
@@ -138,7 +138,7 @@ WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSOverlap", "MPSNor
    the bipartition, so they sum-square to 1 regardless of the MPS's overall
    norm. (For the norm-aware version, multiply by MPSNorm^2 outside.) *)
 WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSSchmidtValues", "MPSNorm"},
-    "tier1g-G7-schmidt-sum-to-one",
+    "paclet-mps-G7-schmidt-sum-to-one",
     "TeNPy doc/toycodes/a_mps.py (Schmidt values normalization)",
     VerificationTest[
         Module[{mps, canon, sv, sumSq},
@@ -150,7 +150,7 @@ WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSSchmidtValues", "
             ValidationCloseRel[sumSq, 1.0, 1.*^-8]
         ],
         True,
-        TestID -> "tier1g-G7-schmidt-sum-to-one"
+        TestID -> "paclet-mps-G7-schmidt-sum-to-one"
     ]
 ];
 
@@ -159,7 +159,7 @@ WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSSchmidtValues", "
    <= log(physDim^min(siteToLeft, siteToRight)) for a generic state.
    ITensorMPS test_mps.jl entanglement_entropy bounds. *)
 WithCapability[{"RandomTensorNetwork", "MPSEntanglementEntropy"},
-    "tier1g-G8-entropy-bounds",
+    "paclet-mps-G8-entropy-bounds",
     "ITensorMPS test/base/test_mps.jl (entanglement entropy)",
     VerificationTest[
         Module[{mps, S, upper},
@@ -171,14 +171,14 @@ WithCapability[{"RandomTensorNetwork", "MPSEntanglementEntropy"},
             S >= -1.*^-10 && S <= upper + 1.*^-6
         ],
         True,
-        TestID -> "tier1g-G8-entropy-bounds"
+        TestID -> "paclet-mps-G8-entropy-bounds"
     ]
 ];
 
 (* ----- G9: MPSTruncate reduces bond dim and produces a renormalized state.
    ITensorMPS test_mps.jl:755-794 (truncate!). *)
 WithCapability[{"RandomTensorNetwork", "MPSTruncate", "MPSNorm"},
-    "tier1g-G9-truncate-reduces-bond",
+    "paclet-mps-G9-truncate-reduces-bond",
     "ITensorMPS test/base/test_mps.jl:755-794 (truncate!)",
     VerificationTest[
         Module[{mps, truncated, normTrunc},
@@ -190,17 +190,17 @@ WithCapability[{"RandomTensorNetwork", "MPSTruncate", "MPSNorm"},
             normTrunc > 0
         ],
         True,
-        TestID -> "tier1g-G9-truncate-reduces-bond"
+        TestID -> "paclet-mps-G9-truncate-reduces-bond"
     ]
 ];
 
 (* ----- G10: Skip — DMRG ground-state expectation
    Awaiting DMRG primitive in paclet. *)
-RecordSkipMissing["tier1g-G10-dmrg-mps-overlap",
+RecordSkipMissing["paclet-mps-G10-dmrg-mps-overlap",
     {"DMRG"},
     "ITensorMPS test_dmrg.jl ground-state expectation"];
 
 (* ----- G11: Skip — Cross-language MPS comparison (RNG-dependent random MPS) *)
-SkipDueToRNG["tier1g-G11-cross-lang-random-mps",
+SkipDueToRNG["paclet-mps-G11-cross-lang-random-mps",
     "Random MPS generated in WL/NumPy/Julia have different RNG streams; can't compare numerical values across languages",
     "ITensorMPS random_mps cross-package check"];

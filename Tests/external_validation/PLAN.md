@@ -116,20 +116,37 @@ Right shape:
 
 Not on the current TODO list. Estimated effort: 2-3 days plus ongoing maintenance burden as upstream packages drift.
 
-## 8. Open decisions
+## 8. Settled decisions
 
-These are choices that would change scope or shape; surfaced for explicit decision before further work:
+Recorded for posterity; live behavior follows these rules.
 
-1. **Direct vs indirect tier-2 split.** Should Tier-2 explicitly require direct-validation (every test cites a specific external numerical answer), or accept indirect-validation for cases where the external value is also analytic? Recommended: strict-only for Tier-2 to make the distinction visible.
-2. **Path-cost convention reconciliation.** *Audited 2026-05-08:*
+1. **Direct vs indirect Tier-2.** *Decided: direct-only.* Tier-2 tests must lift a specific numerical answer from the catalog (e.g. cotengra cost = 1464, ITensorMPS energy = -138.94008605883985) and assert the paclet output equals that exact value. Tests where the expected value is computed in Mathematica from analytic formulas belong in `baselines/` or stay in Tier-1.
+
+2. **Path-cost convention.** *Audited 2026-05-08; resolved.*
    - **cotengra** (`core.py:1196-1227`): `total_flops(dtype=None)` returns mul-count "ops"; `dtype="float"` doubles it (`real_flops = 2·ops`); `dtype="complex"` quadruples it (`complex_flops = 4·ops`). Default `minimize="flops"`.
-   - **paclet (Rust optimizer)** (`Cotengra/src/lib.rs:115-132, 847`): `compute_flops` returns log of the product of all unique dims involved per step (matching cotengra's per-step `_flops` linearly). Default `minimize="flops"`.
-   - **paclet (Mathematica wrapper)** (`TensorNetworks.wl:112-118`): default `Method -> "size"` — explicitly overrides the Rust default. The convention itself is identical to cotengra's `dtype=None` (no real/complex scaling).
-   - **Open paclet design question** (not a validation work item): should the wrapper default change from `"size"` to `"flops"` to match cotengra and the underlying Rust default? Pros: matches user expectations, proxies wall-time. Cons: behavior change for existing users; current `"size"` minimizes peak memory.
-   - **Validation work item:** add `paclet_primitives/contraction_paths.wl` test pinning down per-step cost matches cotengra's mul-count convention on a fixed 3-tensor chain (small enough that per-step flops are computable by hand).
-3. **CI integration.** `run_external_validation.wl` exits 0/1 and is invokable directly. Should it be added to `Tests/run_tests.wl`'s discovery, or live as a separate CI step? Recommended: separate step, since it imports external clones and may be slower.
-4. **Test-ID renaming.** Current IDs use `tier1a-A1-name` format from when everything was Tier-1. After the paclet/baseline split, IDs like `paclet-tensor-A1-conjugate` would be clearer. Decision pending; currently keep as-is for catalog cross-reference traceability.
-5. **Catalog freshness.** The catalog was extracted in May 2026. Re-extracting after upstream package updates is a separate workflow (the audit-agent prompts are reproducible from git history). Recommended cadence: after each major external-package release, or quarterly.
+   - **paclet Rust optimizer** (`Cotengra/src/lib.rs:115-132, 847`): `compute_flops` returns `log(product of all unique dims involved)` per step (matching cotengra's per-step `_flops` linearly). Default `minimize="flops"`.
+   - **paclet Mathematica wrapper** (`TensorNetworks.wl:112-118`): default `Method -> "size"` — explicitly overrides the Rust default. Per-step convention itself matches cotengra's `dtype=None` exactly.
+   - Pinned in tests `paclet-paths-Bcost1` (chain optimal flops = 64), `paclet-paths-Bcost2` (closed triangle = 30), `paclet-paths-Bcost3` (wrapper default is `"size"`).
+   - **Open paclet design question** (not a validation work item): should the wrapper default change from `"size"` to `"flops"`? Pros: matches cotengra and the Rust default; proxies wall-time. Cons: behavior change for existing users; current `"size"` minimizes peak memory.
+
+3. **CI integration.** *Decided: separate step.* `run_external_validation.wl` runs as its own CI job (not part of `Tests/run_tests.wl` discovery) because it depends on the cloned external packages in `tn-external/` and is slower than the in-paclet test suite. Local runs: `wolframscript -file Tests/external_validation/run_external_validation.wl`. Exit code 0 on all-pass, 1 on any failure or unexpected error.
+
+4. **Test-ID convention.** *Decided: rename from tier-prefixed to group-prefixed.*
+
+   Old format: `tier1a-A1-conjugate`, `tier1c-C5-truncate-cutoff-tuple`
+   New format: `<group>-<file>-<original-letter+num>-<short>`
+   - `paclet-tensor-*` ← was `tier1a-*` (paclet_primitives/tensor_algebra.wl)
+   - `paclet-paths-*` ← was `tier1b-*` (paclet_primitives/contraction_paths.wl)
+   - `paclet-tn-*` ← was `tier1f-F5..F8` (paclet_primitives/tn_expectations.wl)
+   - `paclet-mps-*` ← was `tier1g-*` (paclet_primitives/mps.wl)
+   - `baseline-decomp-*` ← was `tier1c-*` (baselines/decomposition.wl)
+   - `baseline-analytic-*` ← was `tier1d-*` (baselines/analytic_grounds.wl)
+   - `baseline-gates-*` ← was `tier1e-*` (baselines/gate_identities.wl)
+   - `baseline-state-*` ← was `tier1f-F1..F4` (baselines/state_expectations.wl)
+
+   The group/file is now visible in the test ID, so the skip log and test output read clearly without cross-referencing. The original letter+number (A1, B5, Cost1, etc.) preserves cross-reference to the per-package catalog entries.
+
+5. **Catalog freshness.** *Decided: after each major external-package release, or quarterly (whichever first).* Cadence is a re-extraction trigger; the audit-agent prompts are reproducible from git history. Re-running the agents and diffing the new per-package `_examples.md` against the old reveals upstream changes worth tracking.
 
 ## 9. How to extend
 

@@ -1,6 +1,6 @@
-(* Tests/external_validation/tier1e_gates.wl
+(* Tests/external_validation/baselines/gate_identities.wl
 
-Tier-1E: gate identities. The paclet has no native circuit primitives, so we
+Baseline tests: gate identities. The paclet has no native circuit primitives, so we
 build gates as KroneckerProducts and verify identities at the matrix level.
 Where the paclet would extend this through Wolfram`QuantumFramework`, we leave
 a capability-gated skip.
@@ -22,7 +22,7 @@ Module[{candidates, found},
     }, StringQ];
     found = SelectFirst[candidates, FileExistsQ, $Failed];
     If[found === $Failed,
-        Print["[tier1e] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
+        Print["[baseline-gates] ERROR: cannot locate ValidationHelpers.wl"]; Abort[];
     ];
     Get[found];
 ];
@@ -66,7 +66,7 @@ VerificationTest[
         ValidationClose[Abs[Re[Conjugate[ghz3] . finalState]], 1.0, 1.*^-12]
     ],
     True,
-    TestID -> "tier1e-E1-ghz3-prep"
+    TestID -> "baseline-gates-E1-ghz3-prep"
 ];
 
 (* ----- E2: Toffoli equals controlled-controlled-X
@@ -82,7 +82,7 @@ VerificationTest[
         ValidationClose[N @ ccx, toffoliMat, 1.*^-12]
     ],
     True,
-    TestID -> "tier1e-E2-toffoli-ccx"
+    TestID -> "baseline-gates-E2-toffoli-ccx"
 ];
 
 (* ----- E3: Fredkin equals controlled-SWAP
@@ -94,7 +94,7 @@ VerificationTest[
         ValidationClose[N @ cswap, fredkinMat, 1.*^-12]
     ],
     True,
-    TestID -> "tier1e-E3-fredkin-cswap"
+    TestID -> "baseline-gates-E3-fredkin-cswap"
 ];
 
 (* ----- E4: 4-qubit QFT unitary
@@ -109,38 +109,38 @@ VerificationTest[
         ValidationClose[prod, IdentityMatrix[N], 1.*^-12]
     ],
     True,
-    TestID -> "tier1e-E4-qft4-unitary"
+    TestID -> "baseline-gates-E4-qft4-unitary"
 ];
 
 (* ----- E5: HCH = Z (Hadamard sandwich identity) *)
 VerificationTest[
     ValidationClose[gateH . gateZ . gateH, gateX, 1.*^-12],
     True,
-    TestID -> "tier1e-E5-hch-equals-x"
+    TestID -> "baseline-gates-E5-hch-equals-x"
 ];
 
 (* ----- E6: H Z H = X (alternative form) — sanity *)
 VerificationTest[
     ValidationClose[gateH . gateX . gateH, gateZ, 1.*^-12],
     True,
-    TestID -> "tier1e-E6-hxh-equals-z"
+    TestID -> "baseline-gates-E6-hxh-equals-z"
 ];
 
 (* ----- E7: T² = S (gate identity) *)
 VerificationTest[
     ValidationClose[gateT . gateT, gateS, 1.*^-12],
     True,
-    TestID -> "tier1e-E7-tsquared-equals-s"
+    TestID -> "baseline-gates-E7-tsquared-equals-s"
 ];
 
 (* ----- E8: skip — paclet TN-of-circuit primitives
    The paclet has no exported Circuit / Gate constructors that produce a
    tensor-network representation. quimb's qtn.Circuit is the reference. *)
-RecordSkipMissing["tier1e-E8-tn-circuit",
+RecordSkipMissing["baseline-gates-E8-tn-circuit",
     {"Circuit", "ApplyGate"},
     "quimb docs/tensor/tensor-circuit.ipynb (Circuit primitives)"];
 
 (* ----- E9: skip — sample / amplitude on a circuit (no paclet circuit type) *)
-RecordSkipMissing["tier1e-E9-amplitude-sample",
+RecordSkipMissing["baseline-gates-E9-amplitude-sample",
     {"CircuitAmplitude", "CircuitSample"},
     "quimb tests/test_circuit.py:466-487 (circ.sample)"];
