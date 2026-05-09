@@ -39,7 +39,7 @@ Reasoning:
 
 ### Tier-1 (DONE) — broad shallow coverage
 
-62 tests, 0 failures, 11 skips properly recorded. See `SKIPPED_AND_MISSING.md` for the live state.
+62 tests, 0 failures. (Live suite total now 95 with Tier-2 included; see `SKIPPED_AND_MISSING.md` for the up-to-date skip log.)
 
 | Group | File | Tests | Description |
 |---|---|---|---|

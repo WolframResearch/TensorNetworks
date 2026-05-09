@@ -4,6 +4,8 @@ Comprehensive catalog of computational examples extracted from the six leading n
 
 Source clones live at `tn-external/numerical/` (gitignored via `.git/info/exclude`).
 
+> **Live implementation status:** 95 validation tests passing (Tier-1 + Tier-2). For the up-to-date pass/fail/skip matrix and the strategy that maps catalog entries to implemented tests, see [PLAN.md](PLAN.md) and the auto-generated [SKIPPED_AND_MISSING.md](SKIPPED_AND_MISSING.md). The lists below are the *catalog priorities* — not all of them are implemented yet.
+
 ## Summary
 
 | Package | Examples | Source path | Per-package catalog |
