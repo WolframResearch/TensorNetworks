@@ -39,12 +39,12 @@ Reasoning:
 
 ### Tier-1 (DONE) — broad shallow coverage
 
-62 tests, 0 failures. (Live suite total now 95 with Tier-2 included; see `SKIPPED_AND_MISSING.md` for the up-to-date skip log.)
+65 tests, 0 failures. (Live suite total now 95 with Tier-2 included; see `SKIPPED_AND_MISSING.md` for the up-to-date skip log.) Tier-1 baseline grew from 62 to 65 after the path-cost-convention audit added three pinning tests (`paclet-paths-Bcost1`, `Bcost2`, `Bcost3`) to `contraction_paths.wl`.
 
 | Group | File | Tests | Description |
 |---|---|---|---|
 | paclet | `tensor_algebra.wl` | 17 | EinsteinSummation + ActivateTensors patterns |
-| paclet | `contraction_paths.wl` | 10 | OptimalContractionPath / GreedyContractionPath validity + cost ordering |
+| paclet | `contraction_paths.wl` | 13 | OptimalContractionPath / GreedyContractionPath validity, cost ordering, Bcost1-3 cost-convention pinning |
 | paclet | `tn_expectations.wl` | 2 | TensorNetwork + TensorNetworkContract on product states |
 | paclet | `mps.wl` | 9 | MPSCanonicalForm / Overlap / Schmidt / Truncate (random inputs) |
 | baseline | `decomposition.wl` | 6 | SVD/QR/truncate via Mathematica primitives |
@@ -54,7 +54,7 @@ Reasoning:
 
 ### Tier-2 (DONE — 5 of 5 files) — direct external-value validation
 
-30 new direct-validation tests across 5 files, raising `paclet_primitives/` coverage from 38 to 71.
+30 new direct-validation tests across 5 files, raising `paclet_primitives/` coverage from 41 (Tier-1 with Bcost adds) to 71.
 
 | File | Tests | Direct-validation targets |
 |---|---|---|
@@ -90,6 +90,7 @@ The build was structured as discrete phases to keep work incremental. **Tier-1 a
 | 5 | Tier-1E gate identities — `baselines/gate_identities.wl` | done |
 | 6 | Tier-1F TN expectations — split: `paclet/tn_expectations.wl` + `baselines/state_expectations.wl` | done |
 | 6+ | Tier-1G MPS — `paclet_primitives/mps.wl` | done |
+| 6++ | Path-cost convention audit — added `Bcost1`, `Bcost2`, `Bcost3` pinning tests to `contraction_paths.wl` | done |
 | 7 | Tier-2 direct-validation (5 files, 30 new tests) | done |
 | 8 | Optional: live cross-language oracle subdir (opt-in) | deferred |
 

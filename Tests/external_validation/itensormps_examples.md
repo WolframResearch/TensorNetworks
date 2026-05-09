@@ -152,7 +152,7 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 19. **DMRG with mismatched ortho center / no ortho center.** `test_dmrg.jl:444-471`. Sets ortho center to wrong site or replaces every tensor with `random_itensor`; DMRG still runs. WL-portable: Yes.
 20. **Compact `Sweeps` keyword syntax.** `test_dmrg.jl:223-247`. `dmrg(H,psi0; nsweeps=5, maxdim=[10,20], cutoff=1e-12, noise=1e-10)`. Same exact energy as `Sweeps(5)` form. WL-portable: Yes.
 21. **DMRG inferred return-type.** `test_inference.jl`. `@inferred(dmrg(H,psi0,sweeps))` is `Tuple{Float64,MPS}`. WL-portable: N/A.
-22. **DMRG with one or two sites total length.** `test_qnmpo.jl:251-306`. For N=1..4 conserve_szparity. Compares to `eigen(prod(H))` smallest eigenvalue (or QN block). **Gold parity** for N=2,3,4. WL-portable: Yes.
+22. **DMRG with one or two sites total length.** `test_qnmpo.jl:251-306`. For N=1..4 conserve_szparity. Compares to `eigen(prod(H))` smallest eigenvalue (or QN block). **Gold validation** for N=2,3,4. WL-portable: Yes.
 23. **Experimental `dmrg` (nsite=1 and 2).** `test/base/test_solvers/test_dmrg.jl`. Cross-validates `Experimental.dmrg(H,ψ; nsweeps,maxdim,cutoff,nsite, updater_kwargs)` vs canonical `dmrg`; ensures `e ≈ e2`. WL-portable: Yes (where nsite=1 single-site update implemented).
 
 ## DMRG-X / TDVP
@@ -161,7 +161,7 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 2. **Basic TDVP forward/backward.** `examples/solvers/01_tdvp.jl`, `test_solvers/test_tdvp.jl:11-50`. Heisenberg L=10; energy preserved, fidelity `> 0.99` after round-trip. WL-portable: Partial.
 3. **TDVP sum of Hamiltonians.** `test_tdvp.jl:52-86`. Energy-conservation across `[H1,H2]`. WL-portable: Partial.
 4. **TDVP custom updater (KrylovKit `exponentiate`).** `test_tdvp.jl:87-119`. WL-portable: Partial.
-5. **TDVP accuracy vs exact `exp(-iτH)`.** `test_tdvp.jl:120-171`. L=4 Heisenberg, τ=0.1 ttotal=1.0. Dense exact reference via `exp(-im*tau*HM)`. `Sz_tdvp - Sz_exact < 1e-5`. **Gold parity.** WL-portable: Yes.
+5. **TDVP accuracy vs exact `exp(-iτH)`.** `test_tdvp.jl:120-171`. L=4 Heisenberg, τ=0.1 ttotal=1.0. Dense exact reference via `exp(-im*tau*HM)`. `Sz_tdvp - Sz_exact < 1e-5`. **Gold validation reference.** WL-portable: Yes.
 6. **TDVP vs TEBD.** `test_tdvp.jl:172-242`. L=10 Heisenberg conserve_qns. Both methods agree on `<Sz_c>` and `<H>` to 1e-3. WL-portable: Partial.
 7. **Imaginary-time TDVP ground state.** `test_tdvp.jl:243-287`. L=10 Heisenberg, ttotal=50, τ=1; `en1 < -4.25`. WL-portable: Yes.
 
@@ -248,7 +248,7 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 
 1. **`prod(ψ)`/`contract(ψ)` to a single ITensor.** `test_mps.jl:1297-1355`. Used as exact reference. WL-portable: Yes.
 2. **`dense(ψ)` removes QN block-sparsity but preserves expectation values.** `test_mps.jl:2009-2019`. WL-portable: Yes.
-3. **MPS↔fused-tensor with `combiner` tree (binary/unbalanced).** `examples/exact_diagonalization/exact_diagonalization.jl`, `examples/exact_diagonalization/fuse_inds.jl`. Then Krylov `eigsolve(H_full,ψ0_full,1,:SR)` matches DMRG energy `edmrg`. **Gold-parity for L=14 Heisenberg.** WL-portable: Yes (paclet has fuse/contract).
+3. **MPS↔fused-tensor with `combiner` tree (binary/unbalanced).** `examples/exact_diagonalization/exact_diagonalization.jl`, `examples/exact_diagonalization/fuse_inds.jl`. Then Krylov `eigsolve(H_full,ψ0_full,1,:SR)` matches DMRG energy `edmrg`. **Gold validation reference for L=14 Heisenberg.** WL-portable: Yes (paclet has fuse/contract).
 
 ## Gate evolution / TEBD / METTS / purification
 
@@ -282,7 +282,7 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 
 - **Site types to implement first** (used by the most tests/examples): `S=1/2`, `S=1`, `Qubit`, `Fermion`, `Electron`. Lower priority: `Boson`/`Qudit`, `tJ`. Skip for now: `ElecK`, `HardCore`, `SiteType"S=3/2"` (tutorial-only).
 - **Operators that appear ubiquitously:** `Sz`, `S+`, `S-`, `Sx`, `Sy`, `S²`, `Sx2`, `Sy2`, `Sz2`, `Id`, `X`, `Y`, `Z`, `H`, `Phase`, `T`, `Rx`, `Ry`, `Rz`, `CX`/`CNOT`, `CY`, `CZ`, `CCNOT`, `SWAP`, `√SWAP`, `iSWAP`, `Rxx`, `Ryy`, `Rzz`, `Cdag`, `C`, `N`, `F`, `Cdagup/dn`, `Cup/dn`, `Adagup/dn`, `Aup/dn`, `Nupdn`, `Ntot`, `A`, `Adag`. The `"Sz * Sz"` (multi-op string) syntax appears in OpSum tests.
-- **Gold parity numbers** (already paste-ready):
+- **Gold validation numbers** (already paste-ready):
 
    | Test | Numeric |
    |---|---|

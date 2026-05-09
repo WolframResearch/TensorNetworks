@@ -249,7 +249,7 @@ Counts per category:
 - **Description:** Heisenberg `OpSum` over edges of `named_comb_tree((3,2))`; build `H = ttn(h, s)`; random initial `ttn`; `dmrg(H, psi0; nsweeps=2, nsites=2, factorize_kwargs=(; cutoff=1e-10, maxdim=10), outputlevel=1)`.
 - **Inputs:** Comb-tree (3,2), S=1/2, χ_max=10.
 - **API calls:** `OpSum`, `ttn(h, s)`, `dmrg`, `eigsolve`.
-- **Expected output:** Numerical (energy printed). Qualitative for parity.
+- **Expected output:** Numerical (energy printed). Qualitative for validation.
 - **WL-portable:** Partial — paclet has DMRG only on MPS.
 
 ### 28. DMRG on tree graph (3 branches × 3 sites) cross-checked against exact diagonalization
@@ -415,7 +415,7 @@ Counts per category:
 - **API calls:** `NamedDiGraph`, `is_rooted`, `root_vertex`, `is_binary_arborescence`.
 - **WL-portable:** Yes (Graph utilities are simple).
 
-## Notes for the Wolfram paclet parity catalog
+## Notes for the Wolfram paclet validation catalog
 
 - The Julia package's `examples/` and `benchmark/` directories contain no real examples — every concrete computation lives either in `docs/src/*.md` (Documenter `@example main` blocks) or `test/*.jl`. So the Mathematica side cannot mimic an `examples/` workload — the test suite is the source of truth.
 - The major gating capabilities for validation testing are: (a) BP cache infrastructure (Items 17-24, 32-34, 36, 38), (b) tree-graph DMRG/TDVP (Items 28-30), (c) QN-symmetric tensors (Items 9, 41-44), (d) auto-fermion logic (Items 42, 44, 45). None of these are implemented in the paclet; the rest of the catalog (≈25 examples) is portable directly via the paclet's existing `BinaryTensorNetwork` / `OptimalContractionPath` / `ArrayContract` machinery.

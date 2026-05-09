@@ -162,7 +162,7 @@ Each is a network description that should be reproducible verbatim in the WL pac
 25. **`edgesort` / `ncon` optimizer** (`optimize="edgesort"`) — `tests/test_paths_basic.py:221-243`
     - Edge-ordered contraction: the order of indices entirely determines the path.
     - Manual labelling test: `inputs=[(3,2),(2,1),(1,0)], size_dict={0:2,1:2,2:2,3:2}, optimize="edgesort"` → path == `((1,2),(0,1))`.
-    - WL-portable: **Yes** — exact path match. Useful low-overhead parity probe.
+    - WL-portable: **Yes** — exact path match. Useful low-overhead validation probe.
 
 26. **`labels` / `labelprop` / `spinglass` / `betweenness` / `walktrap` partition methods** — `tests/test_optimizers.py:56-67, 86-98`
     - Hypergraph community-detection drivers; on `rand_reg_contract(20,5)` each must give speedup > 1.
@@ -188,7 +188,7 @@ Each is a network description that should be reproducible verbatim in the WL pac
     - WL-portable: Yes.
 
 30. **`tree.total_flops()` / `tree.total_flops('complex')`** — generic ops, real, or complex.
-    - `cotengra` ops = real flops / 2 = complex flops / 8 (per `docs/contraction.ipynb` "Differences with opt_einsum").
+    - `cotengra` ops = real flops / 2 = complex flops / 4 (per `docs/contraction.ipynb` "Differences with opt_einsum").
     - WL-portable: Yes (just track integer add/mul counts).
 
 31. **`tree.contract_stats()`** — `{'flops','write','size'}`.
@@ -363,7 +363,7 @@ Each is a network description that should be reproducible verbatim in the WL pac
 - `HyperOptimizer.plot_trials(y='flops')`, `plot_scatter(x='size', y='flops')`, `plot_parameters_parallel('greedy')` — `docs/visualization.ipynb`.
 - `HyperGraph.plot(node_color='centrality', edge_color=False, draw_edge_labels=True)`.
 - `SliceFinder.plot_slicings()`, `plot_slicings_alt()` — `tests/test_slicer.py`.
-- `tree.print_contractions()` and `tree.describe('full'|'concise')` — text-based, useful for parity diff: lattice[5,6] tree shows 28 pairwise contractions with explicit (cost, widths, type) per line.
+- `tree.print_contractions()` and `tree.describe('full'|'concise')` — text-based, useful for validation diff: lattice[5,6] tree shows 28 pairwise contractions with explicit (cost, widths, type) per line.
 
 ## 11. Other / Utilities
 
@@ -389,4 +389,4 @@ Each is a network description that should be reproducible verbatim in the WL pac
 - Sycamore m=20 W=30 21-qubit marginal → 4.60×10^18 (23 sliced inds).
 - 3D Ising 10³ χ=16 compressed → log2[SIZE]≈21, log10[FLOPs]≈10.89.
 
-**Tier-3 (network-loading parity)**: load all 8 JSON benchmarks (ID 1-8 above) into the WL paclet and round-trip the topology before any solver.
+**Tier-3 (network-loading sanity)**: load all 8 JSON benchmarks (ID 1-8 above) into the WL paclet and round-trip the topology before any solver.

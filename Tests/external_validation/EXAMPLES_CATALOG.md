@@ -62,7 +62,7 @@ Source clones live at `tn-external/numerical/` (gitignored via `.git/info/exclud
 
 ## Tier-1 priority validation tests
 
-The most actionable validation tests — deterministic, exact numerical answers, small enough to run quickly. Group A→G in increasing computational cost.
+The most actionable validation tests — deterministic, exact numerical answers, small enough to run quickly. Groups A→H in increasing computational cost (A-G = numeric tests, H = network-loading sanity).
 
 ### A. Pure tensor algebra (instant, exact)
 
@@ -192,13 +192,19 @@ These bundle external dependencies the WL paclet does not have. Either skip thes
 - **Fermionic / Jordan-Wigner** — TeNPy Hubbard / Haldane / Chern-insulator examples
 - **External solvers** — slepc, ARPACK shift-invert (some quimb examples)
 
-## Recommended workflow
+## How implemented tests map to this catalog
 
-1. **Pick a Tier-1 group** (start with A, B, C — these are zero-dependency).
-2. For each entry, write a `Tests/external_validation/<source-package>/test_<thing>.wl` script that constructs the same input in WL and asserts the expected output.
-3. Run with `wolframscript -file Tests/external_validation/<...>.wl` and compare numerically.
-4. Bundle into a `run_external_validation.wl` master runner (akin to existing `run_dataset_test.wl`).
-5. Tier-1G (algorithmic checks) requires DMRG / TRG / CTMRG primitives in the paclet — gate these with capability checks if not all present.
+The suite exists. Tests are organized by **intent**, not by source-package:
+
+- `paclet_primitives/` — tests that exercise paclet symbols (`EinsteinSummation`, `OptimalContractionPath`, `MPSCanonicalForm`, etc.)
+- `baselines/` — Mathematica-native sanity checks against catalog values (no paclet calls)
+
+See [PLAN.md](PLAN.md) section 4 for the full tier-by-tier mapping (which catalog group → which `.wl` files), and [SKIPPED_AND_MISSING.md](SKIPPED_AND_MISSING.md) for the live pass/fail/skip state. To add a new test, follow the pattern in [PLAN.md](PLAN.md) section 9.
+
+Catalog groups still pending implementation (deferred to Tier-3 because the paclet doesn't have the relevant primitive yet):
+
+- **G. Algorithmic — DMRG / TRG / CTMRG** (most of these): paclet has no DMRG, TRG, CTMRG, or TDVP. Promotes when these primitives land.
+- **H. Cross-platform benchmark networks** (the 8 JSON files): JSON loader + `BinaryTensorNetwork` adapter not yet written. Lower priority — most cost numbers are RNG-dependent (HyperOptimizer + KaHyPar) and would be SkipRNG anyway.
 
 ## How to refresh this catalog
 

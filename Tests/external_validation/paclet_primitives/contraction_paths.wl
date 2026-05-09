@@ -193,15 +193,12 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
     ]
 ];
 
-(* ----- B7: skip — exact FLOP count parity (cotengra cost-convention difference)
-   cotengra uses "ops = real_flops/2 = complex_flops/8". The paclet may use a
-   different convention. Hard parity is recorded as a TODO until conventions
-   are normalized. *)
-SkipDueToRNG["paclet-paths-B7-flop-count-comparison",
-    "cotengra cost convention (ops = real_flops/2) differs from paclet's; pending normalization",
-    "cotengra docs/contraction.ipynb (cost convention)"];
+(* B7 (was: "skip - exact FLOP count comparison") removed: the cost convention
+   was audited and confirmed identical between cotengra `total_flops(dtype=None)`
+   and the paclet's per-step compute_flops. Direct flop-count matches are now
+   pinned by tests Bcost1, Bcost2 below (chain cost = 64, triangle cost = 30). *)
 
-(* ----- B8: skip — exact path match for HyperOptimizer (RNG / KaHyPar dep) *)
+(* ----- B8: skip - exact path match for HyperOptimizer (RNG / KaHyPar dep) *)
 SkipDueToRNG["paclet-paths-B8-hyperoptimizer-comparison",
     "cotengra HyperOptimizer requires KaHyPar + cmaes/optuna RNG; cross-language seed parity infeasible",
     "cotengra tests/test_optimizers.py:139-167"];
