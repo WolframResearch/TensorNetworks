@@ -52,17 +52,17 @@ Reasoning:
 | baseline | `gate_identities.wl` | 7 | Gate matrix identities (HZH=X, Toffoli, QFT unitarity) |
 | baseline | `state_expectations.wl` | 4 | Product-state expectations via vector arithmetic |
 
-### Tier-2 (PROPOSED) — strict direct external comparison
+### Tier-2 (PARTIAL — 3 of 5 files done) — direct external-value validation
 
-Goal: lift specific numerical answers from the catalog and use them as oracles. ~30-40 new paclet tests, raising `paclet_primitives/` coverage from 38 to ~70.
+Live count: 16 new direct-validation tests in 3 files, raising `paclet_primitives/` coverage from 38 to 57.
 
-| New file | Focus | Direct-validation targets |
-|---|---|---|
-| `cotengra_benchmarks.wl` | Path cost on cotengra's 8 JSON benchmark networks | lattice[4,5] cost=**1464**, 4-tensor demo cost=**4656**, contract_stats={flops:964,write:293,size:32} |
-| `tensor_algebra_edge.wl` | Edge cases for EinsteinSummation/IndexedMultiply | empty contraction, single-index, dimension-mismatch error, rank>6 |
-| `tn_expectations_canonical.wl` | TN expectations on known states | Bell `<XX>=<YY>=-<ZZ>=1`, GHZ-N `<Z_i Z_j>=1`, W-state expectations |
-| `mps_canonical_states.wl` | MPS with known analytic answers | GHZ MPS S=log(2) half-bond, AKLT MPS C(n)=(1/3)^(n-1), product-state Schmidt={1,0,...} |
-| `contraction_paths_exact.wl` | Path-shape and integer-cost match against cotengra | edgesort path={(1,2),(0,1)}, exact integer cost match, `ContractionTree` round-trip |
+| File | Status | Tests | Direct-validation targets |
+|---|---|---|---|
+| `cotengra_benchmarks.wl` | **done** | 5 + 2 RNG skips | 4-tensor demo cost=**4656**, all-ones contraction=**6720**, path shape match, chain bond=2 cost=**16**, pentagon cost=**28** |
+| `tn_canonical_states.wl` | **done** | 5 + 1 RNG + 1 missing | Bell `<Z_1>=0`, Bell `<Z_1 Z_2>=1`, GHZ-3 `<Z_2>=0`, GHZ-3 `<Z_1 Z_3>=1`, alternating product `<Sz_j>=±0.5` |
+| `mps_canonical_states.wl` | **done** | 6 + 2 missing | bond-1 MPS Schmidt=**{1.0}**, bond-1 entropy=**0**, bond-D entropy ≤ log(D), canonical-form preserves overlap, AKLT transfer eigenvalues `{1,-1/3,-1/3,-1/3}`, AKLT correlation length **1/log(3)** |
+| `tensor_algebra_edge.wl` | proposed | — | edge cases for EinsteinSummation/IndexedMultiply (empty contraction, dimension-mismatch error, rank>6). Per direct-only Tier-2, edge-case tests without specific catalog values may instead extend Tier-1 `tensor_algebra.wl`. |
+| `contraction_paths_exact.wl` | proposed | — | edgesort exact path = `((1,2),(0,1))`, `ContractionTree` round-trip. Several already covered by `contraction_paths.wl` Bcost1-Bcost3 tests. |
 
 ### Tier-3 (DEFERRED) — algorithmic primitives the paclet doesn't have yet
 
@@ -90,7 +90,8 @@ The build was structured as discrete phases to keep work incremental. All Tier-1
 | 5 | Tier-1E gate identities — `baselines/gate_identities.wl` | done |
 | 6 | Tier-1F TN expectations — split: `paclet/tn_expectations.wl` + `baselines/state_expectations.wl` | done |
 | 6+ | Tier-1G MPS — `paclet_primitives/mps.wl` | done |
-| 7 | Tier-2 direct-validation expansion (5 new files, ~30-40 tests) | proposed |
+| 7a | Tier-2 direct-validation: cotengra_benchmarks + tn_canonical_states + mps_canonical_states (3 files, 16 new tests) | done |
+| 7b | Tier-2 remainder: tensor_algebra_edge + contraction_paths_exact | proposed |
 | 8 | Optional: live cross-language oracle subdir (opt-in) | deferred |
 
 ## 6. Skip categories and their meanings

@@ -211,36 +211,8 @@ SkipDueToRNG["paclet-paths-B8-hyperoptimizer-comparison",
    the cost is product over distinct dimensions in (Idx_i union Idx_j). The
    paclet's optimal path should yield total cost <= greedy path's cost. *)
 
-(* opt_einsum convention: path step {i,j} removes positions i,j from working
-   list and appends the merged result at the end.
-
-   Per-step cost = product of dims for ALL unique legs in the union of the two
-   tensors (matching cotengra's `compute_flops` and `node._flops` with dtype=None).
-
-   The merged tensor's surviving legs are those that:
-     - appear in any remaining (not-yet-contracted) tensor (internal hyper-leg
-       still needed by future contractions), OR
-     - are "open" output legs (legs that originally appeared exactly once in
-       the network and so cannot be summed over).
-   Legs in the union that don't satisfy either are fully contracted at this step
-   and disappear from the merged tensor. *)
-pathCost[indicesPerTensor_, sizeDict_, path_] := Module[
-    {idxs = indicesPerTensor, totalCost = 0, openLegs,
-     i, j, mergedIdx, remaining, surviving},
-    openLegs = Keys @ Select[Counts[Catenate[indicesPerTensor]], # === 1 &];
-    Do[
-        {i, j} = path[[step]];
-        mergedIdx = DeleteDuplicates @ Join[idxs[[i]], idxs[[j]]];
-        totalCost += Times @@ (sizeDict /@ mergedIdx);
-        remaining = Delete[idxs, {{i}, {j}}];
-        surviving = Select[mergedIdx,
-            With[{leg = #},
-                MemberQ[openLegs, leg] || AnyTrue[remaining, MemberQ[#, leg] &]
-            ] &];
-        idxs = Append[remaining, surviving]
-    , {step, Length[path]}];
-    totalCost
-];
+(* pathCost helper now lives in Helpers/ValidationHelpers.wl so other tier
+   files can use it without re-running this file's tests via Get[]. *)
 
 (* ----- B9: optimal path cost <= greedy path cost on a 5-tensor random hypergraph *)
 WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetwork"},

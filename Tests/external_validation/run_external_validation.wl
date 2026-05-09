@@ -42,10 +42,15 @@ $AllSucceeded = <||>;
 
 testGroups = {
     "paclet_primitives" -> {
+        (* Tier-1 *)
         "tensor_algebra.wl",
         "contraction_paths.wl",
         "tn_expectations.wl",
-        "mps.wl"
+        "mps.wl",
+        (* Tier-2: direct external-value comparisons *)
+        "cotengra_benchmarks.wl",
+        "tn_canonical_states.wl",
+        "mps_canonical_states.wl"
     },
     "baselines" -> {
         "decomposition.wl",
