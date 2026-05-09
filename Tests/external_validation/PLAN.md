@@ -19,7 +19,7 @@ This distinction matters and was clarified mid-implementation:
 - **Indirect validation** (what most tests do today): "External package P returns Y on input X. Paclet on input X returns Y'. Compute Y independently in Mathematica from the same X. Verify Y' == Y." Catches gross paclet bugs but anchors to Mathematica's internal computation, not P's.
 - **Direct validation** (what we should aspire to): "P returns specific value Y_P on X (a number lifted directly from the catalog). Paclet returns Y'. Verify Y' == Y_P within tolerance." Anchors to the external package's actual output.
 
-Tier-1 is mostly indirect-validation. Tier-2 (proposed) adds direct-validation tests where the catalog has hard numbers.
+Tier-1 is mostly indirect-validation. Tier-2 (done) adds direct-validation tests where the catalog has hard numbers. Tier-3 (deferred) is the algorithmic primitives the paclet doesn't have yet.
 
 ## 3. Two-group structure
 
@@ -78,7 +78,7 @@ Currently recorded as `RecordSkipMissing` entries in `SKIPPED_AND_MISSING.md` so
 
 ## 5. Phases (original plan, executed)
 
-The build was structured as discrete phases to keep work incremental. All Tier-1 phases are complete.
+The build was structured as discrete phases to keep work incremental. **Tier-1 and Tier-2 are both complete (phases 0-7 done); only phase 8 (live cross-language oracles) is deferred.**
 
 | Phase | Description | Status |
 |---|---|---|
@@ -147,6 +147,15 @@ Recorded for posterity; live behavior follows these rules.
    The group/file is now visible in the test ID, so the skip log and test output read clearly without cross-referencing. The original letter+number (A1, B5, Cost1, etc.) preserves cross-reference to the per-package catalog entries.
 
 5. **Catalog freshness.** *Decided: after each major external-package release, or quarterly (whichever first).* Cadence is a re-extraction trigger; the audit-agent prompts are reproducible from git history. Re-running the agents and diffing the new per-package `_examples.md` against the old reveals upstream changes worth tracking.
+
+6. **Naming: "validation" not "parity".** *Decided: rename throughout.* The original suite name `external_parity/` was misleading: "parity" in software-testing usually implies live cross-implementation execution where both sides actually run each test. This suite does not run external packages at runtime — it lifts catalog values (extracted once by audit agents) and verifies the paclet reproduces them. "Validation" is the right term in physics/research context: verify correctness against known references. Renamed everywhere: directory, file names (`ValidationHelpers.wl`, `run_external_validation.wl`), function/variable prefixes (`Validation*`, `$Validation*`), and prose (`validation test` not `parity test`). Physics-meaning "parity" (Z₂ symmetry, `conserve='parity'`, parity sectors) is preserved in catalog files since it refers to a real physical concept.
+
+7. **Skip-recording protocol.** *Decided: distinguish three categories explicitly.*
+   - **SkipRNG** for cross-language RNG seed dependencies (NumPy ≠ Julia ≠ WL streams)
+   - **SkipMissing** for paclet feature absence (no DMRG, no QN-symmetric tensors, etc.) — gated by `WithCapability` or explicit `RecordSkipMissing`
+   - **Error** reserved for unexpected exceptions (true bugs); never used for capability gaps
+
+   Auto-aggregated by the master runner into `SKIPPED_AND_MISSING.md` with one section per category, so missing-feature gaps and RNG-blockers are visible and traceable. The "missing vs error" distinction matters: a SkipMissing is "paclet doesn't do X yet"; an Error is "we found a bug" — never conflate them.
 
 ## 9. How to extend
 
