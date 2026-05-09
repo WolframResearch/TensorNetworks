@@ -50,7 +50,9 @@ testGroups = {
         (* Tier-2: direct external-value comparisons *)
         "cotengra_benchmarks.wl",
         "tn_canonical_states.wl",
-        "mps_canonical_states.wl"
+        "mps_canonical_states.wl",
+        "tensor_algebra_edge.wl",
+        "contraction_paths_exact.wl"
     },
     "baselines" -> {
         "decomposition.wl",
