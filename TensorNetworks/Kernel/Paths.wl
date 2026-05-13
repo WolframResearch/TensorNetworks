@@ -38,13 +38,32 @@ TreePathToPath[treePath_List ? TreePathQ, indices : _List | Automatic : Automati
 PathQ[{({_Integer} | {_Integer, _Integer}) ..}] := True
 PathQ[___] := False
 
+PathToTreePath::indlen =
+	"Length of indices `1` does not match the path's required arity `2` " <>
+	"(= Count[path, {_, _}] + 1). For a TN with hyper-edges, the path is over " <>
+	"the binarized network — pass BinaryTensorNetwork[tn][\"Vertices\"] or omit " <>
+	"the indices argument to auto-derive them.";
+
 PathToTreePath[path_List ? PathQ, indices : _List | Automatic : Automatic] :=
+	With[{required = Count[path, {_, _}] + 1},
+		Which[
+			indices === Automatic,
+				doPathToTreePath[path, Range[required]],
+			Length[indices] =!= required,
+				Message[PathToTreePath::indlen, Length[indices], required];
+				$Failed,
+			True,
+				doPathToTreePath[path, indices]
+		]
+	]
+
+doPathToTreePath[path_, indices_] :=
 	First @ Fold[
 		{idx, pos} |-> Append[
 			Delete[idx, List /@ pos],
 			If[Length[pos] == 1, idx[[pos[[1]]]], idx[[pos]]]
 		],
-		List /@ Replace[indices, Automatic :> Range[Count[path, {_, _}] + 1]],
+		List /@ indices,
 		path
 	]
 
@@ -59,11 +78,23 @@ ContractIndices[i_, j_] := With[{c = Complement[Join[i, j], SymmetricDifference[
 	c -> {DeleteElements[DeleteDuplicates[i], c], DeleteElements[DeleteDuplicates[j], c]}
 ]
 
+PathIndexContractions::indlen =
+	"Length of indices `1` does not match the path's required arity `2` " <>
+	"(= Length[path] + 1). For a TN with hyper-edges, the path is over the " <>
+	"binarized network — pass BinaryTensorNetwork[tn][\"Indices\"] / [\"Hyperedges\"] " <>
+	"or use Automatic.";
+
 PathIndexContractions[path : {{_Integer, _Integer} ...}, indices : {__List}] :=
-	DeleteCases[{}] @ FoldPairList[
-		With[{c = ContractIndices @@ #1[[#2]]}, {c[[1]], Append[Delete[#1, List /@ #2], Catenate[c[[2]]]]}] &,
-		indices,
-		path
+	With[{required = Length[path] + 1},
+		If[Length[indices] =!= required,
+			Message[PathIndexContractions::indlen, Length[indices], required];
+			$Failed,
+			DeleteCases[{}] @ FoldPairList[
+				With[{c = ContractIndices @@ #1[[#2]]}, {c[[1]], Append[Delete[#1, List /@ #2], Catenate[c[[2]]]]}] &,
+				indices,
+				path
+			]
+		]
 	]
 
 PathIndexContractions[path_List, indices : {__List}, contractions : {__List}] :=

@@ -40,17 +40,17 @@ contract = ActivateTensors @* EinsteinSummation;
 WithCapability[{"OptimalContractionPath", "TensorNetwork"}, "paclet-paths-B1-4tensor-path",
     "cotengra docs/basics.ipynb (4-tensor demo)",
     VerificationTest[
-        Module[{tn, path, expectedPath, sd, shapes, ts},
+        Module[{tn, path, sd, shapes, ts},
             sd = <|"a" -> 4, "b" -> 5, "c" -> 6, "d" -> 7, "e" -> 8, "x" -> 2, "y" -> 3|>;
             shapes = {{"a", "b", "x"}, {"b", "c", "d"}, {"c", "e", "y"}, {"e", "a", "d"}};
             SeedRandom[101];
             ts = MapThread[RandomReal[{-1, 1}, sd /@ #] &, {shapes}];
             tn = TensorNetwork[ts, shapes];
             path = OptimalContractionPath[tn, Method -> "flops"];
-            expectedPath = {{1, 2}, {2, 3}, {1, 2}};
-            (* The path may be reordered for symmetry-equivalent permutations,
-               so accept either {{1,2},{2,3},{1,2}} or {{3,4},{2,3},{1,2}} etc.
-               Just check length == 3 and all entries are valid pairs. *)
+            (* Path length must be 3 (4 tensors -> 1) and each step must be a
+               pair of distinct positions. The cotengra reference path on this
+               network is {{1,2},{2,3},{1,2}} but the symmetry T1<->T3, T2<->T4
+               permits equivalent permutations; we don't pin a specific path. *)
             Length[path] === 3 &&
                 AllTrue[path, MatchQ[#, {_Integer, _Integer}] && #[[1]] != #[[2]] &]
         ],

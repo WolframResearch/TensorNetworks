@@ -136,6 +136,53 @@ ValidationCloseRel[a_, b_, rtol_:1.*^-6] := Module[{denom},
     ]
 ];
 
+(* ============ Fuzz-layer helpers (paclet_fuzz/) ============ *)
+
+(* WithBudget[seconds, expr] — evaluate expr, return True iff the result is
+   True AND the wall-clock time is within budget. Used in fuzz files to attach
+   a timing sentinel to a correctness check. *)
+SetAttributes[WithBudget, HoldRest];
+WithBudget[seconds_, expr_] := Module[{t, r}, {t, r} = AbsoluteTiming[expr]; TrueQ[r] && t <= seconds];
+
+(* TNShapeSpec[tn] — extract ({indices-per-tensor}, sizeDict) from a paclet
+   TensorNetwork object. Suitable for feeding pathCost or differential checks. *)
+TNShapeSpec[tn_] := Module[{shapes},
+    shapes = tn["Indices"];
+    {
+        shapes,
+        AssociationThread[
+            Flatten[shapes],
+            Flatten[MapThread[Take[#1, Length[#2]] &, {tn["Dimensions"], shapes}]]
+        ]
+    }
+];
+
+(* PathValidQ[path, n] — True iff `path` is a well-formed list of (n-1) merge
+   steps over n tensors: each step is a pair of distinct in-range positions
+   under the opt_einsum convention (remove both positions, append merged at end). *)
+PathValidQ[path_, n_Integer] := Module[{working, i, j},
+    Which[
+        n === 1, path === {},
+        ! ListQ[path], False,
+        Length[path] =!= n - 1, False,
+        True,
+            working = Range[n];
+            Catch[
+                Do[
+                    {i, j} = path[[k]];
+                    If[! (IntegerQ[i] && IntegerQ[j]) || i === j, Throw[False]];
+                    If[i < 1 || j < 1 || i > Length[working] || j > Length[working],
+                        Throw[False]];
+                    working = Append[Delete[working, {{i}, {j}}], k + n];
+                ,
+                    {k, n - 1}
+                ];
+                Length[working] === 1
+            ]
+    ]
+];
+
+
 (* OracleFixturePath[name] — resolve a fixture under external_oracles/fixtures/.
    The fixtures are committed to the repo; they were extracted offline from
    numerical packages (cotengra, quimb, ...) via the scripts in external_oracles/. *)

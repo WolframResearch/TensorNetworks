@@ -195,3 +195,47 @@ WithCapability[{"OptimalContractionPath", "TensorNetworkContract", "TensorNetwor
         TestID -> "paclet-paths-exact-T7-optimal-path-correct-result"
     ]
 ];
+
+
+(* ----- T8: PathToTreePath robustness — wrong-length indices error cleanly
+   Regression test for the bug where PathToTreePath silently returned
+   unevaluated Delete[...] / Part[...] on networks with hyper-edges (where
+   the optimizer binarizes internally so the path is over n+H positions but
+   tn["Vertices"] only has n). The fix surfaces a clean PathToTreePath::indlen
+   message and returns $Failed instead of leaking garbage. *)
+WithCapability[{"PathToTreePath"},
+    "paclet-paths-exact-T8-pathToTreePath-validation",
+    "PathToTreePath input-length validation (regression for hyper-edge bug)",
+    VerificationTest[
+        PathToTreePath[{{1, 2}, {1, 2}, {1, 2}, {1, 2}}, {1, 2, 3, 4}],
+        $Failed,
+        {PathToTreePath::indlen},
+        TestID -> "paclet-paths-exact-T8-pathToTreePath-validation"
+    ]
+];
+
+(* ----- T9: PathToTreePath on graph-built TN succeeds via Automatic
+   Same hyper-edge network that previously failed silently — with Automatic
+   indices PathToTreePath auto-derives the right arity from the path itself. *)
+WithCapability[{"RandomTensorNetwork", "GreedyContractionPath", "PathToTreePath"},
+    "paclet-paths-exact-T9-pathToTreePath-automatic",
+    "PathToTreePath[path] auto-derives indices on a 100-seed sweep of graph TNs",
+    VerificationTest[
+        AllTrue[
+            Range[1, 100],
+            Function[seed,
+                BlockRandom[SeedRandom[seed];
+                    Module[{tn, path, r},
+                        tn = RandomTensorNetwork[{4, 5}, 3];
+                        path = GreedyContractionPath[tn];
+                        r = PathToTreePath[path];
+                        ListQ[r] && FreeQ[r, Delete[___] | _Part]
+                    ]
+                ]
+            ]
+        ],
+        True,
+        TestID -> "paclet-paths-exact-T9-pathToTreePath-automatic"
+    ]
+];
+

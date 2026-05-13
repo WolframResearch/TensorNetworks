@@ -61,6 +61,12 @@ testGroups = {
         "analytic_grounds.wl",
         "gate_identities.wl",
         "state_expectations.wl"
+    },
+    "paclet_fuzz" -> {
+        "fuzz_contraction_paths.wl",
+        "fuzz_mps.wl",
+        "fuzz_tn_contract.wl",
+        "fuzz_young_projector.wl"
     }
 };
 

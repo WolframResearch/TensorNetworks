@@ -28,19 +28,9 @@ ClearValidationRecords[];
 
 contract = ActivateTensors @* EinsteinSummation;
 
-(* ----- A1: complex tensor conjugate (quimb test_tensor_core.py:36-52) ----- *)
-WithCapability[{}, "paclet-tensor-A1-conjugate",
-    "quimb tests/test_tensor/test_tensor_core.py:36-52",
-    VerificationTest[
-        Module[{a},
-            SeedRandom[2];
-            a = RandomComplex[{-1 - I, 1 + I}, {2, 3, 4}];
-            Conjugate[Conjugate[a]] === a && Dimensions[a] == {2, 3, 4}
-        ],
-        True,
-        TestID -> "paclet-tensor-A1-conjugate"
-    ]
-];
+(* A1 (Conjugate[Conjugate[a]] === a) removed: that's a WL identity, not paclet
+   behavior. The paclet's conjugation pipeline is exercised by every bra-ket
+   test in tn_canonical_states.wl, mps.wl, and the fuzz layer. *)
 
 (* ----- A2: triple contraction (quimb test_tensor_core.py:421-430) -----
    a[i,j,k] (2,3,4), b[j,k,l] (3,4,5), c[l,i,m] (5,2,6) -> result[m] (6,) *)

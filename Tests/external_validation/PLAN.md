@@ -39,7 +39,7 @@ Reasoning:
 
 ### Tier-1 (DONE) — broad shallow coverage
 
-65 tests, 0 failures. (Live suite total now 131 with Tier-2, the Symmetry module, and the oracle-fixture RNG promotions included; see `SKIPPED_AND_MISSING.md` for the up-to-date skip log.) Tier-1 baseline grew from 62 to 65 after the path-cost-convention audit added three pinning tests (`paclet-paths-Bcost1`, `Bcost2`, `Bcost3`) to `contraction_paths.wl`.
+65 tests, 0 failures. (External-validation suite total now 154 with Tier-2, the Symmetry module, the oracle-fixture RNG promotions, and the fuzz layer included; one previously-counted test — `paclet-tensor-A1-conjugate` — was removed in the audit as a pure WL `Conjugate[Conjugate[a]] === a` identity that didn't exercise paclet behavior. See `SKIPPED_AND_MISSING.md` for the up-to-date skip log.) Tier-1 baseline grew from 62 to 65 after the path-cost-convention audit added three pinning tests (`paclet-paths-Bcost1`, `Bcost2`, `Bcost3`) to `contraction_paths.wl`.
 
 | Group | File | Tests | Description |
 |---|---|---|---|
@@ -76,6 +76,26 @@ This converted all 6 previously-skipped tests into passing direct-validation tes
 | `paclet-mps-G11-cross-lang-random-mps` | `quimb_random_mps_seed42.json` (shared) | Paclet `MPSOverlap` matches quimb's `<psi\|psi>`; left- and right-canonicalization preserve the overlap |
 
 Reproducing or updating fixtures requires the Python toolchain bootstrapped in `external_oracles/.venv/` (`quimb`, `cotengra`, `networkx`, `numpy`); tests themselves run in WL only.
+
+### Fuzz layer (DONE) — `paclet_fuzz/`
+
+A property-based stress layer that complements the point-validation tests. Each file targets one primitive cluster and embeds three layers: a parameter sweep, an explicit edge battery, and a timing sentinel. The invariants are mathematical properties (idempotency, isometry, contraction-result equality across paths, etc.) — never point values — so the tests stay green as long as the math is right and timings stay within budget.
+
+24 tests total (4 files × 6 tests), 0 failures. Suite total 131 → 155.
+
+| File | Primitive cluster | What's exercised |
+|---|---|---|
+| `fuzz_contraction_paths.wl` | `OptimalContractionPath`, `GreedyContractionPath`, `TensorNetworkContract[tn, path]` | MPS/PEPS/TT/MPO sweep (~40 networks); both optimizers must yield the same contracted tensor (result-equality invariant, stronger than cost comparison); 2-tensor edge, determinism, 20-site MPS within 30 s |
+| `fuzz_mps.wl` | `MPSOverlap`, `MPSCanonicalForm`, `MPSNorm`, `MPSNormalize`, `MPSCanonicalQ` | (L, D, d) grid sweep with relative tolerances; canonicalization preserves overlap; mixed-canonical at every site; L=2 and D=1 edge cases; L=32 D=8 canonicalize within 15 s |
+| `fuzz_tn_contract.wl` | `TensorNetworkContract` | Random TN contraction returns finite tensor of expected shape; bra-ket = real ≥ 0; hyper-3 identity-delta; trace patterns; 2-tensor dot product matches `Total[Flatten[T1·T2]]`; 3×3 PEPS within 10 s |
+| `fuzz_young_projector.wl` | `YoungProject`, `YoungSymmetrize` | Idempotency P² = P over all partitions of n ∈ {2,3,4}; orthogonality P_λ · P_μ = 0 for distinct λ ≠ μ; n=2 completeness; fully-symmetric / antisymmetric edge cases (permutation invariance + sgn); rank-5 within 10 s |
+
+Helpers added to `Helpers/ValidationHelpers.wl`:
+- `WithBudget[seconds, expr]` — assertion that `expr === True` AND wall-clock ≤ budget
+- `TNShapeSpec[tn]` — extract `({indices-per-tensor}, sizeDict)` for `pathCost` etc.
+- `PathValidQ[path, n]` — well-formed-path predicate under the opt_einsum convention
+
+This is the minimum-but-effective stress layer; it does NOT replace the point-validation tests but complements them with breadth (~40 random networks per primitive cluster), invariants (idempotency, isometry, agreement across code paths), edge cases, and one wall-clock sentinel per primitive.
 
 ### Tier-2 (DONE — 5 of 5 files) — direct external-value validation
 
