@@ -161,14 +161,80 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
     ]
 ];
 
-(* ----- T6: skip - PEPS local_expectation with bond-truncation tolerances
-   quimb tensor-2d.ipynb: 5x5 PEPS local_expectation = 0.000487 (specific value).
-   Requires PEPS construction + boundary contraction with max_bond=64 cutoff
-   - the contraction primitive exists but the result is highly RNG-sensitive
-   on the random PEPS data. *)
-SkipDueToRNG["paclet-tn-canonical-T6-peps-local-expect",
-    "quimb 5x5 random PEPS expectations are seed-dependent on PEPS.rand(seed=666)",
-    "quimb docs/tensor/tensor-2d.ipynb"];
+(* ----- T6: 3x3 PEPS norm + per-site <Z> via fixture
+   The original test ('5x5 PEPS local_expectation') was infeasible to validate
+   exactly (5x5 PEPS exceeds exact contraction width) and the value was tied
+   to quimb's RNG. We lift the 3x3 case (where exact contraction is tractable)
+   from quimb: the 9 site tensors with quimb's verbatim leg labels are stored
+   in a JSON fixture, and the paclet reconstructs the same TN bra-ket
+   sandwich (Z gate inserted for each site) and matches all 10 scalars. *)
+WithCapability[{"TensorNetwork", "TensorNetworkContract"},
+    "paclet-tn-canonical-T6-peps-local-expect",
+    "quimb PEPS.rand(3,3,seed=42) (fixture: external_oracles/fixtures/quimb_peps_3x3_seed42.json)",
+    VerificationTest[
+        Module[{fixture, Lx, Ly, sites, physSet, ketLegs, ketTensors, braLegs,
+                braRename, tnNorm, normSq, normExpected, zMat, zExpected,
+                physLegOf, zSites, gatedLeg, normOK, zOK, allZ},
+            fixture = Import[OracleFixturePath["quimb_peps_3x3_seed42.json"], "RawJSON"];
+            Lx = fixture["Lx"]; Ly = fixture["Ly"];
+            sites = fixture["site_tensors"];
+            physSet = Association @ KeyValueMap[Rule, fixture["phys_legs"]];
+            normExpected = fixture["expected_norm_sq"];
+            zExpected = fixture["expected_z_expectations"];
+            zMat = fixture["z_matrix"];
+
+            (* Bra renames non-physical (bond) legs so bond chains stay separate. *)
+            braRename[leg_String] :=
+                If[MemberQ[Values[physSet], leg], leg, leg <> "__bra"];
+
+            ketLegs = sites[[All, "legs"]];
+            ketTensors = sites[[All, "data"]];
+            braLegs = Map[braRename, ketLegs, {2}];
+
+            (* ----- norm-squared <psi|psi> ----- *)
+            tnNorm = TensorNetwork[
+                Join[ketTensors, ketTensors],
+                Join[ketLegs, braLegs]
+            ];
+            normSq = TensorNetworkContract[tnNorm];
+            normOK = ValidationCloseRel[normSq, normExpected, 1.*^-10];
+
+            (* ----- <psi|Z_{i,j}|psi> for all 9 sites ----- *)
+            physLegOf[site_List] := physSet[ToString[site[[1]]] <> "," <> ToString[site[[2]]]];
+            zSites = sites[[All, "site"]];
+
+            allZ = Table[
+                Module[{site, pLeg, gLeg, braLegsGated, allLegs, allTensors, tnZ},
+                    site = zSites[[k]];
+                    pLeg = physLegOf[site];
+                    gLeg = pLeg <> "__gated";
+                    braLegsGated = braLegs /. (pLeg -> gLeg);
+                    allTensors = Join[ketTensors, ketTensors, {zMat}];
+                    allLegs = Join[ketLegs, braLegsGated, {{gLeg, pLeg}}];
+                    tnZ = TensorNetwork[allTensors, allLegs];
+                    TensorNetworkContract[tnZ]
+                ],
+                {k, Length[zSites]}
+            ];
+
+            zOK = AllTrue[
+                Range[Length[zSites]],
+                Function[k,
+                    Module[{site, key, ref},
+                        site = zSites[[k]];
+                        key = ToString[site[[1]]] <> "," <> ToString[site[[2]]];
+                        ref = zExpected[key];
+                        ValidationCloseRel[allZ[[k]], ref, 1.*^-10]
+                    ]
+                ]
+            ];
+
+            normOK && zOK
+        ],
+        True,
+        TestID -> "paclet-tn-canonical-T6-peps-local-expect"
+    ]
+];
 
 (* ----- T7: skip - DMRG/TEBD-prepared states (no DMRG in paclet) *)
 RecordSkipMissing["paclet-tn-canonical-T7-dmrg-state-expect",

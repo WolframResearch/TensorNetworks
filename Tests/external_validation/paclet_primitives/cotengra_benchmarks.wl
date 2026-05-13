@@ -151,19 +151,56 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContrac
     ]
 ];
 
-(* ----- T6: skip - lattice[4,5] d_max=3 seed=42 cost=1464
-   cotengra's tests/test_paths_basic.py:194-205 hard-codes flops=1464 and
-   width=5.585 for this network. The cost depends on cotengra's seeded RNG
-   selecting specific d=2 vs d=3 dimensions per edge. We can't reproduce
-   that seed cross-language. *)
-SkipDueToRNG["paclet-cotengra-T6-lattice45-seed42",
-    "cotengra lattice_equation seed=42 controls per-edge dim choice (2 vs 3); cross-language NumPy/WL RNG parity infeasible",
-    "cotengra tests/test_paths_basic.py:194-205"];
+(* ----- T6: lattice[4,5] d_max=3 seed=42 cost=1464
+   cotengra's tests/test_paths_basic.py:194-205 asserts optimize_optimal cost == 1464.
+   The seed=42 RNG selects per-edge dim 2 vs 3 in cotengra. We promote the
+   former skip to a direct-validation test by loading the actual (inputs,
+   size_dict) extracted offline from cotengra into a JSON fixture; the paclet
+   must then reach the same optimal cost from the identical network. *)
+WithCapability[{"TensorNetwork", "OptimalContractionPath"},
+    "paclet-cotengra-T6-lattice45-seed42",
+    "cotengra tests/test_paths_basic.py:194-205 (fixture: external_oracles/fixtures/cotengra_lattice45_seed42.json)",
+    VerificationTest[
+        Module[{fixture, shapes, sd, ts, tn, path, cost, expected},
+            fixture = Import[OracleFixturePath["cotengra_lattice45_seed42.json"], "RawJSON"];
+            shapes = fixture["inputs"];
+            sd = Association @ KeyValueMap[Rule, fixture["size_dict"]];
+            ts = MapThread[ConstantArray[1.0, sd /@ #] &, {shapes}];
+            tn = TensorNetwork[ts, shapes];
+            path = OptimalContractionPath[tn, Method -> "flops"];
+            cost = pathCost[shapes, sd, path];
+            expected = fixture["expected_optimal_flops"];
+            cost === expected
+        ],
+        True,
+        TestID -> "paclet-cotengra-T6-lattice45-seed42"
+    ]
+];
 
-(* ----- T7: skip - HyperOptimizer-class catalog values (Sycamore m=20)
-   cotengra docs/examples/ex_benchmarking.ipynb reports cost ~ 10^18.04 for
-   Sycamore m=20 with KaHyPar + simulated annealing + reconfigure. RNG-skip
-   for cross-language seed parity. *)
-SkipDueToRNG["paclet-cotengra-T7-sycamore-m20",
-    "cotengra HyperOptimizer with KaHyPar+SA+reconfigure has multiple RNG dependencies",
-    "cotengra docs/examples/ex_benchmarking.ipynb"];
+(* ----- T7: Sycamore m=20 cost-convention validation
+   The Sycamore m=20 network (381 tensors / 754 legs) is too large for the
+   paclet's exhaustive OptimalContractionPath, and the paclet has no
+   HyperOptimizer to reproduce cotengra's documented ~10^18 cost. What we
+   *can* validate cross-package: given the same (inputs, size_dict, path),
+   the paclet's pathCost helper must produce the same total flop count
+   cotengra reports for that path (opt_einsum mul-count convention).
+   The fixture stores cotengra's deterministic-greedy path on the real
+   Sycamore spec, and the paclet recomputes the cost. *)
+WithCapability[{},  (* pure pathCost — no paclet symbols needed *)
+    "paclet-cotengra-T7-sycamore-m20",
+    "cotengra examples/benchmarks/sycamore_n53_m20_s0_e0_pABCDCDAB.json (fixture: external_oracles/fixtures/cotengra_sycamore_m20.json)",
+    VerificationTest[
+        Module[{fixture, shapes, sd, pathPy, pathWL, cost, expected},
+            fixture = Import[OracleFixturePath["cotengra_sycamore_m20.json"], "RawJSON"];
+            shapes = fixture["inputs"];
+            sd = Association @ KeyValueMap[Rule, fixture["size_dict"]];
+            pathPy = fixture["path"];                          (* 0-indexed *)
+            pathWL = Map[# + 1 &, pathPy, {2}];                (* WL: 1-indexed *)
+            cost = pathCost[shapes, sd, pathWL];
+            expected = fixture["expected_total_flops"];
+            cost === expected
+        ],
+        True,
+        TestID -> "paclet-cotengra-T7-sycamore-m20"
+    ]
+];

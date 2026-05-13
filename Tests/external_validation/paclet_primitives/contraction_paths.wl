@@ -198,10 +198,31 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
    and the paclet's per-step compute_flops. Direct flop-count matches are now
    pinned by tests Bcost1, Bcost2 below (chain cost = 64, triangle cost = 30). *)
 
-(* ----- B8: skip - exact path match for HyperOptimizer (RNG / KaHyPar dep) *)
-SkipDueToRNG["paclet-paths-B8-hyperoptimizer-comparison",
-    "cotengra HyperOptimizer requires KaHyPar + cmaes/optuna RNG; cross-language seed parity infeasible",
-    "cotengra tests/test_optimizers.py:139-167"];
+(* ----- B8: paclet optimal cost is bounded above by cotengra HyperOptimizer cost
+   The original "exact path match" formulation was infeasible (HyperOptimizer is
+   stochastic), but the reframed assertion is stronger: paclet's exhaustive
+   OptimalContractionPath must find a path whose cost is <= any heuristic. We
+   load the cost cotengra HyperOptimizer reports on a randreg(n=12,reg=3,seed=11)
+   network and check the paclet doesn't exceed it. *)
+WithCapability[{"TensorNetwork", "OptimalContractionPath"},
+    "paclet-paths-B8-hyperoptimizer-comparison",
+    "cotengra tests/test_optimizers.py:139-167 (reframed; fixture: external_oracles/fixtures/cotengra_hyperopt_bound.json)",
+    VerificationTest[
+        Module[{fixture, shapes, sd, ts, tn, path, pacletCost, bound},
+            fixture = Import[OracleFixturePath["cotengra_hyperopt_bound.json"], "RawJSON"];
+            shapes = fixture["inputs"];
+            sd = Association @ KeyValueMap[Rule, fixture["size_dict"]];
+            ts = MapThread[ConstantArray[1.0, sd /@ #] &, {shapes}];
+            tn = TensorNetwork[ts, shapes];
+            path = OptimalContractionPath[tn, Method -> "flops"];
+            pacletCost = pathCost[shapes, sd, path];
+            bound = fixture["hyperopt_cost"];
+            pacletCost <= bound
+        ],
+        True,
+        TestID -> "paclet-paths-B8-hyperoptimizer-comparison"
+    ]
+];
 
 (* ===== Path-cost extraction tests =====
    Compute the FLOP cost of a path manually by walking it: at each pair (i,j),

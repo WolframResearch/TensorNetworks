@@ -39,7 +39,7 @@ Reasoning:
 
 ### Tier-1 (DONE) — broad shallow coverage
 
-65 tests, 0 failures. (Live suite total now 95 with Tier-2 included; see `SKIPPED_AND_MISSING.md` for the up-to-date skip log.) Tier-1 baseline grew from 62 to 65 after the path-cost-convention audit added three pinning tests (`paclet-paths-Bcost1`, `Bcost2`, `Bcost3`) to `contraction_paths.wl`.
+65 tests, 0 failures. (Live suite total now 131 with Tier-2, the Symmetry module, and the oracle-fixture RNG promotions included; see `SKIPPED_AND_MISSING.md` for the up-to-date skip log.) Tier-1 baseline grew from 62 to 65 after the path-cost-convention audit added three pinning tests (`paclet-paths-Bcost1`, `Bcost2`, `Bcost3`) to `contraction_paths.wl`.
 
 | Group | File | Tests | Description |
 |---|---|---|---|
@@ -51,6 +51,31 @@ Reasoning:
 | baseline | `analytic_grounds.wl` | 7 | Dense `Eigenvalues` for small Hamiltonians (Heisenberg, TFIM, AKLT) |
 | baseline | `gate_identities.wl` | 7 | Gate matrix identities (HZH=X, Toffoli, QFT unitarity) |
 | baseline | `state_expectations.wl` | 4 | Product-state expectations via vector arithmetic |
+
+### Tier-1 Symmetry (DONE) — `Wolfram`TensorNetworks`Symmetry` analytic baselines
+
+30 paclet-primitive tests, 0 failures. Anchors the 12 exports of the Symmetry module to canonical S_n representation theory (Sagan, Fulton & Harris). Audit caught a real kernel bug in `HookFactor` / `frobeniusDet` (the `Det[Outer[Binomial, ...]]` formula was not the Frobenius determinant; replaced with the Vandermonde product) — without the fix, every multi-row `TableauDimension` was wrong and every `YoungProject` on `{1,1}` / `{2,1}` / etc. tableaux carried a flipped-sign normalization.
+
+| File | Tests | Coverage |
+|---|---|---|
+| `symmetry_basic.wl` | 30 | hook-length irrep dimensions for S_2..S_7, Plancherel sum rule, HookLengths/HookLength cross-consistency, `TransposePartition` involution + weight, predicates, constructor shorthand, Young projector identities (sym/antisym on V⊗V = identity, idempotency for `{2}`/`{1,1}`/`{2,1}`, orthogonality of shapes), error-message paths |
+
+### Tier-2 oracle fixtures (DONE) — promoting all 6 skip-RNG tests to direct validation
+
+The original "skip-RNG" category covered tests whose expected value came from an external package's seeded RNG (cotengra, quimb, ITensorMPS). Cross-language seed parity is infeasible — NumPy / Julia / WL each have separate RNG streams. Rather than chase RNG translation, we extract the actual numerical inputs (and reference outputs) from the external package via offline Python scripts under `external_oracles/`, commit them as JSON fixtures under `external_oracles/fixtures/`, and have the WL tests `Import` the fixture and re-run the same computation through paclet primitives.
+
+This converted all 6 previously-skipped tests into passing direct-validation tests (suite total 125 → 131, skip-RNG 6 → 0).
+
+| Test ID | Fixture | What's validated |
+|---|---|---|
+| `paclet-cotengra-T6-lattice45-seed42` | `cotengra_lattice45_seed42.json` | Paclet `OptimalContractionPath` finds cost = **1464** on the 20-tensor lattice cotengra reports |
+| `paclet-cotengra-T7-sycamore-m20` | `cotengra_sycamore_m20.json` | Paclet `pathCost` matches cotengra's `contraction_cost` on the real **381-tensor / 754-leg Sycamore m=20** network with cotengra's greedy path; pins opt_einsum mul-count convention |
+| `paclet-paths-B8-hyperoptimizer-comparison` | `cotengra_hyperopt_bound.json` | Paclet exhaustive optimum ≤ cotengra `HyperOptimizer` cost on randreg(n=12, reg=3) — stronger than the original "exact match" |
+| `paclet-tn-F7-random-mps-cross-lang` | `quimb_random_mps_seed42.json` | Paclet `TensorNetworkContract` matches quimb's `norm²` and 6 per-site `<Z_i>` for an unnormalized random MPS (L=6, D=4) |
+| `paclet-tn-canonical-T6-peps-local-expect` | `quimb_peps_3x3_seed42.json` | Paclet `TensorNetworkContract` matches quimb's `norm²` and 9 per-site `<Z_{i,j}>` for a 3×3 random PEPS (D=2) — 5×5 was infeasible without boundary-MPS contraction |
+| `paclet-mps-G11-cross-lang-random-mps` | `quimb_random_mps_seed42.json` (shared) | Paclet `MPSOverlap` matches quimb's `<psi\|psi>`; left- and right-canonicalization preserve the overlap |
+
+Reproducing or updating fixtures requires the Python toolchain bootstrapped in `external_oracles/.venv/` (`quimb`, `cotengra`, `networkx`, `numpy`); tests themselves run in WL only.
 
 ### Tier-2 (DONE — 5 of 5 files) — direct external-value validation
 

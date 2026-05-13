@@ -136,6 +136,27 @@ ValidationCloseRel[a_, b_, rtol_:1.*^-6] := Module[{denom},
     ]
 ];
 
+(* OracleFixturePath[name] — resolve a fixture under external_oracles/fixtures/.
+   The fixtures are committed to the repo; they were extracted offline from
+   numerical packages (cotengra, quimb, ...) via the scripts in external_oracles/. *)
+OracleFixturePath[name_String] := Module[{candidates, found},
+    candidates = DeleteDuplicates @ Select[{
+        If[StringQ[$InputFileName] && FileExistsQ[$InputFileName],
+            FileNameJoin[{DirectoryName[$InputFileName], "..", "external_oracles", "fixtures", name}],
+            Null],
+        FileNameJoin[{$ValidationWorktreeRoot, "Tests", "external_validation", "external_oracles", "fixtures", name}],
+        FileNameJoin[{Directory[], "Tests", "external_validation", "external_oracles", "fixtures", name}],
+        FileNameJoin[{Directory[], "external_validation", "external_oracles", "fixtures", name}],
+        FileNameJoin[{Directory[], "external_oracles", "fixtures", name}]
+    }, StringQ];
+    found = SelectFirst[candidates, FileExistsQ, $Failed];
+    If[found === $Failed,
+        Message[General::nffil, name]; $Failed,
+        found
+    ]
+];
+
+
 (* ValidationWriteSkipLog[outFile] — called by the master runner. *)
 ValidationWriteSkipLog[outFile_String,
     Optional[passCount_Integer, 0],

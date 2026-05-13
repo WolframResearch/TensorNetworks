@@ -200,7 +200,57 @@ RecordSkipMissing["paclet-mps-G10-dmrg-mps-overlap",
     {"DMRG"},
     "ITensorMPS test_dmrg.jl ground-state expectation"];
 
-(* ----- G11: Skip — Cross-language MPS comparison (RNG-dependent random MPS) *)
-SkipDueToRNG["paclet-mps-G11-cross-lang-random-mps",
-    "Random MPS generated in WL/NumPy/Julia have different RNG streams; can't compare numerical values across languages",
-    "ITensorMPS random_mps cross-package check"];
+(* ----- G11: Cross-language random MPS overlap + canonicalization
+   Original framing required cross-language RNG seed parity, which is
+   impossible. Reframed: lift quimb's actual MPS site tensors into a fixture
+   (axis order matches the paclet's MPS convention: boundaries (bond, phys),
+   interior (left, right, phys)) and verify:
+     1) MPSOverlap[mps, mps] matches quimb's <psi|psi> exactly
+     2) MPSCanonicalForm preserves the overlap (no information loss in left/right canon)
+   Julia/ITensorMPS isn't installed locally; quimb is an equally valid
+   external oracle (same fixture as F7 in tn_expectations.wl). *)
+WithCapability[{"TensorNetwork", "MPSOverlap", "MPSCanonicalForm", "MPSNorm"},
+    "paclet-mps-G11-cross-lang-random-mps",
+    "quimb MatrixProductState seed=42 (fixture: external_oracles/fixtures/quimb_random_mps_seed42.json)",
+    VerificationTest[
+        Module[{fixture, L, arrs, legs, mps, normSq, expected, mpsL, mpsR,
+                overlapLL, overlapRR, rawOK, leftOK, rightOK},
+            fixture = Import[OracleFixturePath["quimb_random_mps_seed42.json"], "RawJSON"];
+            L = fixture["L"];
+            arrs = fixture["tensors"];
+            expected = fixture["expected_norm_sq"];
+
+            (* Leg convention: bond_i between sites i and i+1, phys_i on site i.
+               Site 0: (b_0, p_0); interior i: (b_{i-1}, b_i, p_i); site L-1: (b_{L-2}, p_{L-1}). *)
+            legs = Table[
+                Which[
+                    i === 1, {"b0", "p0"},
+                    i === L, {"b" <> ToString[L - 2], "p" <> ToString[L - 1]},
+                    True,    {"b" <> ToString[i - 2], "b" <> ToString[i - 1],
+                              "p" <> ToString[i - 1]}
+                ],
+                {i, L}
+            ];
+
+            mps = TensorNetwork[arrs, legs];
+
+            (* 1) raw overlap *)
+            normSq = MPSOverlap[mps, mps];
+            rawOK = ValidationCloseRel[normSq, expected, 1.*^-10];
+
+            (* 2) left-canonical preserves overlap *)
+            mpsL = MPSCanonicalForm[mps, "Left"];
+            overlapLL = MPSOverlap[mpsL, mpsL];
+            leftOK = ValidationCloseRel[overlapLL, expected, 1.*^-8];
+
+            (* 3) right-canonical preserves overlap *)
+            mpsR = MPSCanonicalForm[mps, "Right"];
+            overlapRR = MPSOverlap[mpsR, mpsR];
+            rightOK = ValidationCloseRel[overlapRR, expected, 1.*^-8];
+
+            rawOK && leftOK && rightOK
+        ],
+        True,
+        TestID -> "paclet-mps-G11-cross-lang-random-mps"
+    ]
+];

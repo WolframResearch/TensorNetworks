@@ -52,7 +52,9 @@ testGroups = {
         "tn_canonical_states.wl",
         "mps_canonical_states.wl",
         "tensor_algebra_edge.wl",
-        "contraction_paths_exact.wl"
+        "contraction_paths_exact.wl",
+        (* Layer-1 Symmetry: hook-length formula + Young projector identities *)
+        "symmetry_basic.wl"
     },
     "baselines" -> {
         "decomposition.wl",
