@@ -54,6 +54,54 @@ tn_TensorNetwork /; System`Private`HoldNotValidQ[tn] && tensorNetworkQ[Unevaluat
     tn
 )
 
+(* Specific failure messages, mirroring EinsteinSummation::length/shape/dim/output. *)
+TensorNetwork::length = "Number of hyperedges (`1`) does not match the number of tensors (`2`).";
+TensorNetwork::shape = "Hyperedge `1` does not match the tensor dimensions `2`.";
+TensorNetwork::dim = "Dimensions of contracted index `1` don't match: `2`.";
+TensorNetwork::output = "The uncontracted indices can't compose the desired output `1`.";
+
+tensorNetworkCheck[tensors_List, hyperedges_List, output_] := Enclose[
+    Module[{dimensions, allDimensions, posMap},
+        If[Length[tensors] != Length[hyperedges],
+            Message[TensorNetwork::length, Length[hyperedges], Length[tensors]];
+            Confirm[$Failed]
+        ];
+        dimensions = tensorDimensions /@ tensors;
+        MapThread[
+            If[Length[#1] != Length[#2],
+                Message[TensorNetwork::shape, #1, #2];
+                Confirm[$Failed]
+            ] &,
+            {hyperedges, dimensions}
+        ];
+        allDimensions = Catenate[dimensions];
+        posMap = PositionIndex[Catenate[hyperedges]];
+        KeyValueMap[
+            Function[{idx, pos},
+                If[! TrueQ[Equal @@ allDimensions[[pos]]],
+                    Message[TensorNetwork::dim, idx, allDimensions[[pos]]];
+                    Confirm[$Failed]
+                ]
+            ],
+            posMap
+        ];
+        If[output =!= Automatic && ! ContainsAll[Catenate[hyperedges], output],
+            Message[TensorNetwork::output, output];
+            Confirm[$Failed]
+        ];
+        Null
+    ],
+    $Failed &
+]
+
+(* Loud-fail constructor rule for invalid input. Fires only when tensorNetworkQ rejects AND every
+   tensor has a known, non-empty dimension list -- preserves the historical silent behavior for
+   symbolic tensors (where tensorDimensions returns {} from unevaluated TensorDimensions). *)
+tn : TensorNetwork[tensors_List, hyperedges : {___List}, output : _List | Automatic] /;
+    AllTrue[tensorDimensions /@ tensors, ListQ[#] && Length[#] > 0 &] &&
+        ! tensorNetworkQ[Unevaluated @ tn] :=
+    tensorNetworkCheck[tensors, hyperedges, output]
+
 (* Normalize 3-arg *)
 TensorNetwork[tensors_List, hyperedges : {___List}] := TensorNetwork[tensors, hyperedges, Automatic]
 
@@ -167,6 +215,8 @@ TensorNetworkContractions[tn_ ? TensorNetworkQ]  := With[{
 ]
 
 TensorNetworkProp[tn_, "Contractions"] := TensorNetworkContractions[tn]
+
+TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ, key_String] := tn["Data"][key]
 
 TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
     tensors = tn["Tensors"],
@@ -572,6 +622,13 @@ RandomTensorNetwork["MERA"[width_Integer, bondDim_Integer, layers_Integer : 1], 
         TensorNetwork[tensors, indices]
     ]
 
+
+TensorNetworkAdd::rank = "Tensor rank `1` does not match the length of the index list `2`.";
+
+TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] /; tensorRank[tensor] =!= Length[indices] := (
+    Message[TensorNetworkAdd::rank, tensorRank[tensor], Length[indices]];
+    $Failed
+)
 
 TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] := With[{
     newHyperedges = Append[net["Hyperedges"], indices]

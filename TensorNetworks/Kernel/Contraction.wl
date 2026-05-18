@@ -12,13 +12,10 @@ PackageExport[ContractionTree]
 
 
 
-(* Deprecated - use GreedyContractionPath or OptimalContractionPath directly *)
-TensorNetworkFindContractionPath::deprec = "TensorNetworkFindContractionPath is deprecated. Use GreedyContractionPath or OptimalContractionPath instead."
-
 Options[TensorNetworkFindContractionPath] = {"ReturnParameters" -> False, Method -> "Optimal"}
 
 TensorNetworkFindContractionPath[net_, opts : OptionsPattern[]] := (
-    Message[TensorNetworkFindContractionPath::deprec];
+    Message[General::deprec, "TensorNetworkFindContractionPath", "GreedyContractionPath or OptimalContractionPath"];
     If[TrueQ[OptionValue["ReturnParameters"]],
         extractContractionParameters[net],
         Replace[Replace[OptionValue[Method], "Optimal" -> "size"], {

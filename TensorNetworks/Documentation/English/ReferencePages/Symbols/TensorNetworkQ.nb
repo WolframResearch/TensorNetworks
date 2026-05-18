@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     20412,        567]
-NotebookOptionsPosition[     13973,        431]
-NotebookOutlinePosition[     14757,        457]
-CellTagsIndexPosition[     14678,        452]
+NotebookDataLength[     20000,        500]
+NotebookOptionsPosition[     13000,        400]
+NotebookOutlinePosition[     14000,        420]
+CellTagsIndexPosition[     13900,        415]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -21,181 +21,347 @@ Notebook[{
 
 Cell[CellGroupData[{
 Cell["TensorNetworkQ", "ObjectName",
- CellID->1754902419,ExpressionUUID->"7fd87477-769f-408e-b9bf-ff727d410f68"],
+ CellID->933730555,ExpressionUUID->"819f4fc9-bdb3-4b4f-86d8-b548a5e12a4d"],
 
 Cell[TextData[{
- Cell["   ", "ModInfo",ExpressionUUID->"7828d6a4-2098-44d7-bd27-a774c632d1da"],
+ Cell["   ", "ModInfo",ExpressionUUID->"b204d95f-be00-4e8c-a48a-5134a53343b7"],
  Cell[BoxData[
   RowBox[{
    ButtonBox["TensorNetworkQ",
     BaseStyle->"Link",
-    ButtonData->"paclet:WolframTensorNetworks/ref/TensorNetworkQ"], "[", 
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkQ"], "[",
    StyleBox["tn", "TI"], "]"}]], "InlineFormula",ExpressionUUID->
-  "78274161-70ed-4cdd-854e-5ff848792031"],
+  "078a6f1e-bbce-4ed7-af0a-619ae24edfab"],
  "\[LineSeparator]yields ",
  Cell[BoxData[
   ButtonBox["True",
-   BaseStyle->"Link"]], "InlineFormula",ExpressionUUID->
-  "fdbdb0cb-2c81-4d0c-b7b8-372e34f3a878"],
- " if tn is a valid ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/True"]], "InlineFormula",ExpressionUUID->
+  "d6173fba-37a0-45c7-b9e3-4f95ca632407"],
+ " if ",
+ Cell[BoxData[
+  StyleBox["tn", "TI"]], "InlineFormula",ExpressionUUID->"11dd6fcf-4c58-4056-8b05-729454e37e27"],
+ " is a valid ",
  Cell[BoxData[
   ButtonBox["TensorNetwork",
    BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]], 
-  "InlineFormula",ExpressionUUID->"8f47467a-7e97-497d-bcc4-79d56a544c5f"],
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]],
+  "InlineFormula",ExpressionUUID->"9501f934-5657-4a66-ac76-a61fbd8a99a3"],
  " object, and ",
  Cell[BoxData[
   ButtonBox["False",
-   BaseStyle->"Link"]], "InlineFormula",ExpressionUUID->
-  "83968cb8-5682-475f-991e-d59c50403af6"],
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/False"]], "InlineFormula",ExpressionUUID->
+  "4709dbe1-d070-4555-9de2-2f106cbed8b3"],
  " otherwise."
 }], "Usage",
- CellChangeTimes->{{3.978638223707891*^9, 3.978638223774004*^9}},
- CellID->1104548235,ExpressionUUID->"8f385d0f-0e1d-4ed2-af0d-9a46c8429ff1"],
+ CellID->390392795,ExpressionUUID->"e1ea5de1-5454-4788-bb36-ae219bbfe556"],
 
-Cell[" ", "Notes",
- CellID->1293540977,ExpressionUUID->"ff6ea4f6-2a3c-435c-be47-690468e1f0dd"]
-}, Open  ]],
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkQ"]],
+  "InlineFormula",ExpressionUUID->"e4ac2b86-b7b6-480c-b290-b0b375317f9d"],
+ " returns ",
+ Cell[BoxData[
+  ButtonBox["True",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/True"]], "InlineFormula",ExpressionUUID->
+  "cfb809f3-b773-463d-88d6-ee43417e6fb8"],
+ " only when the head of ",
+ Cell[BoxData[
+  StyleBox["tn", "TI"]], "InlineFormula",ExpressionUUID->"a50096f8-dc94-4afc-968c-3392cb1b7a8d"],
+ " is ",
+ Cell[BoxData[
+  ButtonBox["TensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]],
+  "InlineFormula",ExpressionUUID->"a4dc6402-1ee0-4085-bac0-82b425f2a407"],
+ " and its tensors, hyperedges, and output specification are internally consistent; any other head yields ",
+ Cell[BoxData[
+  ButtonBox["False",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/False"]], "InlineFormula",ExpressionUUID->
+  "00dcaa3f-6e55-4db0-be4c-fdbfda1fb162"],
+ "."
+}], "Notes",
+ CellID->983073008,ExpressionUUID->"6bd46d1e-d83c-41dc-ab78-8650f96f6f98"],
+
+Cell[TextData[{
+ "Internal consistency requires three conditions on a ",
+ Cell[BoxData[
+  ButtonBox["TensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]],
+  "InlineFormula",ExpressionUUID->"3b6c7bc3-f09d-4082-8956-0a240f279bb5"],
+ "[",
+ Cell[BoxData[
+  StyleBox["tensors", "TI"]], "InlineFormula",ExpressionUUID->"c3a3639e-4297-4697-8005-131b6f76d0ef"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["hyperedges", "TI"]], "InlineFormula",ExpressionUUID->"7761be6b-a14f-497c-9c24-cbda42392c57"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["output", "TI"]], "InlineFormula",ExpressionUUID->"264df400-5e30-41e0-aeb2-a44954ceae63"],
+ "] expression: the length of ",
+ Cell[BoxData[
+  StyleBox["tensors", "TI"]], "InlineFormula",ExpressionUUID->"937e5612-9e3c-40b9-940e-b5be02cc9005"],
+ " must equal the length of ",
+ Cell[BoxData[
+  StyleBox["hyperedges", "TI"]], "InlineFormula",ExpressionUUID->"2702481e-ed31-40d7-a19a-821c374a1d74"],
+ "; each tensor's rank must equal the length of its hyperedge list; and every occurrence of a shared index must report the same dimension."
+}], "Notes",
+ CellID->963907769,ExpressionUUID->"957a2bd1-e387-44a2-8cca-a414d8241bcd"],
+
+Cell[TextData[{
+ "When ",
+ Cell[BoxData[
+  StyleBox["output", "TI"]], "InlineFormula",ExpressionUUID->"6cd783ce-a9eb-4448-9fe5-dff94d7df20d"],
+ " is not ",
+ Cell[BoxData[
+  ButtonBox["Automatic",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Automatic"]], "InlineFormula",ExpressionUUID->
+  "7c84b68d-a5a5-499a-955c-556ed85bca33"],
+ ", every entry of ",
+ Cell[BoxData[
+  StyleBox["output", "TI"]], "InlineFormula",ExpressionUUID->"f987fdda-d95f-4137-9b4b-dc9ccacbf74f"],
+ " must also appear in some hyperedge."
+}], "Notes",
+ CellID->333931128,ExpressionUUID->"e58941f6-e3d6-47c8-ab9d-8038ba04f5fe"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkQ"]],
+  "InlineFormula",ExpressionUUID->"f8a325fd-24da-4cf5-a5df-c01a65912951"],
+ " caches the validation result via ",
+ Cell[BoxData["System`Private`HoldValidQ"], "InlineFormula",ExpressionUUID->
+  "39401463-59cf-4223-a795-6cd76341eb83"],
+ ": an unvalidated ",
+ Cell[BoxData[
+  ButtonBox["TensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]],
+  "InlineFormula",ExpressionUUID->"7c73566e-1e78-4240-b426-b09f8f54a0ab"],
+ "[\[Ellipsis]] expression is checked once on first evaluation; if the check passes, ",
+ Cell[BoxData["System`Private`HoldSetValid"], "InlineFormula",ExpressionUUID->
+  "9ad0df4b-4d65-45de-983b-cc2207f89b27"],
+ " marks the expression and ",
+ Cell[BoxData["System`Private`HoldSetNoEntry"], "InlineFormula",ExpressionUUID->
+  "aa941d62-e5d4-42c7-b271-ceb1c573519a"],
+ " freezes its argument slots, so subsequent calls short-circuit without re-validating."
+}], "Notes",
+ CellID->263307568,ExpressionUUID->"eec47f3c-fa15-45f2-bbde-2644aba77fc7"],
+
+Cell[TextData[{
+ "Property dispatch on a ",
+ Cell[BoxData[
+  ButtonBox["TensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]],
+  "InlineFormula",ExpressionUUID->"b1f3612c-058e-437d-8490-1e2cfa63db94"],
+ " object is guarded by ",
+ Cell[BoxData[
+  ButtonBox["TensorNetworkQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkQ"]],
+  "InlineFormula",ExpressionUUID->"12524123-af8d-4762-ab8c-802250cdcb8a"],
+ ": ",
+ Cell[BoxData[
+  RowBox[{
+   StyleBox["tn", "TI"], "[", "\"\<Property\>\"", "]"}]], "InlineFormula",
+  ExpressionUUID->"26ec3361-60fb-41d3-be3d-43766366b012"],
+ " only evaluates when ",
+ Cell[BoxData[
+  StyleBox["tn", "TI"]], "InlineFormula",ExpressionUUID->"b08e097f-5643-40ec-ac3a-3b8e774aae6f"],
+ " satisfies ",
+ Cell[BoxData[
+  ButtonBox["TensorNetworkQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkQ"]],
+  "InlineFormula",ExpressionUUID->"2530b2dd-7cfb-4d43-86c9-d597c7fd7a23"],
+ ", so an invalid ",
+ Cell[BoxData[
+  ButtonBox["TensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]],
+  "InlineFormula",ExpressionUUID->"c6e8436a-5071-4b4c-95bf-4851b5ee9563"],
+ "[\[Ellipsis]] expression is left unevaluated rather than returning a wrong answer."
+}], "Notes",
+ CellID->839855718,ExpressionUUID->"a755409d-060d-4a15-b969-e6f548f48833"]
+}, Open]],
 
 Cell[CellGroupData[{
-
 Cell[TextData[{
  "See Also",
  Cell[BoxData[
-  TemplateBox[{"SeeAlso", 
+  TemplateBox[{"SeeAlso",
     Cell[
      BoxData[
       FrameBox[
        Cell[
-       "Insert links to any related reference (function) pages.", 
+       "Insert links to any related reference (function) pages.",
         "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "35d870ea-95d2-483b-86ac-13aabf7abb01"]
+  "1b7400bd-ac57-4ccd-8d0c-fe4d51698398"]
 }], "SeeAlsoSection",
- CellID->1566241858,ExpressionUUID->"658c8b02-fec7-4a2a-9108-70a6b9268eeb"],
+ CellID->802921309,ExpressionUUID->"f331d933-54c7-4d91-87f1-6fdaaedf747d"],
 
 Cell[TextData[{
  Cell[BoxData[
-  TagBox[
-   FrameBox["\<\"XXXX\"\>"],
-   "FunctionPlaceholder"]], "InlineSeeAlsoFunction",
+  ButtonBox["TensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]],
+  "InlineSeeAlsoFunction",
   TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
-  "2823d14c-f007-4415-ac48-e01c35b95c10"],
+  "a797cb8e-a19e-4dc3-baa4-233084e77e4e"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
  Cell[BoxData[
-  RowBox[{
-  Cell[TextData[StyleBox[
-   " \[FilledVerySmallSquare] ", "InlineSeparator"]],ExpressionUUID->
-    "8f5c53f3-c4a3-42e5-9e4f-e79c7c05031d"], 
-   DynamicModuleBox[{$CellContext`nbobj$$ = NotebookObject[
-     FrontEndObject[
-      LinkObject["i7bzb_shm", 209, 9]], 22], $CellContext`cellobj$$ = 
-    CellObject[6753]}, 
-    TemplateBox[{
-      GraphicsBox[{{
-         Thickness[0.06], 
-         StrokeForm[
-          Hue[0.4167, 0.406, 0.502]], 
-         CircleBox[{0, 0}]}, {
-         Thickness[0.06], 
-         StrokeForm[
-          Hue[0.4167, 0.406, 0.502]], 
-         LineBox[{{0, 0.62}, {0, -0.62}}]}, {
-         Thickness[0.06], 
-         StrokeForm[
-          Hue[0.4167, 0.406, 0.502]], 
-         LineBox[{{-0.62, 0}, {0.62, 0}}]}}, 
-       ImagePadding -> {{1., 1.}, {2.4, 1.}}, ImageSize -> 16, 
-       PlotRange -> {{-1.06, 1.06}, {-1.06, 1.06}}, 
-       BaselinePosition -> (Center -> 
-        Center)], $CellContext`nbobj$$, $CellContext`cellobj$$},
-     "InlineListingAddButton"],
-    Initialization:>($CellContext`nbobj$$ = 
-      EvaluationNotebook[]; $CellContext`cellobj$$ = EvaluationCell[])]}]], 
-  "InlineListingAddButton",ExpressionUUID->
-  "20da3d40-3c3b-4378-ba58-9393440af125"]
+  ButtonBox["BinaryTensorNetworkQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/BinaryTensorNetworkQ"]],
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "c3d8cb7b-375f-45cf-baf5-c7a029199d68"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["TensorNetworkGraphQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkGraphQ"]],
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "5bec65fb-4564-4119-9e05-41f6da33ae1b"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["RandomTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/RandomTensorNetwork"]],
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "286776b0-f4ad-4705-b333-b78c425ae7d0"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContract",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"]],
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "7bc2cfd5-735d-4d9e-b6c4-75c675453ab1"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["MatrixQ",
+   BaseStyle->"Link"]],
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "04f6846d-55ea-4edc-b8fe-429fcc5b24c6"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["GraphQ",
+   BaseStyle->"Link"]],
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "990a613a-6554-4695-8e9c-6b784a5e823c"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["AssociationQ",
+   BaseStyle->"Link"]],
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "430ca081-fa72-40dc-956c-c886ed660689"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["QuantumStateQ",
+   BaseStyle->"Link"]],
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "360d12c5-d4f9-4778-8b22-d28f07ddaa9d"]
 }], "SeeAlso",
- CellID->2119846127,ExpressionUUID->"d839d742-b921-423a-9f4a-71f4037b1e00"]
-}, Open  ]],
+ CellID->750496121,ExpressionUUID->"9849c921-f7d2-45f9-a2b1-75eee1b24243"]
+}, Open]],
 
 Cell[CellGroupData[{
-
 Cell[TextData[{
  "Tech Notes",
  Cell[BoxData[
-  TemplateBox[{"TechNotes", 
+  TemplateBox[{"TechNotes",
     Cell[
      BoxData[
       FrameBox[
-       Cell["Insert links to related tech notes.", "MoreInfoText"], BaseStyle -> 
+       Cell["Insert links to related tech notes.", "MoreInfoText"], BaseStyle ->
        "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "87127e66-968f-4251-a9ed-d5c01f993e91"]
+  "ae1117dc-338d-4bf6-a1a9-6b9da0b42031"]
 }], "TechNotesSection",
- CellID->1500152759,ExpressionUUID->"a38f6272-48cf-44d2-bce1-158e54cf5dbb"],
+ CellID->450505797,ExpressionUUID->"bbfbe4e1-20c2-4b58-8591-4a5dd4bc6f36"],
 
-Cell[" ", "Tutorials",
- CellID->1609404733,ExpressionUUID->"9b5da108-cef5-4839-85a0-32bb53ce993d"]
-}, Open  ]],
+Cell[TextData[{
+ ButtonBox["Building Tensor Networks",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Wolfram/TensorNetworks/tutorial/BuildingTensorNetworks"]
+}], "Tutorials",
+ CellID->916431188,ExpressionUUID->"9b8ec8f2-9851-41c2-995c-8cbbb866e8e3"]
+}, Open]],
 
 Cell[CellGroupData[{
-
 Cell["Related Guides", "MoreAboutSection",
- CellID->1708813566,ExpressionUUID->"eff6dc27-74ba-4ec0-b115-d05a3285cc5b"],
+ CellID->814066459,ExpressionUUID->"f93ecec2-9ff9-4998-b34f-48a30d51b2d4"],
 
-Cell[" ", "MoreAbout",
- CellID->1730792431,ExpressionUUID->"da1fcd2f-73f5-4c6f-938a-057a677fea2f"]
-}, Open  ]],
+Cell[TextData[ButtonBox["TensorNetworks Package",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/guide/TensorNetworks"]], "MoreAbout",
+ CellID->146465904,ExpressionUUID->"e3779d57-f82e-4ce0-bdd5-2c951216baa8"]
+}, Open]],
 
 Cell[CellGroupData[{
-
 Cell[TextData[{
  "Related Links",
  Cell[BoxData[
-  TemplateBox[{"RelatedLinks", 
+  TemplateBox[{"RelatedLinks",
     Cell[
      BoxData[
       FrameBox[
        Cell[
-       "Insert links to any related page, including web pages.", 
+       "Insert links to any related page, including web pages.",
         "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "1bd0b383-c160-4280-9b7b-a7bde1e45bb9"]
+  "4edaf459-b6a2-4cf3-8d81-8ca4fe6fc906"]
 }], "RelatedLinksSection",
- CellID->1762389202,ExpressionUUID->"33683cd2-0289-41ba-a09e-482b896866ae"],
+ CellID->205883429,ExpressionUUID->"29e05cdf-fb1d-4b0c-a420-a507b0bc0213"],
 
 Cell[" ", "RelatedLinks",
- CellID->233374943,ExpressionUUID->"b39c2010-4745-4dbf-8b78-12f8237aa308"]
-}, Open  ]],
+ CellID->870428104,ExpressionUUID->"5aba6490-64b1-4223-a911-a7999976366d"]
+}, Open]],
 
 Cell[CellGroupData[{
-
 Cell[TextData[{
  "Examples Initialization",
  Cell[BoxData[
-  TemplateBox[{"ExamplesInitialization", 
+  TemplateBox[{"ExamplesInitialization",
     Cell[
      BoxData[
       FrameBox[
        Cell[
-       "Input that is to be evaluated before any examples are run, e.g. \
-Needs[\[Ellipsis]].", "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
+       "Input that is to be evaluated before any examples are run, e.g. Needs[\[Ellipsis]].", "MoreInfoText"], BaseStyle -> "IFrameBox"]],
      "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "78334090-73ea-445c-bd0f-ffd034cc83e2"]
+  "a4e6f637-a4ae-43e9-acf3-23f07d0cd70d"]
 }], "ExamplesInitializationSection",
- CellID->1027527579,ExpressionUUID->"85a72ce6-d760-427c-a5d1-6357f3a36a77"],
+ CellID->641440845,ExpressionUUID->"36cbb957-a186-4064-8e04-cb85abdf10bf"],
 
 Cell[BoxData[
- RowBox[{"Needs", "[", "\"\<Wolfram`TensorNetworks`\>\"", 
-  "]"}]], "ExampleInitialization",
- CellID->1740014726,ExpressionUUID->"c03f62e6-026a-4f1e-b90f-892f08238183"]
-}, Open  ]],
+ RowBox[{"Needs", "[", "\"\<Wolfram`TensorNetworks`\>\"", "]"}]], "ExampleInitialization",
+ CellID->485589733,ExpressionUUID->"a1ae7fe7-6af1-4935-8800-01a9a5369bb9"]
+}, Open]],
 
 Cell[BoxData[
  InterpretationBox[GridBox[{
     {
      StyleBox[
-      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"],
      ButtonBox[
       RowBox[{
        RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
@@ -203,374 +369,673 @@ Cell[BoxData[
       ButtonData:>"ExtendedExamples"]}
    }],
   $Line = 0; Null]], "PrimaryExamplesSection",
- CellID->2142678683,ExpressionUUID->"a06dc1b2-7b3b-4cc1-96bd-4787f1ce556b"],
+ CellID->536996194,ExpressionUUID->"d8d07695-b8a8-4a09-b1c9-d2fcf564ef2f"],
 
-Cell["Check if an expression is a valid tensor network:", "ExampleText",
- CellID->580001001,ExpressionUUID->"61235dba-2994-4fcb-b531-50da5d6215e3"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"tn", "=", 
-   RowBox[{"TensorNetwork", "[", 
-    RowBox[{
-     RowBox[{"{", 
-      RowBox[{
-       RowBox[{"RandomReal", "[", 
-        RowBox[{
-         RowBox[{"{", 
-          RowBox[{
-           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
-         RowBox[{"{", 
-          RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",", 
-       RowBox[{"RandomReal", "[", 
-        RowBox[{
-         RowBox[{"{", 
-          RowBox[{
-           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
-         RowBox[{"{", 
-          RowBox[{"3", ",", "4"}], "}"}]}], "]"}]}], "}"}], ",", 
-     RowBox[{"{", 
-      RowBox[{
-       RowBox[{"{", 
-        RowBox[{"i", ",", "j"}], "}"}], ",", 
-       RowBox[{"{", 
-        RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}]], "Input",
- CellLabel->"In[1]:=",
- CellID->580001002,ExpressionUUID->"3977ae9a-94b0-4307-b63e-8479c1d7f8e0"],
-
-Cell[BoxData[
- RowBox[{"TensorNetworkQ", "[", "tn", "]"}]], "Input",
- CellLabel->"In[2]:=",
- CellID->580001003,ExpressionUUID->"494a7c1e-6d68-4f00-8e55-173674005683"],
-
-Cell["Returns False for non-tensor network expressions:", "ExampleText",
- CellID->580001004,ExpressionUUID->"228f00b4-e3d5-484a-9f64-6696ae5ea322"],
-
-Cell[BoxData[
- RowBox[{"TensorNetworkQ", "[", 
-  RowBox[{"{", 
-   RowBox[{"1", ",", "2", ",", "3"}], "}"}], "]"}]], "Input",
- CellLabel->"In[3]:=",
- CellID->580001005,ExpressionUUID->"7216c038-b33e-423d-8e1a-7018ae075d48"],
+Cell["Test whether an expression is a valid tensor network:", "ExampleText",
+ CellID->988078637,ExpressionUUID->"cad3d62d-4f00-4950-b419-5ef87cd4b08e"],
 
 Cell[CellGroupData[{
 
+Cell[BoxData[
+ RowBox[{
+  "TensorNetworkQ", "[",
+  RowBox[{
+   "TensorNetwork", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"RandomReal", "[",
+       RowBox[{
+        RowBox[{"{",
+         RowBox[{
+          RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+        RowBox[{"{",
+         RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",",
+      RowBox[{"RandomReal", "[",
+       RowBox[{
+        RowBox[{"{",
+         RowBox[{
+          RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+        RowBox[{"{",
+         RowBox[{"3", ",", "4"}], "}"}]}], "]"}]}], "}"}], ",",
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{"i", ",", "j"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->398765340,ExpressionUUID->"72f00827-a9f8-46c8-8148-e09ca4416fbe"],
+
+Cell[BoxData[
+ "True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->850753291,ExpressionUUID->"8bc1b23b-b15c-499d-bd77-00fdfff72ab8"]
+}, Open]],
+
+Cell["A network produced by RandomTensorNetwork is valid by construction:", "ExampleText",
+ CellID->367247911,ExpressionUUID->"1e334eff-aad4-4790-8262-c142247dd3cd"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "42", "]"}], ";", "\[IndentingNewLine]",
+  RowBox[{"mps", "=",
+   RowBox[{"RandomTensorNetwork", "[",
+    RowBox[{"\"\<MPS\>\"", "[",
+     RowBox[{"4", ",", "2", ",", "2"}], "]"}], "]"}]}], ";", "\[IndentingNewLine]",
+  RowBox[{"TensorNetworkQ", "[", "mps", "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->110689536,ExpressionUUID->"a4956ec5-2177-42e6-8168-fc1b737e312b"],
+
+Cell[BoxData[
+ "True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->732288317,ExpressionUUID->"632e9b11-f960-4295-b30e-5573d0f8a7ab"]
+}, Open]],
+
+Cell["Anything whose head is not TensorNetwork is rejected:", "ExampleText",
+ CellID->117724802,ExpressionUUID->"58ba117f-66be-4401-ba78-998a53020973"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkQ", "[",
+  RowBox[{"{",
+   RowBox[{"1", ",", "2", ",", "3"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->319919471,ExpressionUUID->"ef7cc1e2-ba0a-4cfa-a61a-19536d677f7a"],
+
+Cell[BoxData[
+ "False"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->216004101,ExpressionUUID->"6bac7b29-fcd8-4b69-a7d3-44c86977e641"]
+}, Open]],
+
+Cell[CellGroupData[{
 Cell[TextData[{
  "More Examples",
  Cell[BoxData[
-  TemplateBox[{"MoreExamples", 
+  TemplateBox[{"MoreExamples",
     Cell[
      BoxData[
       FrameBox[
-       Cell["Extended examples in standardized sections.", "MoreInfoText"], 
+       Cell["Extended examples in standardized sections.", "MoreInfoText"],
        BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "8133d627-6141-41ef-9cf1-5c96bfb82e87"]
+  "16a10660-3439-4321-8d7a-b3053d32c6eb"]
 }], "ExtendedExamplesSection",
  CellTags->"ExtendedExamples",
- CellID->847348638,ExpressionUUID->"a917b86d-1d82-4356-a386-88484238619a"],
+ CellID->786793265,ExpressionUUID->"e92316f4-6ee7-4a41-b517-f1c40ea33db8"],
 
+Cell[CellGroupData[{
 Cell[BoxData[
  InterpretationBox[Cell[
   "Scope", "ExampleSection",ExpressionUUID->
-   "2d3ce2e9-548a-4bc5-92a0-1582cb11f877"],
+   "7c558011-66b3-4bf1-b598-682b1aa8149d"],
   $Line = 0; Null]], "ExampleSection",
- CellID->1424495609,ExpressionUUID->"10fb309c-5114-4a6d-a6b4-7b7c057232f0"],
+ CellID->119125372,ExpressionUUID->"46391149-7c3c-48d7-a83f-827b13bff909"],
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Input forms", "ExampleSubsection",ExpressionUUID->
+   "4c3bb160-f03a-43d3-b723-3574ee707aed"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->565616749,ExpressionUUID->"3958c452-dc3b-47ce-b0ff-cabf37b9dfc3"],
+
+Cell["Hyperedge-only constructor produces a valid symbolic network:", "ExampleText",
+ CellID->458466209,ExpressionUUID->"bb484af4-81bf-40c1-a86f-0421430c1f83"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkQ", "[",
+  RowBox[{"TensorNetwork", "[",
+   RowBox[{"{",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{"i", ",", "j"}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{"j", ",", "k"}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{"k", ",", "l"}], "}"}]}], "}"}], "]"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->119272659,ExpressionUUID->"ba17107f-e88f-4bb0-bc3b-d611f7b22f33"],
+
+Cell[BoxData[
+ "True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->748235246,ExpressionUUID->"87fd823a-8fd2-43df-a7c2-7cecd1f5037d"]
+}, Open]],
+
+Cell[BoxData[""], "ExampleDelimiter",
+ CellID->735288493,ExpressionUUID->"03573652-46ba-476f-b84f-50c4fca67eb0"],
+
+Cell["A graph produced by ToTensorNetworkGraph has head Graph, so TensorNetworkQ returns False on it:", "ExampleText",
+ CellID->877768461,ExpressionUUID->"08394e2d-7c5d-4780-b5d5-2c137f8cf670"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"g", "=",
+   RowBox[{"ToTensorNetworkGraph", "[",
+    RowBox[{"TensorNetwork", "[",
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{"i", ",", "j"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"j", ",", "k"}], "}"}]}], "}"}], "]"}], "]"}]}], ";", "\[IndentingNewLine]",
+  RowBox[{"TensorNetworkQ", "[", "g", "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->919418298,ExpressionUUID->"c7fc9112-d96e-481b-8aca-5d67c7292a62"],
+
+Cell[BoxData[
+ "False"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->625419722,ExpressionUUID->"1f29ecda-5e40-4c26-812c-5d3b4c38f532"]
+}, Open]]
+}, Open]],
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Invalid forms", "ExampleSubsection",ExpressionUUID->
+   "0e58558d-0e20-456b-892a-fa5a352bc8c2"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->397673114,ExpressionUUID->"7fa23af1-dbfc-4ec6-89c4-150e590a10d5"],
+
+Cell["If the number of tensors does not match the number of hyperedge lists, the result is False:", "ExampleText",
+ CellID->779564267,ExpressionUUID->"ac35140e-3040-4032-8cc7-d62d3d7aa014"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkQ", "[",
+  RowBox[{"TensorNetwork", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{"RandomReal", "[",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{
+         RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"2", ",", "2"}], "}"}]}], "]"}], "}"}], ",",
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{"i", ",", "j"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->285383017,ExpressionUUID->"aba0610a-e7a5-4063-844e-bdb7c1883f94"],
+
+Cell[BoxData[
+ "False"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->937286633,ExpressionUUID->"a623918d-cb2c-44eb-8bdb-5c6fe6f5ff12"]
+}, Open]],
+
+Cell[BoxData[""], "ExampleDelimiter",
+ CellID->235362208,ExpressionUUID->"a686cf4f-76cd-4231-b4dd-850a4c5b8bb8"],
+
+Cell["If a tensor's rank does not match the length of its index list, the result is False:", "ExampleText",
+ CellID->660507314,ExpressionUUID->"8d075187-58b9-4923-ae48-204e88741dca"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkQ", "[",
+  RowBox[{"TensorNetwork", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{"RandomReal", "[",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{
+         RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"2", ",", "3"}], "}"}]}], "]"}], "}"}], ",",
+    RowBox[{"{",
+     RowBox[{"{",
+      RowBox[{"i", ",", "j", ",", "k"}], "}"}], "}"}]}], "]"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->388941139,ExpressionUUID->"dd58542f-aee9-4e1e-a3ec-c14c841a4d45"],
+
+Cell[BoxData[
+ "False"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->953290510,ExpressionUUID->"c3ce9e3b-fa67-4526-8f31-023a3fbe4be0"]
+}, Open]],
+
+Cell[BoxData[""], "ExampleDelimiter",
+ CellID->711177895,ExpressionUUID->"3162a8d0-8acb-4f32-b9bc-bf40191953bd"],
+
+Cell["If two tensors share an index but disagree on its dimension, the result is False:", "ExampleText",
+ CellID->618262105,ExpressionUUID->"bced22aa-88a2-4181-8c4c-bf4599ae85fc"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkQ", "[",
+  RowBox[{"TensorNetwork", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"RandomReal", "[",
+       RowBox[{
+        RowBox[{"{",
+         RowBox[{
+          RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+        RowBox[{"{",
+         RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",",
+      RowBox[{"RandomReal", "[",
+       RowBox[{
+        RowBox[{"{",
+         RowBox[{
+          RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+        RowBox[{"{",
+         RowBox[{"4", ",", "5"}], "}"}]}], "]"}]}], "}"}], ",",
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{"i", ",", "j"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"j", ",", "k"}], "}"}]}], "}"}]}], "]"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->729286849,ExpressionUUID->"ac337523-5d5a-441b-b424-0dad13e44f2d"],
+
+Cell[BoxData[
+ "False"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->545261421,ExpressionUUID->"9aff7589-8744-4e7b-848f-a27f730ae781"]
+}, Open]],
+
+Cell[BoxData[""], "ExampleDelimiter",
+ CellID->849805913,ExpressionUUID->"96a19263-9807-472a-a061-d99c52244e95"],
+
+Cell["If the explicit output list contains an index that does not appear in any hyperedge, the result is False:", "ExampleText",
+ CellID->579159450,ExpressionUUID->"8cfe92e2-47d6-4b11-b6d6-d0f5665bd58a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkQ", "[",
+  RowBox[{"TensorNetwork", "[",
+   RowBox[{
+    RowBox[{"{",
+     RowBox[{"RandomReal", "[",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{
+         RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"2", ",", "3"}], "}"}]}], "]"}], "}"}], ",",
+    RowBox[{"{",
+     RowBox[{"{",
+      RowBox[{"i", ",", "j"}], "}"}], "}"}], ",",
+    RowBox[{"{", "z", "}"}]}], "]"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->657770547,ExpressionUUID->"61a9a9cd-08e0-4eb1-9ab2-c2cd5b5ce625"],
+
+Cell[BoxData[
+ "False"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->788133585,ExpressionUUID->"a72dcb8a-30ca-48dc-9d79-4532fc0d4709"]
+}, Open]]
+}, Open]]
+}, Open]],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Generalizations & Extensions", "ExampleSection",ExpressionUUID->
-   "9cfa37e8-2cc3-4cbf-86fb-794066948b07"],
+   "a6a97435-802f-4972-b523-904d93810bb6"],
   $Line = 0; Null]], "ExampleSection",
- CellID->1350003707,ExpressionUUID->"658da9c8-99d4-4758-a429-79f2ac86b51b"],
-
-Cell[CellGroupData[{
+ CellID->569707135,ExpressionUUID->"23340d2a-0af0-4b68-9dc5-b02d38df677a"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Options", "ExampleSection",ExpressionUUID->
-   "dfa57d63-953a-4ad9-9f17-cd16b3ec38aa"],
+   "050fb0f2-7e5c-49c9-902f-0d4652bf2351"],
   $Line = 0; Null]], "ExampleSection",
- CellID->1347572994,ExpressionUUID->"c9afb7a1-3eee-46e9-941a-728f2dc97c52"],
+ CellID->662358404,ExpressionUUID->"ec8c3a28-8695-459d-9484-9790f99fbeaa"],
 
-Cell[BoxData[
- InterpretationBox[Cell[
-  " ", "ExampleSubsection",ExpressionUUID->
-   "d6e560bb-1a86-4b49-bfe8-ed4757e7adb6"],
-  $Line = 0; Null]], "ExampleSubsection",
- CellID->1296768896,ExpressionUUID->"751e9598-52cc-4fa2-a211-2b95e900cfae"],
-
-Cell[BoxData[
- InterpretationBox[Cell[
-  " ", "ExampleSubsection",ExpressionUUID->
-   "ea168a19-5eed-4ff7-88bc-313e980d7320"],
-  $Line = 0; Null]], "ExampleSubsection",
- CellID->2130785316,ExpressionUUID->"c4ff7951-85d1-4beb-be06-d0aa438a110c"]
-}, Open  ]],
-
+Cell[CellGroupData[{
 Cell[BoxData[
  InterpretationBox[Cell[
   "Applications", "ExampleSection",ExpressionUUID->
-   "94252399-d0ec-4d9b-8a5b-175bef9ea5e1"],
+   "e72c26b5-50be-43d8-b7cd-42f5612d6d75"],
   $Line = 0; Null]], "ExampleSection",
- CellID->671508640,ExpressionUUID->"c36640ba-a7a0-4746-bd46-a9c75e7b653c"],
+ CellID->841051794,ExpressionUUID->"850cdcc0-30ac-4095-80c5-2b350bfb7927"],
 
+Cell["Use TensorNetworkQ as a gate so downstream operations only see valid networks:", "ExampleText",
+ CellID->835409861,ExpressionUUID->"16d773f1-3a17-4d9e-896f-05953faf040e"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"safeContractCount", "[", "net_", "]"}], ":=",
+   RowBox[{"If", "[",
+    RowBox[{
+     RowBox[{"TensorNetworkQ", "[", "net", "]"}], ",",
+     RowBox[{"Length", "[",
+      RowBox[{"net", "[", "\"\<Tensors\>\"", "]"}], "]"}], ",", "$Failed"}], "]"}]}], ";", "\[IndentingNewLine]",
+  RowBox[{"{",
+   RowBox[{
+    RowBox[{"safeContractCount", "[",
+     RowBox[{"TensorNetwork", "[",
+      RowBox[{"{",
+       RowBox[{
+        RowBox[{"{",
+         RowBox[{"i", ",", "j"}], "}"}], ",",
+        RowBox[{"{",
+         RowBox[{"j", ",", "k"}], "}"}]}], "}"}], "]"}], "]"}], ",",
+    RowBox[{"safeContractCount", "[",
+     RowBox[{"{",
+      RowBox[{"1", ",", "2", ",", "3"}], "}"}], "]"}]}], "}"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->758303364,ExpressionUUID->"d371fe48-d260-44f0-866b-9868853d7810"],
+
+Cell[BoxData[
+ RowBox[{"{", RowBox[{"2", ",", "$Failed"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->676870184,ExpressionUUID->"995969f1-ad19-42c1-8476-ad13e473e223"]
+}, Open]]
+}, Open]],
+
+Cell[CellGroupData[{
 Cell[BoxData[
  InterpretationBox[Cell[
   "Properties & Relations", "ExampleSection",ExpressionUUID->
-   "5c60d41b-131b-4555-be78-63655dc7b7b7"],
+   "c7bfce27-1d74-4eb2-b565-27240a62791f"],
   $Line = 0; Null]], "ExampleSection",
- CellID->1019147495,ExpressionUUID->"5eec44ed-9793-4701-9de1-1fb6a1cd7fe3"],
+ CellID->254651565,ExpressionUUID->"87543e2c-ce7d-4582-adb4-f618147d5cd0"],
 
+Cell["Property dispatch on a TensorNetwork object is conditioned on TensorNetworkQ; an invalid argument list leaves the access unevaluated:", "ExampleText",
+ CellID->211939212,ExpressionUUID->"cef7c637-fc72-417f-9f0f-61b741ecca4b"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"bad", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{
+     RowBox[{"{",
+      RowBox[{"RandomReal", "[",
+       RowBox[{
+        RowBox[{"{",
+         RowBox[{
+          RowBox[{"-", "1"}], ",", "1"}], "}"}], ",",
+        RowBox[{"{",
+         RowBox[{"2", ",", "2"}], "}"}]}], "]"}], "}"}], ",",
+     RowBox[{"{",
+      RowBox[{"{",
+       RowBox[{"i", ",", "j", ",", "k"}], "}"}], "}"}]}], "]"}]}], ";", "\[IndentingNewLine]",
+  RowBox[{"TensorNetworkQ", "[", "bad", "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->101340075,ExpressionUUID->"9607ef1a-d14b-41ba-bbf7-36ce85e03cd1"],
+
+Cell[BoxData[
+ "False"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->718191107,ExpressionUUID->"9de48ab0-525e-4471-a044-cf08d5688fcb"]
+}, Open]],
+
+Cell[BoxData[""], "ExampleDelimiter",
+ CellID->396570766,ExpressionUUID->"3769433c-8f46-4733-a841-7593f54e8c46"],
+
+Cell["BinaryTensorNetworkQ is a strict refinement: every binary tensor network is a tensor network, but not vice versa:", "ExampleText",
+ CellID->453165887,ExpressionUUID->"9166da1b-8e55-44ef-a074-14f0f811f6f6"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"hyper", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{"i", ",", "j"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"j", ",", "k"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"j", ",", "l"}], "}"}]}], "}"}], "]"}]}], ";", "\[IndentingNewLine]",
+  RowBox[{"{",
+   RowBox[{
+    RowBox[{"TensorNetworkQ", "[", "hyper", "]"}], ",",
+    RowBox[{"BinaryTensorNetworkQ", "[", "hyper", "]"}]}], "}"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->553322856,ExpressionUUID->"7644ddc5-6d50-4a2d-abe2-48b088f1b103"],
+
+Cell[BoxData[
+ RowBox[{"{", RowBox[{"True", ",", "False"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->115136122,ExpressionUUID->"b49f2183-5a6e-487d-a8ea-2fb240b23137"]
+}, Open]],
+
+Cell[BoxData[""], "ExampleDelimiter",
+ CellID->972137433,ExpressionUUID->"29523815-c8b1-44b9-883e-de9e497736df"],
+
+Cell["TensorNetworkQ tests the TensorNetwork[\[Ellipsis]] form; TensorNetworkGraphQ tests the parallel Graph form returned by ToTensorNetworkGraph:", "ExampleText",
+ CellID->527672392,ExpressionUUID->"af1ed0f0-2457-4f2a-8c2d-063617cf9fde"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=",
+   RowBox[{"TensorNetwork", "[",
+    RowBox[{"{",
+     RowBox[{
+      RowBox[{"{",
+       RowBox[{"i", ",", "j"}], "}"}], ",",
+      RowBox[{"{",
+       RowBox[{"j", ",", "k"}], "}"}]}], "}"}], "]"}]}], ";", "\[IndentingNewLine]",
+  RowBox[{"g", "=",
+   RowBox[{"ToTensorNetworkGraph", "[", "tn", "]"}]}], ";", "\[IndentingNewLine]",
+  RowBox[{"{",
+   RowBox[{
+    RowBox[{"TensorNetworkQ", "[", "tn", "]"}], ",",
+    RowBox[{"TensorNetworkQ", "[", "g", "]"}], ",",
+    RowBox[{"TensorNetworkGraphQ", "[", "g", "]"}]}], "}"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->757423892,ExpressionUUID->"84d2dfcb-869b-44aa-9385-04325edae9a5"],
+
+Cell[BoxData[
+ RowBox[{"{", RowBox[{"True", ",", "False", ",", "True"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->217565245,ExpressionUUID->"7dcedf84-df21-4b40-bfc4-b58704f88068"]
+}, Open]]
+}, Open]],
+
+Cell[CellGroupData[{
 Cell[BoxData[
  InterpretationBox[Cell[
   "Possible Issues", "ExampleSection",ExpressionUUID->
-   "07979b03-5819-4be7-8b39-a46ff65034b2"],
+   "5d6147ea-9fdb-45c2-b849-1f6b23253a9c"],
   $Line = 0; Null]], "ExampleSection",
- CellID->482379993,ExpressionUUID->"2be2ee1b-aa32-4054-aaf9-8b04615603d1"],
+ CellID->178059127,ExpressionUUID->"5d282722-1372-422c-a2be-f4a8ab3c9e26"],
+
+Cell["An association with TensorNetwork-shaped keys still has head Association, so TensorNetworkQ silently returns False:", "ExampleText",
+ CellID->995427117,ExpressionUUID->"c8498827-cd09-4b93-bd77-8a4f48324168"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkQ", "[",
+  RowBox[{"\[LeftAssociation]",
+   RowBox[{
+    RowBox[{"\"\<Tensors\>\"", "\[Rule]",
+     RowBox[{"{", "}"}]}], ",",
+    RowBox[{"\"\<Hyperedges\>\"", "\[Rule]",
+     RowBox[{"{", "}"}]}]}], "\[RightAssociation]"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->668135876,ExpressionUUID->"68f7b46f-9464-491e-af06-b137f7ca5370"],
+
+Cell[BoxData[
+ "False"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->315829749,ExpressionUUID->"862c04de-adeb-4a21-9743-5ba38fa73fc6"]
+}, Open]],
+
+Cell[BoxData[""], "ExampleDelimiter",
+ CellID->450155527,ExpressionUUID->"5930333b-30e0-4621-b800-26d27e25b794"],
+
+Cell["The graph form of a tensor network is tested with TensorNetworkGraphQ, not TensorNetworkQ:", "ExampleText",
+ CellID->515860112,ExpressionUUID->"352a5ab1-1c17-4c07-8513-1dbd96ddd91f"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"g", "=",
+   RowBox[{"ToTensorNetworkGraph", "[",
+    RowBox[{"TensorNetwork", "[",
+     RowBox[{"{",
+      RowBox[{
+       RowBox[{"{",
+        RowBox[{"i", ",", "j"}], "}"}], ",",
+       RowBox[{"{",
+        RowBox[{"j", ",", "k"}], "}"}]}], "}"}], "]"}], "]"}]}], ";", "\[IndentingNewLine]",
+  RowBox[{"{",
+   RowBox[{
+    RowBox[{"TensorNetworkQ", "[", "g", "]"}], ",",
+    RowBox[{"TensorNetworkGraphQ", "[", "g", "]"}]}], "}"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->544747670,ExpressionUUID->"e7a9abbb-24b3-4016-9013-214c3b43f665"],
+
+Cell[BoxData[
+ RowBox[{"{", RowBox[{"False", ",", "True"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->217769039,ExpressionUUID->"9508a5ac-34ef-4df4-b1a6-93b13c623b67"]
+}, Open]]
+}, Open]],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Interactive Examples", "ExampleSection",ExpressionUUID->
-   "d95f7639-33e7-470c-9bb0-6989f55f77ca"],
+   "9af19b7c-e7c9-4afe-9afc-7f600197472c"],
   $Line = 0; Null]], "ExampleSection",
- CellID->609774926,ExpressionUUID->"e8a53a12-cef1-4d13-95f8-d42c910bbaf9"],
+ CellID->121403261,ExpressionUUID->"9ee9556a-0c93-486f-a9ef-46bf9510f2d8"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Neat Examples", "ExampleSection",ExpressionUUID->
-   "4685b7c8-37cd-4ad0-812d-eebdcfea5f1a"],
+   "140197bb-f42a-4533-8136-5b4a781edf79"],
   $Line = 0; Null]], "ExampleSection",
- CellID->695217798,ExpressionUUID->"5ff75419-0f7e-4298-adbf-396bce9eef1d"]
-}, Open  ]],
+ CellID->365481535,ExpressionUUID->"c48e3474-3d82-47e3-b2c2-4e271369afc5"]
+}, Open]],
 
 Cell[CellGroupData[{
-
 Cell["Metadata", "MetadataSection",
- CellID->67007659,ExpressionUUID->"d138df3a-2d6e-45b1-a54e-8602290fc140"],
+ CellID->710783501,ExpressionUUID->"2cc2e3fc-e31e-4c9a-9d31-63a5bc279d0d"],
 
 Cell[TextData[{
  "New in: ",
- Cell["XX", "HistoryData",
-  CellTags->"New",ExpressionUUID->"38bf8ca4-be7d-4bd5-b99d-47819f24f08f"],
+ Cell["1.0", "HistoryData",
+  CellTags->"New",ExpressionUUID->"1043b15f-9c3d-4ba8-8186-54bf5cf584c2"],
  " | Modified in: ",
  Cell[" ", "HistoryData",
-  CellTags->"Modified",ExpressionUUID->"40684ee9-28c1-4060-9d28-8b57f6b0dd9f"],
+  CellTags->"Modified",ExpressionUUID->"61f902db-099a-47b8-b7a9-7569991f001f"],
  " | Obsolete in: ",
  Cell[" ", "HistoryData",
-  CellTags->"Obsolete",ExpressionUUID->
-  "1ce350e8-c65e-4159-8404-8fab8b2bfac7"]
+  CellTags->"Obsolete",ExpressionUUID->"cdfb2a36-35c2-4031-bdfa-3f753aa1b243"]
 }], "History",
- CellID->916293785,ExpressionUUID->"e08837ba-f9c5-4acf-b803-bff9c7b56771"],
+ CellID->693673937,ExpressionUUID->"cfc8de85-7db0-47d0-81c8-41790a2fcc28"],
 
 Cell[CellGroupData[{
-
 Cell[TextData[{
  "Categorization",
  Cell[BoxData[
-  TemplateBox[{"Metadata", 
+  TemplateBox[{"Metadata",
     Cell[
      BoxData[
       FrameBox[
        Cell[
-       "Metadata such as page URI, context, and type of documentation page.", 
+       "Metadata such as page URI, context, and type of documentation page.",
         "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "5f348a2e-fdcf-4dd5-a512-3caa9b6b8be0"]
+  "cc6e8530-89db-413e-86c2-f43bb1207086"]
 }], "CategorizationSection",
- CellID->544411858,ExpressionUUID->"fb793098-8300-4b51-9de4-d4792ffa99f6"],
+ CellID->271452837,ExpressionUUID->"549def90-f7e7-44c6-ad73-491dc5f64a70"],
 
 Cell["Symbol", "Categorization",
  CellLabel->"Entity Type",
- CellID->1649761186,ExpressionUUID->"571a50ef-1e2c-4db7-ba0a-1e944a3a670d"],
+ CellID->673850661,ExpressionUUID->"30d81876-1c78-4e0d-9b4d-51a6e0ac3ac6"],
 
 Cell["Wolfram/TensorNetworks", "Categorization",
  CellLabel->"Paclet Name",
- CellID->414753066,ExpressionUUID->"154ae46e-6db9-4ec3-8bc9-f224a3fbbbc0"],
+ CellID->410810912,ExpressionUUID->"525e2b27-c9b3-4f57-9a42-6760d5c9fbad"],
 
 Cell["Wolfram`TensorNetworks`", "Categorization",
  CellLabel->"Context",
- CellID->22862100,ExpressionUUID->"c098a6be-9a37-400b-a92d-3e0520470535"],
+ CellID->808192551,ExpressionUUID->"ecf31f83-9f4b-4fdc-891c-c954add4032b"],
 
 Cell["Wolfram/TensorNetworks/ref/TensorNetworkQ", "Categorization",
  CellLabel->"URI",
- CellID->1991225534,ExpressionUUID->"4265765c-b69b-473c-956f-3bac26ebbf05"]
+ CellID->103742848,ExpressionUUID->"27884f18-1518-4431-8b58-d4e116171450"]
 }, Closed]],
 
 Cell[CellGroupData[{
-
 Cell["Keywords", "KeywordsSection",
- CellID->1290822693,ExpressionUUID->"bcf35788-6d10-4892-8b34-34405f88d5b9"],
+ CellID->732707234,ExpressionUUID->"e9d2ecf5-ad82-412c-9a47-b6baf48f3b5f"],
 
-Cell[" ", "Keywords",
- CellID->977199257,ExpressionUUID->"795ee955-b5f9-4026-a54f-6b36c4d7a37a"]
+Cell["tensor network", "Keywords",
+ CellID->310957876,ExpressionUUID->"571455a9-c421-4142-8886-4abb222956b2"],
+
+Cell["predicate", "Keywords",
+ CellID->270864446,ExpressionUUID->"654d036d-2f79-443c-ac2e-2b8529bcf740"],
+
+Cell["validation", "Keywords",
+ CellID->655995999,ExpressionUUID->"7e941f7b-65c4-45cc-9673-278be0314ea0"],
+
+Cell["TensorNetwork", "Keywords",
+ CellID->398114612,ExpressionUUID->"fc4800df-b634-4ea6-b694-d460cd3a93e3"],
+
+Cell["type test", "Keywords",
+ CellID->268204427,ExpressionUUID->"461ac144-042f-4af9-a901-3664373743fc"],
+
+Cell["HoldValidQ", "Keywords",
+ CellID->254124796,ExpressionUUID->"c5a94c20-5e23-4296-8be4-d21ea23f77ef"]
 }, Closed]],
 
 Cell[CellGroupData[{
-
 Cell["Syntax Templates", "TemplatesSection",
- CellID->1980463790,ExpressionUUID->"8a5d6f35-55ee-4771-8770-36250d1f532d"],
+ CellID->313618020,ExpressionUUID->"2440c1bb-14ac-4690-8853-a323fa19b91f"],
 
 Cell[BoxData[""], "Template",
  CellLabel->"Additional Function Template",
- CellID->1805873677,ExpressionUUID->"b2d47551-a5d1-4485-bc7d-2557ad2b1e8c"],
+ CellID->687675609,ExpressionUUID->"fc80a4d4-304c-45bd-8d97-7212bd6d3a97"],
 
 Cell[BoxData[""], "Template",
  CellLabel->"Arguments Pattern",
- CellID->932506288,ExpressionUUID->"027c271a-72e2-45d9-916d-97e07563fc3b"],
+ CellID->267680380,ExpressionUUID->"f1e297e2-0566-4950-b31b-741ef8c6a8b3"],
 
 Cell[BoxData[""], "Template",
  CellLabel->"Local Variables",
- CellID->297526610,ExpressionUUID->"cb82ccb9-71ad-493b-b69e-c0e0801459ae"],
+ CellID->105933640,ExpressionUUID->"462b838d-cb5e-4c3e-b997-4f942a5bc865"],
 
 Cell[BoxData[""], "Template",
  CellLabel->"Color Equal Signs",
- CellID->1187804054,ExpressionUUID->"d4498faf-b8ad-4626-9b7f-d7c16eb95b59"]
+ CellID->298513588,ExpressionUUID->"fa409f65-7947-4419-ab8e-d7cca1f0d664"]
 }, Closed]]
-}, Open  ]]
+}, Open]]
 },
 WindowSize->{700, 770},
 WindowMargins->{{5, Automatic}, {Automatic, 0}},
 TaggingRules-><|"Paclet" -> "Wolfram/TensorNetworks"|>,
 CellContext->"Global`",
 FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (February 17, 2026)",
-StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb",
   CharacterEncoding -> "UTF-8"],
-ExpressionUUID->"78eba5f5-2355-48e3-ab46-1af6a8bbd681"
+ExpressionUUID->"d1762a65-d531-4259-95f3-4a65acaf300d"
 ]
 (* End of Notebook Content *)
-
-(* Internal cache information *)
-(*CellTagsOutline
-CellTagsIndex->{
- "ExtendedExamples"->{
-  Cell[8178, 257, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"a917b86d-1d82-4356-a386-88484238619a",
-   CellTags->"ExtendedExamples",
-   CellID->847348638]}
- }
-*)
-(*CellTagsIndex
-CellTagsIndex->{
- {"ExtendedExamples", 14485, 445}
- }
-*)
-(*NotebookFileOutline
-Notebook[{
-Cell[CellGroupData[{
-Cell[576, 22, 112, 1, 70, "ObjectName",ExpressionUUID->"7fd87477-769f-408e-b9bf-ff727d410f68",
- CellID->1754902419],
-Cell[691, 25, 1078, 28, 70, "Usage",ExpressionUUID->"8f385d0f-0e1d-4ed2-af0d-9a46c8429ff1",
- CellID->1104548235],
-Cell[1772, 55, 94, 1, 70, "Notes",ExpressionUUID->"ff6ea4f6-2a3c-435c-be47-690468e1f0dd",
- CellID->1293540977]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[1903, 61, 459, 13, 70, "SeeAlsoSection",ExpressionUUID->"658c8b02-fec7-4a2a-9108-70a6b9268eeb",
- CellID->1566241858],
-Cell[2365, 76, 1544, 40, 70, "SeeAlso",ExpressionUUID->"d839d742-b921-423a-9f4a-71f4037b1e00",
- CellID->2119846127]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[3946, 121, 436, 12, 70, "TechNotesSection",ExpressionUUID->"a38f6272-48cf-44d2-bce1-158e54cf5dbb",
- CellID->1500152759],
-Cell[4385, 135, 98, 1, 70, "Tutorials",ExpressionUUID->"9b5da108-cef5-4839-85a0-32bb53ce993d",
- CellID->1609404733]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[4520, 141, 118, 1, 70, "MoreAboutSection",ExpressionUUID->"eff6dc27-74ba-4ec0-b115-d05a3285cc5b",
- CellID->1708813566],
-Cell[4641, 144, 98, 1, 70, "MoreAbout",ExpressionUUID->"da1fcd2f-73f5-4c6f-938a-057a677fea2f",
- CellID->1730792431]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[4776, 150, 473, 13, 70, "RelatedLinksSection",ExpressionUUID->"33683cd2-0289-41ba-a09e-482b896866ae",
- CellID->1762389202],
-Cell[5252, 165, 100, 1, 70, "RelatedLinks",ExpressionUUID->"b39c2010-4745-4dbf-8b78-12f8237aa308",
- CellID->233374943]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[5389, 171, 531, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"85a72ce6-d760-427c-a5d1-6357f3a36a77",
- CellID->1027527579],
-Cell[5923, 187, 183, 3, 70, "ExampleInitialization",ExpressionUUID->"c03f62e6-026a-4f1e-b90f-892f08238183",
- CellID->1740014726]
-}, Open  ]],
-Cell[6121, 193, 443, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"a06dc1b2-7b3b-4cc1-96bd-4787f1ce556b",
- CellID->2142678683],
-Cell[6567, 207, 147, 1, 70, "ExampleText",ExpressionUUID->"61235dba-2994-4fcb-b531-50da5d6215e3",
- CellID->580001001],
-Cell[6717, 210, 892, 28, 70, "Input",ExpressionUUID->"3977ae9a-94b0-4307-b63e-8479c1d7f8e0",
- CellID->580001002],
-Cell[7612, 240, 166, 3, 70, "Input",ExpressionUUID->"494a7c1e-6d68-4f00-8e55-173674005683",
- CellID->580001003],
-Cell[7781, 245, 147, 1, 70, "ExampleText",ExpressionUUID->"228f00b4-e3d5-484a-9f64-6696ae5ea322",
- CellID->580001004],
-Cell[7931, 248, 222, 5, 70, "Input",ExpressionUUID->"7216c038-b33e-423d-8e1a-7018ae075d48",
- CellID->580001005],
-Cell[CellGroupData[{
-Cell[8178, 257, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"a917b86d-1d82-4356-a386-88484238619a",
- CellTags->"ExtendedExamples",
- CellID->847348638],
-Cell[8668, 272, 242, 5, 70, "ExampleSection",ExpressionUUID->"10fb309c-5114-4a6d-a6b4-7b7c057232f0",
- CellID->1424495609],
-Cell[8913, 279, 265, 5, 70, "ExampleSection",ExpressionUUID->"658da9c8-99d4-4758-a429-79f2ac86b51b",
- CellID->1350003707],
-Cell[CellGroupData[{
-Cell[9203, 288, 244, 5, 70, "ExampleSection",ExpressionUUID->"c9afb7a1-3eee-46e9-941a-728f2dc97c52",
- CellID->1347572994],
-Cell[9450, 295, 244, 5, 70, "ExampleSubsection",ExpressionUUID->"751e9598-52cc-4fa2-a211-2b95e900cfae",
- CellID->1296768896],
-Cell[9697, 302, 244, 5, 70, "ExampleSubsection",ExpressionUUID->"c4ff7951-85d1-4beb-be06-d0aa438a110c",
- CellID->2130785316]
-}, Open  ]],
-Cell[9956, 310, 248, 5, 70, "ExampleSection",ExpressionUUID->"c36640ba-a7a0-4746-bd46-a9c75e7b653c",
- CellID->671508640],
-Cell[10207, 317, 259, 5, 70, "ExampleSection",ExpressionUUID->"5eec44ed-9793-4701-9de1-1fb6a1cd7fe3",
- CellID->1019147495],
-Cell[10469, 324, 251, 5, 70, "ExampleSection",ExpressionUUID->"2be2ee1b-aa32-4054-aaf9-8b04615603d1",
- CellID->482379993],
-Cell[10723, 331, 256, 5, 70, "ExampleSection",ExpressionUUID->"e8a53a12-cef1-4d13-95f8-d42c910bbaf9",
- CellID->609774926],
-Cell[10982, 338, 249, 5, 70, "ExampleSection",ExpressionUUID->"5ff75419-0f7e-4298-adbf-396bce9eef1d",
- CellID->695217798]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[11268, 348, 109, 1, 70, "MetadataSection",ExpressionUUID->"d138df3a-2d6e-45b1-a54e-8602290fc140",
- CellID->67007659],
-Cell[11380, 351, 476, 12, 70, "History",ExpressionUUID->"e08837ba-f9c5-4acf-b803-bff9c7b56771",
- CellID->916293785],
-Cell[CellGroupData[{
-Cell[11881, 367, 484, 13, 70, "CategorizationSection",ExpressionUUID->"fb793098-8300-4b51-9de4-d4792ffa99f6",
- CellID->544411858],
-Cell[12368, 382, 135, 2, 70, "Categorization",ExpressionUUID->"571a50ef-1e2c-4db7-ba0a-1e944a3a670d",
- CellID->1649761186],
-Cell[12506, 386, 150, 2, 70, "Categorization",ExpressionUUID->"154ae46e-6db9-4ec3-8bc9-f224a3fbbbc0",
- CellID->414753066],
-Cell[12659, 390, 146, 2, 70, "Categorization",ExpressionUUID->"c098a6be-9a37-400b-a92d-3e0520470535",
- CellID->22862100],
-Cell[12808, 394, 162, 2, 70, "Categorization",ExpressionUUID->"4265765c-b69b-473c-956f-3bac26ebbf05",
- CellID->1991225534]
-}, Closed]],
-Cell[CellGroupData[{
-Cell[13007, 401, 111, 1, 70, "KeywordsSection",ExpressionUUID->"bcf35788-6d10-4892-8b34-34405f88d5b9",
- CellID->1290822693],
-Cell[13121, 404, 96, 1, 70, "Keywords",ExpressionUUID->"795ee955-b5f9-4026-a54f-6b36c4d7a37a",
- CellID->977199257]
-}, Closed]],
-Cell[CellGroupData[{
-Cell[13254, 410, 120, 1, 70, "TemplatesSection",ExpressionUUID->"8a5d6f35-55ee-4771-8770-36250d1f532d",
- CellID->1980463790],
-Cell[13377, 413, 149, 2, 70, "Template",ExpressionUUID->"b2d47551-a5d1-4485-bc7d-2557ad2b1e8c",
- CellID->1805873677],
-Cell[13529, 417, 137, 2, 70, "Template",ExpressionUUID->"027c271a-72e2-45d9-916d-97e07563fc3b",
- CellID->932506288],
-Cell[13669, 421, 135, 2, 70, "Template",ExpressionUUID->"cb82ccb9-71ad-493b-b69e-c0e0801459ae",
- CellID->297526610],
-Cell[13807, 425, 138, 2, 70, "Template",ExpressionUUID->"d4498faf-b8ad-4626-9b7f-d7c16eb95b59",
- CellID->1187804054]
-}, Closed]]
-}, Open  ]]
-}
-]
-*)
-
-(* End of internal cache information *)

@@ -90,8 +90,17 @@ TensorNetworkIndexDimensions[indices_List, tensors_List] :=
     TensorNetworkIndexDimensions[<|"Indices" -> indices, "Dimensions" -> tensorDimensions /@ tensors|>]
 
 
-TensorNetworkReplaceIndices[net_ ? TensorNetworkGraphQ, rules_] :=
-    Graph[net, AnnotationRules -> MapThread[#1 -> {"Index" -> #2} &, {VertexList[net], Replace[TensorNetworkIndices[net], rules, {2}]}]]
+TensorNetworkReplaceIndices[net_ ? TensorNetworkGraphQ, rules_] := With[{
+    vs = VertexList[net],
+    newIndices = Replace[TensorNetworkIndices[net], rules, {2}],
+    newEdges = Replace[EdgeList[net], e : DirectedEdge[_, _, _] :> MapAt[Replace[#, rules, {1}] &, e, 3], {1}]
+},
+    Graph[
+        vs,
+        newEdges,
+        AnnotationRules -> MapThread[#1 -> {"Index" -> #2} &, {vs, newIndices}]
+    ]
+]
 
 
 InitializeTensorNetwork[net_Graph ? TensorNetworkGraphQ, tensor_, index_List : Automatic] := Annotate[
@@ -409,8 +418,8 @@ TensorNetworkRemoveCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Grap
             dim = Enclose[First[Dimensions[Confirm[AnnotationValue[{net, edge[[1]]}, "Tensor"]]], 1], 2 &]
         ];
 
-		net = Annotate[{net, cup}, {"Tensor" -> Flatten[IdentityMatrix[dim]], VertexLabels -> "Cup"}];
-		net = Annotate[{net, cap}, {"Tensor" -> Flatten[IdentityMatrix[dim]], VertexLabels -> "Cap"}];
+		net = Annotate[{net, cup}, {"Tensor" -> IdentityMatrix[dim], VertexLabels -> "Cup"}];
+		net = Annotate[{net, cap}, {"Tensor" -> IdentityMatrix[dim], VertexLabels -> "Cap"}];
 	];
 	Graph[net, opts]
 ]
