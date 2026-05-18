@@ -123,7 +123,7 @@ ArrayPart[t_, {}, ___] := t
 
 ArrayTranspose[t_, perm_] := If[ZeroArrayQ[t], {}, SimplifyArray @ Transpose[t, Replace[perm, m_ <-> n_ :> Cycles[{{m, n}}]]]]
 
-ArrayTranspose[Verbatim[Transpose][t_, perm1_], perm2_] := ArrayTranspose[t, PermutationList[PermutationProduct[perm1, perm2]]]
+ArrayTranspose[(Verbatim[Transpose] | Inactive[Transpose])[t_, perm1_], perm2_] := ArrayTranspose[t, PermutationList[PermutationProduct[perm1, perm2]]]
 
 
 ArrayContract[array_, c_] := If[ZeroArrayQ[array], {}, SimplifyArray[TensorContract[array, c]]]

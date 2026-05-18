@@ -160,17 +160,18 @@ einsumTableSum[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Bl
 	br = DeleteElements[j, c];
 	k = Length[c];
 	
+	(* a and b are inlined directly into Part[a, ...] / Part[b, ...]; the previous
+	   inactive[With][{inactive[Set][...], ...}, body] wrapping broke when inactive=Identity
+	   because Set fired immediately inside With's held binding list and produced With::lvws *)
 	If[ k == 0
 		,
 		x = With[{
 			p1 = Symbol["\[FormalI]" <> ToString[#]] & /@ Range[Length[al]],
 			p2 = Symbol["\[FormalJ]" <> ToString[#]] & /@ Range[Length[br]]
 		},
-			inactive[With][{inactive[Set][\[FormalCapitalA], a], inactive[Set][\[FormalCapitalB], b]},
-				inactive[Table][(inactive[Part][\[FormalCapitalA], ##] & @@ p1) * (inactive[Part][\[FormalCapitalB], ##] & @@ p2), ##] & @@ Join[
-					MapIndexed[{Symbol["\[FormalI]" <> ToString[#2[[1]]]], #1} &, aDim],
-					MapIndexed[{Symbol["\[FormalJ]" <> ToString[#2[[1]]]], #1} &, bDim]
-				]
+			inactive[Table][(inactive[Part][a, ##] & @@ p1) * (inactive[Part][b, ##] & @@ p2), ##] & @@ Join[
+				MapIndexed[{Symbol["\[FormalI]" <> ToString[#2[[1]]]], #1} &, aDim],
+				MapIndexed[{Symbol["\[FormalJ]" <> ToString[#2[[1]]]], #1} &, bDim]
 			]
 		]
 		,
@@ -185,15 +186,13 @@ einsumTableSum[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Bl
 			]],
 			cs = MapIndexed[{Symbol["\[FormalC]" <> ToString[#2[[1]]]], #1} &, Extract[aDim, Lookup[aIndex, c]]]
 		},
-			inactive[With][{inactive[Set][\[FormalCapitalA], a], inactive[Set][\[FormalCapitalB], b]},
-				inactive[Table][
-					inactive[Sum][(inactive[Part][\[FormalCapitalA], ##] & @@ p1) * (inactive[Part][\[FormalCapitalB], ##] & @@ p2), ##] & @@ cs,
-					## 
-				] & @@ Join[
-					MapIndexed[{Symbol["\[FormalI]" <> ToString[#2[[1]]]], #1} &, Extract[aDim, Lookup[aIndex, al]]],
-					MapIndexed[{Symbol["\[FormalJ]" <> ToString[#2[[1]]]], #1} &, Extract[bDim, Lookup[bIndex, br]]]
-				]
-			]	
+			inactive[Table][
+				inactive[Sum][(inactive[Part][a, ##] & @@ p1) * (inactive[Part][b, ##] & @@ p2), ##] & @@ cs,
+				##
+			] & @@ Join[
+				MapIndexed[{Symbol["\[FormalI]" <> ToString[#2[[1]]]], #1} &, Extract[aDim, Lookup[aIndex, al]]],
+				MapIndexed[{Symbol["\[FormalJ]" <> ToString[#2[[1]]]], #1} &, Extract[bDim, Lookup[bIndex, br]]]
+			]
 		]
 	];
 	If[ out === Automatic,
