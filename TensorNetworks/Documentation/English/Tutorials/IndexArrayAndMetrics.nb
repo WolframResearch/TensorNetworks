@@ -1,0 +1,351 @@
+Notebook[{
+Cell[CellGroupData[{
+Cell["Named Indices and Metrics", "Title"],
+Cell[TextData[{"Plain ", Cell[BoxData[ButtonBox["TensorNetwork",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]], "InlineFormula"], " labels indices by integer position and treats every leg the same. For physics on a manifold and for symbolic tensor algebra one needs more: every index should carry a name, a variance (upper or lower), and a dimension, and contractions must respect the geometry encoded by a metric. The ", Cell[BoxData[ButtonBox["Wolfram`TensorNetworks`IndexArray`",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexArray"]], "InlineFormula"], " subpackage adds exactly that layer in five stages: ", Cell[BoxData[ButtonBox["Dimension",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/Dimension"]], "InlineFormula"], " describes a single index, ", Cell[BoxData[ButtonBox["Shape",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/Shape"]], "InlineFormula"], " collects an ordered tuple of them, ", Cell[BoxData[ButtonBox["IndexArray",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexArray"]], "InlineFormula"], " wraps a numerical tensor with a Shape, ", Cell[BoxData[ButtonBox["IndexTensor",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexTensor"]], "InlineFormula"], " attaches a metric for automatic raising and lowering, and ", Cell[BoxData[ButtonBox["MetricTensor",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/MetricTensor"]], "InlineFormula"], " exposes a catalog of the standard pseudo-Riemannian geometries. This tutorial works each layer in turn so that by the end one is computing with Schwarzschild and Kerr metrics with the same comfort as adding two matrices."}], "Text"],
+Cell[BoxData[RowBox[{"PacletDirectoryLoad", "[", "\"/Users/mohammadb/Documents/GitHub/TensorNetworks\"", "]"}]], "Input"],
+Cell[BoxData[RowBox[{"Needs", "[", "\"Wolfram`TensorNetworks`\"", "]"}]], "Input"],
+Cell[CellGroupData[{
+Cell["1. Why Named Indices?", "Section"],
+Cell[TextData[{"In tensor calculus an index is more than a position. It is a label on a chart of basis vectors. The expression ", Cell[BoxData[FormBox[SubsuperscriptBox["T", RowBox[{"\[Mu]", "\[Nu]"}], "\[Rho]"], TraditionalForm]], "InlineFormula"], " names three indices, declares two of them lower and one upper, and implicitly fixes which basis they live in. None of that survives ", Cell[BoxData[ButtonBox["TensorNetwork",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]], "InlineFormula"], "'s integer-labelled hyperedges: the contraction graph is correct but the indices have no identity beyond their numerical position, and one cannot distinguish a covariant pair from a contravariant pair without external bookkeeping."}], "Text"],
+Cell[TextData[{"The ", Cell[BoxData[ButtonBox["IndexArray",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexArray"]], "InlineFormula"], " layer fills that gap. The data carrier is a stack: ", Cell[BoxData[ButtonBox["Dimension",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/Dimension"]], "InlineFormula"], "[d, name] holds a size and a label and uses the sign of d for the variance \[Dash] positive means contravariant (upper), negative means covariant (lower); ", Cell[BoxData[ButtonBox["Shape",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/Shape"]], "InlineFormula"], " glues a list of Dimensions in order; ", Cell[BoxData[ButtonBox["IndexArray",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexArray"]], "InlineFormula"], " marries a tensor to a Shape and validates the match; ", Cell[BoxData[ButtonBox["IndexTensor",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexTensor"]], "InlineFormula"], " attaches one or more metrics so that operations across mismatched variance can use the metric automatically; and ", Cell[BoxData[ButtonBox["MetricTensor",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/MetricTensor"]], "InlineFormula"], " specialises that wrapping to a rank-two, square, symmetric (or antisymmetric) object \[Dash] precisely the geometric metric of differential geometry \[Dash] and adds a curated set of named built-ins."}], "Text"],
+Cell[TextData[{"Two practical pay-offs are worth stating up front. First, every operation that contracts two indices can verify that the indices actually match by name and that their variances are compatible: ", Cell[BoxData[FormBox[RowBox[{SuperscriptBox["v", "\[Mu]"], SubscriptBox["w", "\[Mu]"]}], TraditionalForm]], "InlineFormula"], " is allowed but ", Cell[BoxData[FormBox[RowBox[{SuperscriptBox["v", "\[Mu]"], SuperscriptBox["w", "\[Mu]"]}], TraditionalForm]], "InlineFormula"], " requires a metric to fix the sign mismatch. Second, the same Shape data drives display: an IndexArray prints with its index symbols decorated as bars and underbars to mark variance, making the type of an expression visible at a glance. The remainder of the tutorial walks each layer with worked examples."}], "Text"]
+}, Open]],
+Cell[CellGroupData[{
+Cell["2. Dimension and Shape", "Section"],
+Cell[TextData[{"Load the named-index context. The IndexArray context is loaded implicitly by the main paclet but is also exposed for direct use:"}], "Text"],
+Cell[BoxData[RowBox[{"Needs", "[", "\"Wolfram`TensorNetworks`IndexArray`\"", "]"}]], "Input"],
+Cell[TextData[{"A ", Cell[BoxData[ButtonBox["Shape",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/Shape"]], "InlineFormula"], " constructed from plain positive integers gives upper indices with default names ", Cell[BoxData[FormBox[StyleBox["i", "TI"], TraditionalForm]], "InlineFormula"], ", ", Cell[BoxData[FormBox[StyleBox["j", "TI"], TraditionalForm]], "InlineFormula"], ", ", Cell[BoxData[FormBox[StyleBox["k", "TI"], TraditionalForm]], "InlineFormula"], ", \[Ellipsis] drawn from the latin alphabet starting at ", Cell[BoxData[FormBox[StyleBox["i", "TI"], TraditionalForm]], "InlineFormula"], ":"}], "Text"],
+Cell[BoxData[
+  RowBox[{"Shape", "[", RowBox[{"3", ",", "3"}], "]"}]
+], "Input"],
+Cell[TextData[{"The two equivalent ways to introduce variance are to pass an explicit Dimension list with negative sizes for lower indices, or to use the (size, name) form where a negated name marks the index as lower. Both produce the same Shape:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"Shape", "[", RowBox[{"{", RowBox[{RowBox[{"Dimension", "[", RowBox[{"3", ",", "\"i\""}], "]"}], ",", RowBox[{"Dimension", "[", RowBox[{RowBox[{"-", "3"}], ",", "\"j\""}], "]"}]}], "}"}], "]"}], "\n",
+  RowBox[{"Shape", "[", RowBox[{RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}], ",", RowBox[{"{", RowBox[{"\"i\"", ",", RowBox[{"-", "\"j\""}]}], "}"}]}], "]"}]
+}], "Input"],
+Cell[TextData[{"Property dispatch exposes the underlying data. The most useful keys are ", "\"Names\"", " for the symbolic labels, ", "\"Dimensions\"", " for the unsigned sizes (this is what ", Cell[BoxData[ButtonBox["ArrayDimensions",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayDimensions"]], "InlineFormula"], " on the underlying tensor returns), ", "\"Variance\"", " for the per-index Boolean (", Cell[BoxData[FormBox["True", TraditionalForm]], "InlineFormula"], " = upper), and ", "\"Rank\"", " for the number of free indices. Together they recover everything one might want to know about the index structure:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"s", "=", RowBox[{"Shape", "[", RowBox[{RowBox[{"{", RowBox[{"3", ",", "3", ",", "4"}], "}"}], ",", RowBox[{"{", RowBox[{"\"i\"", ",", RowBox[{"-", "\"j\""}], ",", "\"k\""}], "}"}]}], "]"}]}], ";\n",
+  RowBox[{"{", RowBox[{RowBox[{"s", "[", "\"Names\"", "]"}], ",", RowBox[{"s", "[", "\"Dimensions\"", "]"}], ",", RowBox[{"s", "[", "\"Variance\"", "]"}], ",", RowBox[{"s", "[", "\"Rank\"", "]"}]}], "}"}]
+}], "Input"],
+Cell[TextData[{"Shape is the type and not the data: it is purely declarative and contains no tensor entries. Two Shapes compare equal under ", Cell[BoxData[ButtonBox["Equal",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Equal"]], "InlineFormula"], " when their dimensions match (with zero dimensions treated specially), independent of names \[Dash] handy when threading shapes through transformations that rename indices."}], "Text"],
+Cell[CellGroupData[{
+Cell["2.3. DimensionQ and ShapeQ", "Subsection"],
+Cell[TextData[{"The predicates ", Cell[BoxData[ButtonBox["DimensionQ",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/DimensionQ"]], "InlineFormula"], " and ", Cell[BoxData[ButtonBox["ShapeQ",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ShapeQ"]], "InlineFormula"], " are the cheap validity check applied to each component before passing it to a constructor. A bare integer is not a Dimension, and a bare list of integers is not a Shape, even though the constructors will lift them when given the chance:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"DimensionQ", "[", RowBox[{"Dimension", "[", RowBox[{"3", ",", "\"i\""}], "]"}], "]"}], "\n",
+  RowBox[{"DimensionQ", "[", RowBox[{"Dimension", "[", RowBox[{"3", ",", "\"i\"", ",", RowBox[{"{", RowBox[{"\"x\"", ",", "\"y\"", ",", "\"z\""}], "}"}]}], "]"}], "]"}], "\n",
+  RowBox[{"DimensionQ", "[", "3", "]"}]
+}], "Input"],
+Cell[TextData[{"ShapeQ mirrors the pattern at the next level: a fully specified Shape of Dimensions, and a Shape built from raw integers (auto-converted at construction) both pass; a bare list does not."}], "Text"],
+Cell[BoxData[{
+  RowBox[{"ShapeQ", "[", RowBox[{"Shape", "[", RowBox[{RowBox[{"Dimension", "[", RowBox[{"3", ",", "\"i\""}], "]"}], ",", RowBox[{"Dimension", "[", RowBox[{RowBox[{"-", "3"}], ",", "\"j\""}], "]"}]}], "]"}], "]"}], "\n",
+  RowBox[{"ShapeQ", "[", RowBox[{"Shape", "[", RowBox[{"3", ",", "3"}], "]"}], "]"}], "\n",
+  RowBox[{"ShapeQ", "[", RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}], "]"}]
+}], "Input"]
+}, Open]]
+}, Open]],
+Cell[CellGroupData[{
+Cell["3. The IndexArray Object", "Section"],
+Cell[TextData[{"An ", Cell[BoxData[ButtonBox["IndexArray",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexArray"]], "InlineFormula"], " wraps a numerical (or symbolic) tensor together with a Shape that names its axes. There are three ways to construct one. The most explicit takes a tensor and a fully specified Shape; ", "ArrayDimensions", " on the tensor must match ", "Shape[\"Dimensions\"]", ", and validity is cached at construction:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"mat", "=", RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"1", ",", "2", ",", "3"}], "}"}], ",", RowBox[{"{", RowBox[{"4", ",", "5", ",", "6"}], "}"}], ",", RowBox[{"{", RowBox[{"7", ",", "8", ",", "9"}], "}"}]}], "}"}]}], ";\n",
+  RowBox[{"ia", "=", RowBox[{"IndexArray", "[", RowBox[{"mat", ",", RowBox[{"Shape", "[", RowBox[{RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}], ",", RowBox[{"{", RowBox[{"\"i\"", ",", RowBox[{"-", "\"j\""}]}], "}"}]}], "]"}]}], "]"}]}], ";\n",
+  RowBox[{"{", RowBox[{RowBox[{"ia", "[", "\"Names\"", "]"}], ",", RowBox[{"ia", "[", "\"Variance\"", "]"}], ",", RowBox[{"ia", "[", "\"SignedDimensions\"", "]"}]}], "}"}]
+}], "Input"],
+Cell[TextData[{"A shorter variance-only form passes a list of Booleans, one per axis, with ", Cell[BoxData[FormBox["True", TraditionalForm]], "InlineFormula"], " for upper indices and ", Cell[BoxData[FormBox["False", TraditionalForm]], "InlineFormula"], " for lower. Names are auto-generated. The shortest form supplies only the tensor and lets the wrapper derive everything from ", Cell[BoxData[ButtonBox["ArrayDimensions",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayDimensions"]], "InlineFormula"], ":"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"ia2", "=", RowBox[{"IndexArray", "[", RowBox[{"mat", ",", RowBox[{"{", RowBox[{"True", ",", "False"}], "}"}]}], "]"}]}], ";\n",
+  RowBox[{"ia3", "=", RowBox[{"IndexArray", "[", "mat", "]"}]}], ";\n",
+  RowBox[{"{", RowBox[{RowBox[{"ia2", "[", "\"SignedDimensions\"", "]"}], ",", RowBox[{"ia3", "[", "\"Names\"", "]"}], ",", RowBox[{"ia3", "[", "\"Dimensions\"", "]"}]}], "}"}]
+}], "Input"],
+Cell[TextData[{"Two distinct subscript forms surface the most common manipulations. ", "Part", " syntax ", "ia[[i, j]]", " slices, calling ", Cell[BoxData[ButtonBox["IndexPart",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexPart"]], "InlineFormula"], " under the hood; function-call syntax ", "ia[\"k\", \"l\"]", " renames or permutes axes, calling ", Cell[BoxData[ButtonBox["IndexJuggling",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexJuggling"]], "InlineFormula"], ". A negated name in the juggling form lowers (or raises) the index by toggling its sign:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"m", "=", RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"1.0", ",", "2.0"}], "}"}], ",", RowBox[{"{", RowBox[{"3.0", ",", "4.0"}], "}"}]}], "}"}]}], ";\n",
+  RowBox[{"ia", "=", RowBox[{"IndexArray", "[", RowBox[{"m", ",", RowBox[{"Shape", "[", RowBox[{RowBox[{"{", RowBox[{"2", ",", "2"}], "}"}], ",", RowBox[{"{", RowBox[{"\"i\"", ",", "\"j\""}], "}"}]}], "]"}]}], "]"}]}], ";\n",
+  RowBox[{"{", RowBox[{RowBox[{RowBox[{"ia", "[", RowBox[{"\"k\"", ",", "\"l\""}], "]"}], "[", "\"Names\"", "]"}], ",", RowBox[{RowBox[{"ia", "[", RowBox[{RowBox[{"-", "\"i\""}], ",", "\"j\""}], "]"}], "[", "\"Variance\"", "]"}], ",", RowBox[{RowBox[{"ia", "[", RowBox[{"[", RowBox[{"1", ",", "2"}], "]"}], "]"}], "[", "\"Tensor\"", "]"}]}], "}"}]
+}], "Input"],
+Cell[TextData[{"Familiar matrix algebra is overloaded to preserve the Shape: ", Cell[BoxData[ButtonBox["Transpose",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Transpose"]], "InlineFormula"], " swaps both the data and the index list, ", Cell[BoxData[ButtonBox["Inverse",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Inverse"]], "InlineFormula"], " inverts the data and toggles every index sign (because the inverse of a (1,1) tensor is naturally a (1,1) tensor with the role of rows and columns reversed), and ", Cell[BoxData[ButtonBox["Plus",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Plus"]], "InlineFormula"], " of two IndexArrays succeeds whenever the multisets of (name, dimension) agree, permuting one operand as needed:"}], "Text"],
+Cell[BoxData[
+  RowBox[{"{", RowBox[{RowBox[{RowBox[{"Transpose", "[", "ia", "]"}], "[", "\"Names\"", "]"}], ",", RowBox[{RowBox[{"Transpose", "[", "ia", "]"}], "[", "\"Tensor\"", "]"}], ",", RowBox[{RowBox[{"Inverse", "[", "ia", "]"}], "[", "\"Tensor\"", "]"}]}], "}"}]
+], "Input"],
+Cell[TextData[{"Other useful properties are ", "\"Tensor\"", " (the unwrapped array; identical to ", Cell[BoxData[ButtonBox["Normal",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Normal"]], "InlineFormula"], "[ia] for explicit data), ", "\"Shape\"", " (the full Shape object), ", "\"Symbol\"", " (the rendered glyph used in box form, with bars and underbars to mark variance), and ", "\"Symmetry\"", " (the permutation symmetry reported by ", Cell[BoxData[ButtonBox["ArraySymmetry",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArraySymmetry"]], "InlineFormula"], ")."}], "Text"],
+Cell[CellGroupData[{
+Cell["3.4. IndexArrayQ", "Subsection"],
+Cell[TextData[{"The predicate ", Cell[BoxData[ButtonBox["IndexArrayQ",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexArrayQ"]], "InlineFormula"], " holds when the argument is an IndexArray expression whose wrapped tensor's dimensions agree with the declared Shape under any recorded assumptions. A bare matrix fails because it is not wrapped, even though every IndexArray constructor would happily accept it:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"m", "=", RowBox[{"RandomReal", "[", RowBox[{"1", ",", RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}]}], "]"}]}], ";\n",
+  RowBox[{"ia", "=", RowBox[{"IndexArray", "[", RowBox[{"m", ",", RowBox[{"Shape", "[", RowBox[{"3", ",", "3"}], "]"}]}], "]"}]}], ";\n",
+  RowBox[{"IndexArrayQ", "[", "ia", "]"}], "\n",
+  RowBox[{"IndexArrayQ", "[", "m", "]"}]
+}], "Input"]
+}, Open]]
+}, Open]],
+Cell[CellGroupData[{
+Cell["4. IndexTensor and the Metric", "Section"],
+Cell[TextData[{"An IndexArray knows what its indices are called and how they covary, but it does not yet know how to identify an upper index with its lower partner. That bridge is a metric: a rank-two symmetric (or antisymmetric) IndexArray on indices of equal sign and dimension. The ", Cell[BoxData[ButtonBox["IndexTensor",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexTensor"]], "InlineFormula"], " wrapper attaches such a metric to an IndexArray (or declares the IndexArray itself to be a metric). With a metric in place, contractions of mismatched-variance indices succeed by inserting the metric automatically."}], "Text"],
+Cell[TextData[{"To see this concretely, take the Euclidean metric on ", Cell[BoxData[FormBox[SuperscriptBox["\[DoubleStruckCapitalR]", "3"], TraditionalForm]], "InlineFormula"], " and form the contraction of two upper-index vectors. Without a metric ", Cell[BoxData[FormBox[RowBox[{SuperscriptBox["u", "i"], SuperscriptBox["v", "i"]}], TraditionalForm]], "InlineFormula"], " is geometrically ill-formed (two upper indices cannot contract), but with the metric attached one of them is lowered on the way to the contraction and the inner product comes out as expected:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"g", "=", RowBox[{"MetricTensor", "[", RowBox[{"\"Euclidean\"", "[", "3", "]"}], "]"}]}], ";\n",
+  RowBox[{"u", "=", RowBox[{"IndexTensor", "[", RowBox[{RowBox[{"IndexArray", "[", RowBox[{RowBox[{"{", RowBox[{"1", ",", "2", ",", "3"}], "}"}], ",", RowBox[{"Shape", "[", RowBox[{"{", RowBox[{"Dimension", "[", RowBox[{"3", ",", "\"i\""}], "]"}], "}"}], "]"}]}], "]"}], ",", RowBox[{"g", "[", "\"IndexArray\"", "]"}]}], "]"}]}], ";\n",
+  RowBox[{"v", "=", RowBox[{"IndexTensor", "[", RowBox[{RowBox[{"IndexArray", "[", RowBox[{RowBox[{"{", RowBox[{"4", ",", "5", ",", "6"}], "}"}], ",", RowBox[{"Shape", "[", RowBox[{"{", RowBox[{"Dimension", "[", RowBox[{"3", ",", "\"i\""}], "]"}], "}"}], "]"}]}], "]"}], ",", RowBox[{"g", "[", "\"IndexArray\"", "]"}]}], "]"}]}], ";\n",
+  RowBox[{"Activate", "[", RowBox[{RowBox[{"IndexContract", "[", RowBox[{"{", RowBox[{"u", ",", "v"}], "}"}], "]"}], "[", "\"Tensor\"", "]"}], "]"}]
+}], "Input"],
+Cell[TextData[{"The contraction returns an ", Cell[BoxData[ButtonBox["Inactive",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Inactive"]], "InlineFormula"], "[", Cell[BoxData[ButtonBox["TensorContract",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/TensorContract"]], "InlineFormula"], "] expression so the index structure stays inspectable; one call to ", Cell[BoxData[ButtonBox["Activate",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Activate"]], "InlineFormula"], " evaluates it. For the Euclidean metric the result is the familiar dot product ", Cell[BoxData[FormBox[RowBox[{"1\[Times]4", "+", "2\[Times]5", "+", "3\[Times]6", "=", "32"}], TraditionalForm]], "InlineFormula"], ". Switching the metric to ", Cell[BoxData[FormBox[RowBox[{"diag", "(", RowBox[{RowBox[{"-", "1"}], ",", "1", ",", "1", ",", "1"}], ")"}], TraditionalForm]], "InlineFormula"], " (Minkowski) changes the sign of the time component and gives the spacetime norm:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"g", "=", RowBox[{"MetricTensor", "[", RowBox[{"\"Minkowski\"", "[", "4", "]"}], "]"}]}], ";\n",
+  RowBox[{"u", "=", RowBox[{"IndexTensor", "[", RowBox[{RowBox[{"IndexArray", "[", RowBox[{RowBox[{"{", RowBox[{"1", ",", "0", ",", "0", ",", "0"}], "}"}], ",", RowBox[{"Shape", "[", RowBox[{"{", RowBox[{"Dimension", "[", RowBox[{"4", ",", "\"i\""}], "]"}], "}"}], "]"}]}], "]"}], ",", RowBox[{"g", "[", "\"IndexArray\"", "]"}]}], "]"}]}], ";\n",
+  RowBox[{"Activate", "[", RowBox[{RowBox[{"IndexContract", "[", RowBox[{"{", RowBox[{"u", ",", "u"}], "}"}], "]"}], "[", "\"Tensor\"", "]"}], "]"}]
+}], "Input"],
+Cell[TextData[{"Lowering an index outside of a contraction is equally direct. Function-call syntax with a negated name swaps the variance flag, and behind the scenes the IndexTensor inserts the metric so that the data is mapped through ", Cell[BoxData[FormBox[RowBox[{SubscriptBox["u", "\[Mu]"], "=", RowBox[{SubscriptBox["g", RowBox[{"\[Mu]", "\[Nu]"}]], SuperscriptBox["u", "\[Nu]"]}]}], TraditionalForm]], "InlineFormula"], ":"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"u", "=", RowBox[{"IndexTensor", "[", RowBox[{RowBox[{"IndexArray", "[", RowBox[{RowBox[{"{", RowBox[{"2", ",", "1", ",", "0", ",", "0"}], "}"}], ",", RowBox[{"Shape", "[", RowBox[{"{", RowBox[{"Dimension", "[", RowBox[{"4", ",", "\"i\""}], "]"}], "}"}], "]"}]}], "]"}], ",", RowBox[{"g", "[", "\"IndexArray\"", "]"}]}], "]"}]}], ";\n",
+  RowBox[{"Activate", "[", RowBox[{RowBox[{"u", "[", RowBox[{"-", "\"i\""}], "]"}], "[", "\"Tensor\"", "]"}], "]"}]
+}], "Input"],
+Cell[TextData[{"The upper four-vector ", Cell[BoxData[FormBox[RowBox[{SuperscriptBox["u", "\[Mu]"], "=", RowBox[{"(", RowBox[{"2", ",", "1", ",", "0", ",", "0"}], ")"}]}], TraditionalForm]], "InlineFormula"], " becomes ", Cell[BoxData[FormBox[RowBox[{SubscriptBox["u", "\[Mu]"], "=", RowBox[{"(", RowBox[{RowBox[{"-", "2"}], ",", "1", ",", "0", ",", "0"}], ")"}]}], TraditionalForm]], "InlineFormula"], " under the Minkowski signature, exactly as expected from ", Cell[BoxData[FormBox[RowBox[{SubscriptBox["\[Eta]", RowBox[{"00"}]], "=", RowBox[{"-", "1"}]}], TraditionalForm]], "InlineFormula"], ". The same machinery is used by ", Cell[BoxData[ButtonBox["IndexContract",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexContract"]], "InlineFormula"], " whenever a pair of indices sharing a name has mismatched signs: the index whose sign disagrees with the metric's natural form is dressed by the metric (or its inverse), and the contraction proceeds without further user intervention."}], "Text"],
+Cell[CellGroupData[{
+Cell["4.3. IndexTensorQ", "Subsection"],
+Cell[TextData[{"The predicate ", Cell[BoxData[ButtonBox["IndexTensorQ",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexTensorQ"]], "InlineFormula"], " validates the inner IndexArray and confirms that each attached metric is rank-two with matching dimensions on the indices it covers. An IndexArray on its own does not satisfy the predicate \[Dash] the metric attachment is what makes the wrapping an IndexTensor:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"m", "=", RowBox[{"RandomReal", "[", RowBox[{"1", ",", RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}]}], "]"}]}], ";\n",
+  RowBox[{"ia", "=", RowBox[{"IndexArray", "[", RowBox[{"m", ",", RowBox[{"Shape", "[", RowBox[{"3", ",", "3"}], "]"}]}], "]"}]}], ";\n",
+  RowBox[{"metric", "=", RowBox[{RowBox[{RowBox[{"MetricTensor", "[", RowBox[{"\"Euclidean\"", "[", "3", "]"}], "]"}], "[", "\"IndexTensor\"", "]"}], "[", "\"IndexArray\"", "]"}]}], ";\n",
+  RowBox[{"it", "=", RowBox[{"IndexTensor", "[", RowBox[{"ia", ",", "metric"}], "]"}]}], ";\n",
+  RowBox[{"IndexTensorQ", "[", "it", "]"}]
+}], "Input"]
+}, Open]]
+}, Open]],
+Cell[CellGroupData[{
+Cell["5. The MetricTensor Catalog", "Section"],
+Cell[TextData[{"Calling ", Cell[BoxData[ButtonBox["MetricTensor",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/MetricTensor"]], "InlineFormula"], " with no arguments returns the list of curated metrics. They divide into four families: the generic ", "\"Symmetric\"", " / ", "\"Asymmetric\"", " (and their field variants, where every entry is a function of coordinates) for purely symbolic work; the flat ", "\"Euclidean\"", " and ", "\"Minkowski\"", " for textbook special relativity; the Schwarzschild family (", "\"Schwarzschild\"", ", ", "\"IsotropicSchwarzschild\"", ", ", "\"EddingtonFinkelstein\"", " and its ingoing/outgoing variants, ", "\"GullstrandPainleve\"", " and its ingoing/outgoing variants, ", "\"KruskalSzekeres\"", ") for the spherically symmetric black hole in every standard chart; and the rotating/charged generalisations (", "\"Kerr\"", ", ", "\"ReissnerNordstrom\"", ", ", "\"KerrNewman\"", "). The cosmological cases ", "\"Godel\"", " and ", "\"FLRW\"", " round out the list."}], "Text"],
+Cell[BoxData[
+  RowBox[{"MetricTensor", "[", "]"}]
+], "Input"],
+Cell[TextData[{"The simplest non-trivial case is ", Cell[BoxData[FormBox[SubscriptBox["\[Eta]", RowBox[{"\[Mu]", "\[Nu]"}]], TraditionalForm]], "InlineFormula"], ", the flat Minkowski metric in mostly-plus signature ", Cell[BoxData[FormBox[RowBox[{"(", RowBox[{RowBox[{"-", "+"}], "+", "+"}], ")"}], TraditionalForm]], "InlineFormula"], ". The wrapping carries enough information to answer most invariant questions directly: signature counts, determinant, whether the geometry is Lorentzian:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"g", "=", RowBox[{"MetricTensor", "[", RowBox[{"\"Minkowski\"", "[", "4", "]"}], "]"}]}], ";\n",
+  RowBox[{"{", RowBox[{RowBox[{"g", "[", "\"Matrix\"", "]"}], ",", RowBox[{"g", "[", "\"Signature\"", "]"}], ",", RowBox[{"g", "[", "\"LorentzianQ\"", "]"}], ",", RowBox[{"Det", "[", RowBox[{"g", "[", "\"Matrix\"", "]"}], "]"}]}], "}"}]
+}], "Input"],
+Cell[TextData[{"The ", "\"Signature\"", " is reported as ", Cell[BoxData[FormBox[RowBox[{"{", RowBox[{"3", ",", "1", ",", "0"}], "}"}], TraditionalForm]], "InlineFormula"], " \[Dash] three positive eigenvalues, one negative, zero null \[Dash] which classifies the geometry as Lorentzian. Built-in metrics auto-generate textbook coordinate names: Minkowski uses ", Cell[BoxData[FormBox[RowBox[{"(", RowBox[{StyleBox["t", "TI"], ",", SuperscriptBox["x", "1"], ",", SuperscriptBox["x", "2"], ",", SuperscriptBox["x", "3"]}], ")"}], TraditionalForm]], "InlineFormula"], ", Schwarzschild uses ", Cell[BoxData[FormBox[RowBox[{"(", RowBox[{StyleBox["t", "TI"], ",", StyleBox["r", "TI"], ",", "\[Theta]", ",", "\[Phi]"}], ")"}], TraditionalForm]], "InlineFormula"], "."}], "Text"],
+Cell[TextData[{"Substitute Schwarzschild for Minkowski and the diagonal entries of the metric encode the line element"}], "Text"],
+Cell[TextData[Cell[BoxData[FormBox[RowBox[{SuperscriptBox[RowBox[{"\[DifferentialD]", StyleBox["s", "TI"]}], "2"], "=", RowBox[{RowBox[{RowBox[{"-", RowBox[{"(", RowBox[{"1", "-", RowBox[{RowBox[{"2", StyleBox["M", "TI"]}], "/", StyleBox["r", "TI"]}]}], ")"}]}], SuperscriptBox[RowBox[{"\[DifferentialD]", StyleBox["t", "TI"]}], "2"]}], "+", RowBox[{SuperscriptBox[RowBox[{"\[DifferentialD]", StyleBox["r", "TI"]}], "2"], "/", RowBox[{"(", RowBox[{"1", "-", RowBox[{RowBox[{"2", StyleBox["M", "TI"]}], "/", StyleBox["r", "TI"]}]}], ")"}]}], "+", RowBox[{SuperscriptBox[StyleBox["r", "TI"], "2"], SuperscriptBox[RowBox[{"\[DifferentialD]", "\[Theta]"}], "2"]}], "+", RowBox[{SuperscriptBox[StyleBox["r", "TI"], "2"], SuperscriptBox[RowBox[{"sin", "\[Theta]"}], "2"], SuperscriptBox[RowBox[{"\[DifferentialD]", "\[Phi]"}], "2"]}]}]}], TraditionalForm]], FormatType->TraditionalForm]], "Text"],
+Cell[TextData[{"Reading those four coefficients off ", "Diagonal[g[\"Matrix\"]]", " is the quickest sanity check that the right metric is loaded:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"gSchw", "=", RowBox[{"MetricTensor", "[", RowBox[{"\"Schwarzschild\"", "[", "\[FormalCapitalM]", "]"}], "]"}]}], ";\n",
+  RowBox[{"Diagonal", "[", RowBox[{"gSchw", "[", "\"Matrix\"", "]"}], "]"}]
+}], "Input"],
+Cell[TextData[{"The Kerr metric adds rotation and breaks spherical symmetry into axial symmetry: an off-diagonal ", Cell[BoxData[FormBox[SubscriptBox["g", RowBox[{StyleBox["t", "TI"], "\[Phi]"}]], TraditionalForm]], "InlineFormula"], " term couples the time and azimuthal coordinates, encoding the frame-dragging of a rotating mass. With angular momentum parameter ", Cell[BoxData[FormBox[StyleBox["J", "TI"], TraditionalForm]], "InlineFormula"], ", the off-diagonal entry ", "g[\"Matrix\"][[1, 4]]", " is non-zero whenever ", Cell[BoxData[FormBox[RowBox[{StyleBox["J", "TI"], "\[NotEqual]", "0"}], TraditionalForm]], "InlineFormula"], ":"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"gKerr", "=", RowBox[{"MetricTensor", "[", RowBox[{"\"Kerr\"", "[", RowBox[{"\[FormalCapitalM]", ",", "\[FormalCapitalJ]"}], "]"}], "]"}]}], ";\n",
+  RowBox[{RowBox[{"gKerr", "[", "\"Matrix\"", "]"}], "[", RowBox[{"[", RowBox[{"1", ",", "4"}], "]"}], "]"}]
+}], "Input"],
+Cell[TextData[{"Several derived geometric objects are exposed as properties of the wrapped IndexTensor. ", "g[\"Coordinates\"]", " returns the coordinate symbols, ", "g[\"CoordinateOneForms\"]", " returns the differential one-forms ", Cell[BoxData[FormBox[RowBox[{"\[DifferentialD]", SuperscriptBox["x", "\[Mu]"]}], TraditionalForm]], "InlineFormula"], ", ", "g[\"SymmetricQ\"]", " and ", "g[\"DiagonalQ\"]", " query the matrix structure, and ", "g[\"InverseMetricTensor\"]", " returns the contravariant partner ", Cell[BoxData[FormBox[SuperscriptBox["g", RowBox[{"\[Mu]", "\[Nu]"}]], TraditionalForm]], "InlineFormula"], " as a new MetricTensor with toggled variance. The full property list comes from ", "MetricTensor[\"Properties\"]", "."}], "Text"],
+Cell[TextData[{"The connection coefficients are also available, exposed through the inner IndexTensor via ", "g[\"IndexTensor\"][\"ChristoffelSymbol\"]", ". For a generic four-dimensional metric this is a rank-three computation and can be heavy; the result is an IndexTensor whose indices carry the appropriate variance for ", Cell[BoxData[FormBox[SubsuperscriptBox["\[CapitalGamma]", RowBox[{"\[Mu]", "\[Nu]"}], "\[Rho]"], TraditionalForm]], "InlineFormula"], "."}], "Text"],
+Cell[TextData[{"With those five layers in place \[Dash] ", Cell[BoxData[ButtonBox["Dimension",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/Dimension"]], "InlineFormula"], ", ", Cell[BoxData[ButtonBox["Shape",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/Shape"]], "InlineFormula"], ", ", Cell[BoxData[ButtonBox["IndexArray",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexArray"]], "InlineFormula"], ", ", Cell[BoxData[ButtonBox["IndexTensor",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexTensor"]], "InlineFormula"], ", and ", Cell[BoxData[ButtonBox["MetricTensor",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/MetricTensor"]], "InlineFormula"], " \[Dash] the named-index layer can be combined with the rest of the paclet for serious tensor algebra: free indices are tracked symbolically through ", Cell[BoxData[ButtonBox["IndexContract",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexContract"]], "InlineFormula"], ", a metric does the geometric heavy lifting, and the catalog supplies the standard backgrounds for general relativity in two keystrokes."}], "Text"],
+Cell[CellGroupData[{
+Cell["5.5. MetricTensorQ", "Subsection"],
+Cell[TextData[{"The predicate ", Cell[BoxData[ButtonBox["MetricTensorQ",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/MetricTensorQ"]], "InlineFormula"], " holds exactly when the inner IndexTensor is a valid rank-two metric. Every named entry in the catalog is constructed to satisfy it, so it is a fast invariant check after any geometric manipulation:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"MetricTensorQ", "[", RowBox[{"MetricTensor", "[", RowBox[{"\"Minkowski\"", "[", "4", "]"}], "]"}], "]"}], "\n",
+  RowBox[{"MetricTensorQ", "[", RowBox[{"MetricTensor", "[", RowBox[{"\"Schwarzschild\"", "[", "]"}], "]"}], "]"}]
+}], "Input"]
+}, Open]]
+}, Open]],
+Cell[CellGroupData[{
+Cell["6. Array utilities", "Section"],
+Cell[TextData[{"The IndexArray subpackage exposes a small set of low-level array utilities used by ", Cell[BoxData[ButtonBox["IndexArray",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexArray"]], "InlineFormula"], ", ", Cell[BoxData[ButtonBox["IndexTensor",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexTensor"]], "InlineFormula"], ", and the contraction routines. They operate on plain tensors and on inactive expressions (", Cell[BoxData[RowBox[{"Inactive", "[", "TensorProduct", "]"}]], "InlineFormula"], ", ", Cell[BoxData[RowBox[{"Inactive", "[", "TensorContract", "]"}]], "InlineFormula"], ", ", Cell[BoxData[RowBox[{"Inactive", "[", "Transpose", "]"}]], "InlineFormula"], ", ", Cell[BoxData[RowBox[{"Inactive", "[", "D", "]"}]], "InlineFormula"], "), tracking dimensions and simplifying nested expressions without forcing evaluation. They are useful when building or auditing IndexArray-based pipelines, especially with symbolic tensors."}], "Text"],
+Cell[CellGroupData[{
+Cell["6.1. ArrayRank", "Subsection"],
+Cell[TextData[{Cell[BoxData[ButtonBox["ArrayRank",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayRank"]], "InlineFormula"], " counts indices, tracking through inactive wrappers. Contracting one pair of indices on the rank-four expression below drops the rank to two:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"m", "=", RowBox[{"RandomReal", "[", RowBox[{"1", ",", RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}]}], "]"}]}], ";\n",
+  RowBox[{"ArrayRank", "[", RowBox[{RowBox[{"Inactive", "[", "TensorContract", "]"}], "[", RowBox[{RowBox[{RowBox[{"Inactive", "[", "TensorProduct", "]"}], "[", RowBox[{"m", ",", "m"}], "]"}], ",", RowBox[{"{", RowBox[{"{", RowBox[{"1", ",", "4"}], "}"}], "}"}]}], "]"}], "]"}]
+}], "Input"]
+}, Open]],
+Cell[CellGroupData[{
+Cell["6.2. ArrayName", "Subsection"],
+Cell[TextData[{Cell[BoxData[ButtonBox["ArrayName",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayName"]], "InlineFormula"], " extracts the underlying name symbol from a VectorSymbol, MatrixSymbol, or ArraySymbol, and returns a bare atomic symbol unchanged. Anything that is neither symbolic nor a recognised symbol-array head returns ", Cell[BoxData[FormBox["None", TraditionalForm]], "InlineFormula"], ":"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"ArrayName", "[", RowBox[{"ArraySymbol", "[", RowBox[{"\[FormalCapitalT]", ",", RowBox[{"{", RowBox[{"2", ",", "3", ",", "4"}], "}"}]}], "]"}], "]"}], "\n",
+  RowBox[{"ArrayName", "[", RowBox[{"MatrixSymbol", "[", RowBox[{"\[FormalCapitalM]", ",", RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}]}], "]"}], "]"}], "\n",
+  RowBox[{"ArrayName", "[", "\[FormalT]", "]"}]
+}], "Input"]
+}, Open]],
+Cell[CellGroupData[{
+Cell["6.3. ArrayPart", "Subsection"],
+Cell[TextData[{Cell[BoxData[ButtonBox["ArrayPart",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayPart"]], "InlineFormula"], " slices a symbolic array while propagating dimensional metadata, so that the result is itself a typed symbolic array of the appropriate sub-rank:"}], "Text"],
+Cell[BoxData[
+  RowBox[{"ArrayPart", "[", RowBox[{RowBox[{"MatrixSymbol", "[", RowBox[{"\[FormalCapitalM]", ",", RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}]}], "]"}], ",", RowBox[{"{", "1", "}"}]}], "]"}]
+], "Input"]
+}, Open]],
+Cell[CellGroupData[{
+Cell["6.4. ArrayTranspose", "Subsection"],
+Cell[TextData[{Cell[BoxData[ButtonBox["ArrayTranspose",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayTranspose"]], "InlineFormula"], " permutes axes and simplifies, composing a nested ", Cell[BoxData[ButtonBox["Transpose",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Transpose"]], "InlineFormula"], " into a single permutation. Composing ", Cell[BoxData[FormBox[RowBox[{"{", RowBox[{"2", ",", "1"}], "}"}], TraditionalForm]], "InlineFormula"], " with itself returns the original matrix:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"m", "=", RowBox[{"RandomReal", "[", RowBox[{"1", ",", RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}]}], "]"}]}], ";\n",
+  RowBox[{"ArrayTranspose", "[", RowBox[{RowBox[{"Transpose", "[", RowBox[{"m", ",", RowBox[{"{", RowBox[{"2", ",", "1"}], "}"}]}], "]"}], ",", RowBox[{"{", RowBox[{"2", ",", "1"}], "}"}]}], "]"}]
+}], "Input"]
+}, Open]],
+Cell[CellGroupData[{
+Cell["6.5. ArrayContract", "Subsection"],
+Cell[TextData[{Cell[BoxData[ButtonBox["ArrayContract",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayContract"]], "InlineFormula"], " contracts index pairs on a single tensor or on a list, which it first wraps in ", Cell[BoxData[RowBox[{"Inactive", "[", "TensorProduct", "]"}]], "InlineFormula"], ", then simplifies. Contracting axis 2 of the first factor with axis 3 (= axis 1 of the second factor) recovers the matrix product:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"m", "=", RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"1", ",", "2"}], "}"}], ",", RowBox[{"{", RowBox[{"3", ",", "4"}], "}"}]}], "}"}]}], ";\n",
+  RowBox[{"ArrayContract", "[", RowBox[{RowBox[{"{", RowBox[{"m", ",", "m"}], "}"}], ",", RowBox[{"{", RowBox[{"{", RowBox[{"2", ",", "3"}], "}"}], "}"}]}], "]"}]
+}], "Input"]
+}, Open]],
+Cell[CellGroupData[{
+Cell["6.6. SimplifyArray", "Subsection"],
+Cell[TextData[{Cell[BoxData[ButtonBox["SimplifyArray",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/SimplifyArray"]], "InlineFormula"], " removes empty contractions, singleton tensor products, and identity transpositions from a nested array expression. A no-op transpose around a no-op contraction collapses back to the original tensor:"}], "Text"],
+Cell[BoxData[{
+  RowBox[{"m", "=", RowBox[{"RandomReal", "[", RowBox[{"1", ",", RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}]}], "]"}]}], ";\n",
+  RowBox[{"SimplifyArray", "[", RowBox[{RowBox[{"Inactive", "[", "Transpose", "]"}], "[", RowBox[{RowBox[{RowBox[{"Inactive", "[", "TensorContract", "]"}], "[", RowBox[{"m", ",", RowBox[{"{", "}"}]}], "]"}], ",", RowBox[{"Cycles", "[", RowBox[{"{", "}"}], "]"}]}], "]"}], "]"}]
+}], "Input"]
+}, Open]],
+Cell[CellGroupData[{
+Cell["6.7. ZeroArrayQ", "Subsection"],
+Cell[TextData[{Cell[BoxData[ButtonBox["ZeroArrayQ",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ZeroArrayQ"]], "InlineFormula"], " is true exactly when any dimension of the array is zero; it does not look at the values. The contraction routines use it as a fast bypass: any tensor with a zero-length axis contracts to ", Cell[BoxData[FormBox[RowBox[{"{", "}"}], TraditionalForm]], "InlineFormula"], " without evaluation."}], "Text"],
+Cell[BoxData[{
+  RowBox[{"ZeroArrayQ", "[", RowBox[{"ConstantArray", "[", RowBox[{"0", ",", RowBox[{"{", RowBox[{"3", ",", "0", ",", "2"}], "}"}]}], "]"}], "]"}], "\n",
+  RowBox[{"ZeroArrayQ", "[", RowBox[{"ConstantArray", "[", RowBox[{"0", ",", RowBox[{"{", RowBox[{"3", ",", "2"}], "}"}]}], "]"}], "]"}]
+}], "Input"]
+}, Open]]
+}, Open]],
+Cell[CellGroupData[{
+Cell["Related Guides", "TutorialMoreAboutSection"],
+Cell["TensorNetworks", "TutorialMoreAbout"]
+}, Open]],
+Cell[CellGroupData[{
+Cell["Related Tech Notes", "RelatedTutorialsSection"],
+Cell["Tensor Networks Overview", "RelatedTutorials"],
+Cell["Young Tableaux and Tensor Symmetries", "RelatedTutorials"]
+}, Open]]
+}, Open]],
+Cell[CellGroupData[{
+Cell["Metadata", "MetadataSection"],
+Cell[TextData[{"New in: ", Cell["1.0", "HistoryData", CellTags -> "New"], " | Modified in: ", Cell[" ", "HistoryData", CellTags -> "Modified"], " | Obsolete in: ", Cell[" ", "HistoryData", CellTags -> "Obsolete"]}], "History"],
+Cell[CellGroupData[{
+Cell["Categorization", "CategorizationSection"],
+Cell["Tech Note", "Categorization", CellLabel -> "Entity Type"],
+Cell["Wolfram/TensorNetworks", "Categorization", CellLabel -> "Paclet Name"],
+Cell["Wolfram`TensorNetworks`IndexArray`", "Categorization", CellLabel -> "Context"],
+Cell["Wolfram/TensorNetworks/tutorial/IndexArrayAndMetrics", "Categorization", CellLabel -> "URI"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell["Keywords", "KeywordsSection"],
+Cell["named indices, covariant, contravariant, metric tensor, general relativity, Minkowski, Schwarzschild, Kerr", "Keywords"]
+}, Closed]]
+}, Open]]
+},
+WindowSize -> {840, 900},
+WindowMargins -> {{Automatic, 200}, {36, Automatic}},
+TaggingRules -> <|"Paclet" -> "Wolfram/TensorNetworks"|>,
+FrontEndVersion -> "15.0 for Mac OS X ARM (64-bit) (November 18, 2025)",
+StyleDefinitions -> FrontEnd`FileName[{"Wolfram"}, "TechNotePageStylesExt.nb", CharacterEncoding -> "UTF-8"]
+]
