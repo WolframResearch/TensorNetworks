@@ -10,32 +10,153 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     16844,        443]
-NotebookOptionsPosition[     11401,        351]
-NotebookOutlinePosition[     12163,        376]
-CellTagsIndexPosition[     12084,        371]
+NotebookDataLength[     62008,       1715]
+NotebookOptionsPosition[     43113,       1325]
+NotebookOutlinePosition[     43899,       1351]
+CellTagsIndexPosition[     43819,       1346]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
 
 Cell[CellGroupData[{
-Cell["TransposePartition", "ObjectName",ExpressionUUID->"e524b476-f744-4783-a0f5-8e7bdd5caba8"],
+Cell["TransposePartition", "ObjectName",
+ CellID->320579364,ExpressionUUID->"eee53de3-13f7-4a2e-802c-e1b5de22b6ae"],
 
 Cell[TextData[{
- Cell["   ", "ModInfo",ExpressionUUID->"ba603349-b842-48d6-9cfd-e9abf18dd1cb"],
+ Cell["   ", "ModInfo",ExpressionUUID->"c3cc09d8-b725-46be-b1b7-b6e5ac0198c8"],
  Cell[BoxData[
   RowBox[{
    ButtonBox["TransposePartition",
     BaseStyle->"Link",
-    ButtonData->"paclet:WolframTensorNetworks/ref/TransposePartition"], "[", 
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/TransposePartition"], "[", 
+   
    StyleBox["partition", "TI"], "]"}]], "InlineFormula",ExpressionUUID->
-  "d7e9fcac-31f0-43cf-802c-cf227bb8e32b"],
+  "5347387d-ff38-4b62-ae89-15fba66fb6fb"],
  "\[LineSeparator]returns the conjugate (transpose) of an integer partition, \
 equivalent to swapping rows and columns of the corresponding Young diagram."
-}], "Usage",ExpressionUUID->"4e0d1f6f-b9f0-45b2-a65a-577fb0877932"],
+}], "Usage",
+ CellID->172581409,ExpressionUUID->"34e59bc6-77fb-4133-88ee-8cad164154cc"],
 
-Cell[" ", "Notes",ExpressionUUID->"932d5b66-f28b-485a-bd6e-fb83d8d035d1"]
+Cell[TextData[{
+ "Each entry of the result is the count of partition parts at least as large \
+as the column index: the j-th element of the conjugate is ",
+ Cell[BoxData[
+  RowBox[{"Count", "[", 
+   StyleBox["partition", "TI"], ",", 
+   RowBox[{
+    StyleBox["x_", "TI"], "/;", 
+    RowBox[{
+     StyleBox["x", "TI"], "\[GreaterEqual]", 
+     StyleBox["j", "TI"]}]}], "]"}]], "InlineFormula",ExpressionUUID->
+  "13823e4a-3cd4-4465-884b-6a3920be000c"],
+ "."
+}], "Notes",
+ CellID->223337487,ExpressionUUID->"6731682d-1e22-4e8d-bff0-567ca104c5c6"],
+
+Cell[TextData[{
+ Cell[BoxData[
+ "TransposePartition"], "InlineFormula",ExpressionUUID->
+  "7e057a41-98d7-49e9-b16a-67032240d523"],
+ " is the partition-level analogue of swapping rows and columns of the Young \
+diagram associated with the partition."
+}], "Notes",
+ CellID->984669801,ExpressionUUID->"d8f2f204-8904-4157-8903-ca6c94ccb847"],
+
+Cell[TextData[{
+ Cell[BoxData[
+ "TransposePartition"], "InlineFormula",ExpressionUUID->
+  "44a88fb0-8692-462e-9d52-410a92845775"],
+ " is a self-inverse operation: ",
+ Cell[BoxData[
+  RowBox[{"TransposePartition", "[", 
+   RowBox[{"TransposePartition", "[", 
+    StyleBox["par", "TI"], "]"}], "]"}]], "InlineFormula",ExpressionUUID->
+  "24760aee-7b19-4007-9ccf-8ed26945b911"],
+ " is identical to ",
+ Cell[BoxData[
+  StyleBox["par", "TI"]], "InlineFormula",ExpressionUUID->
+  "fb7556c2-b707-47c8-b708-ead5e89ee8ed"],
+ " for every valid partition."
+}], "Notes",
+ CellID->685904443,ExpressionUUID->"82f49174-b37a-4bd8-bdb3-3f1410040072"],
+
+Cell[TextData[{
+ "Self-conjugate partitions (those whose Young diagram is symmetric about its \
+main diagonal) satisfy ",
+ Cell[BoxData[
+  RowBox[{"TransposePartition", "[", 
+   StyleBox["par", "TI"], "]", "===", 
+   StyleBox["par", "TI"]}]], "InlineFormula",ExpressionUUID->
+  "744a3bac-1947-46d9-9ce1-56a466f65c17"],
+ ". Examples include ",
+ Cell[BoxData[
+  RowBox[{"{", 
+   RowBox[{"3", ",", "2", ",", "1"}], "}"}]], "InlineFormula",ExpressionUUID->
+  "123f9783-f989-4e91-80cd-23a3f38c57dc"],
+ " and ",
+ Cell[BoxData[
+  RowBox[{"{", 
+   RowBox[{"4", ",", "2", ",", "1", ",", "1"}], "}"}]], "InlineFormula",
+  ExpressionUUID->"5c04437d-8d6b-4bbb-bf9d-13c59f969fd1"],
+ "."
+}], "Notes",
+ CellID->309493800,ExpressionUUID->"11f33c18-a67d-4131-a89b-4544347fc795"],
+
+Cell[TextData[{
+ "The length of the conjugate equals the largest part of the input: ",
+ Cell[BoxData[
+  RowBox[{"Length", "[", 
+   RowBox[{"TransposePartition", "[", 
+    StyleBox["par", "TI"], "]"}], "]"}]], "InlineFormula",ExpressionUUID->
+  "8aca726c-ad47-4c8f-956b-901832c0c64e"],
+ " equals ",
+ Cell[BoxData[
+  RowBox[{"First", "[", 
+   StyleBox["par", "TI"], "]"}]], "InlineFormula",ExpressionUUID->
+  "d46f16e0-1dfc-4b3b-ad4d-8f71f114e432"],
+ "."
+}], "Notes",
+ CellID->571753287,ExpressionUUID->"211c1a88-787b-40e4-85a9-878c3aae6276"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"TransposePartition", "[", 
+   RowBox[{"{", "}"}], "]"}]], "InlineFormula",ExpressionUUID->
+  "cb5a9046-83e9-42cb-b626-2f6dbf8ea40b"],
+ " is defined and returns ",
+ Cell[BoxData[
+  RowBox[{"{", "}"}]], "InlineFormula",ExpressionUUID->
+  "64ced1ba-dcf8-4a1e-86ca-bfeb5a237c97"],
+ " as a special case, even though ",
+ Cell[BoxData[
+  RowBox[{"PartitionQ", "[", 
+   RowBox[{"{", "}"}], "]"}]], "InlineFormula",ExpressionUUID->
+  "27039d4f-102a-4e71-ab2a-fc6f5633474c"],
+ " returns ",
+ Cell[BoxData[
+ "False"], "InlineFormula",ExpressionUUID->
+  "5d0b8566-7c99-44ff-a672-9020b3f72d4e"],
+ "."
+}], "Notes",
+ CellID->40550656,ExpressionUUID->"e31f839a-64f6-4522-b114-b022f58b0b43"],
+
+Cell[TextData[{
+ "Non-partition input (anything failing ",
+ Cell[BoxData[
+  RowBox[{"PartitionQ", "[", "\[Ellipsis]", "]"}]], "InlineFormula",
+  ExpressionUUID->"f113aca1-d6a8-4574-baea-77017aa28978"],
+ ") issues a ",
+ Cell[BoxData[
+  RowBox[{"TransposePartition", "::", "notpar"}]], "InlineFormula",
+  ExpressionUUID->"59e5db50-d907-49b4-b092-211745caea8e"],
+ " message and returns ",
+ Cell[BoxData[
+ "$Failed"], "InlineFormula",ExpressionUUID->
+  "2e0b7dcd-79cd-4719-a569-37ae799b4660"],
+ "."
+}], "Notes",
+ CellID->924238015,ExpressionUUID->"f1d9f91d-8d3e-4a74-b716-afb9a0717701"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -51,30 +172,67 @@ Cell[TextData[{
        "Insert links to any related reference (function) pages.", 
         "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "107d722a-6d40-4e1e-acd0-284550ddc4d3"]
-}], "SeeAlsoSection",ExpressionUUID->"10b6229e-fc74-4a60-be18-ea2b10ada9c0"],
+  "bf7efae3-78a8-485c-b696-976ae6bc2534"]
+}], "SeeAlsoSection",
+ CellID->146846295,ExpressionUUID->"fe5f3442-4eb3-49dc-a176-49bfba7fa4ab"],
 
 Cell[TextData[{
  Cell[BoxData[
   ButtonBox["PartitionQ",
    BaseStyle->"Link",
-   ButtonData->"paclet:WolframTensorNetworks/ref/PartitionQ"]], 
-  "InlineFormula",ExpressionUUID->"edf8e1a7-4cd8-4846-a7cb-bed7d3a73710"],
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PartitionQ"]], 
+  "InlineFormula",ExpressionUUID->"53de1091-2c8e-46bc-ad9f-84354579f9e7"],
  Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
-  ExpressionUUID->"92a4c28b-a416-4db4-9730-c649af16e799"],
+  ExpressionUUID->"c173b9b9-e53a-4901-bafd-e339f0a2b3b8"],
  Cell[BoxData[
-  ButtonBox["TableauShape",
+  ButtonBox["TableauDimension",
    BaseStyle->"Link",
-   ButtonData->"paclet:WolframTensorNetworks/ref/TableauShape"]], 
-  "InlineFormula",ExpressionUUID->"4ec0e39e-6d8a-4d1a-a708-a8bf7803e4bb"],
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauDimension"]], 
+  "InlineFormula",ExpressionUUID->"389b411d-8262-4912-a2ad-a73f6c1c9d52"],
  Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
-  ExpressionUUID->"92a4c28b-a416-4db4-9730-c649af16e799"],
+  ExpressionUUID->"4b96cb4c-2177-4f80-854e-eca7d4eae083"],
+ Cell[BoxData[
+  ButtonBox["HookLengths",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/HookLengths"]], 
+  "InlineFormula",ExpressionUUID->"9a579d47-355a-4242-8984-9ebd21e4a2fa"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"799ac319-a66f-422d-b105-6682f9eee0b8"],
+ Cell[BoxData[
+  ButtonBox["HookFactor",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/HookFactor"]], 
+  "InlineFormula",ExpressionUUID->"328bbf73-01ce-4852-92dc-7a254fc36bf0"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"6d218985-6554-40c5-84c8-655ddbc41e77"],
  Cell[BoxData[
   ButtonBox["YoungTableau",
    BaseStyle->"Link",
-   ButtonData->"paclet:WolframTensorNetworks/ref/YoungTableau"]], 
-  "InlineFormula",ExpressionUUID->"700698af-2ad1-462a-a89c-19111ee67465"]
-}], "SeeAlso",ExpressionUUID->"5612d022-669c-4b39-a0d8-1104aa196bfb"]
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungTableau"]], 
+  "InlineFormula",ExpressionUUID->"25085656-1034-4b96-950a-d547be129d69"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"611e8928-ab35-4ad2-a14d-258e3e8282c4"],
+ Cell[BoxData[
+  ButtonBox["TableauShape",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauShape"]], 
+  "InlineFormula",ExpressionUUID->"6dda3081-c524-4478-b208-d76961d90e8e"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"51ce1a5b-0cba-4ab8-8fff-66428cb01481"],
+ Cell[BoxData[
+  ButtonBox["IntegerPartitions",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/IntegerPartitions"]], "InlineFormula",
+  ExpressionUUID->"abe6a883-11a9-4001-b0c6-6e2522305d14"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"a230c4e0-6eac-44c7-8a7b-16cf8d6554f5"],
+ Cell[BoxData[
+  ButtonBox["Transpose",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Transpose"]], "InlineFormula",ExpressionUUID->
+  "3c23b19f-fde3-448e-b95a-2ec37caf0dd3"]
+}], "SeeAlso",
+ CellID->643937536,ExpressionUUID->"1c369dee-8e72-4864-b7b7-6e2d4e35b768"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -89,17 +247,35 @@ Cell[TextData[{
        Cell["Insert links to related tech notes.", "MoreInfoText"], BaseStyle -> 
        "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "90309308-0a22-4e23-8ff7-47b06e1708d9"]
-}], "TechNotesSection",ExpressionUUID->"7030fb7a-1c24-4423-b75d-4f869d836dcd"],
+  "98f05233-08b6-4523-9bb2-3c87000b25d3"]
+}], "TechNotesSection",
+ CellID->85384584,ExpressionUUID->"62d2f696-5984-467d-8d27-3e9ad431ea9c"],
 
-Cell[" ", "Tutorials",ExpressionUUID->"dee36faa-9207-42d1-ab46-193ece80a7a8"]
+Cell[TextData[Cell[BoxData[
+ ButtonBox[
+  RowBox[{"Young", " ", "Symmetries"}],
+  BaseStyle->"Link",
+  ButtonData->
+   "paclet:Wolfram/TensorNetworks/tutorial/YoungSymmetries"]], \
+"InlineFormula",ExpressionUUID->"a8c4fd7e-56b7-4573-89c2-c68d739cdc2c"]], \
+"Tutorials",
+ CellID->378158216,ExpressionUUID->"002ed2c4-4dea-4ef4-a203-889615c4cd27"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
-Cell["Related Guides", "MoreAboutSection",ExpressionUUID->"6e73ee82-132a-4c4c-8b71-650d247e2f3f"],
+Cell["Related Guides", "MoreAboutSection",
+ CellID->927892187,ExpressionUUID->"8abd2c1b-5a61-4627-be87-697890580d4c"],
 
-Cell[" ", "MoreAbout",ExpressionUUID->"8a0d3393-3d96-4ff3-9cd6-52797bc08b1c"]
+Cell[TextData[Cell[BoxData[
+ ButtonBox[
+  RowBox[{"Tensor", " ", "Networks"}],
+  BaseStyle->"Link",
+  ButtonData->
+   "paclet:Wolfram/TensorNetworks/guide/TensorNetworks"]], \
+"InlineFormula",ExpressionUUID->"55cfd4a3-657c-4a7f-84fb-b2939ba7de34"]], \
+"MoreAbout",
+ CellID->592555556,ExpressionUUID->"06fa55fc-4d5c-4445-9d0b-2efc7ebac9ea"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -115,11 +291,12 @@ Cell[TextData[{
        "Insert links to any related page, including web pages.", 
         "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "afa371af-5a49-4962-8375-cfa7aac268da"]
-}], "RelatedLinksSection",ExpressionUUID->"40814245-482b-43de-8129-\
-203839abc120"],
+  "66189205-764e-44a7-9895-860a66a6d5ba"]
+}], "RelatedLinksSection",
+ CellID->297444364,ExpressionUUID->"78e9fadc-a4f8-4aa0-bfd0-6f2b78ee56a1"],
 
-Cell[" ", "RelatedLinks",ExpressionUUID->"7702b2fd-1e3e-4e5f-a4f4-dfffbdcc7bc4"]
+Cell[" ", "RelatedLinks",
+ CellID->74412866,ExpressionUUID->"5b6317e3-d882-46e0-9636-8edd04da1ad1"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -136,14 +313,14 @@ Cell[TextData[{
 Needs[\[Ellipsis]].", "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
      "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "681ba48b-78b0-4877-9aa1-a7f9ba6d7a2b"]
-}], "ExamplesInitializationSection",ExpressionUUID->"ec55f553-e7c2-4f28-9cce-\
-a8dec2563df4"],
+  "c53cf572-183b-4a01-a189-10fec5be997e"]
+}], "ExamplesInitializationSection",
+ CellID->675089960,ExpressionUUID->"144bdf2d-6d7e-40a9-af8f-be94b4ba91ba"],
 
 Cell[BoxData[
  RowBox[{"Needs", "[", "\"\<Wolfram`TensorNetworks`Symmetry`\>\"", 
-  "]"}]], "ExampleInitialization",ExpressionUUID->"e2d0c5fc-49d5-4027-bf40-\
-d39177c64618"]
+  "]"}]], "ExampleInitialization",
+ CellID->706411693,ExpressionUUID->"230f22eb-494f-4be1-9116-2de98a564c8c"]
 }, Open  ]],
 
 Cell[BoxData[
@@ -157,27 +334,118 @@ Cell[BoxData[
       BaseStyle->"ExtendedExamplesLink",
       ButtonData:>"ExtendedExamples"]}
    }],
-  $Line = 0; Null]], "PrimaryExamplesSection",ExpressionUUID->"dc7fb434-91f7-\
-4902-bfbe-a513154e1f75"],
+  $Line = 0; Null]], "PrimaryExamplesSection",
+ CellID->720968092,ExpressionUUID->"fa39da7e-181b-49df-8a00-6dc32814f759"],
 
-Cell["Conjugate of the partition {4, 2, 1}:", "ExampleText",
- CellID->1580141341,ExpressionUUID->"87e0d60a-65d5-4bab-8169-0955a95032ee"],
+Cell["The conjugate of the partition {4, 2, 1}:", "ExampleText",
+ CellID->767425063,ExpressionUUID->"d08ba101-9c87-4ba6-9c58-48529d795392"],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  RowBox[{"TransposePartition", "[", 
   RowBox[{"{", 
-   RowBox[{"4", ",", "2", ",", "1"}], "}"}], "]"}]], "Input",
- CellLabel->"In[1]:=",ExpressionUUID->"1bc433f8-85e6-4da1-be3c-5e23dca8365d"],
+   RowBox[{"4", ",", " ", "2", ",", " ", "1"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->881915684,ExpressionUUID->"8a762297-4584-45c9-ba9e-3d209e8b76cf"],
 
-Cell["Conjugating twice returns the original partition:", "ExampleText",
- CellID->1754888414,ExpressionUUID->"d63cab36-b95a-4f57-9c49-31e854cc1778"],
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"3", ",", "2", ",", "1", ",", "1"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->132959009,ExpressionUUID->"db7f0c42-ae8d-4619-901e-b314a3164de7"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "1cd8fb47-fe3b-45cb-b222-53015affa167"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->786445265,ExpressionUUID->"85b44d83-c8ab-4186-a46c-94f51b78104c"],
+
+Cell["\<\
+TransposePartition is a self-inverse operation; applying it twice returns the \
+original partition:\
+\>", "ExampleText",
+ CellID->173175353,ExpressionUUID->"2700b71b-d46e-445e-a206-6cdc1a9a8d7b"],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  RowBox[{"TransposePartition", "[", 
   RowBox[{"TransposePartition", "[", 
    RowBox[{"{", 
-    RowBox[{"3", ",", "2", ",", "1"}], "}"}], "]"}], "]"}]], "Input",
- CellLabel->"In[1]:=",ExpressionUUID->"5dbf045c-f64d-4c5a-b95f-57e734c4799c"],
+    RowBox[{"4", ",", " ", "2", ",", " ", "1"}], "}"}], "]"}], "]"}]], "Input",\
+
+ CellLabel->"In[1]:=",
+ CellID->771321129,ExpressionUUID->"5798694e-8c21-477b-a146-a02f9fae5157"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"4", ",", "2", ",", "1"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->9785512,ExpressionUUID->"88476355-09b2-4c20-9b36-341e95b88cda"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "905bff9f-d608-4fd7-a7e0-0c55dbd2c6bf"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->359210951,ExpressionUUID->"a32cf4a0-250e-478d-b196-d9ceeb38d0b7"],
+
+Cell["\<\
+The partition {3, 2, 1} is self-conjugate: its Young diagram is symmetric \
+about the main diagonal, so the result equals the input:\
+\>", "ExampleText",
+ CellID->909579200,ExpressionUUID->"37b693a5-a2cb-4050-88d9-4957ba8499b7"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TransposePartition", "[", 
+  RowBox[{"{", 
+   RowBox[{"3", ",", " ", "2", ",", " ", "1"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->524311723,ExpressionUUID->"3fd09d37-dc73-4c35-b7a0-0ee7a6091104"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"3", ",", "2", ",", "1"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->253469380,ExpressionUUID->"a0259420-3966-42a4-acfb-bed8ad6eeff7"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "b71bb008-25db-47a4-830b-ec22b9adabed"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->833297435,ExpressionUUID->"824171e9-86e3-4cc6-848f-fabadbe737a6"],
+
+Cell["\<\
+For any self-conjugate partition the self-inverse property is doubly \
+demonstrated:\
+\>", "ExampleText",
+ CellID->153749453,ExpressionUUID->"f0b398ba-83f5-4462-9539-018e66e368f6"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TransposePartition", "[", 
+  RowBox[{"TransposePartition", "[", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", " ", "2", ",", " ", "1"}], "}"}], "]"}], "]"}]], "Input",\
+
+ CellLabel->"In[1]:=",
+ CellID->233215217,ExpressionUUID->"c4d75ef3-94f4-4147-a402-014273e59812"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"3", ",", "2", ",", "1"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->116411454,ExpressionUUID->"c01814e2-02d5-4b12-af88-bc5a9bc5063a"]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
@@ -191,101 +459,773 @@ Cell[TextData[{
        Cell["Extended examples in standardized sections.", "MoreInfoText"], 
        BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "e5ef604d-fc67-4124-9f6c-92cf4d5cfdad"]
+  "1ea02f3e-c536-42ff-9c1a-83523bdae636"]
 }], "ExtendedExamplesSection",
- CellTags->
-  "ExtendedExamples",ExpressionUUID->"ea245d6a-e75e-49fa-b357-bb57e230e8d1"],
+ CellTags->"ExtendedExamples",
+ CellID->564012456,ExpressionUUID->"74dfccbd-48b3-4ce7-8ccb-f440d54af48b"],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Scope", "ExampleSection",ExpressionUUID->
-   "de4ea572-42f9-49cc-876a-153e5429d8f9"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"0ef1c16b-2982-4a61-\
-bd1d-505aaf969d98"],
+   "4bf40e53-26e2-4e97-b453-3da9229c04f5"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->478423877,ExpressionUUID->"53035e5b-c5d4-4f79-957e-271ebc479283"],
+
+Cell[CellGroupData[{
+
+Cell["Self-inverse", "ExampleSubsection",
+ CellID->577356499,ExpressionUUID->"4a522c77-5fb7-4986-8518-2bc8efe26142"],
+
+Cell["\<\
+The composition TransposePartition \[SmallCircle] TransposePartition is the \
+identity on every valid partition:\
+\>", "ExampleText",
+ CellID->384011254,ExpressionUUID->"9ea0c65a-3751-4a58-b3c4-1e9abc7d5a1b"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"AllTrue", "[", 
+  RowBox[{
+   RowBox[{"IntegerPartitions", "[", "6", "]"}], ",", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"TransposePartition", "[", 
+      RowBox[{"TransposePartition", "[", "#1", "]"}], "]"}], " ", "===", " ", 
+     "#1"}], " ", "&"}]}], " ", "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->295281527,ExpressionUUID->"c692c243-b36f-4c3f-8741-8a05ba769074"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->33497448,ExpressionUUID->"d54d2b6b-815f-4524-8e49-fd95440a52df"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "c6a2b964-0f35-47e2-9291-e4d91b830548"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->612310210,ExpressionUUID->"bbd29a60-8841-4e35-80cf-7e4b714c4b57"],
+
+Cell["Illustrate on a single partition:", "ExampleText",
+ CellID->684013741,ExpressionUUID->"43c942b9-683a-44b2-94a9-30837745f143"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TransposePartition", "[", 
+  RowBox[{"TransposePartition", "[", 
+   RowBox[{"{", 
+    RowBox[{"5", ",", " ", "3", ",", " ", "1"}], "}"}], "]"}], "]"}]], "Input",\
+
+ CellLabel->"In[1]:=",
+ CellID->998418271,ExpressionUUID->"b2e4c65d-713d-4763-88cb-d922d5c29b2b"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"5", ",", "3", ",", "1"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->901776430,ExpressionUUID->"7cba0124-55a4-4ea7-9731-c583812dcdb2"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Self-conjugate partitions", "ExampleSubsection",
+ CellID->664136013,ExpressionUUID->"04d1f882-3530-47ec-b3c7-456be72dc88f"],
+
+Cell["\<\
+A partition is self-conjugate when its Young diagram is symmetric about its \
+main diagonal. Enumerate the self-conjugate partitions of n = 1 ... 7:\
+\>", "ExampleText",
+ CellID->597503020,ExpressionUUID->"18bc7cc0-d875-4e16-aadc-c20fefa8bf16"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Table", "[", 
+  RowBox[{
+   RowBox[{"Select", "[", 
+    RowBox[{
+     RowBox[{"IntegerPartitions", "[", "n", "]"}], ",", " ", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"TransposePartition", "[", "#1", "]"}], " ", "===", " ", 
+       "#1"}], " ", "&"}]}], " ", "]"}], ",", " ", 
+   RowBox[{"{", 
+    RowBox[{"n", ",", " ", "1", ",", " ", "7"}], "}"}]}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->764935853,ExpressionUUID->"85e7936c-a6f2-4760-8be6-8669a240d033"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"{", "1", "}"}], "}"}], ",", 
+   RowBox[{"{", "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"{", 
+     RowBox[{"2", ",", "1"}], "}"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"{", 
+     RowBox[{"2", ",", "2"}], "}"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"{", 
+     RowBox[{"3", ",", "1", ",", "1"}], "}"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"{", 
+     RowBox[{"3", ",", "2", ",", "1"}], "}"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"{", 
+     RowBox[{"4", ",", "1", ",", "1", ",", "1"}], "}"}], "}"}]}], 
+  "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->183815344,ExpressionUUID->"2e2ccd74-1030-4400-8b4c-126a7486f7b2"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "3e5656bf-c3d3-4742-a654-fe7da8e3469f"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->928652029,ExpressionUUID->"f1bce495-3935-40a0-868d-1769da7835f0"],
+
+Cell["The smallest non-trivial self-conjugate partition is {2, 1}:", \
+"ExampleText",
+ CellID->609703154,ExpressionUUID->"dead1e4e-e194-4554-8e40-02422367f127"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TransposePartition", "[", 
+  RowBox[{"{", 
+   RowBox[{"2", ",", " ", "1"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->820061258,ExpressionUUID->"9ee50d4a-4edb-488d-94d4-feb5b632e606"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"2", ",", "1"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->942320786,ExpressionUUID->"743ea5cc-191b-4936-8a3b-f493f6d8ac15"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "23ea4f62-92a4-4334-ba2c-1f131f7befd8"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->1293753,ExpressionUUID->"7f0b8ff7-dc20-4987-9389-26f608072805"],
+
+Cell["A larger self-conjugate example:", "ExampleText",
+ CellID->191557248,ExpressionUUID->"e46938c4-7fa1-4590-b1b4-f59478ab5b63"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TransposePartition", "[", 
+  RowBox[{"{", 
+   RowBox[{"4", ",", " ", "2", ",", " ", "1", ",", " ", "1"}], "}"}], 
+  "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->718179333,ExpressionUUID->"3a82b194-4ccb-4865-8161-c8f3f720fc12"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"4", ",", "2", ",", "1", ",", "1"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->524642045,ExpressionUUID->"3469ebea-8d6b-4943-b482-254f659f56b0"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Empty partition", "ExampleSubsection",
+ CellID->306544506,ExpressionUUID->"3e499758-f10a-45ea-a9db-a393da7cdc5f"],
+
+Cell["\<\
+The empty partition is handled as a special case and returns the empty list:\
+\>", "ExampleText",
+ CellID->699280929,ExpressionUUID->"0afa0d0d-2d34-4a0d-8bf5-979c6b6f8900"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TransposePartition", "[", 
+  RowBox[{"{", "}"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->407803035,ExpressionUUID->"a752bc81-19b8-4168-9804-b69513c5f8c2"],
+
+Cell[BoxData[
+ RowBox[{"{", "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->730314519,ExpressionUUID->"3ff02a35-48d6-40cc-9d3f-56c6fdeb908b"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "6fbb71f6-c5f2-41cb-8de3-ebd85493f103"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->145813237,ExpressionUUID->"d291c803-cb91-4bb2-9ab6-8c71eacc3e07"],
+
+Cell["\<\
+Note that PartitionQ rejects the empty list (since the definition requires at \
+least one part), but TransposePartition still has a defining rule for it:\
+\>", "ExampleText",
+ CellID->298989684,ExpressionUUID->"2123d246-b27a-40ac-ab45-025433e90de4"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PartitionQ", "[", 
+  RowBox[{"{", "}"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->331671172,ExpressionUUID->"26e75e63-288c-4a09-a38c-b5f94ad6d216"],
+
+Cell[BoxData["False"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->710389379,ExpressionUUID->"2b65cede-c32e-4e23-b677-ad2741bf5bc8"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Non-partition input", "ExampleSubsection",
+ CellID->552745575,ExpressionUUID->"b2fd96dc-bc97-4f9a-8320-8b9eed7faba6"],
+
+Cell["\<\
+A list whose entries do not form a non-increasing sequence is not a valid \
+partition. TransposePartition issues a message and returns $Failed; the \
+assertion below confirms that outcome:\
+\>", "ExampleText",
+ CellID->488247794,ExpressionUUID->"87b5be74-4391-4437-9049-b6bb4f89f00d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Quiet", "[", 
+   RowBox[{"TransposePartition", "[", 
+    RowBox[{"{", 
+     RowBox[{"1", ",", " ", "2", ",", " ", "3"}], "}"}], "]"}], "]"}], " ", "===",
+   " ", "$Failed"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->660282859,ExpressionUUID->"004be908-8f49-4e2e-a16f-58b086ca6342"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->76739115,ExpressionUUID->"b30752fb-7c2d-41b5-acd1-5b97a144af78"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "c54b2f56-f4a7-4331-97a3-4a1847f101ba"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->947876932,ExpressionUUID->"33b363dc-9a7c-4570-8959-3f4d50c9e92b"],
+
+Cell["The same outcome holds for any non-list argument:", "ExampleText",
+ CellID->325452594,ExpressionUUID->"84f8cbf7-e8cb-4ccf-940a-cfb9f2c5faaf"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Quiet", "[", 
+   RowBox[{"TransposePartition", "[", "\"\<abc\>\"", "]"}], "]"}], " ", "===",
+   " ", "$Failed"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->53675367,ExpressionUUID->"1e9f5368-915b-439a-96a9-7f4adb3fc478"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->977923689,ExpressionUUID->"838c7187-a787-4065-8ab2-7105349ebd66"]
+}, Open  ]]
+}, Open  ]]
+}, Closed]],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Generalizations & Extensions", "ExampleSection",ExpressionUUID->
-   "e587b618-e8c0-4885-af98-b613d70dac1b"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"10d49d66-4ea3-4432-\
-81d8-c3f09aef42db"],
-
-Cell[CellGroupData[{
+   "19d30f52-c81d-4cc7-a9fb-d08cfb5e1055"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->109865355,ExpressionUUID->"3af19d5f-098e-4419-90b5-864e8c1a6754"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Options", "ExampleSection",ExpressionUUID->
-   "7518028d-875c-45b2-b339-034d878e09f0"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"3f0d6398-a24f-4ace-\
-a569-28496f25e450"],
+   "c2240bc1-faeb-47a8-a13a-c3358b6c4db4"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->875289481,ExpressionUUID->"8e5da995-73b0-451c-bab1-8e7c4df47548"],
 
-Cell[BoxData[
- InterpretationBox[Cell[
-  " ", "ExampleSubsection",ExpressionUUID->
-   "fe1710dc-7f90-45cc-86bc-707d32c071ec"],
-  $Line = 0; Null]], "ExampleSubsection",ExpressionUUID->"ca2a6b4a-1353-4bd4-\
-9a8c-b6e63a66c6b4"],
-
-Cell[BoxData[
- InterpretationBox[Cell[
-  " ", "ExampleSubsection",ExpressionUUID->
-   "7bdecd80-401e-471f-8e1d-7eb2b7d9509e"],
-  $Line = 0; Null]], "ExampleSubsection",ExpressionUUID->"f301a1e4-cc42-45ee-\
-9fd2-87d8e7630b1a"]
-}, Open  ]],
+Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Applications", "ExampleSection",ExpressionUUID->
-   "e76a952c-6223-4d5e-a7e9-a04f5b098ccc"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"7a6a1b4a-2758-4786-\
-9da3-9b0ea77e50aa"],
+   "d88cfd98-a4cb-495b-82fc-47cbc65ad5c1"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->872514143,ExpressionUUID->"d9630cfa-c19f-4a4a-9b19-c920115d4f5f"],
+
+Cell["\<\
+In the representation theory of the symmetric group Sn, the irreducible \
+representations are indexed by partitions of n, and the irrep labelled by the \
+conjugate partition is the tensor product of the original irrep with the sign \
+representation. The two irreps share the same dimension; verify on the \
+partitions of 7:\
+\>", "ExampleText",
+ CellID->812660169,ExpressionUUID->"cd038e5f-56d2-4b02-a461-826e9e61cbde"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"AllTrue", "[", 
+  RowBox[{
+   RowBox[{"IntegerPartitions", "[", "7", "]"}], ",", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"TableauDimension", "[", "#1", "]"}], " ", "===", " ", 
+     RowBox[{"TableauDimension", "[", 
+      RowBox[{"TransposePartition", "[", "#1", "]"}], "]"}]}], " ", "&"}]}], 
+  " ", "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->318047898,ExpressionUUID->"1ca1aca4-77cd-4336-b8a7-db91b63f8458"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->229919155,ExpressionUUID->"3a7c0f92-cea6-408d-8962-8d68c650a9be"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "cb4e336e-aa1c-4b4b-b5b9-c622524736d4"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->621618535,ExpressionUUID->"dace8a93-134f-4419-8970-0c135f99ae59"],
+
+Cell["\<\
+The Young symmetrizer for a tableau symmetrizes rows of the original \
+partition and antisymmetrizes columns. The column structure is exactly the \
+conjugate partition; here is the row shape and its transpose for {3, 1}:\
+\>", "ExampleText",
+ CellID->400699173,ExpressionUUID->"9cebfd1b-1389-4ca9-a63e-a7c7ced1e18d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"3", ",", " ", "1"}], "}"}], ",", " ", 
+   RowBox[{"TransposePartition", "[", 
+    RowBox[{"{", 
+     RowBox[{"3", ",", " ", "1"}], "}"}], "]"}]}], "}"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->275895987,ExpressionUUID->"8ed508d9-124a-4789-bb5a-2994353dee8a"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"3", ",", "1"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "1", ",", "1"}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->457926433,ExpressionUUID->"795deacf-3cc2-4347-a0d5-361c073068c5"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "bbe6b4ee-1a09-427e-9121-45e06cb9b9ad"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->130273570,ExpressionUUID->"ba5f70ba-abb0-4562-bb3e-032c351355b8"],
+
+Cell["\<\
+Pair every partition of 6 with its conjugate. Self-conjugate partitions \
+appear paired with themselves; non-self-conjugate ones in dual pairs:\
+\>", "ExampleText",
+ CellID->67834248,ExpressionUUID->"ef169da7-12af-4bfd-8fba-43271e937826"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"#1", ",", " ", 
+      RowBox[{"TransposePartition", "[", "#1", "]"}]}], "}"}], " ", "&"}], 
+   " ", ")"}], " ", "/@", " ", 
+  RowBox[{"IntegerPartitions", "[", "6", "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->829035141,ExpressionUUID->"ff4cefeb-8661-4adb-b2c8-50938aa9229f"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "6", "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"5", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "1", ",", "1", ",", "1", ",", "1"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"4", ",", "2"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "2", ",", "1", ",", "1"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"4", ",", "1", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "1", ",", "1", ",", "1"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"3", ",", "3"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "2", ",", "2"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"3", ",", "2", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "2", ",", "1"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"3", ",", "1", ",", "1", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"4", ",", "1", ",", "1"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"2", ",", "2", ",", "2"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "3"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"2", ",", "2", ",", "1", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"4", ",", "2"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"2", ",", "1", ",", "1", ",", "1", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"5", ",", "1"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1"}], "}"}], 
+     ",", 
+     RowBox[{"{", "6", "}"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->150654265,ExpressionUUID->"8e126ce3-21ef-4e69-a328-9c4ab789a728"]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Properties & Relations", "ExampleSection",ExpressionUUID->
-   "aa1ab3d7-7ea0-4116-bf6b-bce45045ea9b"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"8f8cb00e-cde8-45ed-\
-a4c4-32d22878d42c"],
+   "3ac8fc4a-a4a4-4a41-a6bc-b3232a0a5543"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->196796385,ExpressionUUID->"4bd34a44-0a31-4a14-bb69-6ddb1850eb12"],
+
+Cell["\<\
+TransposePartition uses PartitionQ as its input validator. The two functions \
+agree on which lists are accepted:\
+\>", "ExampleText",
+ CellID->69046670,ExpressionUUID->"385e55ab-1897-4d4f-87fd-263779b67870"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"PartitionQ", "[", 
+    RowBox[{"{", 
+     RowBox[{"4", ",", " ", "2", ",", " ", "1"}], "}"}], "]"}], ",", " ", 
+   RowBox[{"TransposePartition", "[", 
+    RowBox[{"{", 
+     RowBox[{"4", ",", " ", "2", ",", " ", "1"}], "}"}], "]"}]}], 
+  "}"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->333279321,ExpressionUUID->"2b7401d8-56d3-4071-a86c-f216cfe5c6fe"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"True", ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "2", ",", "1", ",", "1"}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->941237879,ExpressionUUID->"4556841d-9b5b-474e-989a-a17146427272"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "2ce82d0f-1ea6-4ace-8347-fc6b4f5b094e"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->159455405,ExpressionUUID->"04b5793a-5951-4162-8ca3-f6ec9ae2ca62"],
+
+Cell["\<\
+The hook-length formula gives the same irrep dimension for a partition and \
+its conjugate; HookFactor (the reciprocal product of hook lengths) is \
+therefore conjugation-invariant:\
+\>", "ExampleText",
+ CellID->996187992,ExpressionUUID->"353effc8-d7c1-466a-9ff5-2e87d8be11a6"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"HookFactor", "[", 
+    RowBox[{"{", 
+     RowBox[{"4", ",", " ", "2", ",", " ", "1"}], "}"}], "]"}], ",", " ", 
+   RowBox[{"HookFactor", "[", 
+    RowBox[{"TransposePartition", "[", 
+     RowBox[{"{", 
+      RowBox[{"4", ",", " ", "2", ",", " ", "1"}], "}"}], "]"}], "]"}]}], 
+  "}"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->180694541,ExpressionUUID->"15dc9638-2755-4bc2-b572-e03c52c6925e"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   FractionBox["1", "144"], ",", 
+   FractionBox["1", "144"]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->814664892,ExpressionUUID->"020b0db5-4b32-425b-b378-a15a30374e03"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "c8382da4-3cb2-464b-807a-3823788aa096"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->389238327,ExpressionUUID->"1986a82b-0221-42fc-8b28-74eee726471d"],
+
+Cell["\<\
+HookLengths internally relies on TransposePartition to compute the leg of \
+each hook; the two hook-length tables for a partition and its conjugate are \
+related by transposition and agree as multisets:\
+\>", "ExampleText",
+ CellID->590522952,ExpressionUUID->"7245ade2-8be1-4ec2-87ec-aa87172d5248"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Sort", "[", 
+   RowBox[{"Flatten", "[", 
+    RowBox[{"HookLengths", "[", 
+     RowBox[{"{", 
+      RowBox[{"4", ",", " ", "2", ",", " ", "1"}], "}"}], "]"}], "]"}], "]"}],
+   " ", "===", " ", 
+  RowBox[{"Sort", "[", 
+   RowBox[{"Flatten", "[", 
+    RowBox[{"HookLengths", "[", 
+     RowBox[{"TransposePartition", "[", 
+      RowBox[{"{", 
+       RowBox[{"4", ",", " ", "2", ",", " ", "1"}], "}"}], "]"}], "]"}], 
+    "]"}], "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->323723701,ExpressionUUID->"fcad3b93-7dad-43c4-81c0-68e9d183e0b2"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->689622689,ExpressionUUID->"124fd398-d64d-4b8a-8527-41b70cd564d1"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "f024c826-47c0-442b-94e6-4a17949ee28b"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->846167594,ExpressionUUID->"3778bb70-2720-4ae8-b922-458c14666635"],
+
+Cell["\<\
+The length of the conjugate equals the largest part of the original partition:\
+\>", "ExampleText",
+ CellID->871983453,ExpressionUUID->"3b89e36f-de9f-4404-8c2a-e39c3ecaafed"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"Length", "[", 
+    RowBox[{"TransposePartition", "[", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", " ", "4", ",", " ", "3", ",", " ", "1"}], "}"}], 
+     "]"}], "]"}], ",", " ", 
+   RowBox[{"First", "[", 
+    RowBox[{"{", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "3", ",", " ", "1"}], "}"}], 
+    "]"}]}], "}"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->378201525,ExpressionUUID->"598d6455-bd98-44d6-99b1-0fa5af2af2c3"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"6", ",", "6"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->474481236,ExpressionUUID->"6391a353-f13a-48e6-8590-a3ac808a1c36"]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Possible Issues", "ExampleSection",ExpressionUUID->
-   "f760107d-dc82-4e2c-aab9-9e63c7d007aa"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"705f6953-9902-40aa-\
-a067-c4c7d6743b13"],
+   "944ecb9b-9ed3-4f75-9895-6ac404315b7e"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->80284633,ExpressionUUID->"246e46ef-0fd7-49a8-b4f1-f24281443acc"],
+
+Cell["\<\
+The empty partition is special-cased. Even though PartitionQ[{}] is False, \
+TransposePartition[{}] is defined and returns the empty list:\
+\>", "ExampleText",
+ CellID->188569898,ExpressionUUID->"4ac01e8b-322a-4c4b-9a74-be7bad3eacbd"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"TransposePartition", "[", 
+    RowBox[{"{", "}"}], "]"}], ",", " ", 
+   RowBox[{"PartitionQ", "[", 
+    RowBox[{"{", "}"}], "]"}]}], "}"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->616933900,ExpressionUUID->"b6efdf9d-8fff-433e-b17c-c53596ee7952"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", "}"}], ",", "False"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->748479481,ExpressionUUID->"5ec7ae47-5f7a-4591-bacc-8f7f3081fc5d"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "89b30d7f-7224-451d-bfdd-df6a8eb50bc2"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->314284027,ExpressionUUID->"68e2405a-5a5d-4b39-95d6-b2d10e7b5f72"],
+
+Cell["\<\
+A list whose entries are not weakly decreasing is rejected with a \
+TransposePartition::notpar message and $Failed; the input must already be \
+sorted in non-increasing order:\
+\>", "ExampleText",
+ CellID->677810732,ExpressionUUID->"cbe18dd1-8faa-4035-8e12-d60ff82bba54"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"MatchQ", "[", 
+  RowBox[{
+   RowBox[{"Quiet", "[", 
+    RowBox[{"TransposePartition", "[", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", " ", "3", ",", " ", "1"}], "}"}], "]"}], "]"}], ",", 
+   " ", "$Failed"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->897564182,ExpressionUUID->"6d8d6913-0b9b-475c-8aee-14cb07e37e01"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->65892281,ExpressionUUID->"25c4e2de-0320-40f5-8dc0-93ba06d20c3a"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "61f36414-4aad-4640-9a19-f86847b9dee6"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->445797554,ExpressionUUID->"6ae19ccf-1581-47e8-a197-f5dd64870f01"],
+
+Cell["\<\
+The self-inverse identity holds exactly for every valid partition, with no \
+rounding or other approximation:\
+\>", "ExampleText",
+ CellID->966360847,ExpressionUUID->"ad83d38d-7f1a-48eb-9a59-2fa03c20f306"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"AllTrue", "[", 
+  RowBox[{
+   RowBox[{"IntegerPartitions", "[", "8", "]"}], ",", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"TransposePartition", "[", 
+      RowBox[{"TransposePartition", "[", "#1", "]"}], "]"}], " ", "===", " ", 
+     "#1"}], " ", "&"}]}], " ", "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->385089207,ExpressionUUID->"285f567b-ea00-41af-8269-7d6ef3b23c93"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->923125737,ExpressionUUID->"7b542120-4b27-4abc-9344-4dd058588627"]
+}, Open  ]]
+}, Closed]],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Interactive Examples", "ExampleSection",ExpressionUUID->
-   "8e74ced5-b5d5-4109-a664-4f4209c30e98"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"96b7f67d-7fb7-4d21-\
-9ed9-583356032a5c"],
+   "9f7e3168-7e19-4ab0-9d07-279f7fdf6e80"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->952027234,ExpressionUUID->"da3153a4-27ab-4b4a-a0fa-cdd0e81916f3"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Neat Examples", "ExampleSection",ExpressionUUID->
-   "bd8e2eb2-384f-42f9-976b-cd6b56415f0e"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"51ed11a0-19e3-444a-\
-8363-bb30cf140014"]
+   "ba791e0b-8088-4d29-8a3d-ecc5b1eb7398"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->999254690,ExpressionUUID->"53c8a9ea-f77e-4b10-83fe-6d90902add0e"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
-Cell["Metadata", "MetadataSection",ExpressionUUID->"bbac49fe-f7c2-4423-bcf8-341637de5f2d"],
+Cell["Metadata", "MetadataSection",
+ CellID->750203801,ExpressionUUID->"f53318df-5ffd-431d-8474-475965783ea8"],
 
 Cell[TextData[{
  "New in: ",
- Cell["XX", "HistoryData",
-  CellTags->"New",ExpressionUUID->"36486e36-83e7-41f8-bcc1-aba059632f10"],
+ Cell["1.0", "HistoryData",
+  CellTags->"New",ExpressionUUID->"c2d7b330-cb4b-4ed5-ba70-6669c2c8bfb3"],
  " | Modified in: ",
  Cell[" ", "HistoryData",
-  CellTags->"Modified",ExpressionUUID->"8ed644c0-7536-43b1-aa40-c878c35014bf"],
+  CellTags->"Modified",ExpressionUUID->"83971f2f-0d64-4d3e-94f6-c3f66fff5062"],
  " | Obsolete in: ",
  Cell[" ", "HistoryData",
   CellTags->"Obsolete",ExpressionUUID->
-  "a37e27d4-0ff3-4c2a-b4db-f7aefc9b48d6"]
-}], "History",ExpressionUUID->"c06c07d6-4ef2-4232-a39e-82d3ee32e16a"],
+  "c967d49e-c5b2-49c1-859d-f20d25c984b9"]
+}], "History",
+ CellID->327652040,ExpressionUUID->"457acf49-d002-463a-a5db-cbdca0af512e"],
 
 Cell[CellGroupData[{
 
@@ -300,52 +1240,86 @@ Cell[TextData[{
        "Metadata such as page URI, context, and type of documentation page.", 
         "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "e6c5d70b-06de-4a35-ac1b-9424c82dd571"]
-}], "CategorizationSection",ExpressionUUID->"4c707b37-d08d-49ec-ba47-\
-7cc286f54283"],
+  "09bc6f4c-6bd8-473a-a657-91947c66aa39"]
+}], "CategorizationSection",
+ CellID->436119191,ExpressionUUID->"73076b29-430f-46c6-883b-cc6398df7076"],
 
 Cell["Symbol", "Categorization",
- CellLabel->
-  "Entity Type",ExpressionUUID->"717f3c56-c6b1-4138-bb90-235e9133dc70"],
+ CellLabel->"Entity Type",
+ CellID->104906213,ExpressionUUID->"4c17ee11-984f-49f3-9398-951f90507164"],
 
 Cell["Wolfram/TensorNetworks", "Categorization",
- CellLabel->
-  "Paclet Name",ExpressionUUID->"af7363d9-3a9c-4446-b8c9-7e137d7389b0"],
+ CellLabel->"Paclet Name",
+ CellID->396931208,ExpressionUUID->"e4a1b22a-5694-4fc2-9d06-087c14ae12f1"],
 
 Cell["Wolfram`TensorNetworks`Symmetry`", "Categorization",
- CellLabel->"Context",ExpressionUUID->"e82c5c7f-d9d7-49dd-be25-ccb21daf2acb"],
+ CellLabel->"Context",
+ CellID->456269608,ExpressionUUID->"02834e27-7d61-4d2e-a2f8-4ad8a70fa25d"],
 
 Cell["Wolfram/TensorNetworks/ref/TransposePartition", "Categorization",
- CellLabel->"URI",ExpressionUUID->"61166840-5e17-4da2-bd47-a2f280112ece"]
+ CellLabel->"URI",
+ CellID->313916159,ExpressionUUID->"6819ea80-9c08-41af-bd81-b669ff892a42"]
 }, Closed]],
 
 Cell[CellGroupData[{
 
-Cell["Keywords", "KeywordsSection",ExpressionUUID->"3345decf-b89a-4f7f-880f-429882b7e4c9"],
+Cell["Keywords", "KeywordsSection",
+ CellID->914456157,ExpressionUUID->"1dafff6a-304d-484a-b426-17d6a8497f1e"],
 
-Cell[" ", "Keywords",ExpressionUUID->"93289261-9194-4b5f-aa0b-c2179fc391a7"]
+Cell["conjugate partition", "Keywords",
+ CellID->459821315,ExpressionUUID->"48aff0b0-bc4b-4e64-a4d1-941bec3807e7"],
+
+Cell["transpose partition", "Keywords",
+ CellID->312047299,ExpressionUUID->"156f7ab9-2712-4615-bbc7-6d2e7cf4ea90"],
+
+Cell["Young diagram", "Keywords",
+ CellID->962061313,ExpressionUUID->"6915bec3-0350-4abf-97ab-c3a82fccc5a4"],
+
+Cell["Young tableau", "Keywords",
+ CellID->168526941,ExpressionUUID->"e4275672-22cf-4885-a982-762bf529ef41"],
+
+Cell["integer partition", "Keywords",
+ CellID->603200502,ExpressionUUID->"b3e876e8-a07b-4f3b-90a0-83871d2911bd"],
+
+Cell["self-conjugate", "Keywords",
+ CellID->919423804,ExpressionUUID->"cb66fa73-d46f-43c2-9818-dcdd3b885570"],
+
+Cell["self-inverse", "Keywords",
+ CellID->141199422,ExpressionUUID->"06c679c8-adc5-47d9-94de-1ccd18578cd6"],
+
+Cell["symmetric group", "Keywords",
+ CellID->616291291,ExpressionUUID->"64c08996-aa18-4a56-a028-447b451bdd03"],
+
+Cell["irreducible representation", "Keywords",
+ CellID->870376855,ExpressionUUID->"6c642b6c-b4b3-42f7-bfe0-7cb596a6dfe4"],
+
+Cell["hook length formula", "Keywords",
+ CellID->778849178,ExpressionUUID->"57c810e5-8d59-4481-a410-cc74d28029e4"],
+
+Cell["dual irrep", "Keywords",
+ CellID->602625070,ExpressionUUID->"9228f65a-e048-4f5c-86f4-fd5976516e7c"]
 }, Closed]],
 
 Cell[CellGroupData[{
 
-Cell["Syntax Templates", "TemplatesSection",ExpressionUUID->"ea803d9d-09a7-4e71-acc7-ab4a871db3df"],
+Cell["Syntax Templates", "TemplatesSection",
+ CellID->483411904,ExpressionUUID->"ef579210-4d4d-43d8-ac2c-8938e630f74f"],
 
 Cell[BoxData[""], "Template",
- CellLabel->
-  "Additional Function \
-Template",ExpressionUUID->"daa0ed6f-930b-4653-8f4d-6544ca57bb29"],
+ CellLabel->"Additional Function Template",
+ CellID->432672764,ExpressionUUID->"17948965-84ba-464f-ba3b-23d50cdf541b"],
 
 Cell[BoxData[""], "Template",
- CellLabel->
-  "Arguments Pattern",ExpressionUUID->"69e9dec4-ddfc-4e48-84f0-c7ef242ddf49"],
+ CellLabel->"Arguments Pattern",
+ CellID->518426865,ExpressionUUID->"0b681dc9-a96c-4325-8142-893f8a22b23a"],
 
 Cell[BoxData[""], "Template",
- CellLabel->
-  "Local Variables",ExpressionUUID->"a37f773b-8708-43fe-9928-31c66713afbf"],
+ CellLabel->"Local Variables",
+ CellID->603289659,ExpressionUUID->"ce408882-795f-4209-aad9-672a79763118"],
 
 Cell[BoxData[""], "Template",
- CellLabel->
-  "Color Equal Signs",ExpressionUUID->"82fb9c38-4ab7-4edc-aa01-f09810769521"]
+ CellLabel->"Color Equal Signs",
+ CellID->610861270,ExpressionUUID->"bf700bbc-c702-4c1e-9227-0838d1b406cf"]
 }, Closed]]
 }, Open  ]]
 },
@@ -356,7 +1330,7 @@ CellContext->"Global`",
 FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (February 17, 2026)",
 StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
   CharacterEncoding -> "UTF-8"],
-ExpressionUUID->"b73e93e5-cf0c-4ea9-8777-01b5aa61dec6"
+ExpressionUUID->"33362975-5997-4594-8601-c17a8e0ca027"
 ]
 (* End of Notebook Content *)
 
@@ -364,85 +1338,383 @@ ExpressionUUID->"b73e93e5-cf0c-4ea9-8777-01b5aa61dec6"
 (*CellTagsOutline
 CellTagsIndex->{
  "ExtendedExamples"->{
-  Cell[6058, 183, 470, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"ea245d6a-e75e-49fa-b357-bb57e230e8d1",
-   CellTags->"ExtendedExamples"]}
+  Cell[15230, 451, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"74dfccbd-48b3-4ce7-8ccb-f440d54af48b",
+   CellTags->"ExtendedExamples",
+   CellID->564012456]}
  }
 *)
 (*CellTagsIndex
 CellTagsIndex->{
- {"ExtendedExamples", 11913, 365}
+ {"ExtendedExamples", 43625, 1339}
  }
 *)
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[576, 22, 95, 0, 70, "ObjectName",ExpressionUUID->"e524b476-f744-4783-a0f5-8e7bdd5caba8"],
-Cell[674, 24, 597, 11, 70, "Usage",ExpressionUUID->"4e0d1f6f-b9f0-45b2-a65a-577fb0877932"],
-Cell[1274, 37, 73, 0, 70, "Notes",ExpressionUUID->"932d5b66-f28b-485a-bd6e-fb83d8d035d1"]
+Cell[576, 22, 115, 1, 70, "ObjectName",ExpressionUUID->"eee53de3-13f7-4a2e-802c-e1b5de22b6ae",
+ CellID->320579364],
+Cell[694, 25, 622, 13, 70, "Usage",ExpressionUUID->"34e59bc6-77fb-4133-88ee-8cad164154cc",
+ CellID->172581409],
+Cell[1319, 40, 544, 14, 70, "Notes",ExpressionUUID->"6731682d-1e22-4e8d-bff0-567ca104c5c6",
+ CellID->223337487],
+Cell[1866, 56, 337, 7, 70, "Notes",ExpressionUUID->"d8f2f204-8904-4157-8903-ca6c94ccb847",
+ CellID->984669801],
+Cell[2206, 65, 633, 16, 70, "Notes",ExpressionUUID->"82f49174-b37a-4bd8-bdb3-3f1410040072",
+ CellID->685904443],
+Cell[2842, 83, 761, 20, 70, "Notes",ExpressionUUID->"11f33c18-a67d-4131-a89b-4544347fc795",
+ CellID->309493800],
+Cell[3606, 105, 540, 14, 70, "Notes",ExpressionUUID->"211c1a88-787b-40e4-85a9-878c3aae6276",
+ CellID->571753287],
+Cell[4149, 121, 715, 20, 70, "Notes",ExpressionUUID->"e31f839a-64f6-4522-b114-b022f58b0b43",
+ CellID->40550656],
+Cell[4867, 143, 582, 15, 70, "Notes",ExpressionUUID->"f1d9f91d-8d3e-4a74-b716-afb9a0717701",
+ CellID->924238015]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1384, 42, 438, 12, 70, "SeeAlsoSection",ExpressionUUID->"10b6229e-fc74-4a60-be18-ea2b10ada9c0"],
-Cell[1825, 56, 969, 20, 70, "SeeAlso",ExpressionUUID->"5612d022-669c-4b39-a0d8-1104aa196bfb"]
+Cell[5486, 163, 458, 13, 70, "SeeAlsoSection",ExpressionUUID->"fe5f3442-4eb3-49dc-a176-49bfba7fa4ab",
+ CellID->146846295],
+Cell[5947, 178, 2662, 56, 70, "SeeAlso",ExpressionUUID->"1c369dee-8e72-4864-b7b7-6e2d4e35b768",
+ CellID->643937536]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[2831, 81, 415, 11, 70, "TechNotesSection",ExpressionUUID->"7030fb7a-1c24-4423-b75d-4f869d836dcd"],
-Cell[3249, 94, 77, 0, 70, "Tutorials",ExpressionUUID->"dee36faa-9207-42d1-ab46-193ece80a7a8"]
+Cell[8646, 239, 434, 12, 70, "TechNotesSection",ExpressionUUID->"62d2f696-5984-467d-8d27-3e9ad431ea9c",
+ CellID->85384584],
+Cell[9083, 253, 344, 8, 70, "Tutorials",ExpressionUUID->"002ed2c4-4dea-4ef4-a203-889615c4cd27",
+ CellID->378158216]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[3363, 99, 97, 0, 70, "MoreAboutSection",ExpressionUUID->"6e73ee82-132a-4c4c-8b71-650d247e2f3f"],
-Cell[3463, 101, 77, 0, 70, "MoreAbout",ExpressionUUID->"8a0d3393-3d96-4ff3-9cd6-52797bc08b1c"]
+Cell[9464, 266, 117, 1, 70, "MoreAboutSection",ExpressionUUID->"8abd2c1b-5a61-4627-be87-697890580d4c",
+ CellID->927892187],
+Cell[9584, 269, 339, 8, 70, "MoreAbout",ExpressionUUID->"06fa55fc-4d5c-4445-9d0b-2efc7ebac9ea",
+ CellID->592555556]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[3577, 106, 454, 13, 70, "RelatedLinksSection",ExpressionUUID->"40814245-482b-43de-8129-203839abc120"],
-Cell[4034, 121, 80, 0, 70, "RelatedLinks",ExpressionUUID->"7702b2fd-1e3e-4e5f-a4f4-dfffbdcc7bc4"]
+Cell[9960, 282, 472, 13, 70, "RelatedLinksSection",ExpressionUUID->"78e9fadc-a4f8-4aa0-bfd0-6f2b78ee56a1",
+ CellID->297444364],
+Cell[10435, 297, 99, 1, 70, "RelatedLinks",ExpressionUUID->"5b6317e3-d882-46e0-9636-8edd04da1ad1",
+ CellID->74412866]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4151, 126, 512, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"ec55f553-e7c2-4f28-9cce-a8dec2563df4"],
-Cell[4666, 142, 173, 3, 70, "ExampleInitialization",ExpressionUUID->"e2d0c5fc-49d5-4027-bf40-d39177c64618"]
+Cell[10571, 303, 530, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"144bdf2d-6d7e-40a9-af8f-be94b4ba91ba",
+ CellID->675089960],
+Cell[11104, 319, 191, 3, 70, "ExampleInitialization",ExpressionUUID->"230f22eb-494f-4be1-9116-2de98a564c8c",
+ CellID->706411693]
 }, Open  ]],
-Cell[4854, 148, 424, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"dc7fb434-91f7-4902-bfbe-a513154e1f75"],
-Cell[5281, 162, 136, 1, 70, "ExampleText",ExpressionUUID->"87e0d60a-65d5-4bab-8169-0955a95032ee",
- CellID->1580141341],
-Cell[5420, 165, 206, 4, 70, "Input",ExpressionUUID->"1bc433f8-85e6-4da1-be3c-5e23dca8365d"],
-Cell[5629, 171, 148, 1, 70, "ExampleText",ExpressionUUID->"d63cab36-b95a-4f57-9c49-31e854cc1778",
- CellID->1754888414],
-Cell[5780, 174, 253, 5, 70, "Input",ExpressionUUID->"5dbf045c-f64d-4c5a-b95f-57e734c4799c"],
+Cell[11310, 325, 442, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"fa39da7e-181b-49df-8a00-6dc32814f759",
+ CellID->720968092],
+Cell[11755, 339, 139, 1, 70, "ExampleText",ExpressionUUID->"d08ba101-9c87-4ba6-9c58-48529d795392",
+ CellID->767425063],
 Cell[CellGroupData[{
-Cell[6058, 183, 470, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"ea245d6a-e75e-49fa-b357-bb57e230e8d1",
- CellTags->"ExtendedExamples"],
-Cell[6531, 198, 223, 5, 70, "ExampleSection",ExpressionUUID->"0ef1c16b-2982-4a61-bd1d-505aaf969d98"],
-Cell[6757, 205, 246, 5, 70, "ExampleSection",ExpressionUUID->"10d49d66-4ea3-4432-81d8-c3f09aef42db"],
-Cell[CellGroupData[{
-Cell[7028, 214, 225, 5, 70, "ExampleSection",ExpressionUUID->"3f0d6398-a24f-4ace-a569-28496f25e450"],
-Cell[7256, 221, 225, 5, 70, "ExampleSubsection",ExpressionUUID->"ca2a6b4a-1353-4bd4-9a8c-b6e63a66c6b4"],
-Cell[7484, 228, 225, 5, 70, "ExampleSubsection",ExpressionUUID->"f301a1e4-cc42-45ee-9fd2-87d8e7630b1a"]
+Cell[11919, 344, 236, 5, 70, "Input",ExpressionUUID->"8a762297-4584-45c9-ba9e-3d209e8b76cf",
+ CellID->881915684],
+Cell[12158, 351, 191, 4, 70, "Output",ExpressionUUID->"db7f0c42-ae8d-4619-901e-b314a3164de7",
+ CellID->132959009]
 }, Open  ]],
-Cell[7724, 236, 230, 5, 70, "ExampleSection",ExpressionUUID->"7a6a1b4a-2758-4786-9da3-9b0ea77e50aa"],
-Cell[7957, 243, 240, 5, 70, "ExampleSection",ExpressionUUID->"8f8cb00e-cde8-45ed-a4c4-32d22878d42c"],
-Cell[8200, 250, 233, 5, 70, "ExampleSection",ExpressionUUID->"705f6953-9902-40aa-a067-c4c7d6743b13"],
-Cell[8436, 257, 238, 5, 70, "ExampleSection",ExpressionUUID->"96b7f67d-7fb7-4d21-9ed9-583356032a5c"],
-Cell[8677, 264, 231, 5, 70, "ExampleSection",ExpressionUUID->"51ed11a0-19e3-444a-8363-bb30cf140014"]
+Cell[12364, 358, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"85b44d83-c8ab-4186-a46c-94f51b78104c",
+ CellID->786445265],
+Cell[12609, 365, 205, 4, 70, "ExampleText",ExpressionUUID->"2700b71b-d46e-445e-a206-6cdc1a9a8d7b",
+ CellID->173175353],
+Cell[CellGroupData[{
+Cell[12839, 373, 285, 7, 70, "Input",ExpressionUUID->"5798694e-8c21-477b-a146-a02f9fae5157",
+ CellID->771321129],
+Cell[13127, 382, 179, 4, 70, "Output",ExpressionUUID->"88476355-09b2-4c20-9b36-341e95b88cda",
+ CellID->9785512]
+}, Open  ]],
+Cell[13321, 389, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"a32cf4a0-250e-478d-b196-d9ceeb38d0b7",
+ CellID->359210951],
+Cell[13566, 396, 238, 4, 70, "ExampleText",ExpressionUUID->"37b693a5-a2cb-4050-88d9-4957ba8499b7",
+ CellID->909579200],
+Cell[CellGroupData[{
+Cell[13829, 404, 236, 5, 70, "Input",ExpressionUUID->"3fd09d37-dc73-4c35-b7a0-0ee7a6091104",
+ CellID->524311723],
+Cell[14068, 411, 181, 4, 70, "Output",ExpressionUUID->"a0259420-3966-42a4-acfb-bed8ad6eeff7",
+ CellID->253469380]
+}, Open  ]],
+Cell[14264, 418, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"824171e9-86e3-4cc6-848f-fabadbe737a6",
+ CellID->833297435],
+Cell[14509, 425, 190, 4, 70, "ExampleText",ExpressionUUID->"f0b398ba-83f5-4462-9539-018e66e368f6",
+ CellID->153749453],
+Cell[CellGroupData[{
+Cell[14724, 433, 285, 7, 70, "Input",ExpressionUUID->"c4d75ef3-94f4-4147-a402-014273e59812",
+ CellID->233215217],
+Cell[15012, 442, 181, 4, 70, "Output",ExpressionUUID->"c01814e2-02d5-4b12-af88-bc5a9bc5063a",
+ CellID->116411454]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[8945, 274, 90, 0, 70, "MetadataSection",ExpressionUUID->"bbac49fe-f7c2-4423-bcf8-341637de5f2d"],
-Cell[9038, 276, 456, 11, 70, "History",ExpressionUUID->"c06c07d6-4ef2-4232-a39e-82d3ee32e16a"],
+Cell[15230, 451, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"74dfccbd-48b3-4ce7-8ccb-f440d54af48b",
+ CellTags->"ExtendedExamples",
+ CellID->564012456],
 Cell[CellGroupData[{
-Cell[9519, 291, 466, 13, 70, "CategorizationSection",ExpressionUUID->"4c707b37-d08d-49ec-ba47-7cc286f54283"],
-Cell[9988, 306, 117, 2, 70, "Categorization",ExpressionUUID->"717f3c56-c6b1-4138-bb90-235e9133dc70"],
-Cell[10108, 310, 133, 2, 70, "Categorization",ExpressionUUID->"af7363d9-3a9c-4446-b8c9-7e137d7389b0"],
-Cell[10244, 314, 136, 1, 70, "Categorization",ExpressionUUID->"e82c5c7f-d9d7-49dd-be25-ccb21daf2acb"],
-Cell[10383, 317, 145, 1, 70, "Categorization",ExpressionUUID->"61166840-5e17-4da2-bd47-a2f280112ece"]
+Cell[15742, 468, 241, 5, 70, "ExampleSection",ExpressionUUID->"53035e5b-c5d4-4f79-957e-271ebc479283",
+ CellID->478423877],
+Cell[CellGroupData[{
+Cell[16008, 477, 116, 1, 70, "ExampleSubsection",ExpressionUUID->"4a522c77-5fb7-4986-8518-2bc8efe26142",
+ CellID->577356499],
+Cell[16127, 480, 218, 4, 70, "ExampleText",ExpressionUUID->"9ea0c65a-3751-4a58-b3c4-1e9abc7d5a1b",
+ CellID->384011254],
+Cell[CellGroupData[{
+Cell[16370, 488, 402, 10, 70, "Input",ExpressionUUID->"c692c243-b36f-4c3f-8741-8a05ba769074",
+ CellID->295281527],
+Cell[16775, 500, 128, 2, 70, "Output",ExpressionUUID->"d54d2b6b-815f-4524-8e49-fd95440a52df",
+ CellID->33497448]
+}, Open  ]],
+Cell[16918, 505, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"bbd29a60-8841-4e35-80cf-7e4b714c4b57",
+ CellID->612310210],
+Cell[17163, 512, 131, 1, 70, "ExampleText",ExpressionUUID->"43c942b9-683a-44b2-94a9-30837745f143",
+ CellID->684013741],
+Cell[CellGroupData[{
+Cell[17319, 517, 285, 7, 70, "Input",ExpressionUUID->"b2e4c65d-713d-4763-88cb-d922d5c29b2b",
+ CellID->998418271],
+Cell[17607, 526, 181, 4, 70, "Output",ExpressionUUID->"7cba0124-55a4-4ea7-9731-c583812dcdb2",
+ CellID->901776430]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[17837, 536, 129, 1, 70, "ExampleSubsection",ExpressionUUID->"04d1f882-3530-47ec-b3c7-456be72dc88f",
+ CellID->664136013],
+Cell[17969, 539, 254, 4, 70, "ExampleText",ExpressionUUID->"18bc7cc0-d875-4e16-aadc-c20fefa8bf16",
+ CellID->597503020],
+Cell[CellGroupData[{
+Cell[18248, 547, 494, 13, 70, "Input",ExpressionUUID->"85e7936c-a6f2-4760-8be6-8669a240d033",
+ CellID->764935853],
+Cell[18745, 562, 707, 23, 70, "Output",ExpressionUUID->"2e2ccd74-1030-4400-8b4c-126a7486f7b2",
+ CellID->183815344]
+}, Open  ]],
+Cell[19467, 588, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"f1bce495-3935-40a0-868d-1769da7835f0",
+ CellID->928652029],
+Cell[19712, 595, 160, 2, 70, "ExampleText",ExpressionUUID->"dead1e4e-e194-4554-8e40-02422367f127",
+ CellID->609703154],
+Cell[CellGroupData[{
+Cell[19897, 601, 221, 5, 70, "Input",ExpressionUUID->"9ee50d4a-4edb-488d-94d4-feb5b632e606",
+ CellID->820061258],
+Cell[20121, 608, 171, 4, 70, "Output",ExpressionUUID->"743ea5cc-191b-4936-8a3b-f493f6d8ac15",
+ CellID->942320786]
+}, Open  ]],
+Cell[20307, 615, 240, 5, 70, "ExampleDelimiter",ExpressionUUID->"7f0b8ff7-dc20-4987-9389-26f608072805",
+ CellID->1293753],
+Cell[20550, 622, 130, 1, 70, "ExampleText",ExpressionUUID->"e46938c4-7fa1-4590-b1b4-f59478ab5b63",
+ CellID->191557248],
+Cell[CellGroupData[{
+Cell[20705, 627, 254, 6, 70, "Input",ExpressionUUID->"3a82b194-4ccb-4865-8161-c8f3f720fc12",
+ CellID->718179333],
+Cell[20962, 635, 191, 4, 70, "Output",ExpressionUUID->"3469ebea-8d6b-4943-b482-254f659f56b0",
+ CellID->524642045]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[21202, 645, 119, 1, 70, "ExampleSubsection",ExpressionUUID->"3e499758-f10a-45ea-a9db-a393da7cdc5f",
+ CellID->306544506],
+Cell[21324, 648, 182, 3, 70, "ExampleText",ExpressionUUID->"0afa0d0d-2d34-4a0d-8bf5-979c6b6f8900",
+ CellID->699280929],
+Cell[CellGroupData[{
+Cell[21531, 655, 187, 4, 70, "Input",ExpressionUUID->"a752bc81-19b8-4168-9804-b69513c5f8c2",
+ CellID->407803035],
+Cell[21721, 661, 143, 3, 70, "Output",ExpressionUUID->"3ff02a35-48d6-40cc-9d3f-56c6fdeb908b",
+ CellID->730314519]
+}, Open  ]],
+Cell[21879, 667, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"d291c803-cb91-4bb2-9ab6-8c71eacc3e07",
+ CellID->145813237],
+Cell[22124, 674, 259, 4, 70, "ExampleText",ExpressionUUID->"2123d246-b27a-40ac-ab45-025433e90de4",
+ CellID->298989684],
+Cell[CellGroupData[{
+Cell[22408, 682, 179, 4, 70, "Input",ExpressionUUID->"26e75e63-288c-4a09-a38c-b5f94ad6d216",
+ CellID->331671172],
+Cell[22590, 688, 130, 2, 70, "Output",ExpressionUUID->"2b65cede-c32e-4e23-b677-ad2741bf5bc8",
+ CellID->710389379]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[22769, 696, 123, 1, 70, "ExampleSubsection",ExpressionUUID->"b2fd96dc-bc97-4f9a-8320-8b9eed7faba6",
+ CellID->552745575],
+Cell[22895, 699, 294, 5, 70, "ExampleText",ExpressionUUID->"87b5be74-4391-4437-9049-b6bb4f89f00d",
+ CellID->488247794],
+Cell[CellGroupData[{
+Cell[23214, 708, 317, 8, 70, "Input",ExpressionUUID->"004be908-8f49-4e2e-a16f-58b086ca6342",
+ CellID->660282859],
+Cell[23534, 718, 128, 2, 70, "Output",ExpressionUUID->"b30752fb-7c2d-41b5-acd1-5b97a144af78",
+ CellID->76739115]
+}, Open  ]],
+Cell[23677, 723, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"33b363dc-9a7c-4570-8959-3f4d50c9e92b",
+ CellID->947876932],
+Cell[23922, 730, 147, 1, 70, "ExampleText",ExpressionUUID->"84f8cbf7-e8cb-4ccf-940a-cfb9f2c5faaf",
+ CellID->325452594],
+Cell[CellGroupData[{
+Cell[24094, 735, 255, 6, 70, "Input",ExpressionUUID->"1e9f5368-915b-439a-96a9-7f4adb3fc478",
+ CellID->53675367],
+Cell[24352, 743, 129, 2, 70, "Output",ExpressionUUID->"838c7187-a787-4065-8ab2-7105349ebd66",
+ CellID->977923689]
+}, Open  ]]
+}, Open  ]]
+}, Closed]],
+Cell[24520, 750, 264, 5, 70, "ExampleSection",ExpressionUUID->"3af19d5f-098e-4419-90b5-864e8c1a6754",
+ CellID->109865355],
+Cell[24787, 757, 243, 5, 70, "ExampleSection",ExpressionUUID->"8e5da995-73b0-451c-bab1-8e7c4df47548",
+ CellID->875289481],
+Cell[CellGroupData[{
+Cell[25055, 766, 248, 5, 70, "ExampleSection",ExpressionUUID->"d9630cfa-c19f-4a4a-9b19-c920115d4f5f",
+ CellID->872514143],
+Cell[25306, 773, 429, 7, 70, "ExampleText",ExpressionUUID->"cd038e5f-56d2-4b02-a461-826e9e61cbde",
+ CellID->812660169],
+Cell[CellGroupData[{
+Cell[25760, 784, 443, 11, 70, "Input",ExpressionUUID->"1ca1aca4-77cd-4336-b8a7-db91b63f8458",
+ CellID->318047898],
+Cell[26206, 797, 129, 2, 70, "Output",ExpressionUUID->"3a7c0f92-cea6-408d-8962-8d68c650a9be",
+ CellID->229919155]
+}, Open  ]],
+Cell[26350, 802, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"dace8a93-134f-4419-8970-0c135f99ae59",
+ CellID->621618535],
+Cell[26595, 809, 326, 5, 70, "ExampleText",ExpressionUUID->"9cebfd1b-1389-4ca9-a63e-a7c7ced1e18d",
+ CellID->400699173],
+Cell[CellGroupData[{
+Cell[26946, 818, 331, 9, 70, "Input",ExpressionUUID->"8ed508d9-124a-4789-bb5a-2994353dee8a",
+ CellID->275895987],
+Cell[27280, 829, 279, 8, 70, "Output",ExpressionUUID->"795deacf-3cc2-4347-a0d5-361c073068c5",
+ CellID->457926433]
+}, Open  ]],
+Cell[27574, 840, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"ba5f70ba-abb0-4562-bb3e-032c351355b8",
+ CellID->130273570],
+Cell[27819, 847, 248, 4, 70, "ExampleText",ExpressionUUID->"ef169da7-12af-4bfd-8fba-43271e937826",
+ CellID->67834248],
+Cell[CellGroupData[{
+Cell[28092, 855, 365, 10, 70, "Input",ExpressionUUID->"ff4cefeb-8661-4adb-b2c8-50938aa9229f",
+ CellID->829035141],
+Cell[28460, 867, 2205, 70, 70, "Output",ExpressionUUID->"8e126ce3-21ef-4e69-a328-9c4ab789a728",
+ CellID->150654265]
+}, Open  ]]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[10565, 323, 90, 0, 70, "KeywordsSection",ExpressionUUID->"3345decf-b89a-4f7f-880f-429882b7e4c9"],
-Cell[10658, 325, 76, 0, 70, "Keywords",ExpressionUUID->"93289261-9194-4b5f-aa0b-c2179fc391a7"]
+Cell[30714, 943, 258, 5, 70, "ExampleSection",ExpressionUUID->"4bd34a44-0a31-4a14-bb69-6ddb1850eb12",
+ CellID->196796385],
+Cell[30975, 950, 218, 4, 70, "ExampleText",ExpressionUUID->"385e55ab-1897-4d4f-87fd-263779b67870",
+ CellID->69046670],
+Cell[CellGroupData[{
+Cell[31218, 958, 404, 11, 70, "Input",ExpressionUUID->"2b7401d8-56d3-4071-a86c-f216cfe5c6fe",
+ CellID->333279321],
+Cell[31625, 971, 243, 6, 70, "Output",ExpressionUUID->"4556841d-9b5b-474e-989a-a17146427272",
+ CellID->941237879]
+}, Open  ]],
+Cell[31883, 980, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"04b5793a-5951-4162-8ca3-f6ec9ae2ca62",
+ CellID->159455405],
+Cell[32128, 987, 287, 5, 70, "ExampleText",ExpressionUUID->"353effc8-d7c1-466a-9ff5-2e87d8be11a6",
+ CellID->996187992],
+Cell[CellGroupData[{
+Cell[32440, 996, 445, 12, 70, "Input",ExpressionUUID->"15dc9638-2755-4bc2-b572-e03c52c6925e",
+ CellID->180694541],
+Cell[32888, 1010, 219, 6, 70, "Output",ExpressionUUID->"020b0db5-4b32-425b-b378-a15a30374e03",
+ CellID->814664892]
+}, Open  ]],
+Cell[33122, 1019, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"1986a82b-0221-42fc-8b28-74eee726471d",
+ CellID->389238327],
+Cell[33367, 1026, 308, 5, 70, "ExampleText",ExpressionUUID->"7245ade2-8be1-4ec2-87ec-aa87172d5248",
+ CellID->590522952],
+Cell[CellGroupData[{
+Cell[33700, 1035, 575, 16, 70, "Input",ExpressionUUID->"fcad3b93-7dad-43c4-81c0-68e9d183e0b2",
+ CellID->323723701],
+Cell[34278, 1053, 129, 2, 70, "Output",ExpressionUUID->"124fd398-d64d-4b8a-8527-41b70cd564d1",
+ CellID->689622689]
+}, Open  ]],
+Cell[34422, 1058, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"3778bb70-2720-4ae8-b922-458c14666635",
+ CellID->846167594],
+Cell[34667, 1065, 184, 3, 70, "ExampleText",ExpressionUUID->"3b89e36f-de9f-4404-8c2a-e39c3ecaafed",
+ CellID->871983453],
+Cell[CellGroupData[{
+Cell[34876, 1072, 474, 13, 70, "Input",ExpressionUUID->"598d6455-bd98-44d6-99b1-0fa5af2af2c3",
+ CellID->378201525],
+Cell[35353, 1087, 171, 4, 70, "Output",ExpressionUUID->"6391a353-f13a-48e6-8590-a3ac808a1c36",
+ CellID->474481236]
+}, Open  ]]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[10771, 330, 99, 0, 70, "TemplatesSection",ExpressionUUID->"ea803d9d-09a7-4e71-acc7-ab4a871db3df"],
-Cell[10873, 332, 133, 3, 70, "Template",ExpressionUUID->"daa0ed6f-930b-4653-8f4d-6544ca57bb29"],
-Cell[11009, 337, 120, 2, 70, "Template",ExpressionUUID->"69e9dec4-ddfc-4e48-84f0-c7ef242ddf49"],
-Cell[11132, 341, 118, 2, 70, "Template",ExpressionUUID->"a37f773b-8708-43fe-9928-31c66713afbf"],
-Cell[11253, 345, 120, 2, 70, "Template",ExpressionUUID->"82fb9c38-4ab7-4edc-aa01-f09810769521"]
+Cell[35573, 1097, 250, 5, 70, "ExampleSection",ExpressionUUID->"246e46ef-0fd7-49a8-b4f1-f24281443acc",
+ CellID->80284633],
+Cell[35826, 1104, 244, 4, 70, "ExampleText",ExpressionUUID->"4ac01e8b-322a-4c4b-9a74-be7bad3eacbd",
+ CellID->188569898],
+Cell[CellGroupData[{
+Cell[36095, 1112, 299, 8, 70, "Input",ExpressionUUID->"b6efdf9d-8fff-433e-b17c-c53596ee7952",
+ CellID->616933900],
+Cell[36397, 1122, 194, 5, 70, "Output",ExpressionUUID->"5ec7ae47-5f7a-4591-bacc-8f7f3081fc5d",
+ CellID->748479481]
+}, Open  ]],
+Cell[36606, 1130, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"68e2405a-5a5d-4b39-95d6-b2d10e7b5f72",
+ CellID->314284027],
+Cell[36851, 1137, 281, 5, 70, "ExampleText",ExpressionUUID->"cbe18dd1-8faa-4035-8e12-d60ff82bba54",
+ CellID->677810732],
+Cell[CellGroupData[{
+Cell[37157, 1146, 348, 9, 70, "Input",ExpressionUUID->"6d8d6913-0b9b-475c-8aee-14cb07e37e01",
+ CellID->897564182],
+Cell[37508, 1157, 128, 2, 70, "Output",ExpressionUUID->"25c4e2de-0320-40f5-8dc0-93ba06d20c3a",
+ CellID->65892281]
+}, Open  ]],
+Cell[37651, 1162, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"6ae19ccf-1581-47e8-a197-f5dd64870f01",
+ CellID->445797554],
+Cell[37896, 1169, 215, 4, 70, "ExampleText",ExpressionUUID->"ad83d38d-7f1a-48eb-9a59-2fa03c20f306",
+ CellID->966360847],
+Cell[CellGroupData[{
+Cell[38136, 1177, 402, 10, 70, "Input",ExpressionUUID->"285f567b-ea00-41af-8269-7d6ef3b23c93",
+ CellID->385089207],
+Cell[38541, 1189, 129, 2, 70, "Output",ExpressionUUID->"7b542120-4b27-4abc-9344-4dd058588627",
+ CellID->923125737]
+}, Open  ]]
+}, Closed]],
+Cell[38697, 1195, 256, 5, 70, "ExampleSection",ExpressionUUID->"da3153a4-27ab-4b4a-a0fa-cdd0e81916f3",
+ CellID->952027234],
+Cell[38956, 1202, 249, 5, 70, "ExampleSection",ExpressionUUID->"53c8a9ea-f77e-4b10-83fe-6d90902add0e",
+ CellID->999254690]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[39242, 1212, 110, 1, 70, "MetadataSection",ExpressionUUID->"f53318df-5ffd-431d-8474-475965783ea8",
+ CellID->750203801],
+Cell[39355, 1215, 477, 12, 70, "History",ExpressionUUID->"457acf49-d002-463a-a5db-cbdca0af512e",
+ CellID->327652040],
+Cell[CellGroupData[{
+Cell[39857, 1231, 484, 13, 70, "CategorizationSection",ExpressionUUID->"73076b29-430f-46c6-883b-cc6398df7076",
+ CellID->436119191],
+Cell[40344, 1246, 134, 2, 70, "Categorization",ExpressionUUID->"4c17ee11-984f-49f3-9398-951f90507164",
+ CellID->104906213],
+Cell[40481, 1250, 150, 2, 70, "Categorization",ExpressionUUID->"e4a1b22a-5694-4fc2-9d06-087c14ae12f1",
+ CellID->396931208],
+Cell[40634, 1254, 156, 2, 70, "Categorization",ExpressionUUID->"02834e27-7d61-4d2e-a2f8-4ad8a70fa25d",
+ CellID->456269608],
+Cell[40793, 1258, 165, 2, 70, "Categorization",ExpressionUUID->"6819ea80-9c08-41af-bd81-b669ff892a42",
+ CellID->313916159]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[40995, 1265, 110, 1, 70, "KeywordsSection",ExpressionUUID->"1dafff6a-304d-484a-b426-17d6a8497f1e",
+ CellID->914456157],
+Cell[41108, 1268, 114, 1, 70, "Keywords",ExpressionUUID->"48aff0b0-bc4b-4e64-a4d1-941bec3807e7",
+ CellID->459821315],
+Cell[41225, 1271, 114, 1, 70, "Keywords",ExpressionUUID->"156f7ab9-2712-4615-bbc7-6d2e7cf4ea90",
+ CellID->312047299],
+Cell[41342, 1274, 108, 1, 70, "Keywords",ExpressionUUID->"6915bec3-0350-4abf-97ab-c3a82fccc5a4",
+ CellID->962061313],
+Cell[41453, 1277, 108, 1, 70, "Keywords",ExpressionUUID->"e4275672-22cf-4885-a982-762bf529ef41",
+ CellID->168526941],
+Cell[41564, 1280, 112, 1, 70, "Keywords",ExpressionUUID->"b3e876e8-a07b-4f3b-90a0-83871d2911bd",
+ CellID->603200502],
+Cell[41679, 1283, 109, 1, 70, "Keywords",ExpressionUUID->"cb66fa73-d46f-43c2-9818-dcdd3b885570",
+ CellID->919423804],
+Cell[41791, 1286, 107, 1, 70, "Keywords",ExpressionUUID->"06c679c8-adc5-47d9-94de-1ccd18578cd6",
+ CellID->141199422],
+Cell[41901, 1289, 110, 1, 70, "Keywords",ExpressionUUID->"64c08996-aa18-4a56-a028-447b451bdd03",
+ CellID->616291291],
+Cell[42014, 1292, 121, 1, 70, "Keywords",ExpressionUUID->"6c642b6c-b4b3-42f7-bfe0-7cb596a6dfe4",
+ CellID->870376855],
+Cell[42138, 1295, 114, 1, 70, "Keywords",ExpressionUUID->"57c810e5-8d59-4481-a410-cc74d28029e4",
+ CellID->778849178],
+Cell[42255, 1298, 105, 1, 70, "Keywords",ExpressionUUID->"9228f65a-e048-4f5c-86f4-fd5976516e7c",
+ CellID->602625070]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[42397, 1304, 119, 1, 70, "TemplatesSection",ExpressionUUID->"ef579210-4d4d-43d8-ac2c-8938e630f74f",
+ CellID->483411904],
+Cell[42519, 1307, 148, 2, 70, "Template",ExpressionUUID->"17948965-84ba-464f-ba3b-23d50cdf541b",
+ CellID->432672764],
+Cell[42670, 1311, 137, 2, 70, "Template",ExpressionUUID->"0b681dc9-a96c-4325-8142-893f8a22b23a",
+ CellID->518426865],
+Cell[42810, 1315, 135, 2, 70, "Template",ExpressionUUID->"ce408882-795f-4209-aad9-672a79763118",
+ CellID->603289659],
+Cell[42948, 1319, 137, 2, 70, "Template",ExpressionUUID->"bf700bbc-c702-4c1e-9227-0838d1b406cf",
+ CellID->610861270]
 }, Closed]]
 }, Open  ]]
 }

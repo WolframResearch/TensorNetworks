@@ -16,10 +16,29 @@ TreePathQ[{_}] := True
 TreePathQ[nodes_List] := AllTrue[nodes, TreePathQ]
 TreePathQ[___] := False
 
-TreePathToPath[treePath_List ? TreePathQ, indices : _List | Automatic : Automatic] := Block[{len, index, path = {}},
-	index = Replace[indices, Automatic :> Sort[Cases[treePath, {x_} :> x, All]]];
-	len = Length[index];
-	index = AssociationThread[List /@ index, Range[len]];
+TreePathToPath::indlen =
+	"Length of indices `1` does not match the tree path's leaf count `2`. " <>
+	"Pass a list whose length matches the number of singleton leaves in the tree path, " <>
+	"or omit the indices argument to auto-derive them.";
+
+TreePathToPath[treePath_List ? TreePathQ, indices_List] :=
+	With[{leafCount = Length[Cases[treePath, {_}, {0, Infinity}]]},
+		If[Length[indices] =!= leafCount,
+			Message[TreePathToPath::indlen, Length[indices], leafCount];
+			$Failed,
+			doTreePathToPath[treePath, indices]
+		]
+	]
+
+TreePathToPath[treePath_List ? TreePathQ, Automatic : Automatic] :=
+	doTreePathToPath[treePath, Sort[Cases[treePath, {x_} :> x, All]]]
+
+TreePathToPath[treePath_List ? TreePathQ] :=
+	doTreePathToPath[treePath, Sort[Cases[treePath, {x_} :> x, All]]]
+
+doTreePathToPath[treePath_, indices_] := Block[{len, index, path = {}},
+	len = Length[indices];
+	index = AssociationThread[List /@ indices, Range[len]];
 	Scan[
 		Block[{pos = Lookup[index, #], min, max, k},
 			{min, max} = MinMax[pos];
@@ -35,6 +54,7 @@ TreePathToPath[treePath_List ? TreePathQ, indices : _List | Automatic : Automati
 	path
 ]
 
+PathQ[{}] := True
 PathQ[{({_Integer} | {_Integer, _Integer}) ..}] := True
 PathQ[___] := False
 
@@ -68,9 +88,11 @@ doPathToTreePath[path_, indices_] :=
 	]
 
 
+CanonicalPath[{}, ___] := {}
 CanonicalPath[path_List ? PathQ, indices : _List | Automatic : Automatic] :=
 	TreePathToPath[PathToTreePath[path, indices], indices]
 
+CanonicalPathQ[{}] := True
 CanonicalPathQ[{({_Integer, _Integer}) ..}] := True
 CanonicalPathQ[___] := False
 

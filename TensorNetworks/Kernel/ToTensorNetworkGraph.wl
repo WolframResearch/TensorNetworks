@@ -103,23 +103,39 @@ TensorNetworkReplaceIndices[net_ ? TensorNetworkGraphQ, rules_] := With[{
 ]
 
 
-InitializeTensorNetwork[net_Graph ? TensorNetworkGraphQ, tensor_, index_List : Automatic] := Annotate[
-    {
-        EdgeAdd[
-            VertexDelete[net, _ ? NonPositive],
-            MapIndexed[
-                Replace[#1, DirectedEdge[_, i_, {_, to_}] :> DirectedEdge[0, i, {Superscript[0, #2[[1]]], to}]] &,
-                EdgeList[net, DirectedEdge[_ ? NonPositive, __]]
-            ]
-        ],
-        0
-    },
-    {
-        "Tensor" -> tensor,
-        "Index" -> Replace[index, Automatic :> (Superscript[0, #] & /@ Range[tensorRank[tensor]])],
-        VertexLabels -> "Initial"
-    }
-]
+InitializeTensorNetwork::nostub = "Graph has no non-positive (boundary stub) vertex to replace. Construct an initial graph with at least one vertex labeled by a non-positive integer before calling InitializeTensorNetwork.";
+InitializeTensorNetwork::rank = "Tensor rank `1` does not match the length of the index list `2`.";
+
+InitializeTensorNetwork[net_Graph ? TensorNetworkGraphQ, tensor_, index : _List | Automatic : Automatic] :=
+    Module[{resolvedIndex, rank},
+        If[!MemberQ[VertexList[net], _ ? NonPositive],
+            Message[InitializeTensorNetwork::nostub];
+            Return[$Failed]
+        ];
+        rank = tensorRank[tensor];
+        resolvedIndex = Replace[index, Automatic :> (Superscript[0, #] & /@ Range[rank])];
+        If[Length[resolvedIndex] =!= rank,
+            Message[InitializeTensorNetwork::rank, rank, Length[resolvedIndex]];
+            Return[$Failed]
+        ];
+        Annotate[
+            {
+                EdgeAdd[
+                    VertexDelete[net, _ ? NonPositive],
+                    MapIndexed[
+                        Replace[#1, DirectedEdge[_, i_, {_, to_}] :> DirectedEdge[0, i, {Superscript[0, #2[[1]]], to}]] &,
+                        EdgeList[net, DirectedEdge[_ ? NonPositive, __]]
+                    ]
+                ],
+                0
+            },
+            {
+                "Tensor" -> tensor,
+                "Index" -> resolvedIndex,
+                VertexLabels -> "Initial"
+            }
+        ]
+    ]
 
 TensorNetworkAdd[net_Graph ? TensorNetworkGraphQ, Labeled[tensor_, label_ : None], autoIndex : _List | Automatic : Automatic] := Enclose @ With[{
     newVertex = Max[VertexList[net, _Integer], 0] + 1,
