@@ -1,811 +1,1653 @@
-Notebook[{Cell[CellGroupData[{Cell["YoungProject", "ObjectName", 
-      CellID -> 131187114, ExpressionUUID -> 
-       "fce0d5be-267c-4a3e-ad97-a21a18d75d3d"], 
-     Cell[TextData[{Cell["   ", "ModInfo", ExpressionUUID -> 
-          "51e4471d-8cd4-40c8-a973-29cf23de3a39"], 
-        Cell[BoxData[RowBox[{ButtonBox["YoungProject", BaseStyle -> "Link", 
-             ButtonData -> "paclet:Wolfram/TensorNetworks/ref/YoungProject"], 
-            "[", RowBox[{StyleBox["tensor", "TI"], ",", StyleBox["tableau", 
-               "TI"]}], "]"}]], "InlineFormula", ExpressionUUID -> 
-          "523f0b73-340f-442f-8a8a-4b0ed064bdde"], 
-        "\[LineSeparator]returns the normalized projection of ", 
-        Cell[BoxData[StyleBox["tensor", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "30ef249c-16b8-474d-b761-349580ffaca5"], 
-        " onto the symmetry class labelled by the Young ", 
-        Cell[BoxData[StyleBox["tableau", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "d27924a9-c719-4549-ba1b-3ee13ef894df"], 
-        "; the operator is idempotent."}], "Usage", CellID -> 952787092, 
-      ExpressionUUID -> "445cbaf7-fe0a-4dc4-aeb3-0b8fb90880f2"], 
-     Cell[TextData[{Cell[BoxData[ButtonBox["YoungProject", 
-           BaseStyle -> "Link", ButtonData -> 
-            "paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "a26cae10-656b-4475-881c-c8b7774cb7bd"], "[", 
-        Cell[BoxData[StyleBox["t", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "e4bd5a52-f80b-4488-8350-62059b726199"], ", ", 
-        Cell[BoxData[StyleBox["yt", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "859e2dda-f48b-424b-bff6-f1cd849e66a4"], "] = ", 
-        Cell[BoxData[FractionBox[StyleBox["d", "TI"], 
-           RowBox[{StyleBox["n", "TI"], "!"}]]], "InlineFormula", 
-         ExpressionUUID -> "551d4cb1-d54a-46bf-b5c8-c0baf90f1cad"], " ", 
-        Cell[BoxData[ButtonBox["YoungSymmetrize", BaseStyle -> "Link", 
-           ButtonData -> 
-            "paclet:Wolfram/TensorNetworks/ref/YoungSymmetrize"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "77b75613-479a-4a3d-80b2-43cfafa776e4"], "[", 
-        Cell[BoxData[StyleBox["t", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "e9ffbc8f-6101-486c-be17-401a77128763"], ", ", 
-        Cell[BoxData[StyleBox["yt", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "9c47c96d-be88-48a9-989b-906ec8a92006"], 
-        "], where ", Cell[BoxData[StyleBox["n", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "1aaad655-0ebe-4f40-a34c-bd021a91ff2e"], " is ", 
-        Cell[BoxData[ButtonBox["TableauSize", BaseStyle -> "Link", 
-           ButtonData -> "paclet:Wolfram/TensorNetworks/ref/TableauSize"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "9ef1e712-b45a-4616-91fe-9ab573f8ce62"], "[", 
-        Cell[BoxData[StyleBox["yt", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "78ddbc88-e766-4c18-b6e0-876b4ae4252b"], "] and ", 
-        Cell[BoxData[StyleBox["d", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "f3cd7fd5-8769-4b39-8ca7-7714209691b6"], " is ", 
-        Cell[BoxData[ButtonBox["TableauDimension", BaseStyle -> "Link", 
-           ButtonData -> 
-            "paclet:Wolfram/TensorNetworks/ref/TableauDimension"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "65f8e509-0907-42f9-8ef0-fdc66cb39658"], "[", 
-        Cell[BoxData[StyleBox["yt", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "fdfb009e-6190-4a43-ac15-eb1b1a1d9289"], 
-        "]. The normalization ", Cell[BoxData[RowBox[{StyleBox["d", "TI"], 
-            "/", RowBox[{StyleBox["n", "TI"], "!"}]}]], "InlineFormula", 
-         ExpressionUUID -> "f09d5c3a-e606-43e2-b6eb-5544a6c10cc6"], 
-        " makes the projector idempotent."}], "Notes", CellID -> 495042975, 
-      ExpressionUUID -> "bc92486a-02dd-476a-8f83-09df02dcb7b6"], 
-     Cell[TextData[{"Idempotency: ", Cell[BoxData[ButtonBox["YoungProject", 
-           BaseStyle -> "Link", ButtonData -> 
-            "paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "6245fc7b-e8c7-4e30-95dc-6d5a96aea4e2"], "[", 
-        Cell[BoxData[ButtonBox["YoungProject", BaseStyle -> "Link", 
-           ButtonData -> "paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "ba18a673-8108-4bdd-809a-b1c9f021ea96"], "[", 
-        Cell[BoxData[StyleBox["t", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "25628e28-ed1a-4533-8353-f378b6ea0772"], ", ", 
-        Cell[BoxData[StyleBox["yt", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "52613df9-6579-4323-af62-c0a052b02b8c"], "], ", 
-        Cell[BoxData[StyleBox["yt", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "f987f157-f0cf-40b9-b6bb-3cea61e9aac6"], 
-        "] is equal to ", Cell[BoxData[ButtonBox["YoungProject", 
-           BaseStyle -> "Link", ButtonData -> 
-            "paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "be7e3966-b9de-40d7-8bf2-3da8b6b94aac"], "[", 
-        Cell[BoxData[StyleBox["t", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "3f8e5d38-23ab-4f85-87cd-ee71a92158ab"], ", ", 
-        Cell[BoxData[StyleBox["yt", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "215b3266-6f5e-4ffe-8bbe-5738ced52679"], "]. This \
-is the defining property of a projector and is the source of the ", 
-        Cell[BoxData[RowBox[{StyleBox["d", "TI"], "/", 
-            RowBox[{StyleBox["n", "TI"], "!"}]}]], "InlineFormula", 
-         ExpressionUUID -> "11d46584-8f3f-4347-946e-49f0a57522d7"], 
-        " factor."}], "Notes", CellID -> 856099490, 
-      ExpressionUUID -> "b1f08e82-bf8e-4bd6-b172-0bd9d89f44c0"], 
-     Cell[TextData[{"For a rank-2 ", Cell[BoxData[StyleBox["tensor", "TI"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "6b51f624-dcf2-45b0-973b-66aa3d419a93"], ", projecting onto ", 
-        Cell[BoxData[RowBox[{"YoungTableau", "[", RowBox[{"{", "2", "}"}], 
-            "]"}]], "InlineFormula", ExpressionUUID -> 
-          "acfb1aa5-3fd2-4994-9498-33a2f9234947"], 
-        " yields the symmetric part ", 
-        Cell[BoxData[RowBox[{"(", RowBox[{StyleBox["t", "TI"], "+", 
-              RowBox[{TransposeBox[StyleBox["t", "TI"]]}]}], ")", "/", 
-            "2"}]], "InlineFormula", ExpressionUUID -> 
-          "50ecf29b-fc80-4217-a0f3-ff02fa8b46dc"], ", and projecting onto ", 
-        Cell[BoxData[RowBox[{"YoungTableau", "[", 
-            RowBox[{"{", RowBox[{"1", ",", "1"}], "}"}], "]"}]], 
-         "InlineFormula", ExpressionUUID -> 
-          "d31c370d-06f3-49b4-ba12-ff5d661a98db"], 
-        " yields the antisymmetric part ", 
-        Cell[BoxData[RowBox[{"(", RowBox[{StyleBox["t", "TI"], "-", 
-              RowBox[{TransposeBox[StyleBox["t", "TI"]]}]}], ")", "/", 
-            "2"}]], "InlineFormula", ExpressionUUID -> 
-          "9820bbeb-5df7-40be-b163-4bbb2ff8cacb"], "."}], "Notes", 
-      CellID -> 514389114, ExpressionUUID -> 
-       "ec28e3dd-effc-4ba9-a6e8-26108aa58b77"], 
-     Cell[TextData[{"Summing the Young projectors over all standard tableaux \
-of every shape of size ", Cell[BoxData[StyleBox["n", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "c0326cc1-f4c5-4bdc-bfdf-cc9a1d9a65bb"], 
-        " recovers the identity on rank-", Cell[BoxData[StyleBox["n", "TI"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "65eddd09-db1f-483b-9b04-04236d2d5ed6"], 
-        " tensors. For rank 2 this reduces to ", 
-        Cell[BoxData[RowBox[{RowBox[{"YoungProject", "[", 
-              RowBox[{StyleBox["t", "TI"], ",", RowBox[{"YoungTableau", "[", 
-                  RowBox[{"{", "2", "}"}], "]"}]}], "]"}], "+", 
-            RowBox[{"YoungProject", "[", RowBox[{StyleBox["t", "TI"], ",", 
-                RowBox[{"YoungTableau", "[", RowBox[{"{", RowBox[{"1", ",", 
-                      "1"}], "}"}], "]"}]}], "]"}], "=", StyleBox["t", 
-             "TI"]}]], "InlineFormula", ExpressionUUID -> 
-          "4836e23c-0c22-4026-841e-3aa22f14728b"], 
-        ", reflecting the Schur-Weyl decomposition of the ", 
-        Cell[BoxData[SubscriptBox[StyleBox["S", "TI"], StyleBox["n", "TI"]]], 
-         "InlineFormula", ExpressionUUID -> 
-          "118afd54-78f5-4489-bd17-bcf0551526d3"], " action."}], "Notes", 
-      CellID -> 477979075, ExpressionUUID -> 
-       "ab7e3b46-eb7e-447f-9cc3-e29e0dc90ad0"], 
-     Cell[TextData[{"The ", Cell[BoxData[StyleBox["tensor", "TI"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "ee079a2e-2aa2-4a47-b962-b0bac2fa003c"], " rank must equal ", 
-        Cell[BoxData[ButtonBox["TableauSize", BaseStyle -> "Link", 
-           ButtonData -> "paclet:Wolfram/TensorNetworks/ref/TableauSize"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "0b8cdd0b-22de-4a19-90d3-1f5d7855c822"], "[", 
-        Cell[BoxData[StyleBox["tableau", "TI"]], "InlineFormula", 
-         ExpressionUUID -> "08d7a790-60c9-4dd3-8f7c-f52a742e58ce"], 
-        "]; mismatched ranks return ", Cell[BoxData[ButtonBox["$Failed", 
-           BaseStyle -> "Link", ButtonData -> "paclet:ref/$Failed"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "d000ff63-ccdf-42c0-a94e-67a143184730"], " (via ", 
-        Cell[BoxData[ButtonBox["YoungSymmetrize", BaseStyle -> "Link", 
-           ButtonData -> 
-            "paclet:Wolfram/TensorNetworks/ref/YoungSymmetrize"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "77241dec-6120-405a-b3e7-f04716785b9c"], 
-        "). Inputs that are not a valid ", 
-        Cell[BoxData[ButtonBox["YoungTableau", BaseStyle -> "Link", 
-           ButtonData -> "paclet:Wolfram/TensorNetworks/ref/YoungTableau"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "1d3cb10d-ca46-4d9e-9f84-9ca913ce4a30"], " leave ", 
-        Cell[BoxData[ButtonBox["YoungProject", BaseStyle -> "Link", 
-           ButtonData -> "paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
-         "InlineFormula", ExpressionUUID -> 
-          "b60e2bad-1208-4bce-9998-531abefa2be0"], " unevaluated."}], 
-      "Notes", CellID -> 620900360, ExpressionUUID -> 
-       "4379a1c1-b96b-40dc-bddf-9ddce1c7c0ad"]}, Open]], 
-  Cell[CellGroupData[
-    {Cell[TextData[{"See Also", Cell[BoxData[TemplateBox[
-           {"SeeAlso", Cell[BoxData[FrameBox[Cell[
-                "Insert links to any related reference (function) pages.", 
-                "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
-             "MoreInfoTextOuter"]}, "MoreInfoOpenerButtonTemplate"]], 
-         ExpressionUUID -> "05b78b24-a2e9-4212-82bc-e4923f24bdef"]}], 
-      "SeeAlsoSection", CellID -> 961292884, ExpressionUUID -> 
-       "2554a8e7-91b8-4aba-96ed-0317397f3947"], 
-     Cell[TextData[{Cell[BoxData[ButtonBox["YoungTableau", 
-           BaseStyle -> "Link", ButtonData -> 
-            "paclet:Wolfram/TensorNetworks/ref/YoungTableau"]], 
-         "InlineSeeAlsoFunction", TaggingRules -> {"PageType" -> "Function"}, 
-         ExpressionUUID -> "5ced62ac-52cc-4d6d-8adb-d35e3d6dc060"], 
-        StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-        Cell[BoxData[ButtonBox["YoungSymmetrize", BaseStyle -> "Link", 
-           ButtonData -> 
-            "paclet:Wolfram/TensorNetworks/ref/YoungSymmetrize"]], 
-         "InlineSeeAlsoFunction", TaggingRules -> {"PageType" -> "Function"}, 
-         ExpressionUUID -> "2e54626c-fffe-48ef-855b-fb51969985e7"], 
-        StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-        Cell[BoxData[ButtonBox["TableauDimension", BaseStyle -> "Link", 
-           ButtonData -> 
-            "paclet:Wolfram/TensorNetworks/ref/TableauDimension"]], 
-         "InlineSeeAlsoFunction", TaggingRules -> {"PageType" -> "Function"}, 
-         ExpressionUUID -> "6f04ba11-6824-43b8-bbd4-05dc2544bdbc"], 
-        StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-        Cell[BoxData[ButtonBox["TableauShape", BaseStyle -> "Link", 
-           ButtonData -> "paclet:Wolfram/TensorNetworks/ref/TableauShape"]], 
-         "InlineSeeAlsoFunction", TaggingRules -> {"PageType" -> "Function"}, 
-         ExpressionUUID -> "7ec7a337-241d-400e-a806-556c0b79fb77"], 
-        StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-        Cell[BoxData[ButtonBox["TableauSize", BaseStyle -> "Link", 
-           ButtonData -> "paclet:Wolfram/TensorNetworks/ref/TableauSize"]], 
-         "InlineSeeAlsoFunction", TaggingRules -> {"PageType" -> "Function"}, 
-         ExpressionUUID -> "6a61c7d5-07ec-4e8a-9b58-9f32639d729e"], 
-        StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-        Cell[BoxData[ButtonBox["YoungTableauQ", BaseStyle -> "Link", 
-           ButtonData -> "paclet:Wolfram/TensorNetworks/ref/YoungTableauQ"]], 
-         "InlineSeeAlsoFunction", TaggingRules -> {"PageType" -> "Function"}, 
-         ExpressionUUID -> "18ad0f24-4e88-47b6-bbd3-c97761b880b7"], 
-        StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-        Cell[BoxData[ButtonBox["Symmetrize", BaseStyle -> "Link", 
-           ButtonData -> "paclet:ref/Symmetrize"]], "InlineSeeAlsoFunction", 
-         TaggingRules -> {"PageType" -> "Function"}, ExpressionUUID -> 
-          "f392965a-aa2f-4e33-8e90-8af98591c096"], 
-        StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-        Cell[BoxData[ButtonBox["Antisymmetrize", BaseStyle -> "Link", 
-           ButtonData -> "paclet:ref/Antisymmetrize"]], 
-         "InlineSeeAlsoFunction", TaggingRules -> {"PageType" -> "Function"}, 
-         ExpressionUUID -> "14c9d489-5038-4309-8d6f-c3c69e865d42"], 
-        StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-        Cell[BoxData[ButtonBox["Transpose", BaseStyle -> "Link", 
-           ButtonData -> "paclet:ref/Transpose"]], "InlineSeeAlsoFunction", 
-         TaggingRules -> {"PageType" -> "Function"}, ExpressionUUID -> 
-          "1fbcc43d-44c4-4da4-bf1c-80bf6f4c9a40"]}], "SeeAlso", 
-      CellID -> 179043365, ExpressionUUID -> 
-       "7dff0e90-5a64-412d-a9ad-5b400ba3dd56"]}, Open]], 
-  Cell[CellGroupData[
-    {Cell[TextData[{"Tech Notes", Cell[BoxData[TemplateBox[
-           {"TechNotes", Cell[BoxData[FrameBox[Cell[
-                "Insert links to related tech notes.", "MoreInfoText"], 
-               BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]}, 
-           "MoreInfoOpenerButtonTemplate"]], ExpressionUUID -> 
-          "fbadf1ad-a8a0-4ea6-b383-f04f41cff4a5"]}], "TechNotesSection", 
-      CellID -> 235550202, ExpressionUUID -> 
-       "ef167947-1dba-4e85-baa2-d0ec7a4295c9"], 
-     Cell[TextData[ButtonBox["Young Symmetries", BaseStyle -> "Link", 
-        ButtonData -> 
-         "paclet:Wolfram/TensorNetworks/tutorial/YoungSymmetries"]], 
-      "Tutorials", CellID -> 863863235, ExpressionUUID -> 
-       "4418380c-b349-422c-b69f-637f0f57f5cf"]}, Open]], 
-  Cell[CellGroupData[{Cell["Related Guides", "MoreAboutSection", 
-      CellID -> 316922892, ExpressionUUID -> 
-       "84ed2fa0-391d-4d92-bb32-ef74380ce621"], 
-     Cell[TextData[ButtonBox["TensorNetworks Package", BaseStyle -> "Link", 
-        ButtonData -> "paclet:Wolfram/TensorNetworks/guide/TensorNetworks"]], 
-      "MoreAbout", CellID -> 49195516, ExpressionUUID -> 
-       "34559e69-bddd-4551-9036-e655ea23c505"]}, Open]], 
-  Cell[CellGroupData[{Cell[TextData[{"Related Links", 
-        Cell[BoxData[TemplateBox[{"RelatedLinks", 
-            Cell[BoxData[FrameBox[Cell[
-                "Insert links to any related page, including web pages.", 
-                "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
-             "MoreInfoTextOuter"]}, "MoreInfoOpenerButtonTemplate"]], 
-         ExpressionUUID -> "cd2f5379-a5fb-4e10-8d0a-7bd453bf165c"]}], 
-      "RelatedLinksSection", CellID -> 703849624, ExpressionUUID -> 
-       "f1e381fe-22ff-4c06-85b2-b0af88b5441e"], Cell[" ", "RelatedLinks", 
-      CellID -> 710730737, ExpressionUUID -> 
-       "0cda08e3-8e3f-49f5-a2a7-172245507920"]}, Open]], 
-  Cell[CellGroupData[{Cell[TextData[{"Examples Initialization", 
-        Cell[BoxData[TemplateBox[{"ExamplesInitialization", 
-            Cell[BoxData[FrameBox[Cell["Input that is to be evaluated before \
-any examples are run, e.g. Needs[\[Ellipsis]].", "MoreInfoText"], 
-               BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]}, 
-           "MoreInfoOpenerButtonTemplate"]], ExpressionUUID -> 
-          "73d9f2b6-148f-465f-a326-215c9585be33"]}], 
-      "ExamplesInitializationSection", CellID -> 4779250, 
-      ExpressionUUID -> "7ef5c43c-c29c-4334-ac45-18a2ba11c9a7"], 
-     Cell[BoxData[RowBox[{"Needs", "[", 
-         "\"Wolfram`TensorNetworks`Symmetry`\"", "]"}]], 
-      "ExampleInitialization", CellID -> 127228040, 
-      ExpressionUUID -> "332d2004-7f36-40af-88b6-340dd21f4f54"]}, Open]], 
-  Cell[CellGroupData[
-    {Cell[CellGroupData[{Cell[BoxData[InterpretationBox[
-           GridBox[{{StyleBox[RowBox[{"Basic", " ", "Examples"}], 
-               "PrimaryExamplesSection"], ButtonBox[RowBox[
-                {RowBox[{"More", " ", "Examples"}], " ", 
-                 "\[RightTriangle]"}], BaseStyle -> "ExtendedExamplesLink", 
-               ButtonData :> "ExtendedExamples"]}}], $Line = 0; ]], 
-         "PrimaryExamplesSection", CellID -> 693373010, 
-         ExpressionUUID -> "e4728a90-4728-4235-9991-6eb17da07f06"], 
-        Cell["Project a rank-2 tensor onto the totally symmetric class:", 
-         "ExampleText", CellID -> 469889671, ExpressionUUID -> 
-          "f78ec379-8259-4603-97f3-a535116e41fe"], 
-        Cell[CellGroupData[{Cell[BoxData[RowBox[{"YoungProject", "[", RowBox[
-                {RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"1", ",", " ", 
-                         "2"}], "}"}], ",", " ", RowBox[{"{", RowBox[
-                        {"3", ",", " ", "4"}], "}"}]}], "}"}], ",", " ", 
-                 RowBox[{"YoungTableau", "[", RowBox[{"{", "2", "}"}], 
-                   "]"}]}], "]"}]], "Input", CellLabel -> "In[1]:=", 
-            CellID -> 631627224, ExpressionUUID -> 
-             "aab37848-7e44-4d66-86c0-88c998a62edc"], 
-           Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"1", ",", 
-                     FractionBox["5", "2"]}], "}"}], ",", RowBox[
-                  {"{", RowBox[{FractionBox["5", "2"], ",", "4"}], "}"}]}], 
-               "}"}]], "Output", CellLabel -> "Out[1]=", CellID -> 479975586, 
-            ExpressionUUID -> "c4bb4fe4-0218-4f75-9049-6b2ac8f0a26a"]}, 
-          Open]], Cell[
-         "Project the same tensor onto the antisymmetric class:", 
-         "ExampleText", CellID -> 337089098, ExpressionUUID -> 
-          "ff54a48e-4d23-4ecb-8dc0-4d4559fb5c45"], 
-        Cell[CellGroupData[{Cell[BoxData[RowBox[{"YoungProject", "[", RowBox[
-                {RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"1", ",", " ", 
-                         "2"}], "}"}], ",", " ", RowBox[{"{", RowBox[
-                        {"3", ",", " ", "4"}], "}"}]}], "}"}], ",", " ", 
-                 RowBox[{"YoungTableau", "[", RowBox[{"{", RowBox[{"1", ",", 
-                       " ", "1"}], "}"}], "]"}]}], "]"}]], "Input", 
-            CellLabel -> "In[2]:=", CellID -> 985590089, ExpressionUUID -> 
-             "f4c7c7ec-fcf2-4c6c-8db2-924a78bdf922"], 
-           Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"0", ",", 
-                     RowBox[{"-", FractionBox["1", "2"]}]}], "}"}], ",", 
-                 RowBox[{"{", RowBox[{FractionBox["1", "2"], ",", "0"}], 
-                   "}"}]}], "}"}]], "Output", CellLabel -> "Out[2]=", 
-            CellID -> 82276612, ExpressionUUID -> 
-             "b811d144-ef18-4bfe-996c-40262780f835"]}, Open]], 
-        Cell["Projection is idempotent:", "ExampleText", CellID -> 277238324, 
-         ExpressionUUID -> "94584f31-a909-49f8-8456-73d4a11def0b"], 
-        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"YoungProject", "[", 
-                 RowBox[{RowBox[{"YoungProject", "[", RowBox[{RowBox[
-                        {"{", RowBox[{RowBox[{"{", RowBox[{"1", ",", " ", 
-                          "2"}], "}"}], ",", " ", RowBox[{"{", RowBox[{"3", 
-                          ",", " ", "4"}], "}"}]}], "}"}], ",", " ", 
-                       RowBox[{"YoungTableau", "[", RowBox[{"{", "2", "}"}], 
-                         "]"}]}], "]"}], ",", " ", RowBox[{"YoungTableau", 
-                     "[", RowBox[{"{", "2", "}"}], "]"}]}], "]"}], " ", 
-               "===", " ", RowBox[{"YoungProject", "[", RowBox[
-                  {RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"1", ",", " ", 
-                          "2"}], "}"}], ",", " ", RowBox[{"{", RowBox[
-                          {"3", ",", " ", "4"}], "}"}]}], "}"}], ",", " ", 
-                   RowBox[{"YoungTableau", "[", RowBox[{"{", "2", "}"}], 
-                     "]"}]}], "]"}]}]], "Input", CellLabel -> "In[3]:=", 
-            CellID -> 538222229, ExpressionUUID -> 
-             "4211a972-73cb-4272-bbef-000aa30f2371"], Cell[BoxData["True"], 
-            "Output", CellLabel -> "Out[3]=", CellID -> 238877537, 
-            ExpressionUUID -> "2988332e-e8d6-4c40-928b-28e0c6eb7cf3"]}, 
-          Open]]}, Open]], Cell[CellGroupData[
-       {Cell[TextData[{"More Examples", Cell[BoxData[TemplateBox[
-              {"MoreExamples", Cell[BoxData[FrameBox[Cell[
-                   "Extended examples in standardized sections.", 
-                   "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
-                "MoreInfoTextOuter"]}, "MoreInfoOpenerButtonTemplate"]], 
-            ExpressionUUID -> "222d0da6-c845-4597-b2fb-22304530af53"]}], 
-         "ExtendedExamplesSection", CellTags -> "ExtendedExamples", 
-         CellID -> 872756394, ExpressionUUID -> 
-          "3e437508-a987-4d91-a5ae-64552669b405"], 
-        Cell[CellGroupData[{Cell[BoxData[InterpretationBox[Cell["Scope", 
-               "ExampleSection", ExpressionUUID -> uid[]], $Line = 0; ]], 
-            "ExampleSection", CellID -> 441886239, ExpressionUUID -> 
-             "7b2ca111-d4fb-4f2b-b9b9-6f9d85bf17f1"], 
-           Cell[CellGroupData[{Cell[BoxData[InterpretationBox[
-                 Cell["Rank-2 symmetric and antisymmetric parts", 
-                  "ExampleSubsection", ExpressionUUID -> uid[]], 
-                 $Line = 0; ]], "ExampleSubsection", CellID -> 580940541, 
-               ExpressionUUID -> "10107158-aad7-49f5-8b99-4bb83aa6bc8d"], 
-              Cell["Adding the two rank-2 projections reconstructs the \
-original tensor:", "ExampleText", CellID -> 260717334, ExpressionUUID -> 
-                "9fd25907-ffc1-4289-9e1b-bf9071afc1dc"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{RowBox[{RowBox[{StyleBox["t", "TI"], 
-                         "=", RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"1", 
-                          ",", "2"}], "}"}], ",", RowBox[{"{", RowBox[{"3", 
-                          ",", "4"}], "}"}]}], "}"}]}], ";"}], 
-                     "\[IndentingNewLine]", RowBox[{RowBox[{"YoungProject", 
-                         "[", RowBox[{StyleBox["t", "TI"], ",", RowBox[
-                          {"YoungTableau", "[", RowBox[{"{", "2", "}"}], 
-                          "]"}]}], "]"}], "+", RowBox[{"YoungProject", "[", 
-                         RowBox[{StyleBox["t", "TI"], ",", RowBox[
-                          {"YoungTableau", "[", RowBox[{"{", RowBox[{"1", 
-                          ",", "1"}], "}"}], "]"}]}], "]"}]}]}]], "Input", 
-                  CellLabel -> "In[4]:=", CellID -> 587959144, 
-                  ExpressionUUID -> "7d90d3b0-0d1c-4fb8-bab7-a6029d3fd3bc"], 
-                 Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                          {"1", ",", "2"}], "}"}], ",", RowBox[{"{", RowBox[
-                          {"3", ",", "4"}], "}"}]}], "}"}]], "Output", 
-                  CellLabel -> "Out[4]=", CellID -> 395796091, 
-                  ExpressionUUID -> "15192a34-634d-4496-84e2-7520e9c943ba"]}, 
-                Open]]}, Open]], Cell[CellGroupData[
-             {Cell[BoxData[InterpretationBox[Cell["Rank-3 mixed symmetry", 
-                  "ExampleSubsection", ExpressionUUID -> uid[]], 
-                 $Line = 0; ]], "ExampleSubsection", CellID -> 597904402, 
-               ExpressionUUID -> "8765d295-9deb-4b43-8e7c-70f213a58fc9"], 
-              Cell["Projecting a rank-3 tensor onto the mixed-symmetry shape \
-{2,1}:", "ExampleText", CellID -> 279665421, ExpressionUUID -> 
-                "d9579565-dbdf-492d-a569-3f7ce058e56c"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"YoungProject", "[", RowBox[
-                      {RowBox[{"Array", "[", RowBox[{"a", ",", " ", RowBox[
-                          {"{", RowBox[{"2", ",", " ", "2", ",", " ", "2"}], 
-                          "}"}]}], "]"}], ",", " ", RowBox[{"YoungTableau", 
-                         "[", RowBox[{"{", RowBox[{"2", ",", " ", "1"}], 
-                          "}"}], "]"}]}], "]"}]], "Input", CellLabel -> 
-                   "In[5]:=", CellID -> 821466501, ExpressionUUID -> 
-                   "9e90a190-f807-4480-89eb-1eb9ea906d1a"], Cell[BoxData[
-                   RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"{", 
-                          RowBox[{"0", ",", RowBox[{FractionBox["1", "3"], 
-                          " ", RowBox[{"(", RowBox[{RowBox[{"2", " ", RowBox[
-                          {"a", "[", RowBox[{"1", ",", "1", ",", "2"}], 
-                          "]"}]}], "-", RowBox[{"a", "[", RowBox[{"1", ",", 
-                          "2", ",", "1"}], "]"}], "-", RowBox[{"a", "[", 
-                          RowBox[{"2", ",", "1", ",", "1"}], "]"}]}], 
-                          ")"}]}]}], "}"}], ",", RowBox[{"{", RowBox[{"0", 
-                          ",", RowBox[{FractionBox["1", "3"], " ", RowBox[
-                          {"(", RowBox[{RowBox[{"a", "[", RowBox[{"1", ",", 
-                          "2", ",", "2"}], "]"}], "+", RowBox[{"a", "[", 
-                          RowBox[{"2", ",", "1", ",", "2"}], "]"}], "-", 
-                          RowBox[{"2", " ", RowBox[{"a", "[", RowBox[{"2", 
-                          ",", "2", ",", "1"}], "]"}]}]}], ")"}]}]}], 
-                          "}"}]}], "}"}], ",", RowBox[{"{", RowBox[
-                          {RowBox[{"{", RowBox[{RowBox[{FractionBox["1", 
-                          "3"], " ", RowBox[{"(", RowBox[{RowBox[{RowBox[
-                          {"-", "2"}], " ", RowBox[{"a", "[", RowBox[{"1", 
-                          ",", "1", ",", "2"}], "]"}]}], "+", RowBox[{"a", 
-                          "[", RowBox[{"1", ",", "2", ",", "1"}], "]"}], "+", 
-                          RowBox[{"a", "[", RowBox[{"2", ",", "1", ",", 
-                          "1"}], "]"}]}], ")"}]}], ",", "0"}], "}"}], ",", 
-                          RowBox[{"{", RowBox[{RowBox[{FractionBox["1", "3"], 
-                          " ", RowBox[{"(", RowBox[{RowBox[{"-", RowBox[{"a", 
-                          "[", RowBox[{"1", ",", "2", ",", "2"}], "]"}]}], 
-                          "-", RowBox[{"a", "[", RowBox[{"2", ",", "1", ",", 
-                          "2"}], "]"}], "+", RowBox[{"2", " ", RowBox[{"a", 
-                          "[", RowBox[{"2", ",", "2", ",", "1"}], "]"}]}]}], 
-                          ")"}]}], ",", "0"}], "}"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[5]=", CellID -> 933419381, 
-                  ExpressionUUID -> "2b7ce78a-77d5-4f29-8049-7bde835a9088"]}, 
-                Open]], Cell[
-               "The mixed-symmetry irrep of S_3 has dimension 2:", 
-               "ExampleText", CellID -> 342854686, ExpressionUUID -> 
-                "2bce7563-dbfb-408f-b93a-a05899f6b351"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TableauDimension", "[", RowBox[
-                      {"YoungTableau", "[", RowBox[{"{", RowBox[{"2", ",", 
-                          " ", "1"}], "}"}], "]"}], "]"}]], "Input", 
-                  CellLabel -> "In[6]:=", CellID -> 253250692, 
-                  ExpressionUUID -> "11a022fc-12a0-4ca4-8f5b-0b2ad70f5a6c"], 
-                 Cell[BoxData["2"], "Output", CellLabel -> "Out[6]=", 
-                  CellID -> 489987650, ExpressionUUID -> 
-                   "badc334d-c294-4d43-a4d3-548c6cc8a55c"]}, Open]]}, Open]], 
-           Cell[CellGroupData[{Cell[BoxData[InterpretationBox[
-                 Cell["Idempotency", "ExampleSubsection", ExpressionUUID -> 
-                   uid[]], $Line = 0; ]], "ExampleSubsection", CellID -> 
-                634431385, ExpressionUUID -> 
-                "d6ab515a-4015-4270-87a7-75018c032daf"], 
-              Cell[
-               "Applying the projector twice agrees with applying it once:", 
-               "ExampleText", CellID -> 199421680, ExpressionUUID -> 
-                "a881566d-e580-4f3d-bdd0-8482c887cc1a"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{RowBox[{RowBox[{"SeedRandom", "[", 
-                         "42", "]"}], ";"}], "\[IndentingNewLine]", 
-                     RowBox[{RowBox[{StyleBox["t", "TI"], "=", RowBox[
-                          {"RandomReal", "[", RowBox[{RowBox[{"{", RowBox[
-                          {RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
-                          RowBox[{"{", RowBox[{"3", ",", "3", ",", "3"}], 
-                          "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
-                     RowBox[{RowBox[{StyleBox["once", "TI"], "=", RowBox[
-                          {"YoungProject", "[", RowBox[{StyleBox["t", "TI"], 
-                          ",", RowBox[{"YoungTableau", "[", RowBox[{"{", 
-                          RowBox[{"2", ",", "1"}], "}"}], "]"}]}], "]"}]}], 
-                       ";"}], "\[IndentingNewLine]", RowBox[{RowBox[
-                        {StyleBox["twice", "TI"], "=", RowBox[
-                          {"YoungProject", "[", RowBox[{StyleBox["once", 
-                          "TI"], ",", RowBox[{"YoungTableau", "[", RowBox[
-                          {"{", RowBox[{"2", ",", "1"}], "}"}], "]"}]}], 
-                          "]"}]}], ";"}], "\[IndentingNewLine]", RowBox[
-                      {"Max", "[", RowBox[{"Abs", "[", RowBox[{"Flatten", 
-                          "[", RowBox[{StyleBox["twice", "TI"], "-", StyleBox[
-                          "once", "TI"]}], "]"}], "]"}], "]"}]}]], "Input", 
-                  CellLabel -> "In[7]:=", CellID -> 458312316, 
-                  ExpressionUUID -> "1b320c42-5904-4ff3-af0c-c66cb887b520"], 
-                 Cell[BoxData["0.`"], "Output", CellLabel -> "Out[7]=", 
-                  CellID -> 203309220, ExpressionUUID -> 
-                   "ffa2200c-549a-4d56-a730-68435213c87d"]}, Open]]}, Open]], 
-           Cell[CellGroupData[{Cell[BoxData[InterpretationBox[
-                 Cell["Completeness on rank-2", "ExampleSubsection", 
-                  ExpressionUUID -> uid[]], $Line = 0; ]], 
-               "ExampleSubsection", CellID -> 391436380, ExpressionUUID -> 
-                "f5e48aaa-2e26-453a-933a-2ebe6a95f5be"], Cell["The two rank-2 \
-Young projectors sum to the identity on the input tensor:", "ExampleText", 
-               CellID -> 878585037, ExpressionUUID -> 
-                "c921ae74-5ec2-43a7-a65b-0c747b333182"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{RowBox[{RowBox[{"SeedRandom", "[", 
-                         "17", "]"}], ";"}], "\[IndentingNewLine]", 
-                     RowBox[{RowBox[{StyleBox["t", "TI"], "=", RowBox[
-                          {"RandomReal", "[", RowBox[{RowBox[{"{", RowBox[
-                          {RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
-                          RowBox[{"{", RowBox[{"3", ",", "3"}], "}"}]}], 
-                          "]"}]}], ";"}], "\[IndentingNewLine]", RowBox[
-                      {RowBox[{StyleBox["reconstructed", "TI"], "=", RowBox[
-                          {RowBox[{"YoungProject", "[", RowBox[{StyleBox["t", 
-                          "TI"], ",", RowBox[{"YoungTableau", "[", RowBox[
-                          {"{", "2", "}"}], "]"}]}], "]"}], "+", RowBox[
-                          {"YoungProject", "[", RowBox[{StyleBox["t", "TI"], 
-                          ",", RowBox[{"YoungTableau", "[", RowBox[{"{", 
-                          RowBox[{"1", ",", "1"}], "}"}], "]"}]}], "]"}]}]}], 
-                       ";"}], "\[IndentingNewLine]", RowBox[{"Max", "[", 
-                       RowBox[{"Abs", "[", RowBox[{"Flatten", "[", RowBox[
-                          {StyleBox["reconstructed", "TI"], "-", StyleBox[
-                          "t", "TI"]}], "]"}], "]"}], "]"}]}]], "Input", 
-                  CellLabel -> "In[8]:=", CellID -> 110445352, 
-                  ExpressionUUID -> "ea27392e-fec7-4bcc-a7ed-682b94193e69"], 
-                 Cell[BoxData["0.`"], "Output", CellLabel -> "Out[8]=", 
-                  CellID -> 903519001, ExpressionUUID -> 
-                   "07c50cb8-63d0-4d26-a6fc-02bcb80b4cf2"]}, Open]]}, 
-             Open]]}, Open]], Cell[BoxData[InterpretationBox[
-           Cell["Generalizations & Extensions", "ExampleSection", 
-            ExpressionUUID -> uid[]], $Line = 0; ]], "ExampleSection", 
-         CellID -> 572633133, ExpressionUUID -> 
-          "e13f5990-186a-4731-80b3-d5fb4a94f7bb"], 
-        Cell[BoxData[InterpretationBox[Cell["Options", "ExampleSection", 
-            ExpressionUUID -> uid[]], $Line = 0; ]], "ExampleSection", 
-         CellID -> 679920813, ExpressionUUID -> 
-          "20da6a36-6f29-40b4-9831-7d0c2a0e0363"], 
-        Cell[CellGroupData[{Cell[BoxData[InterpretationBox[
-              Cell["Applications", "ExampleSection", ExpressionUUID -> 
-                uid[]], $Line = 0; ]], "ExampleSection", CellID -> 61585520, 
-            ExpressionUUID -> "e926a658-e127-46e0-8f60-55ab2cbd783a"], 
-           Cell["Decompose a rank-2 tensor into its symmetric and \
-antisymmetric irreducible components:", "ExampleText", CellID -> 558789917, 
-            ExpressionUUID -> "034cba16-a5d6-4669-b301-379f569a1353"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{RowBox[
-                     {StyleBox["t", "TI"], "=", RowBox[{"{", RowBox[
-                         {RowBox[{"{", RowBox[{"1", ",", "2", ",", "3"}], 
-                          "}"}], ",", RowBox[{"{", RowBox[{"4", ",", "5", 
-                          ",", "6"}], "}"}], ",", RowBox[{"{", RowBox[{"7", 
-                          ",", "8", ",", "9"}], "}"}]}], "}"}]}], ";"}], 
-                  "\[IndentingNewLine]", RowBox[{"{", RowBox[{RowBox[
-                       {"\"sym\"", "->", RowBox[{"YoungProject", "[", 
-                          RowBox[{StyleBox["t", "TI"], ",", RowBox[
-                          {"YoungTableau", "[", RowBox[{"{", "2", "}"}], 
-                          "]"}]}], "]"}]}], ",", RowBox[{"\"antisym\"", "->", 
-                        RowBox[{"YoungProject", "[", RowBox[{StyleBox["t", 
-                          "TI"], ",", RowBox[{"YoungTableau", "[", RowBox[
-                          {"{", RowBox[{"1", ",", "1"}], "}"}], "]"}]}], 
-                          "]"}]}]}], "}"}]}]], "Input", CellLabel -> 
-                "In[9]:=", CellID -> 577762148, ExpressionUUID -> 
-                "9a4b4844-86db-4178-96ab-04c7e55cf2d5"], Cell[BoxData[
-                RowBox[{"{", RowBox[{RowBox[{"\"sym\"", "\[Rule]", RowBox[
-                       {"{", RowBox[{RowBox[{"{", RowBox[{"1", ",", "3", ",", 
-                          "5"}], "}"}], ",", RowBox[{"{", RowBox[{"3", ",", 
-                          "5", ",", "7"}], "}"}], ",", RowBox[{"{", RowBox[
-                          {"5", ",", "7", ",", "9"}], "}"}]}], "}"}]}], ",", 
-                    RowBox[{"\"antisym\"", "\[Rule]", RowBox[{"{", RowBox[
-                         {RowBox[{"{", RowBox[{"0", ",", RowBox[{"-", "1"}], 
-                          ",", RowBox[{"-", "2"}]}], "}"}], ",", RowBox[
-                          {"{", RowBox[{"1", ",", "0", ",", RowBox[{"-", 
-                          "1"}]}], "}"}], ",", RowBox[{"{", RowBox[{"2", ",", 
-                          "1", ",", "0"}], "}"}]}], "}"}]}]}], "}"}]], 
-               "Output", CellLabel -> "Out[9]=", CellID -> 495151768, 
-               ExpressionUUID -> "b89b3f9b-7ee9-445d-94c3-10d1e8d46953"]}, 
-             Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-               "ExampleDelimiter", ExpressionUUID -> uid[]], $Line = 0; ]], 
-            "ExampleDelimiter", CellID -> 485173514, ExpressionUUID -> 
-             "55bc603e-2f3c-4850-88a5-f486f9e7b860"], Cell["Measure the \
-magnitude of the projection of a random rank-3 tensor onto each S_3 irrep:", 
-            "ExampleText", CellID -> 219476076, ExpressionUUID -> 
-             "e0834acb-bfdb-4332-8f6b-be6670c5ed94"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{RowBox[
-                     {"SeedRandom", "[", "5", "]"}], ";"}], 
-                  "\[IndentingNewLine]", RowBox[{RowBox[{StyleBox["t", "TI"], 
-                      "=", RowBox[{"RandomReal", "[", RowBox[{RowBox[{"{", 
-                          RowBox[{RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
-                          RowBox[{"{", RowBox[{"3", ",", "3", ",", "3"}], 
-                          "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
-                  RowBox[{"AssociationMap", "[", RowBox[{RowBox[{"Function", 
-                        "[", RowBox[{StyleBox["shape", "TI"], ",", RowBox[
-                          {"Max", "[", RowBox[{"Abs", "[", RowBox[{"Flatten", 
-                          "[", RowBox[{"YoungProject", "[", RowBox[{StyleBox[
-                          "t", "TI"], ",", RowBox[{"YoungTableau", "[", 
-                          StyleBox["shape", "TI"], "]"}]}], "]"}], "]"}], 
-                          "]"}], "]"}]}], "]"}], ",", RowBox[{"{", RowBox[
-                         {RowBox[{"{", "3", "}"}], ",", RowBox[{"{", RowBox[
-                          {"2", ",", "1"}], "}"}], ",", RowBox[{"{", RowBox[
-                          {"1", ",", "1", ",", "1"}], "}"}]}], "}"}]}], 
-                    "]"}]}]], "Input", CellLabel -> "In[10]:=", CellID -> 
-                611947606, ExpressionUUID -> 
-                "a4bb22e6-dc04-40b2-8467-651832fe79d3"], Cell[BoxData[
-                RowBox[{"\[LeftAssociation]", RowBox[{RowBox[{RowBox[
-                       {"{", "3", "}"}], "\[Rule]", "0.9984188320706725`"}], 
-                    ",", RowBox[{RowBox[{"{", RowBox[{"2", ",", "1"}], "}"}], 
-                      "\[Rule]", "1.194064723359208`"}], ",", RowBox[
-                     {RowBox[{"{", RowBox[{"1", ",", "1", ",", "1"}], "}"}], 
-                      "\[Rule]", "0.18463976869776713`"}]}], 
-                  "\[RightAssociation]"}]], "Output", CellLabel -> 
-                "Out[10]=", CellID -> 241360723, ExpressionUUID -> 
-                "3b082681-3e7f-418e-90b7-35bbe676dcba"]}, Open]]}, Open]], 
-        Cell[CellGroupData[{Cell[BoxData[InterpretationBox[
-              Cell["Properties & Relations", "ExampleSection", 
-               ExpressionUUID -> uid[]], $Line = 0; ]], "ExampleSection", 
-            CellID -> 45039540, ExpressionUUID -> 
-             "15db4487-6fd4-4309-a961-4a9cfeaf8e18"], Cell["YoungProject is \
-YoungSymmetrize rescaled by TableauDimension/TableauSize!:", "ExampleText", 
-            CellID -> 685623545, ExpressionUUID -> 
-             "4ffe3f9d-3039-4eee-b993-cccedfa21190"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{RowBox[
-                     {StyleBox["yt", "TI"], "=", RowBox[{"YoungTableau", "[", 
-                        RowBox[{"{", RowBox[{"2", ",", "1"}], "}"}], "]"}]}], 
-                    ";"}], "\[IndentingNewLine]", RowBox[{RowBox[
-                     {StyleBox["t", "TI"], "=", RowBox[{"Array", "[", 
-                        RowBox[{"a", ",", RowBox[{"{", RowBox[{"2", ",", "2", 
-                          ",", "2"}], "}"}]}], "]"}]}], ";"}], 
-                  "\[IndentingNewLine]", RowBox[{RowBox[{"YoungProject", "[", 
-                      RowBox[{StyleBox["t", "TI"], ",", StyleBox["yt", 
-                         "TI"]}], "]"}], "==", RowBox[{RowBox[{"(", RowBox[
-                         {RowBox[{"TableauDimension", "[", StyleBox["yt", 
-                          "TI"], "]"}], "/", RowBox[{RowBox[{"TableauSize", 
-                          "[", StyleBox["yt", "TI"], "]"}], "!"}]}], ")"}], 
-                      "*", RowBox[{"YoungSymmetrize", "[", RowBox[{StyleBox[
-                          "t", "TI"], ",", StyleBox["yt", "TI"]}], 
-                        "]"}]}]}]}]], "Input", CellLabel -> "In[11]:=", 
-               CellID -> 890689384, ExpressionUUID -> 
-                "1ce8503a-be52-4dba-9ab0-e37665753353"], Cell[BoxData[
-                "True"], "Output", CellLabel -> "Out[11]=", CellID -> 
-                118376568, ExpressionUUID -> 
-                "d6635410-a737-40c2-b900-76d86a20b67f"]}, Open]], 
-           Cell[BoxData[InterpretationBox[Cell["\t", "ExampleDelimiter", 
-               ExpressionUUID -> uid[]], $Line = 0; ]], "ExampleDelimiter", 
-            CellID -> 688357060, ExpressionUUID -> 
-             "3ccb7f06-e0ce-476f-b6f6-84d5d00a3fb5"], 
-           Cell["The normalization factor d/n! for each S_n irrep:", 
-            "ExampleText", CellID -> 179064443, ExpressionUUID -> 
-             "46304f11-3626-4230-b174-a7a955ea6e7d"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"Table", "[", 
-                    RowBox[{RowBox[{StyleBox["shape", "TI"], "->", RowBox[
-                         {RowBox[{"TableauDimension", "[", RowBox[
-                          {"YoungTableau", "[", StyleBox["shape", "TI"], 
-                          "]"}], "]"}], "/", RowBox[{RowBox[{"TableauSize", 
-                          "[", RowBox[{"YoungTableau", "[", StyleBox["shape", 
-                          "TI"], "]"}], "]"}], "!"}]}]}], ",", RowBox[
-                       {"{", RowBox[{StyleBox["shape", "TI"], ",", RowBox[
-                          {"{", RowBox[{RowBox[{"{", "2", "}"}], ",", RowBox[
-                          {"{", RowBox[{"1", ",", "1"}], "}"}], ",", RowBox[
-                          {"{", "3", "}"}], ",", RowBox[{"{", RowBox[{"2", 
-                          ",", "1"}], "}"}], ",", RowBox[{"{", RowBox[{"1", 
-                          ",", "1", ",", "1"}], "}"}]}], "}"}]}], "}"}]}], 
-                    "]"}]}]], "Input", CellLabel -> "In[12]:=", CellID -> 
-                805335608, ExpressionUUID -> 
-                "4b24b8de-5e19-4d30-84c0-2dc89bcd7495"], Cell[BoxData[
-                RowBox[{"{", RowBox[{RowBox[{RowBox[{"{", "2", "}"}], 
-                      "\[Rule]", FractionBox["1", "2"]}], ",", RowBox[
-                     {RowBox[{"{", RowBox[{"1", ",", "1"}], "}"}], "\[Rule]", 
-                      FractionBox["1", "2"]}], ",", RowBox[{RowBox[{"{", "3", 
-                        "}"}], "\[Rule]", FractionBox["1", "6"]}], ",", 
-                    RowBox[{RowBox[{"{", RowBox[{"2", ",", "1"}], "}"}], 
-                      "\[Rule]", FractionBox["1", "3"]}], ",", RowBox[
-                     {RowBox[{"{", RowBox[{"1", ",", "1", ",", "1"}], "}"}], 
-                      "\[Rule]", FractionBox["1", "6"]}]}], "}"}]], "Output", 
-               CellLabel -> "Out[12]=", CellID -> 81960646, ExpressionUUID -> 
-                "e0a4f51a-5d2c-455b-8012-425a4043fe6e"]}, Open]], 
-           Cell[BoxData[InterpretationBox[Cell["\t", "ExampleDelimiter", 
-               ExpressionUUID -> uid[]], $Line = 0; ]], "ExampleDelimiter", 
-            CellID -> 175961139, ExpressionUUID -> 
-             "29f80504-8314-4e3c-bc3b-9ab6dd9412d6"], Cell["For a rank-2 \
-tensor, projection onto YoungTableau[{2}] equals the symmetric part (t + \
-Transpose[t])/2:", "ExampleText", CellID -> 478937689, ExpressionUUID -> 
-             "298c4f5f-d970-4a93-9469-2b60935d20a9"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{RowBox[
-                     {StyleBox["t", "TI"], "=", RowBox[{"{", RowBox[
-                         {RowBox[{"{", RowBox[{"1", ",", "2"}], "}"}], ",", 
-                          RowBox[{"{", RowBox[{"3", ",", "4"}], "}"}]}], 
-                        "}"}]}], ";"}], "\[IndentingNewLine]", RowBox[
-                   {RowBox[{"YoungProject", "[", RowBox[{StyleBox["t", "TI"], 
-                        ",", RowBox[{"YoungTableau", "[", RowBox[{"{", "2", 
-                          "}"}], "]"}]}], "]"}], "==", RowBox[
-                     {RowBox[{"(", RowBox[{StyleBox["t", "TI"], "+", RowBox[
-                          {"Transpose", "[", StyleBox["t", "TI"], "]"}]}], 
-                        ")"}], "/", "2"}]}]}]], "Input", CellLabel -> 
-                "In[13]:=", CellID -> 581773701, ExpressionUUID -> 
-                "05d21e74-af83-4bdd-949a-4ec812b1e870"], Cell[BoxData[
-                "True"], "Output", CellLabel -> "Out[13]=", CellID -> 
-                218663887, ExpressionUUID -> 
-                "12c45e8e-35f0-4749-9bb7-7aa7b2e1aef9"]}, Open]]}, Open]], 
-        Cell[CellGroupData[{Cell[BoxData[InterpretationBox[
-              Cell["Possible Issues", "ExampleSection", ExpressionUUID -> 
-                uid[]], $Line = 0; ]], "ExampleSection", CellID -> 901107189, 
-            ExpressionUUID -> "b9d76ed4-7717-4764-980e-a836364c9a72"], 
-           Cell["The tensor rank must equal TableauSize[tableau]; otherwise \
-the result is $Failed:", "ExampleText", CellID -> 260630019, 
-            ExpressionUUID -> "461f1113-38fb-4e25-adeb-688c995400cb"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{"YoungProject", "[", 
-                  RowBox[{RowBox[{"{", RowBox[{"1", ",", " ", "2", ",", " ", 
-                        "3"}], "}"}], ",", " ", RowBox[{"YoungTableau", "[", 
-                      RowBox[{"{", "2", "}"}], "]"}]}], "]"}]], "Input", 
-               CellLabel -> "In[14]:=", CellID -> 793340454, 
-               ExpressionUUID -> "c0f96824-6030-46d0-8cdb-a61fb874a9d0"], 
-              Cell[BoxData["$Failed"], "Output", CellLabel -> "Out[14]=", 
-               CellID -> 827549255, ExpressionUUID -> 
-                "7a4d3164-40f7-425f-8ecc-bdec0ea2c91c"]}, Open]], 
-           Cell[BoxData[InterpretationBox[Cell["\t", "ExampleDelimiter", 
-               ExpressionUUID -> uid[]], $Line = 0; ]], "ExampleDelimiter", 
-            CellID -> 133823204, ExpressionUUID -> 
-             "7693e6c1-56da-4cd3-9416-6df8ba6ce8e5"], Cell["A second argument \
-that is not a valid YoungTableau leaves YoungProject unevaluated:", 
-            "ExampleText", CellID -> 395588623, ExpressionUUID -> 
-             "26fdb1f7-ed3d-47a2-bce3-bc7f943fc488"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{"YoungProject", "[", 
-                  RowBox[{RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"1", ",", 
-                          " ", "2"}], "}"}], ",", " ", RowBox[{"{", RowBox[
-                          {"3", ",", " ", "4"}], "}"}]}], "}"}], ",", " ", 
-                    "\"notatableau\""}], "]"}]], "Input", CellLabel -> 
-                "In[15]:=", CellID -> 319949492, ExpressionUUID -> 
-                "f88d3b8e-1a46-424f-b86f-5ecd4e2c21ce"], Cell[BoxData[
-                RowBox[{"YoungProject", "[", RowBox[{RowBox[{"{", RowBox[
-                       {RowBox[{"{", RowBox[{"1", ",", "2"}], "}"}], ",", 
-                        RowBox[{"{", RowBox[{"3", ",", "4"}], "}"}]}], "}"}], 
-                    ",", "\"notatableau\""}], "]"}]], "Output", CellLabel -> 
-                "Out[15]=", CellID -> 954101992, ExpressionUUID -> 
-                "1d68a333-060d-4e7a-bb87-b6e047c5b279"]}, Open]], 
-           Cell[BoxData[InterpretationBox[Cell["\t", "ExampleDelimiter", 
-               ExpressionUUID -> uid[]], $Line = 0; ]], "ExampleDelimiter", 
-            CellID -> 300974214, ExpressionUUID -> 
-             "bdb98668-b7cc-4130-83d8-0623218b8b98"], Cell["Projecting onto \
-one irrep and then onto a different irrep returns zero: the projector \
-annihilates components living in any other symmetry class:", "ExampleText", 
-            CellID -> 187153474, ExpressionUUID -> 
-             "9f310a72-4294-4482-b653-7c64b1bd3160"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{RowBox[
-                     {StyleBox["t", "TI"], "=", RowBox[{"{", RowBox[
-                         {RowBox[{"{", RowBox[{"1", ",", "2"}], "}"}], ",", 
-                          RowBox[{"{", RowBox[{"3", ",", "4"}], "}"}]}], 
-                        "}"}]}], ";"}], "\[IndentingNewLine]", RowBox[
-                   {"YoungProject", "[", RowBox[{RowBox[{"YoungProject", "[", 
-                        RowBox[{StyleBox["t", "TI"], ",", RowBox[
-                          {"YoungTableau", "[", RowBox[{"{", "2", "}"}], 
-                          "]"}]}], "]"}], ",", RowBox[{"YoungTableau", "[", 
-                        RowBox[{"{", RowBox[{"1", ",", "1"}], "}"}], "]"}]}], 
-                    "]"}]}]], "Input", CellLabel -> "In[16]:=", CellID -> 
-                47558701, ExpressionUUID -> 
-                "bceff7be-d5c8-49f3-97d3-43dbeb239383"], Cell[BoxData[
-                RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"0", ",", "0"}], 
-                      "}"}], ",", RowBox[{"{", RowBox[{"0", ",", "0"}], 
-                      "}"}]}], "}"}]], "Output", CellLabel -> "Out[16]=", 
-               CellID -> 974181091, ExpressionUUID -> 
-                "1cc63f9d-caf5-4a4b-aacf-146eba3ecc69"]}, Open]]}, Open]], 
-        Cell[BoxData[InterpretationBox[Cell["Interactive Examples", 
-            "ExampleSection", ExpressionUUID -> uid[]], $Line = 0; ]], 
-         "ExampleSection", CellID -> 874789988, ExpressionUUID -> 
-          "a00cb9b6-a221-45a6-9e51-70fd30305d69"], 
-        Cell[BoxData[InterpretationBox[Cell["Neat Examples", 
-            "ExampleSection", ExpressionUUID -> uid[]], $Line = 0; ]], 
-         "ExampleSection", CellID -> 607742956, ExpressionUUID -> 
-          "4dc0a13c-d41e-4b85-9b96-d51e41e5e656"]}, Open]], 
-     Cell[CellGroupData[{Cell["Metadata", "MetadataSection", 
-         CellID -> 968303521, ExpressionUUID -> 
-          "8154fae7-2c7f-47a5-b805-3425a03f4f21"], 
-        Cell[TextData[{"New in: ", Cell["1.0", "HistoryData", 
-            CellTags -> "New", ExpressionUUID -> 
-             "05d32db3-71be-4d53-9e4f-941adb885aaf"], " | Modified in: ", 
-           Cell[" ", "HistoryData", CellTags -> "Modified", 
-            ExpressionUUID -> "a4c275e3-e512-4106-8493-3a13d9d48d75"], 
-           " | Obsolete in: ", Cell[" ", "HistoryData", CellTags -> 
-             "Obsolete", ExpressionUUID -> 
-             "2f558b24-dc79-4d9b-a8f9-2892a834e261"]}], "History", 
-         CellID -> 983523784, ExpressionUUID -> 
-          "7f3ea498-ffb0-477f-a143-6cb890eb92c5"], 
-        Cell[CellGroupData[{Cell[TextData[{"Categorization", Cell[BoxData[
-                TemplateBox[{"Metadata", Cell[BoxData[FrameBox[Cell["Metadata \
-such as page URI, context, and type of documentation page.", "MoreInfoText"], 
-                     BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]}, 
-                 "MoreInfoOpenerButtonTemplate"]], ExpressionUUID -> 
-                "135e937f-ced3-4384-9627-56dee979ba6c"]}], 
-            "CategorizationSection", CellID -> 240353319, ExpressionUUID -> 
-             "064683b7-bd0b-4065-bf02-4bffb0c5ffcc"], Cell["Symbol", 
-            "Categorization", CellLabel -> "Entity Type", 
-            CellID -> 542682022, ExpressionUUID -> 
-             "6c0360bd-9a3b-489f-96a5-29e8219c528e"], 
-           Cell["Wolfram/TensorNetworks", "Categorization", 
-            CellLabel -> "Paclet Name", CellID -> 524416575, 
-            ExpressionUUID -> "113f2bf2-3e00-4d5b-b4cf-da6e5c41071e"], 
-           Cell["Wolfram`TensorNetworks`Symmetry`", "Categorization", 
-            CellLabel -> "Context", CellID -> 145519573, ExpressionUUID -> 
-             "77b6e28b-ecdf-4b8c-af53-b1a09807bc64"], 
-           Cell["Wolfram/TensorNetworks/ref/YoungProject", "Categorization", 
-            CellLabel -> "URI", CellID -> 917137177, ExpressionUUID -> 
-             "04309ecf-372f-4445-aa5c-61974dbcc1f2"]}, Closed]], 
-        Cell[CellGroupData[{Cell["Keywords", "KeywordsSection", 
-            CellID -> 274902550, ExpressionUUID -> 
-             "03c63e35-eb29-4ebc-ae2f-cb21b699541b"], Cell["Young projector", 
-            "Keywords", CellID -> 660039759, ExpressionUUID -> 
-             "68f66a99-d271-4dac-bfd3-d4367503212e"], Cell["Young tableau", 
-            "Keywords", CellID -> 536601648, ExpressionUUID -> 
-             "2b4e428b-6b53-446c-9573-5dc39fa2c1bc"], Cell["symmetric group", 
-            "Keywords", CellID -> 906854196, ExpressionUUID -> 
-             "3a0c90d5-40bf-463b-a8b2-ba5dbab7dad3"], 
-           Cell["irreducible representation", "Keywords", 
-            CellID -> 486068660, ExpressionUUID -> 
-             "7081d3f1-91e8-41ae-a74a-0544a8e7cedf"], Cell["tensor symmetry", 
-            "Keywords", CellID -> 594830562, ExpressionUUID -> 
-             "312440d9-a28b-4aca-ad5e-257de9020d7b"], Cell["Schur-Weyl", 
-            "Keywords", CellID -> 236296844, ExpressionUUID -> 
-             "f67fbfd8-c00b-449c-98f7-4784ccfdddfa"], 
-           Cell["projection operator", "Keywords", CellID -> 439536835, 
-            ExpressionUUID -> "e78f8bd9-2c31-44c6-a8e4-2a7429cf019b"], 
-           Cell["idempotent", "Keywords", CellID -> 563258785, 
-            ExpressionUUID -> "5e2a7994-64ba-4586-b00d-79f7af018d83"], 
-           Cell["symmetrization", "Keywords", CellID -> 803634484, 
-            ExpressionUUID -> "63c32311-4c44-4c83-a5ee-9c6395d9fcc3"], 
-           Cell["antisymmetrization", "Keywords", CellID -> 469842589, 
-            ExpressionUUID -> "fca12229-3866-4e6f-855a-934503b829a1"], 
-           Cell["hook length formula", "Keywords", CellID -> 478081883, 
-            ExpressionUUID -> "d2414550-d253-45ff-9ea5-60fe69ced4d5"]}, 
-          Closed]], Cell[CellGroupData[{Cell["Syntax Templates", 
-            "TemplatesSection", CellID -> 772959639, ExpressionUUID -> 
-             "ed86fac2-bd69-437e-963c-38f3d9703c55"], Cell[BoxData[""], 
-            "Template", CellLabel -> "Additional Function Template", 
-            CellID -> 398213580, ExpressionUUID -> 
-             "a534b897-c13f-4177-ad98-9dc5ff9c9b38"], Cell[BoxData[""], 
-            "Template", CellLabel -> "Arguments Pattern", 
-            CellID -> 109123034, ExpressionUUID -> 
-             "b2f998d1-f80f-4157-8337-23522a67618e"], Cell[BoxData[""], 
-            "Template", CellLabel -> "Local Variables", CellID -> 288230969, 
-            ExpressionUUID -> "9e400e49-8e14-412c-ba39-19b5c039de66"], 
-           Cell[BoxData[""], "Template", CellLabel -> "Color Equal Signs", 
-            CellID -> 294922556, ExpressionUUID -> 
-             "d424bfe0-4561-4df0-9c5f-3d0df0ee40f5"]}, Closed]]}, Open]]}, 
-    Open]]}, WindowSize -> {700, 770}, WindowMargins -> 
-  {{5, Automatic}, {Automatic, 0}}, TaggingRules -> 
-  <|"Paclet" -> "Wolfram/TensorNetworks"|>, CellContext -> "Global`", 
- FrontEndVersion -> "15.0 for Mac OS X ARM (64-bit) (February 17, 2026)", 
- StyleDefinitions -> FrontEnd`FileName[{"Wolfram"}, 
-   "FunctionPageStylesExt.nb", CharacterEncoding -> "UTF-8"], 
- ExpressionUUID -> "b73e93e5-cf0c-4ea9-8777-01b5aa61dec6"]
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 15.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     56527,       1644]
+NotebookOptionsPosition[     43154,       1362]
+NotebookOutlinePosition[     43940,       1388]
+CellTagsIndexPosition[     43860,       1383]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["YoungProject", "ObjectName",
+ CellID->131187114,ExpressionUUID->"fce0d5be-267c-4a3e-ad97-a21a18d75d3d"],
+
+Cell[TextData[{
+ Cell["   ", "ModInfo",ExpressionUUID->"51e4471d-8cd4-40c8-a973-29cf23de3a39"],
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["YoungProject",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungProject"], "[", 
+   RowBox[{
+    StyleBox["tensor", "TI"], ",", 
+    StyleBox["tableau", "TI"]}], "]"}]], "InlineFormula",ExpressionUUID->
+  "523f0b73-340f-442f-8a8a-4b0ed064bdde"],
+ "\[LineSeparator]returns the normalized projection of ",
+ Cell[BoxData[
+  StyleBox["tensor", "TI"]], "InlineFormula",ExpressionUUID->
+  "30ef249c-16b8-474d-b761-349580ffaca5"],
+ " onto the symmetry class labelled by the Young ",
+ Cell[BoxData[
+  StyleBox["tableau", "TI"]], "InlineFormula",ExpressionUUID->
+  "d27924a9-c719-4549-ba1b-3ee13ef894df"],
+ "; the operator is idempotent."
+}], "Usage",
+ CellID->952787092,ExpressionUUID->"445cbaf7-fe0a-4dc4-aeb3-0b8fb90880f2"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["YoungProject",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
+  "InlineFormula",ExpressionUUID->"a26cae10-656b-4475-881c-c8b7774cb7bd"],
+ "[",
+ Cell[BoxData[
+  StyleBox["t", "TI"]], "InlineFormula",ExpressionUUID->
+  "e4bd5a52-f80b-4488-8350-62059b726199"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["yt", "TI"]], "InlineFormula",ExpressionUUID->
+  "859e2dda-f48b-424b-bff6-f1cd849e66a4"],
+ "] = ",
+ Cell[BoxData[
+  FractionBox[
+   StyleBox["d", "TI"], 
+   RowBox[{
+    StyleBox["n", "TI"], "!"}]]], "InlineFormula",ExpressionUUID->
+  "551d4cb1-d54a-46bf-b5c8-c0baf90f1cad"],
+ " ",
+ Cell[BoxData[
+  ButtonBox["YoungSymmetrize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungSymmetrize"]], 
+  "InlineFormula",ExpressionUUID->"77b75613-479a-4a3d-80b2-43cfafa776e4"],
+ "[",
+ Cell[BoxData[
+  StyleBox["t", "TI"]], "InlineFormula",ExpressionUUID->
+  "e9ffbc8f-6101-486c-be17-401a77128763"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["yt", "TI"]], "InlineFormula",ExpressionUUID->
+  "9c47c96d-be88-48a9-989b-906ec8a92006"],
+ "], where ",
+ Cell[BoxData[
+  StyleBox["n", "TI"]], "InlineFormula",ExpressionUUID->
+  "1aaad655-0ebe-4f40-a34c-bd021a91ff2e"],
+ " is ",
+ Cell[BoxData[
+  ButtonBox["TableauSize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauSize"]], 
+  "InlineFormula",ExpressionUUID->"9ef1e712-b45a-4616-91fe-9ab573f8ce62"],
+ "[",
+ Cell[BoxData[
+  StyleBox["yt", "TI"]], "InlineFormula",ExpressionUUID->
+  "78ddbc88-e766-4c18-b6e0-876b4ae4252b"],
+ "] and ",
+ Cell[BoxData[
+  StyleBox["d", "TI"]], "InlineFormula",ExpressionUUID->
+  "f3cd7fd5-8769-4b39-8ca7-7714209691b6"],
+ " is ",
+ Cell[BoxData[
+  ButtonBox["TableauDimension",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauDimension"]], 
+  "InlineFormula",ExpressionUUID->"65f8e509-0907-42f9-8ef0-fdc66cb39658"],
+ "[",
+ Cell[BoxData[
+  StyleBox["yt", "TI"]], "InlineFormula",ExpressionUUID->
+  "fdfb009e-6190-4a43-ac15-eb1b1a1d9289"],
+ "]. The normalization ",
+ Cell[BoxData[
+  RowBox[{
+   StyleBox["d", "TI"], "/", 
+   RowBox[{
+    StyleBox["n", "TI"], "!"}]}]], "InlineFormula",ExpressionUUID->
+  "f09d5c3a-e606-43e2-b6eb-5544a6c10cc6"],
+ " makes the projector idempotent."
+}], "Notes",
+ CellID->495042975,ExpressionUUID->"bc92486a-02dd-476a-8f83-09df02dcb7b6"],
+
+Cell[TextData[{
+ "Idempotency: ",
+ Cell[BoxData[
+  ButtonBox["YoungProject",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
+  "InlineFormula",ExpressionUUID->"6245fc7b-e8c7-4e30-95dc-6d5a96aea4e2"],
+ "[",
+ Cell[BoxData[
+  ButtonBox["YoungProject",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
+  "InlineFormula",ExpressionUUID->"ba18a673-8108-4bdd-809a-b1c9f021ea96"],
+ "[",
+ Cell[BoxData[
+  StyleBox["t", "TI"]], "InlineFormula",ExpressionUUID->
+  "25628e28-ed1a-4533-8353-f378b6ea0772"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["yt", "TI"]], "InlineFormula",ExpressionUUID->
+  "52613df9-6579-4323-af62-c0a052b02b8c"],
+ "], ",
+ Cell[BoxData[
+  StyleBox["yt", "TI"]], "InlineFormula",ExpressionUUID->
+  "f987f157-f0cf-40b9-b6bb-3cea61e9aac6"],
+ "] is equal to ",
+ Cell[BoxData[
+  ButtonBox["YoungProject",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
+  "InlineFormula",ExpressionUUID->"be7e3966-b9de-40d7-8bf2-3da8b6b94aac"],
+ "[",
+ Cell[BoxData[
+  StyleBox["t", "TI"]], "InlineFormula",ExpressionUUID->
+  "3f8e5d38-23ab-4f85-87cd-ee71a92158ab"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["yt", "TI"]], "InlineFormula",ExpressionUUID->
+  "215b3266-6f5e-4ffe-8bbe-5738ced52679"],
+ "]. This is the defining property of a projector and is the source of the ",
+ Cell[BoxData[
+  RowBox[{
+   StyleBox["d", "TI"], "/", 
+   RowBox[{
+    StyleBox["n", "TI"], "!"}]}]], "InlineFormula",ExpressionUUID->
+  "11d46584-8f3f-4347-946e-49f0a57522d7"],
+ " factor."
+}], "Notes",
+ CellID->856099490,ExpressionUUID->"b1f08e82-bf8e-4bd6-b172-0bd9d89f44c0"],
+
+Cell[TextData[{
+ "For a rank-2 ",
+ Cell[BoxData[
+  StyleBox["tensor", "TI"]], "InlineFormula",ExpressionUUID->
+  "6b51f624-dcf2-45b0-973b-66aa3d419a93"],
+ ", projecting onto ",
+ Cell[BoxData[
+  RowBox[{"YoungTableau", "[", 
+   RowBox[{"{", "2", "}"}], "]"}]], "InlineFormula",ExpressionUUID->
+  "acfb1aa5-3fd2-4994-9498-33a2f9234947"],
+ " yields the symmetric part ",
+ Cell[BoxData[
+  RowBox[{"(", 
+   RowBox[{
+    StyleBox["t", "TI"], "+", 
+    $CellContext`TransposeBox[
+     StyleBox["t", "TI"]]}], ")", "/", "2"}]], "InlineFormula",ExpressionUUID->
+  "50ecf29b-fc80-4217-a0f3-ff02fa8b46dc"],
+ ", and projecting onto ",
+ Cell[BoxData[
+  RowBox[{"YoungTableau", "[", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1"}], "}"}], "]"}]], "InlineFormula",ExpressionUUID->
+  "d31c370d-06f3-49b4-ba12-ff5d661a98db"],
+ " yields the antisymmetric part ",
+ Cell[BoxData[
+  RowBox[{"(", 
+   RowBox[{
+    StyleBox["t", "TI"], "-", 
+    $CellContext`TransposeBox[
+     StyleBox["t", "TI"]]}], ")", "/", "2"}]], "InlineFormula",ExpressionUUID->
+  "9820bbeb-5df7-40be-b163-4bbb2ff8cacb"],
+ "."
+}], "Notes",
+ CellID->514389114,ExpressionUUID->"ec28e3dd-effc-4ba9-a6e8-26108aa58b77"],
+
+Cell[TextData[{
+ "Summing the Young projectors over all standard tableaux of every shape of \
+size ",
+ Cell[BoxData[
+  StyleBox["n", "TI"]], "InlineFormula",ExpressionUUID->
+  "c0326cc1-f4c5-4bdc-bfdf-cc9a1d9a65bb"],
+ " recovers the identity on rank-",
+ Cell[BoxData[
+  StyleBox["n", "TI"]], "InlineFormula",ExpressionUUID->
+  "65eddd09-db1f-483b-9b04-04236d2d5ed6"],
+ " tensors. For rank 2 this reduces to ",
+ Cell[BoxData[
+  RowBox[{
+   RowBox[{"YoungProject", "[", 
+    RowBox[{
+     StyleBox["t", "TI"], ",", 
+     RowBox[{"YoungTableau", "[", 
+      RowBox[{"{", "2", "}"}], "]"}]}], "]"}], "+", 
+   RowBox[{"YoungProject", "[", 
+    RowBox[{
+     StyleBox["t", "TI"], ",", 
+     RowBox[{"YoungTableau", "[", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", "1"}], "}"}], "]"}]}], "]"}], "=", 
+   StyleBox["t", "TI"]}]], "InlineFormula",ExpressionUUID->
+  "4836e23c-0c22-4026-841e-3aa22f14728b"],
+ ", reflecting the Schur-Weyl decomposition of the ",
+ Cell[BoxData[
+  SubscriptBox[
+   StyleBox["S", "TI"], 
+   StyleBox["n", "TI"]]], "InlineFormula",ExpressionUUID->
+  "118afd54-78f5-4489-bd17-bcf0551526d3"],
+ " action."
+}], "Notes",
+ CellID->477979075,ExpressionUUID->"ab7e3b46-eb7e-447f-9cc3-e29e0dc90ad0"],
+
+Cell[TextData[{
+ "The ",
+ Cell[BoxData[
+  StyleBox["tensor", "TI"]], "InlineFormula",ExpressionUUID->
+  "ee079a2e-2aa2-4a47-b962-b0bac2fa003c"],
+ " rank must equal ",
+ Cell[BoxData[
+  ButtonBox["TableauSize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauSize"]], 
+  "InlineFormula",ExpressionUUID->"0b8cdd0b-22de-4a19-90d3-1f5d7855c822"],
+ "[",
+ Cell[BoxData[
+  StyleBox["tableau", "TI"]], "InlineFormula",ExpressionUUID->
+  "08d7a790-60c9-4dd3-8f7c-f52a742e58ce"],
+ "]; mismatched ranks return ",
+ Cell[BoxData[
+  ButtonBox["$Failed",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/$Failed"]], "InlineFormula",ExpressionUUID->
+  "d000ff63-ccdf-42c0-a94e-67a143184730"],
+ " (via ",
+ Cell[BoxData[
+  ButtonBox["YoungSymmetrize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungSymmetrize"]], 
+  "InlineFormula",ExpressionUUID->"77241dec-6120-405a-b3e7-f04716785b9c"],
+ "). Inputs that are not a valid ",
+ Cell[BoxData[
+  ButtonBox["YoungTableau",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungTableau"]], 
+  "InlineFormula",ExpressionUUID->"1d3cb10d-ca46-4d9e-9f84-9ca913ce4a30"],
+ " leave ",
+ Cell[BoxData[
+  ButtonBox["YoungProject",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
+  "InlineFormula",ExpressionUUID->"b60e2bad-1208-4bce-9998-531abefa2be0"],
+ " unevaluated."
+}], "Notes",
+ CellID->620900360,ExpressionUUID->"4379a1c1-b96b-40dc-bddf-9ddce1c7c0ad"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "See Also",
+ Cell[BoxData[
+  TemplateBox[{"SeeAlso", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Insert links to any related reference (function) pages.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "05b78b24-a2e9-4212-82bc-e4923f24bdef"]
+}], "SeeAlsoSection",
+ CellID->961292884,ExpressionUUID->"2554a8e7-91b8-4aba-96ed-0317397f3947"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["YoungTableau",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungTableau"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "5ced62ac-52cc-4d6d-8adb-d35e3d6dc060"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["YoungSymmetrize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungSymmetrize"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "2e54626c-fffe-48ef-855b-fb51969985e7"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["TableauDimension",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauDimension"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "6f04ba11-6824-43b8-bbd4-05dc2544bdbc"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["TableauShape",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauShape"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "7ec7a337-241d-400e-a806-556c0b79fb77"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["TableauSize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauSize"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "6a61c7d5-07ec-4e8a-9b58-9f32639d729e"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["YoungTableauQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungTableauQ"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "18ad0f24-4e88-47b6-bbd3-c97761b880b7"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["Symmetrize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Symmetrize"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "f392965a-aa2f-4e33-8e90-8af98591c096"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["Antisymmetrize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Antisymmetrize"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "14c9d489-5038-4309-8d6f-c3c69e865d42"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["Transpose",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Transpose"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "1fbcc43d-44c4-4da4-bf1c-80bf6f4c9a40"]
+}], "SeeAlso",
+ CellID->179043365,ExpressionUUID->"7dff0e90-5a64-412d-a9ad-5b400ba3dd56"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Tech Notes",
+ Cell[BoxData[
+  TemplateBox[{"TechNotes", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell["Insert links to related tech notes.", "MoreInfoText"], BaseStyle -> 
+       "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "fbadf1ad-a8a0-4ea6-b383-f04f41cff4a5"]
+}], "TechNotesSection",
+ CellID->235550202,ExpressionUUID->"ef167947-1dba-4e85-baa2-d0ec7a4295c9"],
+
+Cell[TextData[ButtonBox["Young Symmetries",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/YoungSymmetries"]], "Tutorials",
+ CellID->863863235,ExpressionUUID->"4418380c-b349-422c-b69f-637f0f57f5cf"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Related Guides", "MoreAboutSection",
+ CellID->316922892,ExpressionUUID->"84ed2fa0-391d-4d92-bb32-ef74380ce621"],
+
+Cell[TextData[ButtonBox["TensorNetworks Package",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/guide/TensorNetworks"]], "MoreAbout",
+ CellID->49195516,ExpressionUUID->"34559e69-bddd-4551-9036-e655ea23c505"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Related Links",
+ Cell[BoxData[
+  TemplateBox[{"RelatedLinks", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Insert links to any related page, including web pages.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "cd2f5379-a5fb-4e10-8d0a-7bd453bf165c"]
+}], "RelatedLinksSection",
+ CellID->703849624,ExpressionUUID->"f1e381fe-22ff-4c06-85b2-b0af88b5441e"],
+
+Cell[" ", "RelatedLinks",
+ CellID->710730737,ExpressionUUID->"0cda08e3-8e3f-49f5-a2a7-172245507920"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Examples Initialization",
+ Cell[BoxData[
+  TemplateBox[{"ExamplesInitialization", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Input that is to be evaluated before any examples are run, e.g. \
+Needs[\[Ellipsis]].", "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
+     "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "73d9f2b6-148f-465f-a326-215c9585be33"]
+}], "ExamplesInitializationSection",
+ CellID->4779250,ExpressionUUID->"7ef5c43c-c29c-4334-ac45-18a2ba11c9a7"],
+
+Cell[BoxData[
+ RowBox[{"Needs", "[", "\"\<Wolfram`TensorNetworks`Symmetry`\>\"", 
+  "]"}]], "ExampleInitialization",
+ CellID->127228040,ExpressionUUID->"332d2004-7f36-40af-88b6-340dd21f4f54"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[GridBox[{
+    {
+     StyleBox[
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+     ButtonBox[
+      RowBox[{
+       RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
+      BaseStyle->"ExtendedExamplesLink",
+      ButtonData:>"ExtendedExamples"]}
+   }],
+  $Line = 0; Null]], "PrimaryExamplesSection",
+ CellID->693373010,ExpressionUUID->"e4728a90-4728-4235-9991-6eb17da07f06"],
+
+Cell["Project a rank-2 tensor onto the totally symmetric class:", \
+"ExampleText",
+ CellID->469889671,ExpressionUUID->"f78ec379-8259-4603-97f3-a535116e41fe"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"YoungProject", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1", ",", " ", "2"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", " ", "4"}], "}"}]}], "}"}], ",", " ", 
+   RowBox[{"YoungTableau", "[", 
+    RowBox[{"{", "2", "}"}], "]"}]}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->631627224,ExpressionUUID->"aab37848-7e44-4d66-86c0-88c998a62edc"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"1", ",", 
+     FractionBox["5", "2"]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     FractionBox["5", "2"], ",", "4"}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->479975586,ExpressionUUID->"c4bb4fe4-0218-4f75-9049-6b2ac8f0a26a"]
+}, Open  ]],
+
+Cell["Project the same tensor onto the antisymmetric class:", "ExampleText",
+ CellID->337089098,ExpressionUUID->"ff54a48e-4d23-4ecb-8dc0-4d4559fb5c45"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"YoungProject", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1", ",", " ", "2"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", " ", "4"}], "}"}]}], "}"}], ",", " ", 
+   RowBox[{"YoungTableau", "[", 
+    RowBox[{"{", 
+     RowBox[{"1", ",", " ", "1"}], "}"}], "]"}]}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->985590089,ExpressionUUID->"f4c7c7ec-fcf2-4c6c-8db2-924a78bdf922"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0", ",", 
+     RowBox[{"-", 
+      FractionBox["1", "2"]}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     FractionBox["1", "2"], ",", "0"}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[2]=",
+ CellID->82276612,ExpressionUUID->"b811d144-ef18-4bfe-996c-40262780f835"]
+}, Open  ]],
+
+Cell["Projection is idempotent:", "ExampleText",
+ CellID->277238324,ExpressionUUID->"94584f31-a909-49f8-8456-73d4a11def0b"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"YoungProject", "[", 
+   RowBox[{
+    RowBox[{"YoungProject", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", " ", "2"}], "}"}], ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"3", ",", " ", "4"}], "}"}]}], "}"}], ",", " ", 
+      RowBox[{"YoungTableau", "[", 
+       RowBox[{"{", "2", "}"}], "]"}]}], "]"}], ",", " ", 
+    RowBox[{"YoungTableau", "[", 
+     RowBox[{"{", "2", "}"}], "]"}]}], "]"}], " ", "===", " ", 
+  RowBox[{"YoungProject", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"1", ",", " ", "2"}], "}"}], ",", " ", 
+      RowBox[{"{", 
+       RowBox[{"3", ",", " ", "4"}], "}"}]}], "}"}], ",", " ", 
+    RowBox[{"YoungTableau", "[", 
+     RowBox[{"{", "2", "}"}], "]"}]}], "]"}]}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->538222229,ExpressionUUID->"4211a972-73cb-4272-bbef-000aa30f2371"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[3]=",
+ CellID->238877537,ExpressionUUID->"2988332e-e8d6-4c40-928b-28e0c6eb7cf3"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "More Examples",
+ Cell[BoxData[
+  TemplateBox[{"MoreExamples", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell["Extended examples in standardized sections.", "MoreInfoText"], 
+       BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "222d0da6-c845-4597-b2fb-22304530af53"]
+}], "ExtendedExamplesSection",
+ CellTags->"ExtendedExamples",
+ CellID->872756394,ExpressionUUID->"3e437508-a987-4d91-a5ae-64552669b405"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Scope", "ExampleSection",ExpressionUUID->
+   "0d530b9a-35a9-48a2-a209-7b7dbf2fb8aa"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->441886239,ExpressionUUID->"7b2ca111-d4fb-4f2b-b9b9-6f9d85bf17f1"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Rank-2 symmetric and antisymmetric parts", "ExampleSubsection",
+   ExpressionUUID->"8f4a0978-65ac-48f2-9874-c093d3db7a3b"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->580940541,ExpressionUUID->"10107158-aad7-49f5-8b99-4bb83aa6bc8d"],
+
+Cell["\<\
+Adding the two rank-2 projections reconstructs the original tensor:\
+\>", "ExampleText",
+ CellID->260717334,ExpressionUUID->"9fd25907-ffc1-4289-9e1b-bf9071afc1dc"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   StyleBox["t", "TI"], "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1", ",", "2"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "4"}], "}"}]}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"YoungProject", "[", 
+   RowBox[{
+    StyleBox["t", "TI"], ",", 
+    RowBox[{"YoungTableau", "[", 
+     RowBox[{"{", "2", "}"}], "]"}]}], "]"}], "+", 
+  RowBox[{"YoungProject", "[", 
+   RowBox[{
+    StyleBox["t", "TI"], ",", 
+    RowBox[{"YoungTableau", "[", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1"}], "}"}], "]"}]}], "]"}]}]}], "Input",
+ CellLabel->"In[4]:=",
+ CellID->587959144,ExpressionUUID->"7d90d3b0-0d1c-4fb8-bab7-a6029d3fd3bc"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"1", ",", "2"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "4"}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[4]=",
+ CellID->395796091,ExpressionUUID->"15192a34-634d-4496-84e2-7520e9c943ba"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Rank-3 mixed symmetry", "ExampleSubsection",ExpressionUUID->
+   "64e35fea-5108-4a5c-b75a-4cc8e5b07a9d"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->597904402,ExpressionUUID->"8765d295-9deb-4b43-8e7c-70f213a58fc9"],
+
+Cell["\<\
+Projecting a rank-3 tensor onto the mixed-symmetry shape {2,1}:\
+\>", "ExampleText",
+ CellID->279665421,ExpressionUUID->"d9579565-dbdf-492d-a569-3f7ce058e56c"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"YoungProject", "[", 
+  RowBox[{
+   RowBox[{"Array", "[", 
+    RowBox[{"a", ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", " ", "2", ",", " ", "2"}], "}"}]}], "]"}], ",", " ", 
+   RowBox[{"YoungTableau", "[", 
+    RowBox[{"{", 
+     RowBox[{"2", ",", " ", "1"}], "}"}], "]"}]}], "]"}]], "Input",
+ CellLabel->"In[5]:=",
+ CellID->821466501,ExpressionUUID->"9e90a190-f807-4480-89eb-1eb9ea906d1a"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"0", ",", 
+       RowBox[{
+        FractionBox["1", "3"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"2", " ", 
+           RowBox[{"a", "[", 
+            RowBox[{"1", ",", "1", ",", "2"}], "]"}]}], "-", 
+          RowBox[{"a", "[", 
+           RowBox[{"1", ",", "2", ",", "1"}], "]"}], "-", 
+          RowBox[{"a", "[", 
+           RowBox[{"2", ",", "1", ",", "1"}], "]"}]}], ")"}]}]}], "}"}], ",", 
+     
+     RowBox[{"{", 
+      RowBox[{"0", ",", 
+       RowBox[{
+        FractionBox["1", "3"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"a", "[", 
+           RowBox[{"1", ",", "2", ",", "2"}], "]"}], "+", 
+          RowBox[{"a", "[", 
+           RowBox[{"2", ",", "1", ",", "2"}], "]"}], "-", 
+          RowBox[{"2", " ", 
+           RowBox[{"a", "[", 
+            RowBox[{"2", ",", "2", ",", "1"}], "]"}]}]}], ")"}]}]}], "}"}]}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        FractionBox["1", "3"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"-", "2"}], " ", 
+           RowBox[{"a", "[", 
+            RowBox[{"1", ",", "1", ",", "2"}], "]"}]}], "+", 
+          RowBox[{"a", "[", 
+           RowBox[{"1", ",", "2", ",", "1"}], "]"}], "+", 
+          RowBox[{"a", "[", 
+           RowBox[{"2", ",", "1", ",", "1"}], "]"}]}], ")"}]}], ",", "0"}], 
+      "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        FractionBox["1", "3"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", 
+           RowBox[{"a", "[", 
+            RowBox[{"1", ",", "2", ",", "2"}], "]"}]}], "-", 
+          RowBox[{"a", "[", 
+           RowBox[{"2", ",", "1", ",", "2"}], "]"}], "+", 
+          RowBox[{"2", " ", 
+           RowBox[{"a", "[", 
+            RowBox[{"2", ",", "2", ",", "1"}], "]"}]}]}], ")"}]}], ",", "0"}],
+       "}"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[5]=",
+ CellID->933419381,ExpressionUUID->"2b7ce78a-77d5-4f29-8049-7bde835a9088"]
+}, Open  ]],
+
+Cell["The mixed-symmetry irrep of S_3 has dimension 2:", "ExampleText",
+ CellID->342854686,ExpressionUUID->"2bce7563-dbfb-408f-b93a-a05899f6b351"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TableauDimension", "[", 
+  RowBox[{"YoungTableau", "[", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", " ", "1"}], "}"}], "]"}], "]"}]], "Input",
+ CellLabel->"In[6]:=",
+ CellID->253250692,ExpressionUUID->"11a022fc-12a0-4ca4-8f5b-0b2ad70f5a6c"],
+
+Cell[BoxData["2"], "Output",
+ CellLabel->"Out[6]=",
+ CellID->489987650,ExpressionUUID->"badc334d-c294-4d43-a4d3-548c6cc8a55c"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Idempotency", "ExampleSubsection",ExpressionUUID->
+   "63e9a0bd-9700-461c-ba18-f3e89a2e67fe"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->634431385,ExpressionUUID->"d6ab515a-4015-4270-87a7-75018c032daf"],
+
+Cell["Applying the projector twice agrees with applying it once:", \
+"ExampleText",
+ CellID->199421680,ExpressionUUID->"a881566d-e580-4f3d-bdd0-8482c887cc1a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "42", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   StyleBox["t", "TI"], "=", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "3", ",", "3"}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   StyleBox["once", "TI"], "=", 
+   RowBox[{"YoungProject", "[", 
+    RowBox[{
+     StyleBox["t", "TI"], ",", 
+     RowBox[{"YoungTableau", "[", 
+      RowBox[{"{", 
+       RowBox[{"2", ",", "1"}], "}"}], "]"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   StyleBox["twice", "TI"], "=", 
+   RowBox[{"YoungProject", "[", 
+    RowBox[{
+     StyleBox["once", "TI"], ",", 
+     RowBox[{"YoungTableau", "[", 
+      RowBox[{"{", 
+       RowBox[{"2", ",", "1"}], "}"}], "]"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Max", "[", 
+  RowBox[{"Abs", "[", 
+   RowBox[{"Flatten", "[", 
+    RowBox[{
+     StyleBox["twice", "TI"], "-", 
+     StyleBox["once", "TI"]}], "]"}], "]"}], "]"}]}], "Input",
+ CellLabel->"In[7]:=",
+ CellID->458312316,ExpressionUUID->"1b320c42-5904-4ff3-af0c-c66cb887b520"],
+
+Cell[BoxData["0.`"], "Output",
+ CellLabel->"Out[7]=",
+ CellID->203309220,ExpressionUUID->"ffa2200c-549a-4d56-a730-68435213c87d"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Completeness on rank-2", "ExampleSubsection",ExpressionUUID->
+   "3a1b2ae0-b4c9-40a6-ace0-49c71631ef91"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->391436380,ExpressionUUID->"f5e48aaa-2e26-453a-933a-2ebe6a95f5be"],
+
+Cell["\<\
+The two rank-2 Young projectors sum to the identity on the input tensor:\
+\>", "ExampleText",
+ CellID->878585037,ExpressionUUID->"c921ae74-5ec2-43a7-a65b-0c747b333182"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "17", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   StyleBox["t", "TI"], "=", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "3"}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   StyleBox["reconstructed", "TI"], "=", 
+   RowBox[{
+    RowBox[{"YoungProject", "[", 
+     RowBox[{
+      StyleBox["t", "TI"], ",", 
+      RowBox[{"YoungTableau", "[", 
+       RowBox[{"{", "2", "}"}], "]"}]}], "]"}], "+", 
+    RowBox[{"YoungProject", "[", 
+     RowBox[{
+      StyleBox["t", "TI"], ",", 
+      RowBox[{"YoungTableau", "[", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", "1"}], "}"}], "]"}]}], "]"}]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Max", "[", 
+  RowBox[{"Abs", "[", 
+   RowBox[{"Flatten", "[", 
+    RowBox[{
+     StyleBox["reconstructed", "TI"], "-", 
+     StyleBox["t", "TI"]}], "]"}], "]"}], "]"}]}], "Input",
+ CellLabel->"In[8]:=",
+ CellID->110445352,ExpressionUUID->"ea27392e-fec7-4bcc-a7ed-682b94193e69"],
+
+Cell[BoxData["0.`"], "Output",
+ CellLabel->"Out[8]=",
+ CellID->903519001,ExpressionUUID->"07c50cb8-63d0-4d26-a6fc-02bcb80b4cf2"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Generalizations & Extensions", "ExampleSection",ExpressionUUID->
+   "7306cecd-e346-480b-a714-a785ba3e6d81"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->572633133,ExpressionUUID->"e13f5990-186a-4731-80b3-d5fb4a94f7bb"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Options", "ExampleSection",ExpressionUUID->
+   "b4bca3aa-32b5-4149-81e9-2547a410d388"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->679920813,ExpressionUUID->"20da6a36-6f29-40b4-9831-7d0c2a0e0363"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Applications", "ExampleSection",ExpressionUUID->
+   "9d9c583d-dd42-49f2-8bda-58a9107c791e"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->61585520,ExpressionUUID->"e926a658-e127-46e0-8f60-55ab2cbd783a"],
+
+Cell["\<\
+Decompose a rank-2 tensor into its symmetric and antisymmetric irreducible \
+components:\
+\>", "ExampleText",
+ CellID->558789917,ExpressionUUID->"034cba16-a5d6-4669-b301-379f569a1353"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   StyleBox["t", "TI"], "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1", ",", "2", ",", "3"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"4", ",", "5", ",", "6"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"7", ",", "8", ",", "9"}], "}"}]}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"\"\<sym\>\"", "->", 
+    RowBox[{"YoungProject", "[", 
+     RowBox[{
+      StyleBox["t", "TI"], ",", 
+      RowBox[{"YoungTableau", "[", 
+       RowBox[{"{", "2", "}"}], "]"}]}], "]"}]}], ",", 
+   RowBox[{"\"\<antisym\>\"", "->", 
+    RowBox[{"YoungProject", "[", 
+     RowBox[{
+      StyleBox["t", "TI"], ",", 
+      RowBox[{"YoungTableau", "[", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", "1"}], "}"}], "]"}]}], "]"}]}]}], "}"}]}], "Input",
+ CellLabel->"In[9]:=",
+ CellID->577762148,ExpressionUUID->"9a4b4844-86db-4178-96ab-04c7e55cf2d5"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"\<\"sym\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"1", ",", "3", ",", "5"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"3", ",", "5", ",", "7"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"5", ",", "7", ",", "9"}], "}"}]}], "}"}]}], ",", 
+   RowBox[{"\<\"antisym\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"0", ",", 
+        RowBox[{"-", "1"}], ",", 
+        RowBox[{"-", "2"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", "0", ",", 
+        RowBox[{"-", "1"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"2", ",", "1", ",", "0"}], "}"}]}], "}"}]}]}], "}"}]], "Output",\
+
+ CellLabel->"Out[9]=",
+ CellID->495151768,ExpressionUUID->"b89b3f9b-7ee9-445d-94c3-10d1e8d46953"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "2ee486bf-5979-4601-9aaa-3619af345d22"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->485173514,ExpressionUUID->"55bc603e-2f3c-4850-88a5-f486f9e7b860"],
+
+Cell["\<\
+Measure the magnitude of the projection of a random rank-3 tensor onto each \
+S_3 irrep:\
+\>", "ExampleText",
+ CellID->219476076,ExpressionUUID->"e0834acb-bfdb-4332-8f6b-be6670c5ed94"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "5", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   StyleBox["t", "TI"], "=", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "3", ",", "3"}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"AssociationMap", "[", 
+  RowBox[{
+   RowBox[{"Function", "[", 
+    RowBox[{
+     StyleBox["shape", "TI"], ",", 
+     RowBox[{"Max", "[", 
+      RowBox[{"Abs", "[", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{"YoungProject", "[", 
+         RowBox[{
+          StyleBox["t", "TI"], ",", 
+          RowBox[{"YoungTableau", "[", 
+           StyleBox["shape", "TI"], "]"}]}], "]"}], "]"}], "]"}], "]"}]}], 
+    "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "3", "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1", ",", "1"}], "}"}]}], "}"}]}], "]"}]}], "Input",
+ CellLabel->"In[10]:=",
+ CellID->611947606,ExpressionUUID->"a4bb22e6-dc04-40b2-8467-651832fe79d3"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"{", "3", "}"}], "\[Rule]", "0.9984188320706725`"}], ",", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"2", ",", "1"}], "}"}], "\[Rule]", "1.194064723359208`"}], ",", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"1", ",", "1", ",", "1"}], "}"}], "\[Rule]", 
+    "0.18463976869776713`"}]}], "\[RightAssociation]"}]], "Output",
+ CellLabel->"Out[10]=",
+ CellID->241360723,ExpressionUUID->"3b082681-3e7f-418e-90b7-35bbe676dcba"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Properties & Relations", "ExampleSection",ExpressionUUID->
+   "a0c27591-cbce-420a-8ab3-8c2e099eb366"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->45039540,ExpressionUUID->"15db4487-6fd4-4309-a961-4a9cfeaf8e18"],
+
+Cell["\<\
+YoungProject is YoungSymmetrize rescaled by TableauDimension/TableauSize!:\
+\>", "ExampleText",
+ CellID->685623545,ExpressionUUID->"4ffe3f9d-3039-4eee-b993-cccedfa21190"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   StyleBox["yt", "TI"], "=", 
+   RowBox[{"YoungTableau", "[", 
+    RowBox[{"{", 
+     RowBox[{"2", ",", "1"}], "}"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   StyleBox["t", "TI"], "=", 
+   RowBox[{"Array", "[", 
+    RowBox[{"a", ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "2", ",", "2"}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"YoungProject", "[", 
+   RowBox[{
+    StyleBox["t", "TI"], ",", 
+    StyleBox["yt", "TI"]}], "]"}], "==", 
+  RowBox[{
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"TableauDimension", "[", 
+      StyleBox["yt", "TI"], "]"}], "/", 
+     RowBox[{
+      RowBox[{"TableauSize", "[", 
+       StyleBox["yt", "TI"], "]"}], "!"}]}], ")"}], "*", 
+   RowBox[{"YoungSymmetrize", "[", 
+    RowBox[{
+     StyleBox["t", "TI"], ",", 
+     StyleBox["yt", "TI"]}], "]"}]}]}]}], "Input",
+ CellLabel->"In[11]:=",
+ CellID->890689384,ExpressionUUID->"1ce8503a-be52-4dba-9ab0-e37665753353"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[11]=",
+ CellID->118376568,ExpressionUUID->"d6635410-a737-40c2-b900-76d86a20b67f"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "fc8b8e4a-8890-4dd9-98a6-07c68b64a271"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->688357060,ExpressionUUID->"3ccb7f06-e0ce-476f-b6f6-84d5d00a3fb5"],
+
+Cell["The normalization factor d/n! for each S_n irrep:", "ExampleText",
+ CellID->179064443,ExpressionUUID->"46304f11-3626-4230-b174-a7a955ea6e7d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Table", "[", 
+  RowBox[{
+   RowBox[{
+    StyleBox["shape", "TI"], "->", 
+    RowBox[{
+     RowBox[{"TableauDimension", "[", 
+      RowBox[{"YoungTableau", "[", 
+       StyleBox["shape", "TI"], "]"}], "]"}], "/", 
+     RowBox[{
+      RowBox[{"TableauSize", "[", 
+       RowBox[{"YoungTableau", "[", 
+        StyleBox["shape", "TI"], "]"}], "]"}], "!"}]}]}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     StyleBox["shape", "TI"], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", "2", "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", "1"}], "}"}], ",", 
+       RowBox[{"{", "3", "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"2", ",", "1"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", "1", ",", "1"}], "}"}]}], "}"}]}], "}"}]}], 
+  "]"}]], "Input",
+ CellLabel->"In[12]:=",
+ CellID->805335608,ExpressionUUID->"4b24b8de-5e19-4d30-84c0-2dc89bcd7495"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"{", "2", "}"}], "\[Rule]", 
+    FractionBox["1", "2"]}], ",", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"1", ",", "1"}], "}"}], "\[Rule]", 
+    FractionBox["1", "2"]}], ",", 
+   RowBox[{
+    RowBox[{"{", "3", "}"}], "\[Rule]", 
+    FractionBox["1", "6"]}], ",", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"2", ",", "1"}], "}"}], "\[Rule]", 
+    FractionBox["1", "3"]}], ",", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"1", ",", "1", ",", "1"}], "}"}], "\[Rule]", 
+    FractionBox["1", "6"]}]}], "}"}]], "Output",
+ CellLabel->"Out[12]=",
+ CellID->81960646,ExpressionUUID->"e0a4f51a-5d2c-455b-8012-425a4043fe6e"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "49c0f8a0-0d39-4764-83eb-429aa3ef3857"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->175961139,ExpressionUUID->"29f80504-8314-4e3c-bc3b-9ab6dd9412d6"],
+
+Cell["\<\
+For a rank-2 tensor, projection onto YoungTableau[{2}] equals the symmetric \
+part (t + Transpose[t])/2:\
+\>", "ExampleText",
+ CellID->478937689,ExpressionUUID->"298c4f5f-d970-4a93-9469-2b60935d20a9"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   StyleBox["t", "TI"], "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1", ",", "2"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "4"}], "}"}]}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"YoungProject", "[", 
+   RowBox[{
+    StyleBox["t", "TI"], ",", 
+    RowBox[{"YoungTableau", "[", 
+     RowBox[{"{", "2", "}"}], "]"}]}], "]"}], "==", 
+  RowBox[{
+   RowBox[{"(", 
+    RowBox[{
+     StyleBox["t", "TI"], "+", 
+     RowBox[{"Transpose", "[", 
+      StyleBox["t", "TI"], "]"}]}], ")"}], "/", "2"}]}]}], "Input",
+ CellLabel->"In[13]:=",
+ CellID->581773701,ExpressionUUID->"05d21e74-af83-4bdd-949a-4ec812b1e870"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[13]=",
+ CellID->218663887,ExpressionUUID->"12c45e8e-35f0-4749-9bb7-7aa7b2e1aef9"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Possible Issues", "ExampleSection",ExpressionUUID->
+   "e2556323-0a77-444a-a05e-7a9ff19d6fe0"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->901107189,ExpressionUUID->"b9d76ed4-7717-4764-980e-a836364c9a72"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Interactive Examples", "ExampleSection",ExpressionUUID->
+   "d2229dd2-3f74-4f34-9da6-a148b03034be"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->874789988,ExpressionUUID->"a00cb9b6-a221-45a6-9e51-70fd30305d69"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Neat Examples", "ExampleSection",ExpressionUUID->
+   "2e4a8378-88e0-4cce-b963-42dd36f65798"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->607742956,ExpressionUUID->"4dc0a13c-d41e-4b85-9b96-d51e41e5e656"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Metadata", "MetadataSection",
+ CellID->968303521,ExpressionUUID->"8154fae7-2c7f-47a5-b805-3425a03f4f21"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["1.0", "HistoryData",
+  CellTags->"New",ExpressionUUID->"05d32db3-71be-4d53-9e4f-941adb885aaf"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified",ExpressionUUID->"a4c275e3-e512-4106-8493-3a13d9d48d75"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete",ExpressionUUID->
+  "2f558b24-dc79-4d9b-a8f9-2892a834e261"]
+}], "History",
+ CellID->983523784,ExpressionUUID->"7f3ea498-ffb0-477f-a143-6cb890eb92c5"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Categorization",
+ Cell[BoxData[
+  TemplateBox[{"Metadata", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Metadata such as page URI, context, and type of documentation page.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "135e937f-ced3-4384-9627-56dee979ba6c"]
+}], "CategorizationSection",
+ CellID->240353319,ExpressionUUID->"064683b7-bd0b-4065-bf02-4bffb0c5ffcc"],
+
+Cell["Symbol", "Categorization",
+ CellLabel->"Entity Type",
+ CellID->542682022,ExpressionUUID->"6c0360bd-9a3b-489f-96a5-29e8219c528e"],
+
+Cell["Wolfram/TensorNetworks", "Categorization",
+ CellLabel->"Paclet Name",
+ CellID->524416575,ExpressionUUID->"113f2bf2-3e00-4d5b-b4cf-da6e5c41071e"],
+
+Cell["Wolfram`TensorNetworks`Symmetry`", "Categorization",
+ CellLabel->"Context",
+ CellID->145519573,ExpressionUUID->"77b6e28b-ecdf-4b8c-af53-b1a09807bc64"],
+
+Cell["Wolfram/TensorNetworks/ref/YoungProject", "Categorization",
+ CellLabel->"URI",
+ CellID->917137177,ExpressionUUID->"04309ecf-372f-4445-aa5c-61974dbcc1f2"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection",
+ CellID->274902550,ExpressionUUID->"03c63e35-eb29-4ebc-ae2f-cb21b699541b"],
+
+Cell["Young projector", "Keywords",
+ CellID->660039759,ExpressionUUID->"68f66a99-d271-4dac-bfd3-d4367503212e"],
+
+Cell["Young tableau", "Keywords",
+ CellID->536601648,ExpressionUUID->"2b4e428b-6b53-446c-9573-5dc39fa2c1bc"],
+
+Cell["symmetric group", "Keywords",
+ CellID->906854196,ExpressionUUID->"3a0c90d5-40bf-463b-a8b2-ba5dbab7dad3"],
+
+Cell["irreducible representation", "Keywords",
+ CellID->486068660,ExpressionUUID->"7081d3f1-91e8-41ae-a74a-0544a8e7cedf"],
+
+Cell["tensor symmetry", "Keywords",
+ CellID->594830562,ExpressionUUID->"312440d9-a28b-4aca-ad5e-257de9020d7b"],
+
+Cell["Schur-Weyl", "Keywords",
+ CellID->236296844,ExpressionUUID->"f67fbfd8-c00b-449c-98f7-4784ccfdddfa"],
+
+Cell["projection operator", "Keywords",
+ CellID->439536835,ExpressionUUID->"e78f8bd9-2c31-44c6-a8e4-2a7429cf019b"],
+
+Cell["idempotent", "Keywords",
+ CellID->563258785,ExpressionUUID->"5e2a7994-64ba-4586-b00d-79f7af018d83"],
+
+Cell["symmetrization", "Keywords",
+ CellID->803634484,ExpressionUUID->"63c32311-4c44-4c83-a5ee-9c6395d9fcc3"],
+
+Cell["antisymmetrization", "Keywords",
+ CellID->469842589,ExpressionUUID->"fca12229-3866-4e6f-855a-934503b829a1"],
+
+Cell["hook length formula", "Keywords",
+ CellID->478081883,ExpressionUUID->"d2414550-d253-45ff-9ea5-60fe69ced4d5"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Syntax Templates", "TemplatesSection",
+ CellID->772959639,ExpressionUUID->"ed86fac2-bd69-437e-963c-38f3d9703c55"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Additional Function Template",
+ CellID->398213580,ExpressionUUID->"a534b897-c13f-4177-ad98-9dc5ff9c9b38"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Arguments Pattern",
+ CellID->109123034,ExpressionUUID->"b2f998d1-f80f-4157-8337-23522a67618e"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Local Variables",
+ CellID->288230969,ExpressionUUID->"9e400e49-8e14-412c-ba39-19b5c039de66"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Color Equal Signs",
+ CellID->294922556,ExpressionUUID->"d424bfe0-4561-4df0-9c5f-3d0df0ee40f5"]
+}, Closed]]
+}, Open  ]]
+},
+WindowSize->{700, 770},
+WindowMargins->{{5, Automatic}, {Automatic, 0}},
+TaggingRules-><|"Paclet" -> "Wolfram/TensorNetworks"|>,
+CellContext->CellGroup,
+FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (February 17, 2026)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"],
+ExpressionUUID->"b73e93e5-cf0c-4ea9-8777-01b5aa61dec6"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{
+ "ExtendedExamples"->{
+  Cell[19011, 583, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"3e437508-a987-4d91-a5ae-64552669b405",
+   CellTags->"ExtendedExamples",
+   CellID->872756394]}
+ }
+*)
+(*CellTagsIndex
+CellTagsIndex->{
+ {"ExtendedExamples", 43666, 1376}
+ }
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 109, 1, 70, "ObjectName",ExpressionUUID->"fce0d5be-267c-4a3e-ad97-a21a18d75d3d",
+ CellID->131187114],
+Cell[688, 25, 883, 21, 70, "Usage",ExpressionUUID->"445cbaf7-fe0a-4dc4-aeb3-0b8fb90880f2",
+ CellID->952787092],
+Cell[1574, 48, 2385, 72, 70, "Notes",ExpressionUUID->"bc92486a-02dd-476a-8f83-09df02dcb7b6",
+ CellID->495042975],
+Cell[3962, 122, 1651, 48, 70, "Notes",ExpressionUUID->"b1f08e82-bf8e-4bd6-b172-0bd9d89f44c0",
+ CellID->856099490],
+Cell[5616, 172, 1163, 34, 70, "Notes",ExpressionUUID->"ec28e3dd-effc-4ba9-a6e8-26108aa58b77",
+ CellID->514389114],
+Cell[6782, 208, 1210, 34, 70, "Notes",ExpressionUUID->"ab7e3b46-eb7e-447f-9cc3-e29e0dc90ad0",
+ CellID->477979075],
+Cell[7995, 244, 1500, 41, 70, "Notes",ExpressionUUID->"4379a1c1-b96b-40dc-bddf-9ddce1c7c0ad",
+ CellID->620900360]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9532, 290, 458, 13, 70, "SeeAlsoSection",ExpressionUUID->"2554a8e7-91b8-4aba-96ed-0317397f3947",
+ CellID->961292884],
+Cell[9993, 305, 2881, 70, 70, "SeeAlso",ExpressionUUID->"7dff0e90-5a64-412d-a9ad-5b400ba3dd56",
+ CellID->179043365]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12911, 380, 435, 12, 70, "TechNotesSection",ExpressionUUID->"ef167947-1dba-4e85-baa2-d0ec7a4295c9",
+ CellID->235550202],
+Cell[13349, 394, 227, 4, 70, "Tutorials",ExpressionUUID->"4418380c-b349-422c-b69f-637f0f57f5cf",
+ CellID->863863235]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13613, 403, 117, 1, 70, "MoreAboutSection",ExpressionUUID->"84ed2fa0-391d-4d92-bb32-ef74380ce621",
+ CellID->316922892],
+Cell[13733, 406, 228, 4, 70, "MoreAbout",ExpressionUUID->"34559e69-bddd-4551-9036-e655ea23c505",
+ CellID->49195516]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13998, 415, 472, 13, 70, "RelatedLinksSection",ExpressionUUID->"f1e381fe-22ff-4c06-85b2-b0af88b5441e",
+ CellID->703849624],
+Cell[14473, 430, 100, 1, 70, "RelatedLinks",ExpressionUUID->"0cda08e3-8e3f-49f5-a2a7-172245507920",
+ CellID->710730737]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14610, 436, 528, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"7ef5c43c-c29c-4334-ac45-18a2ba11c9a7",
+ CellID->4779250],
+Cell[15141, 452, 191, 3, 70, "ExampleInitialization",ExpressionUUID->"332d2004-7f36-40af-88b6-340dd21f4f54",
+ CellID->127228040]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15369, 460, 442, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"e4728a90-4728-4235-9991-6eb17da07f06",
+ CellID->693373010],
+Cell[15814, 474, 157, 2, 70, "ExampleText",ExpressionUUID->"f78ec379-8259-4603-97f3-a535116e41fe",
+ CellID->469889671],
+Cell[CellGroupData[{
+Cell[15996, 480, 426, 12, 70, "Input",ExpressionUUID->"aab37848-7e44-4d66-86c0-88c998a62edc",
+ CellID->631627224],
+Cell[16425, 494, 317, 10, 70, "Output",ExpressionUUID->"c4bb4fe4-0218-4f75-9049-6b2ac8f0a26a",
+ CellID->479975586]
+}, Open  ]],
+Cell[16757, 507, 151, 1, 70, "ExampleText",ExpressionUUID->"ff54a48e-4d23-4ecb-8dc0-4d4559fb5c45",
+ CellID->337089098],
+Cell[CellGroupData[{
+Cell[16933, 512, 457, 13, 70, "Input",ExpressionUUID->"f4c7c7ec-fcf2-4c6c-8db2-924a78bdf922",
+ CellID->985590089],
+Cell[17393, 527, 338, 11, 70, "Output",ExpressionUUID->"b811d144-ef18-4bfe-996c-40262780f835",
+ CellID->82276612]
+}, Open  ]],
+Cell[17746, 541, 123, 1, 70, "ExampleText",ExpressionUUID->"94584f31-a909-49f8-8456-73d4a11def0b",
+ CellID->277238324],
+Cell[CellGroupData[{
+Cell[17894, 546, 936, 27, 70, "Input",ExpressionUUID->"4211a972-73cb-4272-bbef-000aa30f2371",
+ CellID->538222229],
+Cell[18833, 575, 129, 2, 70, "Output",ExpressionUUID->"2988332e-e8d6-4c40-928b-28e0c6eb7cf3",
+ CellID->238877537]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[19011, 583, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"3e437508-a987-4d91-a5ae-64552669b405",
+ CellTags->"ExtendedExamples",
+ CellID->872756394],
+Cell[CellGroupData[{
+Cell[19523, 600, 241, 5, 70, "ExampleSection",ExpressionUUID->"7b2ca111-d4fb-4f2b-b9b9-6f9d85bf17f1",
+ CellID->441886239],
+Cell[CellGroupData[{
+Cell[19789, 609, 282, 5, 70, "ExampleSubsection",ExpressionUUID->"10107158-aad7-49f5-8b99-4bb83aa6bc8d",
+ CellID->580940541],
+Cell[20074, 616, 173, 3, 70, "ExampleText",ExpressionUUID->"9fd25907-ffc1-4289-9e1b-bf9071afc1dc",
+ CellID->260717334],
+Cell[CellGroupData[{
+Cell[20272, 623, 721, 23, 70, "Input",ExpressionUUID->"7d90d3b0-0d1c-4fb8-bab7-a6029d3fd3bc",
+ CellID->587959144],
+Cell[20996, 648, 269, 8, 70, "Output",ExpressionUUID->"15192a34-634d-4496-84e2-7520e9c943ba",
+ CellID->395796091]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[21314, 662, 263, 5, 70, "ExampleSubsection",ExpressionUUID->"8765d295-9deb-4b43-8e7c-70f213a58fc9",
+ CellID->597904402],
+Cell[21580, 669, 169, 3, 70, "ExampleText",ExpressionUUID->"d9579565-dbdf-492d-a569-3f7ce058e56c",
+ CellID->279665421],
+Cell[CellGroupData[{
+Cell[21774, 676, 423, 11, 70, "Input",ExpressionUUID->"9e90a190-f807-4480-89eb-1eb9ea906d1a",
+ CellID->821466501],
+Cell[22200, 689, 2125, 66, 70, "Output",ExpressionUUID->"2b7ce78a-77d5-4f29-8049-7bde835a9088",
+ CellID->933419381]
+}, Open  ]],
+Cell[24340, 758, 146, 1, 70, "ExampleText",ExpressionUUID->"2bce7563-dbfb-408f-b93a-a05899f6b351",
+ CellID->342854686],
+Cell[CellGroupData[{
+Cell[24511, 763, 260, 6, 70, "Input",ExpressionUUID->"11a022fc-12a0-4ca4-8f5b-0b2ad70f5a6c",
+ CellID->253250692],
+Cell[24774, 771, 126, 2, 70, "Output",ExpressionUUID->"badc334d-c294-4d43-a4d3-548c6cc8a55c",
+ CellID->489987650]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[24949, 779, 253, 5, 70, "ExampleSubsection",ExpressionUUID->"d6ab515a-4015-4270-87a7-75018c032daf",
+ CellID->634431385],
+Cell[25205, 786, 158, 2, 70, "ExampleText",ExpressionUUID->"a881566d-e580-4f3d-bdd0-8482c887cc1a",
+ CellID->199421680],
+Cell[CellGroupData[{
+Cell[25388, 792, 1224, 38, 70, "Input",ExpressionUUID->"1b320c42-5904-4ff3-af0c-c66cb887b520",
+ CellID->458312316],
+Cell[26615, 832, 128, 2, 70, "Output",ExpressionUUID->"ffa2200c-549a-4d56-a730-68435213c87d",
+ CellID->203309220]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[26792, 840, 264, 5, 70, "ExampleSubsection",ExpressionUUID->"f5e48aaa-2e26-453a-933a-2ebe6a95f5be",
+ CellID->391436380],
+Cell[27059, 847, 178, 3, 70, "ExampleText",ExpressionUUID->"c921ae74-5ec2-43a7-a65b-0c747b333182",
+ CellID->878585037],
+Cell[CellGroupData[{
+Cell[27262, 854, 1140, 35, 70, "Input",ExpressionUUID->"ea27392e-fec7-4bcc-a7ed-682b94193e69",
+ CellID->110445352],
+Cell[28405, 891, 128, 2, 70, "Output",ExpressionUUID->"07c50cb8-63d0-4d26-a6fc-02bcb80b4cf2",
+ CellID->903519001]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[28572, 898, 264, 5, 70, "ExampleSection",ExpressionUUID->"e13f5990-186a-4731-80b3-d5fb4a94f7bb",
+ CellID->572633133],
+Cell[28839, 905, 243, 5, 70, "ExampleSection",ExpressionUUID->"20da6a36-6f29-40b4-9831-7d0c2a0e0363",
+ CellID->679920813],
+Cell[CellGroupData[{
+Cell[29107, 914, 247, 5, 70, "ExampleSection",ExpressionUUID->"e926a658-e127-46e0-8f60-55ab2cbd783a",
+ CellID->61585520],
+Cell[29357, 921, 194, 4, 70, "ExampleText",ExpressionUUID->"034cba16-a5d6-4669-b301-379f569a1353",
+ CellID->558789917],
+Cell[CellGroupData[{
+Cell[29576, 929, 933, 28, 70, "Input",ExpressionUUID->"9a4b4844-86db-4178-96ab-04c7e55cf2d5",
+ CellID->577762148],
+Cell[30512, 959, 841, 26, 70, "Output",ExpressionUUID->"b89b3f9b-7ee9-445d-94c3-10d1e8d46953",
+ CellID->495151768]
+}, Open  ]],
+Cell[31368, 988, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"55bc603e-2f3c-4850-88a5-f486f9e7b860",
+ CellID->485173514],
+Cell[31613, 995, 194, 4, 70, "ExampleText",ExpressionUUID->"e0834acb-bfdb-4332-8f6b-be6670c5ed94",
+ CellID->219476076],
+Cell[CellGroupData[{
+Cell[31832, 1003, 1143, 35, 70, "Input",ExpressionUUID->"a4bb22e6-dc04-40b2-8467-651832fe79d3",
+ CellID->611947606],
+Cell[32978, 1040, 503, 13, 70, "Output",ExpressionUUID->"3b082681-3e7f-418e-90b7-35bbe676dcba",
+ CellID->241360723]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[33530, 1059, 257, 5, 70, "ExampleSection",ExpressionUUID->"15db4487-6fd4-4309-a961-4a9cfeaf8e18",
+ CellID->45039540],
+Cell[33790, 1066, 180, 3, 70, "ExampleText",ExpressionUUID->"4ffe3f9d-3039-4eee-b993-cccedfa21190",
+ CellID->685623545],
+Cell[CellGroupData[{
+Cell[33995, 1073, 989, 32, 70, "Input",ExpressionUUID->"1ce8503a-be52-4dba-9ab0-e37665753353",
+ CellID->890689384],
+Cell[34987, 1107, 130, 2, 70, "Output",ExpressionUUID->"d6635410-a737-40c2-b900-76d86a20b67f",
+ CellID->118376568]
+}, Open  ]],
+Cell[35132, 1112, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"3ccb7f06-e0ce-476f-b6f6-84d5d00a3fb5",
+ CellID->688357060],
+Cell[35377, 1119, 147, 1, 70, "ExampleText",ExpressionUUID->"46304f11-3626-4230-b174-a7a955ea6e7d",
+ CellID->179064443],
+Cell[CellGroupData[{
+Cell[35549, 1124, 906, 28, 70, "Input",ExpressionUUID->"4b24b8de-5e19-4d30-84c0-2dc89bcd7495",
+ CellID->805335608],
+Cell[36458, 1154, 679, 22, 70, "Output",ExpressionUUID->"e0a4f51a-5d2c-455b-8012-425a4043fe6e",
+ CellID->81960646]
+}, Open  ]],
+Cell[37152, 1179, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"29f80504-8314-4e3c-bc3b-9ab6dd9412d6",
+ CellID->175961139],
+Cell[37397, 1186, 210, 4, 70, "ExampleText",ExpressionUUID->"298c4f5f-d970-4a93-9469-2b60935d20a9",
+ CellID->478937689],
+Cell[CellGroupData[{
+Cell[37632, 1194, 701, 23, 70, "Input",ExpressionUUID->"05d21e74-af83-4bdd-949a-4ec812b1e870",
+ CellID->581773701],
+Cell[38336, 1219, 130, 2, 70, "Output",ExpressionUUID->"12c45e8e-35f0-4749-9bb7-7aa7b2e1aef9",
+ CellID->218663887]
+}, Open  ]]
+}, Open  ]],
+Cell[38493, 1225, 251, 5, 70, "ExampleSection",ExpressionUUID->"b9d76ed4-7717-4764-980e-a836364c9a72",
+ CellID->901107189],
+Cell[38747, 1232, 256, 5, 70, "ExampleSection",ExpressionUUID->"a00cb9b6-a221-45a6-9e51-70fd30305d69",
+ CellID->874789988],
+Cell[39006, 1239, 249, 5, 70, "ExampleSection",ExpressionUUID->"4dc0a13c-d41e-4b85-9b96-d51e41e5e656",
+ CellID->607742956]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[39292, 1249, 110, 1, 70, "MetadataSection",ExpressionUUID->"8154fae7-2c7f-47a5-b805-3425a03f4f21",
+ CellID->968303521],
+Cell[39405, 1252, 477, 12, 70, "History",ExpressionUUID->"7f3ea498-ffb0-477f-a143-6cb890eb92c5",
+ CellID->983523784],
+Cell[CellGroupData[{
+Cell[39907, 1268, 484, 13, 70, "CategorizationSection",ExpressionUUID->"064683b7-bd0b-4065-bf02-4bffb0c5ffcc",
+ CellID->240353319],
+Cell[40394, 1283, 134, 2, 70, "Categorization",ExpressionUUID->"6c0360bd-9a3b-489f-96a5-29e8219c528e",
+ CellID->542682022],
+Cell[40531, 1287, 150, 2, 70, "Categorization",ExpressionUUID->"113f2bf2-3e00-4d5b-b4cf-da6e5c41071e",
+ CellID->524416575],
+Cell[40684, 1291, 156, 2, 70, "Categorization",ExpressionUUID->"77b6e28b-ecdf-4b8c-af53-b1a09807bc64",
+ CellID->145519573],
+Cell[40843, 1295, 159, 2, 70, "Categorization",ExpressionUUID->"04309ecf-372f-4445-aa5c-61974dbcc1f2",
+ CellID->917137177]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[41039, 1302, 110, 1, 70, "KeywordsSection",ExpressionUUID->"03c63e35-eb29-4ebc-ae2f-cb21b699541b",
+ CellID->274902550],
+Cell[41152, 1305, 110, 1, 70, "Keywords",ExpressionUUID->"68f66a99-d271-4dac-bfd3-d4367503212e",
+ CellID->660039759],
+Cell[41265, 1308, 108, 1, 70, "Keywords",ExpressionUUID->"2b4e428b-6b53-446c-9573-5dc39fa2c1bc",
+ CellID->536601648],
+Cell[41376, 1311, 110, 1, 70, "Keywords",ExpressionUUID->"3a0c90d5-40bf-463b-a8b2-ba5dbab7dad3",
+ CellID->906854196],
+Cell[41489, 1314, 121, 1, 70, "Keywords",ExpressionUUID->"7081d3f1-91e8-41ae-a74a-0544a8e7cedf",
+ CellID->486068660],
+Cell[41613, 1317, 110, 1, 70, "Keywords",ExpressionUUID->"312440d9-a28b-4aca-ad5e-257de9020d7b",
+ CellID->594830562],
+Cell[41726, 1320, 105, 1, 70, "Keywords",ExpressionUUID->"f67fbfd8-c00b-449c-98f7-4784ccfdddfa",
+ CellID->236296844],
+Cell[41834, 1323, 114, 1, 70, "Keywords",ExpressionUUID->"e78f8bd9-2c31-44c6-a8e4-2a7429cf019b",
+ CellID->439536835],
+Cell[41951, 1326, 105, 1, 70, "Keywords",ExpressionUUID->"5e2a7994-64ba-4586-b00d-79f7af018d83",
+ CellID->563258785],
+Cell[42059, 1329, 109, 1, 70, "Keywords",ExpressionUUID->"63c32311-4c44-4c83-a5ee-9c6395d9fcc3",
+ CellID->803634484],
+Cell[42171, 1332, 113, 1, 70, "Keywords",ExpressionUUID->"fca12229-3866-4e6f-855a-934503b829a1",
+ CellID->469842589],
+Cell[42287, 1335, 114, 1, 70, "Keywords",ExpressionUUID->"d2414550-d253-45ff-9ea5-60fe69ced4d5",
+ CellID->478081883]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[42438, 1341, 119, 1, 70, "TemplatesSection",ExpressionUUID->"ed86fac2-bd69-437e-963c-38f3d9703c55",
+ CellID->772959639],
+Cell[42560, 1344, 148, 2, 70, "Template",ExpressionUUID->"a534b897-c13f-4177-ad98-9dc5ff9c9b38",
+ CellID->398213580],
+Cell[42711, 1348, 137, 2, 70, "Template",ExpressionUUID->"b2f998d1-f80f-4157-8337-23522a67618e",
+ CellID->109123034],
+Cell[42851, 1352, 135, 2, 70, "Template",ExpressionUUID->"9e400e49-8e14-412c-ba39-19b5c039de66",
+ CellID->288230969],
+Cell[42989, 1356, 137, 2, 70, "Template",ExpressionUUID->"d424bfe0-4561-4df0-9c5f-3d0df0ee40f5",
+ CellID->294922556]
+}, Closed]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

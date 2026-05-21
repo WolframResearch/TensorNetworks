@@ -1,1337 +1,2745 @@
-Notebook[
- {Cell[CellGroupData[{Cell[CellGroupData[{Cell["TensorNetworkContract", 
-         "ObjectName", CellID -> 175797813, ExpressionUUID -> 
-          "05f213aa-60b7-4a60-82fc-f8bc8b690a05"], 
-        Cell[TextData[{Cell["   ", "ModInfo", ExpressionUUID -> 
-             "c26b4a32-9395-496a-981e-d394bc738469"], 
-           Cell[BoxData[RowBox[{ButtonBox["TensorNetworkContract", 
-                BaseStyle -> "Link", ButtonData -> 
-                 "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"], 
-               "[", StyleBox["tn", "TI"], "]"}]], "InlineFormula", 
-            ExpressionUUID -> "d45951d7-82c6-43cc-9f58-0309289aa3a8"], 
-           "\[LineSeparator]contracts the entire tensor network ", 
-           Cell[BoxData[StyleBox["tn", "TI"]], "InlineFormula", 
-            ExpressionUUID -> "7c3c4a15-2c1b-43a8-849b-6671c7ebd401"], 
-           " to a single tensor.\n", Cell["   ", "ModInfo", 
-            ExpressionUUID -> "dd03c9ed-733f-4216-8589-7c9a15f1cc5e"], 
-           Cell[BoxData[RowBox[{ButtonBox["TensorNetworkContract", 
-                BaseStyle -> "Link", ButtonData -> 
-                 "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"], 
-               "[", RowBox[{StyleBox["tn", "TI"], ",", StyleBox["path", 
-                  "TI"]}], "]"}]], "InlineFormula", ExpressionUUID -> 
-             "892ca2a0-4149-4671-a8a7-836f85f4af7e"], 
-           "\[LineSeparator]uses the explicit canonical contraction ", 
-           Cell[BoxData[StyleBox["path", "TI"]], "InlineFormula", 
-            ExpressionUUID -> "f8d895b6-da9e-4159-9ac5-1bfc3d6486b6"], ".\n", 
-           Cell["   ", "ModInfo", ExpressionUUID -> 
-             "ac4d87dc-c4c3-4eea-bc0d-19f3f43d9503"], 
-           Cell[BoxData[RowBox[{ButtonBox["TensorNetworkContract", 
-                BaseStyle -> "Link", ButtonData -> 
-                 "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"], 
-               "[", RowBox[{StyleBox["tn", "TI"], ",", StyleBox["\"method\"", 
-                  "TI"]}], "]"}]], "InlineFormula", ExpressionUUID -> 
-             "3454fdfc-094f-4d9a-ab19-d26036b1f7da"], 
-           "\[LineSeparator]dispatches to ", 
-           Cell[BoxData[ButtonBox["GreedyContractionPath", BaseStyle -> 
-               "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/GreedyContractionPath"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "fd00018a-8dfd-4a0c-8a54-99556e87724a"], " or ", 
-           Cell[BoxData[ButtonBox["OptimalContractionPath", BaseStyle -> 
-               "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/OptimalContractionPath"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "3fa9a856-b28d-4fc5-8aed-a1bbaf339dfb"], 
-           " using the named cost function.\n", Cell["   ", "ModInfo", 
-            ExpressionUUID -> "a2bf2541-e986-4ce2-b3bc-8b3e2b13d65c"], 
-           Cell[BoxData[RowBox[{ButtonBox["TensorNetworkContract", 
-                BaseStyle -> "Link", ButtonData -> 
-                 "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"], 
-               "[", StyleBox["graph", "TI"], "]"}]], "InlineFormula", 
-            ExpressionUUID -> "3397034f-f041-4d27-a9bd-329b9f30ae7a"], 
-           "\[LineSeparator]works directly on a tensor-network ", 
-           Cell[BoxData[ButtonBox["Graph", BaseStyle -> "Link", 
-              ButtonData -> "paclet:ref/Graph"]], "InlineFormula", 
-            ExpressionUUID -> "6ac6da75-dcc9-41ca-8494-1069293a46a6"], " ", 
-           Cell[BoxData[StyleBox["graph", "TI"]], "InlineFormula", 
-            ExpressionUUID -> "f2fea0e7-222e-4dd5-a8c1-0f120fb83b03"], ".\n", 
-           Cell["   ", "ModInfo", ExpressionUUID -> 
-             "2ea5eb2a-0451-4a7b-94e0-1215fa59fcd4"], 
-           Cell[BoxData[RowBox[{ButtonBox["TensorNetworkContract", 
-                BaseStyle -> "Link", ButtonData -> 
-                 "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"], 
-               "[", StyleBox["data", "TI"], "]"}]], "InlineFormula", 
-            ExpressionUUID -> "12e296c8-1e6e-4e69-869e-7e0b8929bc27"], 
-           "\[LineSeparator]accepts the low-level ", 
-           Cell[BoxData[ButtonBox["Association", BaseStyle -> "Link", 
-              ButtonData -> "paclet:ref/Association"]], "InlineFormula", 
-            ExpressionUUID -> "66bae910-0cad-4b21-9f2e-820ccdf0b363"], " ", 
-           Cell[BoxData[StyleBox["data", "TI"]], "InlineFormula", 
-            ExpressionUUID -> "b2302f4d-189a-440a-9c66-68d7ca75084b"], 
-           " produced by ", Cell[BoxData[ButtonBox["TensorNetworkData", 
-              BaseStyle -> "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/TensorNetworkData"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "9f318fa3-b756-4e28-ab6a-f9490d19eef9"], "."}], "Usage", 
-         CellID -> 946322640, ExpressionUUID -> 
-          "2b7cb6e4-4944-4946-a50a-2166931fdf07"], Cell["Returns the fully \
-evaluated tensor (the contraction result), not an Inactive expression.", 
-         "Notes", CellID -> 133266929, ExpressionUUID -> 
-          "2c463918-d42b-4cf4-b3a2-aaf1e833c7a0"], 
-        Cell[TextData[{Cell[BoxData[ButtonBox["TensorNetworkContract", 
-              BaseStyle -> "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "286e1ce5-dc60-47fe-b208-ccdb3501b04b"], " is the ", 
-           Cell[BoxData[RowBox[{StyleBox["\"Inactive\"", 
-                ShowStringCharacters -> True], "\[Rule]", ButtonBox["False", 
-                BaseStyle -> "Link", ButtonData -> "paclet:ref/False"]}]], 
-            "InlineFormula", ExpressionUUID -> 
-             "ef928697-43e0-4843-a947-43e759deef29"], " shortcut for ", 
-           Cell[BoxData[ButtonBox["TensorNetworkContraction", 
-              BaseStyle -> "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContraction"]]\
-, "InlineFormula", ExpressionUUID -> "98e6ab05-45c2-4c5d-9d9e-9e5c205e9486"], 
-           "; the two return the same value once ", 
-           Cell[BoxData[ButtonBox["ActivateTensors", BaseStyle -> "Link", 
-              ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/ActivateTensors"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "b4a2b287-99f8-44cc-b9af-531c3bd250c2"], 
-           " is applied to the inactive form."}], "Notes", 
-         CellID -> 367562884, ExpressionUUID -> 
-          "302dc38b-8be4-4afc-8f74-f012a7fce055"], 
-        Cell[TextData[{"When no ", Cell[BoxData[StyleBox["path", "TI"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "98f75d96-f84d-4da6-a064-9c0c9a54c8d0"], 
-           " is supplied, the contraction is delegated to ", 
-           Cell[BoxData[ButtonBox["EinsteinSummation", BaseStyle -> "Link", 
-              ButtonData -> "paclet:ref/EinsteinSummation"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "76a5e124-2b4d-40cd-8f58-83a258f37b55"], " on the network's \
-indices and tensors. To use a search-derived path, pass it explicitly or use \
-the ", Cell[BoxData[StyleBox["\"method\"", "TI"]], "InlineFormula", 
-            ExpressionUUID -> "eeafdac4-a2a3-434a-969c-3b56133c6bae"], 
-           " string form."}], "Notes", CellID -> 260645513, 
-         ExpressionUUID -> "61c2e32f-dfd3-4faf-8bce-cd5b61f0a600"], 
-        Cell[TextData[{"When ", Cell[BoxData[StyleBox["path", "TI"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "f9871b5d-ab10-49f1-abd5-f346d7b7e442"], 
-           " is a string, it dispatches as follows: ", 
-           Cell[BoxData[StyleBox["\"Greedy\"", ShowStringCharacters -> 
-               True]], "InlineFormula", ExpressionUUID -> 
-             "0e38d624-51dd-4f9c-bf99-d33a55752118"], " calls ", 
-           Cell[BoxData[ButtonBox["GreedyContractionPath", BaseStyle -> 
-               "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/GreedyContractionPath"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "87852a6b-dfe1-4d5d-82e0-0d9bab34e674"], "; ", 
-           Cell[BoxData[StyleBox["\"Optimal\"", ShowStringCharacters -> 
-               True]], "InlineFormula", ExpressionUUID -> 
-             "baa8f646-0763-42bd-8451-016a03d4f0d1"], ", ", 
-           Cell[BoxData[StyleBox["\"flops\"", ShowStringCharacters -> True]], 
-            "InlineFormula", ExpressionUUID -> 
-             "70f7d97d-c674-406c-ab76-f786c3d0bf70"], ", ", 
-           Cell[BoxData[StyleBox["\"max\"", ShowStringCharacters -> True]], 
-            "InlineFormula", ExpressionUUID -> 
-             "d847df6f-9211-4ca2-8bf8-bebefcf28240"], ", ", 
-           Cell[BoxData[StyleBox["\"size\"", ShowStringCharacters -> True]], 
-            "InlineFormula", ExpressionUUID -> 
-             "4eac95fc-3dab-40c1-aabd-a1218e754242"], ", ", 
-           Cell[BoxData[StyleBox["\"write\"", ShowStringCharacters -> True]], 
-            "InlineFormula", ExpressionUUID -> 
-             "ac6d39d7-6e94-4d75-8a98-016ec9a53281"], ", ", 
-           Cell[BoxData[StyleBox["\"combo\"", ShowStringCharacters -> True]], 
-            "InlineFormula", ExpressionUUID -> 
-             "1e48c9c0-2af6-4a20-9724-0110446aea1e"], ", or ", 
-           Cell[BoxData[StyleBox["\"limit\"", ShowStringCharacters -> True]], 
-            "InlineFormula", ExpressionUUID -> 
-             "b03230a1-7f9f-4537-9ef4-7ae02d2e896e"], " call ", 
-           Cell[BoxData[ButtonBox["OptimalContractionPath", BaseStyle -> 
-               "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/OptimalContractionPath"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "c6ac2fba-c200-4818-b524-cc3945646a43"], 
-           " with the corresponding cost function."}], "Notes", 
-         CellID -> 443089438, ExpressionUUID -> 
-          "f69434dc-9a9d-45ee-bb40-bda1d6305da6"], 
-        Cell[TextData[{"When the network has a hyper-edge (an index shared by \
-three or more tensors), ", Cell[BoxData[ButtonBox["TensorNetworkContract", 
-              BaseStyle -> "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "54a1fe92-3594-42b3-86b7-fa9c732b6b58"], " first calls ", 
-           Cell[BoxData[ButtonBox["BinaryTensorNetwork", BaseStyle -> "Link", 
-              ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/BinaryTensorNetwork"]], 
-            "InlineFormula", ExpressionUUID -> 
-             "aaa0c106-f752-4011-9ade-026252632a29"], " to insert copy \
-tensors and reduce the network to pairwise edges before contracting."}], 
-         "Notes", CellID -> 273965426, ExpressionUUID -> 
-          "8b4178e5-d2de-4ef6-9cef-48b33d83c748"], 
-        Cell["The following options can be given:", "Notes", 
-         CellID -> 755960541, ExpressionUUID -> 
-          "f450fd0f-23bb-41ed-b2f2-80e8e41bad54"], 
-        Cell[BoxData[GridBox[{{Cell["   ", "ModInfo", ExpressionUUID -> 
-               "74c0d63e-6978-4643-8e10-4707235b4ea5"], 
-             Cell[BoxData[ButtonBox["Method", BaseStyle -> "Link", 
-                ButtonData -> "paclet:ref/Method"]], "TableText", 
-              ExpressionUUID -> "e813fd56-1c67-4d7c-8b8f-254b6c44ff33"], 
-             Cell[BoxData[StyleBox["\"ArrayDot\"", ShowStringCharacters -> 
-                 True]], "TableText", ExpressionUUID -> 
-               "81d931cc-4966-437e-8545-237cf8b27d14"], 
-             Cell[TextData[{"binary-contraction engine; one of ", 
-                Cell[BoxData[ButtonBox["$TensorNetworkContractionMethods", 
-                   BaseStyle -> "Link", ButtonData -> "paclet:Wolfram/TensorN\
-etworks/ref/$TensorNetworkContractionMethods"]], "InlineFormula", 
-                 ExpressionUUID -> "33e6dfeb-3ccd-40d4-856c-166ff6484a38"], 
-                "."}], "TableText", ExpressionUUID -> 
-               "b82ea13f-0bba-463a-b528-995ddd893254"]}, 
-            {Cell["   ", "ModInfo", ExpressionUUID -> 
-               "ea51220f-b3ef-4ac0-894a-1b1b63f28db0"], 
-             Cell[BoxData[StyleBox["\"Inactive\"", ShowStringCharacters -> 
-                 True]], "TableText", ExpressionUUID -> 
-               "95610d5b-c146-4fd2-994f-6682fd2b9946"], 
-             Cell[BoxData[ButtonBox["False", BaseStyle -> "Link", 
-                ButtonData -> "paclet:ref/False"]], "TableText", 
-              ExpressionUUID -> "6ded2aa9-1f47-471d-ad89-918597883c6f"], 
-             Cell[TextData[{"when ", Cell[BoxData[ButtonBox["True", 
-                   BaseStyle -> "Link", ButtonData -> "paclet:ref/True"]], 
-                 "InlineFormula", ExpressionUUID -> 
-                  "993ecf95-b2a9-461b-8912-04d1995821af"], ", return an ", 
-                Cell[BoxData[ButtonBox["Inactive", BaseStyle -> "Link", 
-                   ButtonData -> "paclet:ref/Inactive"]], "InlineFormula", 
-                 ExpressionUUID -> "85364a57-8a07-47e9-b007-6460566bbcbc"], 
-                " expression instead of evaluating (matches ", 
-                Cell[BoxData[ButtonBox["TensorNetworkContraction", 
-                   BaseStyle -> "Link", ButtonData -> "paclet:Wolfram/TensorN\
-etworks/ref/TensorNetworkContraction"]], "InlineFormula", ExpressionUUID -> 
-                  "9f2c7022-5daa-4967-b470-7b70078d1469"], ")."}], 
-              "TableText", ExpressionUUID -> 
-               "05044405-d8e0-4e7d-8fe4-df1a6b5791d0"]}, 
-            {Cell["   ", "ModInfo", ExpressionUUID -> 
-               "d15c49d8-8145-481e-a8a4-f0e9af9ad523"], 
-             Cell[BoxData[StyleBox["\"TransposeFunction\"", 
-                ShowStringCharacters -> True]], "TableText", 
-              ExpressionUUID -> "812ee171-b9e1-4a09-ab51-d6ad6ccd4a39"], 
-             Cell[BoxData[ButtonBox["Transpose", BaseStyle -> "Link", 
-                ButtonData -> "paclet:ref/Transpose"]], "TableText", 
-              ExpressionUUID -> "2ae2b965-f79a-4d24-ae7e-ced8d76b9bce"], 
-             Cell[
-              "primitive used for the final permutation of free indices.", 
-              "TableText", ExpressionUUID -> 
-               "a3fcd8d9-e882-4a61-a188-268f6c744a1b"]}}]], 
-         "3ColumnTableMod", CellID -> 208976091, ExpressionUUID -> 
-          "fdc160fb-1f83-46c1-9cc8-f66f62ed777e"]}, Open]], 
-     Cell[CellGroupData[{Cell[TextData[{"See Also", 
-           Cell[BoxData[TemplateBox[{"SeeAlso", Cell[BoxData[FrameBox[
-                  Cell[
-                   "Insert links to any related reference (function) pages.", 
-                   "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
-                "MoreInfoTextOuter"]}, "MoreInfoOpenerButtonTemplate"]], 
-            ExpressionUUID -> "4471f31c-a186-4cff-9d3c-5ba637e8dc6a"]}], 
-         "SeeAlsoSection", CellID -> 155554451, ExpressionUUID -> 
-          "3edb5bbb-d7b2-42fe-8337-29f6d5ceb3bc"], 
-        Cell[TextData[{Cell[BoxData[ButtonBox["TensorNetworkContraction", 
-              BaseStyle -> "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContraction"]]\
-, "InlineSeeAlsoFunction", TaggingRules -> {"PageType" -> "Function"}, 
-            ExpressionUUID -> "b8ab0ac3-9edf-449e-bdc0-182c6dc83e90"], 
-           StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-           Cell[BoxData[ButtonBox["ActivateTensors", BaseStyle -> "Link", 
-              ButtonData -> "paclet:ref/ActivateTensors"]], 
-            "InlineSeeAlsoFunction", TaggingRules -> 
-             {"PageType" -> "Function"}, ExpressionUUID -> 
-             "f4bb7270-dfc5-4da4-b154-cbf46e74acf9"], 
-           StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-           Cell[BoxData[ButtonBox["$TensorNetworkContractionMethods", 
-              BaseStyle -> "Link", ButtonData -> "paclet:Wolfram/TensorNetwor\
-ks/ref/$TensorNetworkContractionMethods"]], "InlineSeeAlsoFunction", 
-            TaggingRules -> {"PageType" -> "Function"}, ExpressionUUID -> 
-             "e2badd11-6868-4d28-8ea3-ad3f1ae33262"], 
-           StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-           Cell[BoxData[ButtonBox["OptimalContractionPath", BaseStyle -> 
-               "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/OptimalContractionPath"]], 
-            "InlineSeeAlsoFunction", TaggingRules -> 
-             {"PageType" -> "Function"}, ExpressionUUID -> 
-             "d2278ea6-af57-49b2-befc-6e22a5b68b30"], 
-           StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-           Cell[BoxData[ButtonBox["GreedyContractionPath", BaseStyle -> 
-               "Link", ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/GreedyContractionPath"]], 
-            "InlineSeeAlsoFunction", TaggingRules -> 
-             {"PageType" -> "Function"}, ExpressionUUID -> 
-             "8582cd2b-b477-4959-b839-cc3002b4b6aa"], 
-           StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-           Cell[BoxData[ButtonBox["BinaryTensorNetwork", BaseStyle -> "Link", 
-              ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/BinaryTensorNetwork"]], 
-            "InlineSeeAlsoFunction", TaggingRules -> 
-             {"PageType" -> "Function"}, ExpressionUUID -> 
-             "a63325d3-0989-460d-934d-b2c252885d87"], 
-           StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-           Cell[BoxData[ButtonBox["ContractionTree", BaseStyle -> "Link", 
-              ButtonData -> 
-               "paclet:Wolfram/TensorNetworks/ref/ContractionTree"]], 
-            "InlineSeeAlsoFunction", TaggingRules -> 
-             {"PageType" -> "Function"}, ExpressionUUID -> 
-             "b226e754-38c2-4249-a8cb-c30cb44f1c37"], 
-           StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"], 
-           Cell[BoxData[ButtonBox["EinsteinSummation", BaseStyle -> "Link", 
-              ButtonData -> "paclet:ref/EinsteinSummation"]], 
-            "InlineSeeAlsoFunction", TaggingRules -> 
-             {"PageType" -> "Function"}, ExpressionUUID -> 
-             "4525efe2-87a5-4dbf-a4cb-0f2f742d771a"]}], "SeeAlso", 
-         CellID -> 453306760, ExpressionUUID -> 
-          "9e2efb8c-297e-4d42-a75b-6784e803b19f"]}, Open]], 
-     Cell[CellGroupData[{Cell[TextData[{"Tech Notes", 
-           Cell[BoxData[TemplateBox[{"TechNotes", Cell[BoxData[FrameBox[
-                  Cell["Insert links to related tech notes.", 
-                   "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
-                "MoreInfoTextOuter"]}, "MoreInfoOpenerButtonTemplate"]], 
-            ExpressionUUID -> "2fb3a993-ca36-4170-986b-a02719280c19"]}], 
-         "TechNotesSection", CellID -> 160637484, ExpressionUUID -> 
-          "9f840624-6c96-4a00-840d-94b53111e833"], 
-        Cell[TextData[ButtonBox["Contraction Paths and Execution", 
-           BaseStyle -> "Link", ButtonData -> "paclet:Wolfram/TensorNetworks/\
-tutorial/ContractionPathsAndExecution"]], "Tutorials", CellID -> 680228926, 
-         ExpressionUUID -> "99bc879a-8cb8-4f17-958f-38c87ba03839"]}, Open]], 
-     Cell[CellGroupData[{Cell["Related Guides", "MoreAboutSection", 
-         CellID -> 256663337, ExpressionUUID -> 
-          "5e16cf4e-ae78-45cf-bb02-180502661ec4"], 
-        Cell[TextData[ButtonBox["TensorNetworks Package", 
-           BaseStyle -> "Link", ButtonData -> 
-            "paclet:Wolfram/TensorNetworks/guide/TensorNetworks"]], 
-         "MoreAbout", CellID -> 602695077, ExpressionUUID -> 
-          "950e20eb-54f0-44e8-a08a-4771dba76e0d"]}, Open]], 
-     Cell[CellGroupData[{Cell[TextData[{"Related Links", 
-           Cell[BoxData[TemplateBox[{"RelatedLinks", Cell[BoxData[
-                 FrameBox[Cell[
-                   "Insert links to any related page, including web pages.", 
-                   "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
-                "MoreInfoTextOuter"]}, "MoreInfoOpenerButtonTemplate"]], 
-            ExpressionUUID -> "610631a6-bb19-49e2-8c6d-19cce7ba8327"]}], 
-         "RelatedLinksSection", CellID -> 146264134, ExpressionUUID -> 
-          "fc454325-6152-404a-87cb-cea8eff3ce43"], Cell[" ", "RelatedLinks", 
-         CellID -> 371350627, ExpressionUUID -> 
-          "c2bf11c6-5d7f-4072-a05b-0b527462715e"]}, Open]], 
-     Cell[CellGroupData[{Cell[TextData[{"Examples Initialization", 
-           Cell[BoxData[TemplateBox[{"ExamplesInitialization", Cell[
-                BoxData[FrameBox[Cell["Input that is to be evaluated before \
-any examples are run, e.g. Needs[\[Ellipsis]].", "MoreInfoText"], 
-                  BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]}, 
-              "MoreInfoOpenerButtonTemplate"]], ExpressionUUID -> 
-             "9a4cc069-9f16-4a0d-ba04-e2a20e37dcd5"]}], 
-         "ExamplesInitializationSection", CellID -> 581968835, 
-         ExpressionUUID -> "ba77ad10-c6a8-4878-9763-222bf7137587"], 
-        Cell[BoxData[RowBox[{"Needs", "[", "\"Wolfram`TensorNetworks`\"", 
-            "]"}]], "ExampleInitialization", CellID -> 417837591, 
-         ExpressionUUID -> "c6ea73d4-54ee-46ea-adee-40f3c43e230e"]}, Open]], 
-     Cell[BoxData[InterpretationBox[GridBox[
-         {{StyleBox[RowBox[{"Basic", " ", "Examples"}], 
-            "PrimaryExamplesSection"], ButtonBox[RowBox[
-             {RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}], 
-            BaseStyle -> "ExtendedExamplesLink", ButtonData :> 
-             "ExtendedExamples"]}}], $Line = 0; ]], "PrimaryExamplesSection", 
-      CellID -> 248274481, ExpressionUUID -> 
-       "2de6a648-d56a-4575-bf13-6f069e73a4fa"], Cell["Contract a two-tensor \
-network into a single tensor. Without a path argument the contraction is \
-delegated to EinsteinSummation:", "ExampleText", CellID -> 175797813, 
-      ExpressionUUID -> "b4cc7264-89c5-4c69-882e-303c0db8b2e7"], 
-     Cell[BoxData[RowBox[{RowBox[{"A", " ", "=", " ", 
-           RowBox[{"RandomReal", "[", RowBox[{RowBox[{"{", RowBox[
-                  {RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
-               RowBox[{"{", RowBox[{"3", ",", " ", "4"}], "}"}]}], "]"}]}], 
-         ";", " ", RowBox[{"B", " ", "=", " ", RowBox[{"RandomReal", "[", 
-             RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", "1"}], ",", " ", 
-                   "1"}], "}"}], ",", " ", RowBox[{"{", RowBox[{"4", ",", 
-                   " ", "5"}], "}"}]}], "]"}]}], ";", " ", 
-         RowBox[{"tn", " ", "=", " ", RowBox[{"TensorNetwork", "[", 
-             RowBox[{RowBox[{"{", RowBox[{"A", ",", " ", "B"}], "}"}], ",", 
-               " ", RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"i", ",", " ", 
-                       "j"}], "}"}], ",", " ", RowBox[{"{", RowBox[{"j", ",", 
-                       " ", "k"}], "}"}]}], "}"}]}], "]"}]}]}]], "Input", 
-      CellLabel -> "In[1]:=", CellID -> 658998519, ExpressionUUID -> 
-       "6a228557-8bc5-4982-aca7-05951660863d"], 
-     Cell[CellGroupData[{Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-            "tn", "]"}]], "Input", CellLabel -> "In[2]:=", 
-         CellID -> 175797813, ExpressionUUID -> 
-          "3c82ba20-c554-49bf-ba25-f76ab52594f1"], 
-        Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                 {RowBox[{"-", "0.18810123590564354`"}], ",", RowBox[
-                   {"-", "0.1375639713603935`"}], ",", RowBox[{"-", 
-                    "0.3280643531856991`"}], ",", RowBox[{"-", 
-                    "0.15160530546957365`"}], ",", RowBox[{"-", 
-                    "0.11297295531983972`"}]}], "}"}], ",", RowBox[{"{", 
-                RowBox[{RowBox[{"-", "0.3877929572240193`"}], ",", 
-                  "0.4698938521482284`", ",", RowBox[{"-", 
-                    "0.5314057435325985`"}], ",", "0.22112338506591975`", 
-                  ",", "0.17904432546436433`"}], "}"}], ",", RowBox[{"{", 
-                RowBox[{RowBox[{"-", "1.3287180291671077`"}], ",", 
-                  RowBox[{"-", "0.8419425882302402`"}], ",", RowBox[
-                   {"-", "0.9289801951873631`"}], ",", RowBox[{"-", 
-                    "0.34719827385535224`"}], ",", RowBox[{"-", 
-                    "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output", 
-         CellLabel -> "Out[2]=", CellID -> 946322640, ExpressionUUID -> 
-          "657386a9-ed91-477a-84b5-3a023e94db32"]}, Open]], 
-     Cell[BoxData[InterpretationBox[Cell["\t", "ExampleDelimiter", 
-         ExpressionUUID -> "2acd8973-7e6c-4168-bfac-f0d38fe0b9f9"], 
-        $Line = 0; ]], "ExampleDelimiter", CellID -> 133266929, 
-      ExpressionUUID -> "49a1070b-11ca-4513-b856-bb400ed235a9"], 
-     Cell["Contract using an explicit canonical path:", "ExampleText", 
-      CellID -> 367562884, ExpressionUUID -> 
-       "2d8ccd6b-0700-4ffc-8f73-eff012e34158"], 
-     Cell[CellGroupData[{Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-            RowBox[{"tn", ",", " ", RowBox[{"{", RowBox[{"{", RowBox[
-                   {"1", ",", " ", "2"}], "}"}], "}"}]}], "]"}]], "Input", 
-         CellLabel -> "In[1]:=", CellID -> 260645513, ExpressionUUID -> 
-          "14a275c2-5288-4d82-8522-6e702b9f312c"], 
-        Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                 {RowBox[{"-", "0.18810123590564354`"}], ",", RowBox[
-                   {"-", "0.1375639713603935`"}], ",", RowBox[{"-", 
-                    "0.3280643531856991`"}], ",", RowBox[{"-", 
-                    "0.15160530546957365`"}], ",", RowBox[{"-", 
-                    "0.11297295531983972`"}]}], "}"}], ",", RowBox[{"{", 
-                RowBox[{RowBox[{"-", "0.3877929572240193`"}], ",", 
-                  "0.4698938521482284`", ",", RowBox[{"-", 
-                    "0.5314057435325985`"}], ",", "0.22112338506591975`", 
-                  ",", "0.17904432546436433`"}], "}"}], ",", RowBox[{"{", 
-                RowBox[{RowBox[{"-", "1.3287180291671077`"}], ",", 
-                  RowBox[{"-", "0.8419425882302402`"}], ",", RowBox[
-                   {"-", "0.9289801951873631`"}], ",", RowBox[{"-", 
-                    "0.34719827385535224`"}], ",", RowBox[{"-", 
-                    "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output", 
-         CellLabel -> "Out[1]=", CellID -> 443089438, ExpressionUUID -> 
-          "232870ee-9f27-4555-afb3-e65cae9475d6"]}, Open]], 
-     Cell[BoxData[InterpretationBox[Cell["\t", "ExampleDelimiter", 
-         ExpressionUUID -> "95b51f39-0f3f-486a-b883-3d75af654eff"], 
-        $Line = 0; ]], "ExampleDelimiter", CellID -> 273965426, 
-      ExpressionUUID -> "c95dacd5-df63-4cda-a31c-5f16b4caffe4"], 
-     Cell["Use a path-as-method-string shortcut to dispatch to \
-GreedyContractionPath:", "ExampleText", CellID -> 755960541, 
-      ExpressionUUID -> "fa924642-ecc2-4df0-bf56-f9d64862867a"], 
-     Cell[CellGroupData[{Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-            RowBox[{"tn", ",", " ", "\"Greedy\""}], "]"}]], "Input", 
-         CellLabel -> "In[1]:=", CellID -> 833714920, ExpressionUUID -> 
-          "fa3b6491-e950-4598-9012-69fa8db04edb"], 
-        Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                 {RowBox[{"-", "0.18810123590564354`"}], ",", RowBox[
-                   {"-", "0.1375639713603935`"}], ",", RowBox[{"-", 
-                    "0.3280643531856991`"}], ",", RowBox[{"-", 
-                    "0.15160530546957365`"}], ",", RowBox[{"-", 
-                    "0.11297295531983972`"}]}], "}"}], ",", RowBox[{"{", 
-                RowBox[{RowBox[{"-", "0.3877929572240193`"}], ",", 
-                  "0.4698938521482284`", ",", RowBox[{"-", 
-                    "0.5314057435325985`"}], ",", "0.22112338506591975`", 
-                  ",", "0.17904432546436433`"}], "}"}], ",", RowBox[{"{", 
-                RowBox[{RowBox[{"-", "1.3287180291671077`"}], ",", 
-                  RowBox[{"-", "0.8419425882302402`"}], ",", RowBox[
-                   {"-", "0.9289801951873631`"}], ",", RowBox[{"-", 
-                    "0.34719827385535224`"}], ",", RowBox[{"-", 
-                    "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output", 
-         CellLabel -> "Out[1]=", CellID -> 237467766, ExpressionUUID -> 
-          "95659100-65c7-4ed3-b62b-367977d58264"]}, Open]], 
-     Cell[CellGroupData[{Cell[TextData[{"More Examples", 
-           Cell[BoxData[TemplateBox[{"MoreExamples", Cell[BoxData[
-                 FrameBox[Cell["Extended examples in standardized sections.", 
-                   "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
-                "MoreInfoTextOuter"]}, "MoreInfoOpenerButtonTemplate"]], 
-            ExpressionUUID -> "1033dcd2-51b8-4d0b-89f2-46d6dc97aa42"]}], 
-         "ExtendedExamplesSection", CellTags -> "ExtendedExamples", 
-         CellID -> 453306760, ExpressionUUID -> 
-          "5b8d20ef-2b89-4d17-b697-3a06f7d65937"], 
-        Cell[CellGroupData[{Cell[BoxData[InterpretationBox[Cell["Scope", 
-               "ExampleSection", ExpressionUUID -> 
-                "aafa67b1-f003-441a-b5e6-e8dc6df844af"], $Line = 0; ]], 
-            "ExampleSection", CellID -> 98618060, ExpressionUUID -> 
-             "2cce1f83-ae46-4bee-ba8f-e5e9ee77ed65"], 
-           Cell[CellGroupData[{Cell["Input forms", "ExampleSubsection", 
-               CellID -> 256663337, ExpressionUUID -> 
-                "15972ef0-c62f-464e-a705-348ba8767e53"], 
-              Cell["The default first argument is a TensorNetwork:", 
-               "ExampleText", CellID -> 175797813, ExpressionUUID -> 
-                "a4c524fa-1e3b-4572-a3ab-5f3d11a93ce0"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", "tn", 
-                     "]"}]], "Input", CellLabel -> "In[1]:=", CellID -> 
-                   946322640, ExpressionUUID -> 
-                   "ed324fe3-3e9b-4492-ac20-ad6a475343a7"], Cell[BoxData[
-                   RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[1]=", CellID -> 133266929, 
-                  ExpressionUUID -> "ded80b43-58b3-4d5b-bcd7-29e068260b91"]}, 
-                Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-                  "ExampleDelimiter", ExpressionUUID -> 
-                   "8596a96a-abf6-4dcb-ac92-b618f41d7ada"], $Line = 0; ]], 
-               "ExampleDelimiter", CellID -> 367562884, ExpressionUUID -> 
-                "59042144-5207-46dd-a3da-b472ea58d5ef"], Cell["Tensor-network \
-Graph objects (produced by ToTensorNetworkGraph) are accepted directly:", 
-               "ExampleText", CellID -> 260645513, ExpressionUUID -> 
-                "2abfa1fc-9b31-46d6-9c2c-782711d6f0bf"], Cell[BoxData[
-                RowBox[{"g", " ", "=", " ", RowBox[{"ToTensorNetworkGraph", 
-                    "[", "tn", "]"}]}]], "Input", CellLabel -> "In[2]:=", 
-               CellID -> 443089438, ExpressionUUID -> 
-                "d9012bef-59bc-443e-801a-18957dad5b71"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", "g", 
-                     "]"}]], "Input", CellLabel -> "In[3]:=", CellID -> 
-                   273965426, ExpressionUUID -> 
-                   "02ac0d6f-4805-4540-b442-4eddca030617"], Cell[BoxData[
-                   RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[3]=", CellID -> 755960541, 
-                  ExpressionUUID -> "d023111a-8a47-4cf7-9691-89594e8f77ed"]}, 
-                Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-                  "ExampleDelimiter", ExpressionUUID -> 
-                   "49cfe0ef-3b32-4384-aec5-8c0bf1bc6d43"], $Line = 0; ]], 
-               "ExampleDelimiter", CellID -> 208976091, ExpressionUUID -> 
-                "f02198a3-2275-45dd-ab37-4a1db54333c8"], Cell["The low-level \
-Association form, as produced by TensorNetworkData, is also accepted:", 
-               "ExampleText", CellID -> 155554451, ExpressionUUID -> 
-                "a67c3734-419a-4761-8a07-d39a96f80d30"], Cell[BoxData[
-                RowBox[{"data", " ", "=", " ", RowBox[{"TensorNetworkData", 
-                    "[", "tn", "]"}]}]], "Input", CellLabel -> "In[4]:=", 
-               CellID -> 453306760, ExpressionUUID -> 
-                "2b9ec094-4fa6-4dc7-b8e2-daaaf8b5befe"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", "data", 
-                     "]"}]], "Input", CellLabel -> "In[5]:=", CellID -> 
-                   160637484, ExpressionUUID -> 
-                   "cb13e4ba-9747-49e2-b0cc-3e6c3b0d5230"], Cell[BoxData[
-                   RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[5]=", CellID -> 680228926, 
-                  ExpressionUUID -> "ba3dc6a3-96aa-4637-80b0-a5f6dada05c1"]}, 
-                Open]]}, Open]], Cell[CellGroupData[{Cell["Path forms", 
-               "ExampleSubsection", CellID -> 371350627, ExpressionUUID -> 
-                "5c18cbec-a277-4859-a5f4-fc89636767f4"], Cell["When the path \
-argument is omitted, the contraction is delegated to EinsteinSummation:", 
-               "ExampleText", CellID -> 175797813, ExpressionUUID -> 
-                "e6c4ce5a-75b4-4d5a-bad7-1a9360cc789b"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", "tn", 
-                     "]"}]], "Input", CellLabel -> "In[1]:=", CellID -> 
-                   946322640, ExpressionUUID -> 
-                   "2c561774-50fb-4ac2-b0f5-f8785cc7efd9"], Cell[BoxData[
-                   RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[1]=", CellID -> 133266929, 
-                  ExpressionUUID -> "732d2f30-6979-4937-9f48-9e164917da49"]}, 
-                Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-                  "ExampleDelimiter", ExpressionUUID -> 
-                   "a7a09add-8a30-4a5b-99e9-2597386f88ad"], $Line = 0; ]], 
-               "ExampleDelimiter", CellID -> 367562884, ExpressionUUID -> 
-                "129dfac0-b1d0-4f40-af04-935dab2cf093"], Cell["An explicit \
-canonical path is a list of integer pairs in opt_einsum convention:", 
-               "ExampleText", CellID -> 260645513, ExpressionUUID -> 
-                "23022784-d778-4714-b0f4-092a677d32e8"], Cell[BoxData[
-                RowBox[{"path", " ", "=", " ", RowBox[
-                   {"GreedyContractionPath", "[", "tn", "]"}]}]], "Input", 
-               CellLabel -> "In[2]:=", CellID -> 443089438, ExpressionUUID -> 
-                "684d1030-2fed-4146-8a91-8c43db1ec4b8"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-                     RowBox[{"tn", ",", " ", "path"}], "]"}]], "Input", 
-                  CellLabel -> "In[3]:=", CellID -> 273965426, 
-                  ExpressionUUID -> "1b5b1e61-0263-45d3-86a4-de93ccc70b5c"], 
-                 Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                          {RowBox[{"-", "0.18810123590564354`"}], ",", 
-                          RowBox[{"-", "0.1375639713603935`"}], ",", RowBox[
-                          {"-", "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[3]=", CellID -> 755960541, 
-                  ExpressionUUID -> "707557b9-1f29-44fd-b354-8cd2d22dca99"]}, 
-                Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-                  "ExampleDelimiter", ExpressionUUID -> 
-                   "39ca4619-b634-47c6-8251-510306c9b65f"], $Line = 0; ]], 
-               "ExampleDelimiter", CellID -> 208976091, ExpressionUUID -> 
-                "6da4610f-c448-48f0-8d7d-a58bf27ee738"], Cell["Pass a \
-cost-function string to dispatch to OptimalContractionPath under the hood:", 
-               "ExampleText", CellID -> 155554451, ExpressionUUID -> 
-                "3effd878-46ca-438e-a2fb-37770caecce2"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-                     RowBox[{"tn", ",", " ", "\"flops\""}], "]"}]], "Input", 
-                  CellLabel -> "In[4]:=", CellID -> 453306760, 
-                  ExpressionUUID -> "8390ccc5-afa7-4b53-8b8a-4a6df51bee60"], 
-                 Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                          {RowBox[{"-", "0.18810123590564354`"}], ",", 
-                          RowBox[{"-", "0.1375639713603935`"}], ",", RowBox[
-                          {"-", "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[4]=", CellID -> 160637484, 
-                  ExpressionUUID -> "b8092e4d-5b64-4537-8175-f89edd01415f"]}, 
-                Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-                  "ExampleDelimiter", ExpressionUUID -> 
-                   "6fb6b789-ab97-465c-90b1-a6e120f22168"], $Line = 0; ]], 
-               "ExampleDelimiter", CellID -> 680228926, ExpressionUUID -> 
-                "d73ca2e7-674b-4379-ba34-c5679a23d743"], 
-              Cell["Pass \"Greedy\" to use GreedyContractionPath instead:", 
-               "ExampleText", CellID -> 256663337, ExpressionUUID -> 
-                "3f37367b-4204-4c23-a725-ec4f2092e262"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-                     RowBox[{"tn", ",", " ", "\"Greedy\""}], "]"}]], "Input", 
-                  CellLabel -> "In[5]:=", CellID -> 602695077, 
-                  ExpressionUUID -> "d40d2d28-5e2c-4a0d-a4e2-f946770f2c0d"], 
-                 Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                          {RowBox[{"-", "0.18810123590564354`"}], ",", 
-                          RowBox[{"-", "0.1375639713603935`"}], ",", RowBox[
-                          {"-", "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[5]=", CellID -> 146264134, 
-                  ExpressionUUID -> "038318fe-dfb8-419e-9c8b-2f3884441fcf"]}, 
-                Open]]}, Open]], Cell[CellGroupData[
-             {Cell["Engines", "ExampleSubsection", CellID -> 146264134, 
-               ExpressionUUID -> "fcd76768-9e73-4349-8649-948bf6730ae5"], 
-              Cell["All five engines in $TensorNetworkContractionMethods \
-produce the same value to machine precision. The default is \"ArrayDot\":", 
-               "ExampleText", CellID -> 175797813, ExpressionUUID -> 
-                "34537b7b-a929-4ce6-9682-174332e9f173"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-                     RowBox[{"tn", ",", " ", RowBox[{"Method", " ", "->", 
-                         " ", "\"ArrayDot\""}]}], "]"}]], "Input", 
-                  CellLabel -> "In[1]:=", CellID -> 946322640, 
-                  ExpressionUUID -> "a4e3273f-6916-4a33-850d-6957aeceaa58"], 
-                 Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                          {RowBox[{"-", "0.18810123590564354`"}], ",", 
-                          RowBox[{"-", "0.1375639713603935`"}], ",", RowBox[
-                          {"-", "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[1]=", CellID -> 133266929, 
-                  ExpressionUUID -> "eddf97df-11a2-4b25-95c3-185cc3970ea0"]}, 
-                Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-                  "ExampleDelimiter", ExpressionUUID -> 
-                   "2832b617-fdef-40c0-917d-5a8da85da508"], $Line = 0; ]], 
-               "ExampleDelimiter", CellID -> 367562884, ExpressionUUID -> 
-                "6ffca3a5-7c77-4ad4-9018-30abe8040451"], Cell["The \
-\"TensorContract\" engine routes through Wolfram Language's built-in \
-TensorContract:", "ExampleText", CellID -> 260645513, ExpressionUUID -> 
-                "acbb3f9a-9988-4365-a40e-8eaa1d600360"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-                     RowBox[{"tn", ",", " ", RowBox[{"Method", " ", "->", 
-                         " ", "\"TensorContract\""}]}], "]"}]], "Input", 
-                  CellLabel -> "In[2]:=", CellID -> 443089438, 
-                  ExpressionUUID -> "38b63024-57a3-4b52-b304-62792018d427"], 
-                 Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                          {RowBox[{"-", "0.18810123590564354`"}], ",", 
-                          RowBox[{"-", "0.1375639713603935`"}], ",", RowBox[
-                          {"-", "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[2]=", CellID -> 273965426, 
-                  ExpressionUUID -> "5fe26d7c-3f5f-4e66-be42-a8dffdfb807d"]}, 
-                Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-                  "ExampleDelimiter", ExpressionUUID -> 
-                   "64e8f472-e984-4dbe-92db-66c55596ec49"], $Line = 0; ]], 
-               "ExampleDelimiter", CellID -> 755960541, ExpressionUUID -> 
-                "f52ae9ee-4d14-4437-a2eb-9a8c5f789497"], Cell["The \"Dot\" \
-engine reshapes pairs into matrix multiplications:", "ExampleText", CellID -> 
-                208976091, ExpressionUUID -> 
-                "97e9b226-981c-441e-95d3-16917c4666a7"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-                     RowBox[{"tn", ",", " ", RowBox[{"Method", " ", "->", 
-                         " ", "\"Dot\""}]}], "]"}]], "Input", CellLabel -> 
-                   "In[3]:=", CellID -> 155554451, ExpressionUUID -> 
-                   "993d2a33-6daf-4a5d-8764-98dd419513eb"], Cell[BoxData[
-                   RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[3]=", CellID -> 453306760, 
-                  ExpressionUUID -> "0de8dd63-9bac-4c5f-bf73-ef674b9176ea"]}, 
-                Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-                  "ExampleDelimiter", ExpressionUUID -> 
-                   "0f41821b-2320-4bd8-b5b8-e37d4591feaa"], $Line = 0; ]], 
-               "ExampleDelimiter", CellID -> 160637484, ExpressionUUID -> 
-                "4ef429c5-05c8-4ce2-98d7-8283ae8150af"], Cell["The \
-\"TableSum\" engine emits an explicit Table-over-Sum body, useful for tracing \
-and symbolic inspection:", "ExampleText", CellID -> 680228926, 
-               ExpressionUUID -> "c8c10ad7-1c60-4987-8cd3-49a2771b9062"], 
-              Cell[CellGroupData[{Cell[BoxData[RowBox[
-                    {"TensorNetworkContract", "[", RowBox[{"tn", ",", " ", 
-                       RowBox[{"Method", " ", "->", " ", "\"TableSum\""}]}], 
-                     "]"}]], "Input", CellLabel -> "In[4]:=", CellID -> 
-                   256663337, ExpressionUUID -> 
-                   "f1b2d286-07aa-4cf3-95a8-48ad608b8d81"], Cell[BoxData[
-                   RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[4]=", CellID -> 602695077, 
-                  ExpressionUUID -> "6fdc8cc0-ceaf-4ba9-b140-90877db559ba"]}, 
-                Open]]}, Open]], Cell[CellGroupData[
-             {Cell["Auto-binarization", "ExampleSubsection", CellID -> 
-                875395060, ExpressionUUID -> 
-                "8e477e2d-ce5f-4c79-8aef-499a4a1c4346"], Cell["Hyper-edge \
-networks (an index shared by three or more tensors) are auto-binarized via \
-BinaryTensorNetwork before contraction. Here three vectors share index i:", 
-               "ExampleText", CellID -> 661510580, ExpressionUUID -> 
-                "5daed420-3d15-473c-914c-7d1921ce1ef8"], Cell[BoxData[
-                RowBox[{RowBox[{"v", " ", "=", " ", RowBox[{"RandomReal", 
-                      "[", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", "1"}], 
-                          ",", " ", "1"}], "}"}], ",", " ", RowBox[{"{", "3", 
-                          "}"}]}], "]"}]}], ";", " ", RowBox[{"w", " ", "=", 
-                    " ", RowBox[{"RandomReal", "[", RowBox[{RowBox[{"{", 
-                          RowBox[{RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], 
-                        ",", " ", RowBox[{"{", "3", "}"}]}], "]"}]}], ";", 
-                  " ", RowBox[{"x", " ", "=", " ", RowBox[{"RandomReal", "[", 
-                      RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", "1"}], ",", 
-                          " ", "1"}], "}"}], ",", " ", RowBox[{"{", "3", 
-                          "}"}]}], "]"}]}], ";", " ", RowBox[{"hyper", " ", 
-                    "=", " ", RowBox[{"TensorNetwork", "[", RowBox[
-                       {RowBox[{"{", RowBox[{"v", ",", " ", "w", ",", " ", 
-                          "x"}], "}"}], ",", " ", RowBox[{"{", RowBox[
-                          {RowBox[{"{", "i", "}"}], ",", " ", RowBox[{"{", 
-                          "i", "}"}], ",", " ", RowBox[{"{", "i", "}"}]}], 
-                          "}"}]}], "]"}]}]}]], "Input", CellLabel -> 
-                "In[1]:=", CellID -> 848300949, ExpressionUUID -> 
-                "e4e8845f-0d36-4e01-afa3-add608ced5fc"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", "hyper", 
-                     "]"}]], "Input", CellLabel -> "In[2]:=", CellID -> 
-                   661510580, ExpressionUUID -> 
-                   "9a5a967e-b36f-4cd4-83de-0f98346cb7f2"], Cell[BoxData[
-                   RowBox[{"-", "0.30006077090850625`"}]], "Output", 
-                  CellLabel -> "Out[2]=", CellID -> 483208377, 
-                  ExpressionUUID -> "46550b2c-8229-48b8-b02c-a75f4a876498"]}, 
-                Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-                  "ExampleDelimiter", ExpressionUUID -> 
-                   "c0865198-11fa-4e92-97d7-d7bc63bd02c5"], $Line = 0; ]], 
-               "ExampleDelimiter", CellID -> 763268883, ExpressionUUID -> 
-                "752a98ed-0e3a-45b9-b347-56e9cc52abfa"], Cell["The \
-auto-binarized network is equivalent to inserting a 3-way copy tensor and \
-pairwise-contracting:", "ExampleText", CellID -> 365919070, ExpressionUUID -> 
-                "6152d443-c2c8-4e0b-a85c-3824da326df2"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"Total", "[", RowBox[{"v", "*", "w", 
-                       "*", "x"}], "]"}]], "Input", CellLabel -> "In[3]:=", 
-                  CellID -> 718686155, ExpressionUUID -> 
-                   "60d69275-27ae-4088-a8fe-a313f6416486"], Cell[BoxData[
-                   RowBox[{"-", "0.30006077090850625`"}]], "Output", 
-                  CellLabel -> "Out[3]=", CellID -> 948838466, 
-                  ExpressionUUID -> "f4e7545e-5851-4e1a-b77e-6a77684d4090"]}, 
-                Open]]}, Open]]}, Open]], Cell[CellGroupData[
-          {Cell[BoxData[InterpretationBox[Cell["Options", "ExampleSection", 
-               ExpressionUUID -> "131aa92c-31cb-4155-8ca1-16133b34e3d6"], 
-              $Line = 0; ]], "ExampleSection", CellID -> 208976091, 
-            ExpressionUUID -> "5a88a735-c6c2-45e1-a37a-9d707c975f7b"], 
-           Cell[CellGroupData[{Cell["Method", "ExampleSubsection", CellID -> 
-                155554451, ExpressionUUID -> 
-                "6c98acfd-2426-4c80-9e0a-8089389d0d67"], Cell["Select a \
-binary-contraction engine by name. All five engines listed in \
-$TensorNetworkContractionMethods are valid:", "ExampleText", CellID -> 
-                175797813, ExpressionUUID -> 
-                "1a0f5248-acc0-408f-866a-76f078de06fd"], Cell[BoxData[
-                RowBox[{RowBox[{"A", " ", "=", " ", RowBox[{"RandomReal", 
-                      "[", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", "1"}], 
-                          ",", " ", "1"}], "}"}], ",", " ", RowBox[{"{", 
-                          RowBox[{"3", ",", " ", "4"}], "}"}]}], "]"}]}], 
-                  ";", " ", RowBox[{"B", " ", "=", " ", RowBox[{"RandomReal", 
-                      "[", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", "1"}], 
-                          ",", " ", "1"}], "}"}], ",", " ", RowBox[{"{", 
-                          RowBox[{"4", ",", " ", "5"}], "}"}]}], "]"}]}], 
-                  ";", " ", RowBox[{"tn", " ", "=", " ", RowBox[
-                     {"TensorNetwork", "[", RowBox[{RowBox[{"{", RowBox[
-                          {"A", ",", " ", "B"}], "}"}], ",", " ", RowBox[
-                         {"{", RowBox[{RowBox[{"{", RowBox[{"i", ",", " ", 
-                          "j"}], "}"}], ",", " ", RowBox[{"{", RowBox[{"j", 
-                          ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}]}]], 
-               "Input", CellLabel -> "In[1]:=", CellID -> 658998519, 
-               ExpressionUUID -> "4366dbfd-886c-4a1c-80f4-9a26914393ca"], 
-              Cell[CellGroupData[{Cell[BoxData[RowBox[
-                    {"TensorNetworkContract", "[", RowBox[{"tn", ",", " ", 
-                       RowBox[{"Method", " ", "->", " ", "\"Dot\""}]}], 
-                     "]"}]], "Input", CellLabel -> "In[2]:=", CellID -> 
-                   175797813, ExpressionUUID -> 
-                   "b1081970-607d-43ee-b673-c5947bfbd72e"], Cell[BoxData[
-                   RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[2]=", CellID -> 946322640, 
-                  ExpressionUUID -> "5b2a4965-465e-4c91-9879-ce2efa3819a5"]}, 
-                Open]]}, Open]], Cell[CellGroupData[{Cell["\"Inactive\"", 
-               "ExampleSubsection", CellID -> 453306760, ExpressionUUID -> 
-                "8740e762-7d33-4e0b-b0e6-d046cefe3b2f"], Cell["Set \
-\"Inactive\" -> True to return an Inactive expression instead of evaluating. \
-This makes TensorNetworkContract equivalent to TensorNetworkContraction:", 
-               "ExampleText", CellID -> 133266929, ExpressionUUID -> 
-                "e69c7ee3-3837-4e0d-834c-a8f4f4c4a433"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-                     RowBox[{"tn", ",", " ", RowBox[{"\"Inactive\"", " ", 
-                         "->", " ", "True"}]}], "]"}]], "Input", CellLabel -> 
-                   "In[1]:=", CellID -> 367562884, ExpressionUUID -> 
-                   "bcfe23c7-1f1b-4a27-81e7-124e646a8242"], Cell[BoxData[
-                   RowBox[{TemplateBox[{"TensorContract"}, "InactiveHead", 
-                      BaseStyle -> "Inactive", Tooltip -> 
-                       "Inactive[TensorContract]", SyntaxForm -> "Symbol"], 
-                     "[", RowBox[{RowBox[{RowBox[{"{", RowBox[{RowBox[{"{", 
-                          RowBox[{RowBox[{"-", "0.14818943256807504`"}], ",", 
-                          RowBox[{"-", "0.21795368025166306`"}], ",", RowBox[
-                          {"-", "0.3058612929806812`"}], ",", RowBox[{"-", 
-                          "0.09251873862870985`"}]}], "}"}], ",", RowBox[
-                          {"{", RowBox[{"0.11192668407624007`", ",", RowBox[
-                          {"-", "0.42166149326522095`"}], ",", RowBox[{"-", 
-                          "0.40630387470991236`"}], ",", RowBox[{"-", 
-                          "0.5871847110722168`"}]}], "}"}], ",", RowBox[
-                          {"{", RowBox[{RowBox[{"-", 
-                          "0.34966058843392167`"}], ",", 
-                          "0.9466493772228066`", ",", RowBox[{"-", 
-                          "0.48240795699145744`"}], ",", 
-                          "0.10116320880771523`"}], "}"}]}], "}"}], TagBox[
-                          "\[TensorProduct]", "InactiveToken", BaseStyle -> 
-                          "Inactive", SyntaxForm -> "\[TensorProduct]"], 
-                         RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                          {"0.4345732974888721`", ",", "0.5087052010942732`", 
-                          ",", "0.7206975987469231`", ",", 
-                          "0.9939316893743566`", ",", 
-                          "0.4784521923178975`"}], "}"}], ",", RowBox[{"{", 
-                          RowBox[{RowBox[{"-", "0.9232708884461172`"}], ",", 
-                          RowBox[{"-", "0.24774568200958402`"}], ",", RowBox[
-                          {"-", "0.40760270489211115`"}], ",", 
-                          "0.05628381788398151`", ",", 
-                          "0.21470361552642458`"}], "}"}], ",", RowBox[
-                          {"{", RowBox[{"0.805589214547942`", ",", 
-                          "0.6813652154760748`", ",", "0.7715044018645734`", 
-                          ",", "0.05416610261032684`", ",", 
-                          "0.12120917563017741`"}], "}"}], ",", RowBox[
-                          {"{", RowBox[{"0.8488420393389275`", ",", RowBox[
-                          {"-", "0.996845911847545`"}], ",", 
-                          "0.8012405031687013`", ",", RowBox[{"-", 
-                          "0.26502141490695497`"}], ",", RowBox[{"-", 
-                          "0.4517705552075224`"}]}], "}"}]}], "}"}]}], ",", 
-                       RowBox[{"{", RowBox[{"{", RowBox[{"2", ",", "3"}], 
-                          "}"}], "}"}]}], "]"}]], "Output", CellLabel -> 
-                   "Out[1]=", CellID -> 260645513, ExpressionUUID -> 
-                   "86b21e3b-ac7f-460b-bd2b-bd6284ed4f86"]}, Open]]}, Open]], 
-           Cell[CellGroupData[{Cell["\"TransposeFunction\"", 
-               "ExampleSubsection", CellID -> 160637484, ExpressionUUID -> 
-                "db59461b-bd2c-4067-9f31-c891ee722978"], Cell["Override the \
-final free-index permutation primitive with \"TransposeFunction\":", 
-               "ExampleText", CellID -> 443089438, ExpressionUUID -> 
-                "b2f224ef-a1f0-4c51-8dac-1b013c3e0d15"], Cell[CellGroupData[
-                {Cell[BoxData[RowBox[{"TensorNetworkContract", "[", 
-                     RowBox[{"tn", ",", " ", RowBox[{"\"TransposeFunction\"", 
-                         " ", "->", " ", "Transpose"}]}], "]"}]], "Input", 
-                  CellLabel -> "In[1]:=", CellID -> 273965426, 
-                  ExpressionUUID -> "4c1b545b-660f-4e11-b51b-4aa436cd1c03"], 
-                 Cell[BoxData[RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                          {RowBox[{"-", "0.18810123590564354`"}], ",", 
-                          RowBox[{"-", "0.1375639713603935`"}], ",", RowBox[
-                          {"-", "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                        {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-                  "Output", CellLabel -> "Out[1]=", CellID -> 755960541, 
-                  ExpressionUUID -> "5bd6ef2d-e2f7-4c4e-8ac1-6ebaa3938fac"]}, 
-                Open]]}, Open]]}, Open]], Cell[CellGroupData[
-          {Cell[BoxData[InterpretationBox[Cell["Applications", 
-               "ExampleSection", ExpressionUUID -> 
-                "55151bb5-b167-472d-ade2-014d5b06bf84"], $Line = 0; ]], 
-            "ExampleSection", CellID -> 367562884, ExpressionUUID -> 
-             "6be0903c-7148-4e75-b08d-3604c8732515"], Cell["Pre-compute a \
-contraction path once and reuse it for an ensemble of structurally identical \
-networks. For ensembles of size O(100), the path-search amortizes to zero \
-per-instance cost:", "ExampleText", CellID -> 458113666, ExpressionUUID -> 
-             "d82df936-8a99-41e3-9a84-55c9226e2130"], 
-           Cell[BoxData[RowBox[{RowBox[{"SeedRandom", "[", "7", "]"}], ";", 
-               " ", RowBox[{"tens1", " ", "=", " ", RowBox[{"Table", "[", 
-                   RowBox[{RowBox[{"RandomReal", "[", RowBox[{RowBox[{"{", 
-                          RowBox[{RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], 
-                         ",", " ", RowBox[{"{", RowBox[{"3", ",", " ", "3"}], 
-                          "}"}]}], "]"}], ",", " ", "4"}], "]"}]}], ";", " ", 
-               RowBox[{"tens2", " ", "=", " ", RowBox[{"Table", "[", 
-                   RowBox[{RowBox[{"RandomReal", "[", RowBox[{RowBox[{"{", 
-                          RowBox[{RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], 
-                         ",", " ", RowBox[{"{", RowBox[{"3", ",", " ", "3"}], 
-                          "}"}]}], "]"}], ",", " ", "4"}], "]"}]}], ";", " ", 
-               RowBox[{"ensemble", " ", "=", " ", RowBox[{"{", RowBox[
-                    {RowBox[{"TensorNetwork", "[", RowBox[{"tens1", ",", " ", 
-                         RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"i", ",", 
-                          " ", "j"}], "}"}], ",", " ", RowBox[{"{", RowBox[
-                          {"j", ",", " ", "k"}], "}"}], ",", " ", RowBox[
-                          {"{", RowBox[{"k", ",", " ", "l"}], "}"}], ",", 
-                          " ", RowBox[{"{", RowBox[{"l", ",", " ", "m"}], 
-                          "}"}]}], "}"}]}], "]"}], ",", " ", RowBox[
-                      {"TensorNetwork", "[", RowBox[{"tens2", ",", " ", 
-                         RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"i", ",", 
-                          " ", "j"}], "}"}], ",", " ", RowBox[{"{", RowBox[
-                          {"j", ",", " ", "k"}], "}"}], ",", " ", RowBox[
-                          {"{", RowBox[{"k", ",", " ", "l"}], "}"}], ",", 
-                          " ", RowBox[{"{", RowBox[{"l", ",", " ", "m"}], 
-                          "}"}]}], "}"}]}], "]"}]}], "}"}]}], ";", " ", 
-               RowBox[{"path", " ", "=", " ", RowBox[
-                  {"OptimalContractionPath", "[", RowBox[{"First", "[", 
-                     "ensemble", "]"}], "]"}]}]}]], "Input", 
-            CellLabel -> "In[1]:=", CellID -> 458113666, ExpressionUUID -> 
-             "d8f56a0c-e16e-4e4c-adaa-63154ca167d0"], 
-           Cell[CellGroupData[{Cell[BoxData["path"], "Input", CellLabel -> 
-                "In[2]:=", CellID -> 458113666, ExpressionUUID -> 
-                "ffe6d5ef-e378-4695-89a7-46a12eb8e29c"], Cell[BoxData[
-                RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"2", ",", "3"}], 
-                      "}"}], ",", RowBox[{"{", RowBox[{"2", ",", "3"}], 
-                      "}"}], ",", RowBox[{"{", RowBox[{"1", ",", "2"}], 
-                      "}"}]}], "}"}]], "Output", CellLabel -> "Out[2]=", 
-               CellID -> 668929636, ExpressionUUID -> 
-                "ada3364b-cca5-4389-b1a4-fc0a75e9316e"]}, Open]], 
-           Cell[BoxData[InterpretationBox[Cell["\t", "ExampleDelimiter", 
-               ExpressionUUID -> "2852c7b1-29b7-43c6-8777-d4b2896e203c"], 
-              $Line = 0; ]], "ExampleDelimiter", CellID -> 958731447, 
-            ExpressionUUID -> "bd26f6e4-deac-4779-a100-fddde55c112d"], 
-           Cell["Apply the cached path to every ensemble member:", 
-            "ExampleText", CellID -> 208880943, ExpressionUUID -> 
-             "6b1c33c6-d10d-430b-a984-849a28689b97"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{"Dimensions", " ", "/@", 
-                  " ", RowBox[{RowBox[{"(", RowBox[{RowBox[
-                         {"TensorNetworkContract", "[", RowBox[{"#1", ",", 
-                          " ", "path"}], "]"}], " ", "&"}], " ", ")"}], " ", 
-                    "/@", " ", "ensemble"}]}]], "Input", CellLabel -> 
-                "In[3]:=", CellID -> 592929583, ExpressionUUID -> 
-                "930f53ef-0881-44b5-bc0d-8996b86f7c26"], Cell[BoxData[
-                RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{"3", ",", "3"}], 
-                      "}"}], ",", RowBox[{"{", RowBox[{"3", ",", "3"}], 
-                      "}"}]}], "}"}]], "Output", CellLabel -> "Out[3]=", 
-               CellID -> 606459127, ExpressionUUID -> 
-                "e78f7e10-d998-4e7e-b320-34bd880c6f14"]}, Open]], 
-           Cell[BoxData[InterpretationBox[Cell["\t", "ExampleDelimiter", 
-               ExpressionUUID -> "9bdae58f-a3ff-408d-8aec-395a27fc2800"], 
-              $Line = 0; ]], "ExampleDelimiter", CellID -> 260645513, 
-            ExpressionUUID -> "10a377e3-2e12-4581-b073-59fd065b813d"], 
-           Cell["Benchmark the four engines on a fixed network. All return \
-the same value:", "ExampleText", CellID -> 175797813, ExpressionUUID -> 
-             "e5fd4342-6e29-4aa6-b1eb-1208890b6462"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{"AssociationMap", "[", 
-                  RowBox[{RowBox[{RowBox[{"TensorNetworkContract", "[", 
-                        RowBox[{"tn", ",", " ", RowBox[{"Method", " ", "->", 
-                          " ", "#1"}]}], "]"}], " ", "&"}], " ", ",", " ", 
-                    RowBox[{"{", RowBox[{"\"ArrayDot\"", ",", " ", "\"Dot\"", 
-                        ",", " ", "\"TensorContract\"", ",", " ", 
-                        "\"ArrayDotTranspose\""}], "}"}]}], "]"}]], "Input", 
-               CellLabel -> "In[1]:=", CellID -> 946322640, ExpressionUUID -> 
-                "e64ac96e-2441-4c10-af8f-4a3a557d4256"], Cell[BoxData[
-                RowBox[{"\[LeftAssociation]", RowBox[{RowBox[{"\"ArrayDot\"", 
-                      "\[Rule]", RowBox[{"{", RowBox[{RowBox[{"{", RowBox[
-                          {RowBox[{"-", "0.18810123590564354`"}], ",", 
-                          RowBox[{"-", "0.1375639713603935`"}], ",", RowBox[
-                          {"-", "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                          {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                          {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]}], ",", 
-                    RowBox[{"\"Dot\"", "\[Rule]", RowBox[{"{", RowBox[
-                         {RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                          {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                          {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]}], ",", 
-                    RowBox[{"\"TensorContract\"", "\[Rule]", RowBox[
-                       {"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                          {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                          {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]}], ",", 
-                    RowBox[{"\"ArrayDotTranspose\"", "\[Rule]", RowBox[
-                       {"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                          {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], 
-                          ",", "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                          "0.22112338506591975`", ",", 
-                          "0.17904432546436433`"}], "}"}], ",", RowBox[
-                          {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], 
-                          ",", RowBox[{"-", "0.8419425882302402`"}], ",", 
-                          RowBox[{"-", "0.9289801951873631`"}], ",", RowBox[
-                          {"-", "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]}]}], 
-                  "\[RightAssociation]"}]], "Output", CellLabel -> "Out[1]=", 
-               CellID -> 133266929, ExpressionUUID -> 
-                "852fbc23-de69-4d6b-8322-2ef70ef97961"]}, Open]]}, Open]], 
-        Cell[CellGroupData[{Cell[BoxData[InterpretationBox[
-              Cell["Properties & Relations", "ExampleSection", 
-               ExpressionUUID -> "4f4cc381-f91b-43ea-9677-1bd67ace9fe1"], 
-              $Line = 0; ]], "ExampleSection", CellID -> 160637484, 
-            ExpressionUUID -> "14296f5c-5172-4102-8417-d179539ef462"], 
-           Cell["TensorNetworkContract is the \"Inactive\" -> False shortcut \
-for TensorNetworkContraction. The two forms agree once the inactive result is \
-activated:", "ExampleText", CellID -> 175797813, ExpressionUUID -> 
-             "975ee6ca-0e50-4091-9b10-a1af64b9c1c7"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[
-                   {"TensorNetworkContract", "[", "tn", "]"}], " ", "===", 
-                  " ", RowBox[{"ActivateTensors", "[", RowBox[
-                     {"TensorNetworkContraction", "[", "tn", "]"}], "]"}]}]], 
-               "Input", CellLabel -> "In[1]:=", CellID -> 946322640, 
-               ExpressionUUID -> "89b4a27c-2109-436c-baf2-784e3c694e8a"], 
-              Cell[BoxData["True"], "Output", CellLabel -> "Out[1]=", 
-               CellID -> 133266929, ExpressionUUID -> 
-                "0f2dada8-8d34-472a-b448-81300cdc6826"]}, Open]], 
-           Cell[BoxData[InterpretationBox[Cell["\t", "ExampleDelimiter", 
-               ExpressionUUID -> "8db5e098-f25d-4ced-95e4-04de2014123d"], 
-              $Line = 0; ]], "ExampleDelimiter", CellID -> 367562884, 
-            ExpressionUUID -> "b2b3f439-c4a0-410c-8c52-10574a03669f"], 
-           Cell["Passing \"Inactive\" -> True recovers \
-TensorNetworkContraction's behavior:", "ExampleText", CellID -> 260645513, 
-            ExpressionUUID -> "478ce1e7-3a18-4c50-9fea-6e2ad8086b60"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[
-                   {"TensorNetworkContract", "[", RowBox[{"tn", ",", " ", 
-                      RowBox[{"\"Inactive\"", " ", "->", " ", "True"}]}], 
-                    "]"}], " ", "===", " ", RowBox[
-                   {"TensorNetworkContraction", "[", "tn", "]"}]}]], "Input", 
-               CellLabel -> "In[2]:=", CellID -> 443089438, ExpressionUUID -> 
-                "bf5eaf65-f33a-416c-92b1-f8d192200ef9"], Cell[BoxData[
-                "True"], "Output", CellLabel -> "Out[2]=", CellID -> 
-                273965426, ExpressionUUID -> 
-                "0d1bd327-d7f3-492c-a011-6c4faf886941"]}, Open]], 
-           Cell[BoxData[InterpretationBox[Cell["\t", "ExampleDelimiter", 
-               ExpressionUUID -> "19b8a44a-4d4e-4177-85ba-4c7390d3a3da"], 
-              $Line = 0; ]], "ExampleDelimiter", CellID -> 755960541, 
-            ExpressionUUID -> "e1f01088-fced-4027-8f8e-53f27d83724c"], 
-           Cell["Passing \"Greedy\" as the path is equivalent to wrapping the \
-greedy path explicitly:", "ExampleText", CellID -> 208976091, 
-            ExpressionUUID -> "62bf34d2-de6c-46d5-b1df-5d5c6a93bacb"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[
-                   {"TensorNetworkContract", "[", RowBox[{"tn", ",", " ", 
-                      "\"Greedy\""}], "]"}], " ", "===", " ", RowBox[
-                   {"TensorNetworkContract", "[", RowBox[{"tn", ",", " ", 
-                      RowBox[{"GreedyContractionPath", "[", "tn", "]"}]}], 
-                    "]"}]}]], "Input", CellLabel -> "In[3]:=", CellID -> 
-                155554451, ExpressionUUID -> 
-                "d5e717d5-1bd4-4073-bbb7-671e406fbc07"], Cell[BoxData[
-                "True"], "Output", CellLabel -> "Out[3]=", CellID -> 
-                453306760, ExpressionUUID -> 
-                "1690feaa-1599-4394-b4b8-c7d9886c3113"]}, Open]]}, Open]], 
-        Cell[CellGroupData[{Cell[BoxData[InterpretationBox[
-              Cell["Possible Issues", "ExampleSection", ExpressionUUID -> 
-                "76408935-9d64-482e-863a-5af9f330eefe"], $Line = 0; ]], 
-            "ExampleSection", CellID -> 755960541, ExpressionUUID -> 
-             "b2cc7806-bfb4-467c-b054-4b5145ee43be"], Cell["Earlier paclet \
-versions hit $RecursionLimit when contracting via the \"TableSum\" engine \
-through TensorNetworkContract end-to-end (audit issue #6). The current \
-implementation has fixed this and all five engines listed in \
-$TensorNetworkContractionMethods work directly:", "ExampleText", 
-            CellID -> 175797813, ExpressionUUID -> 
-             "9d52f215-d541-4a4d-8250-1ec6cc16658f"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{"TensorNetworkContract", 
-                  "[", RowBox[{"tn", ",", " ", RowBox[{"Method", " ", "->", 
-                      " ", "\"TableSum\""}]}], "]"}]], "Input", CellLabel -> 
-                "In[1]:=", CellID -> 946322640, ExpressionUUID -> 
-                "330b02f5-95ed-46a0-b95c-ff625e8d0742"], Cell[BoxData[
-                RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                     {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], ",", 
-                        "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                        "0.22112338506591975`", ",", 
-                        "0.17904432546436433`"}], "}"}], ",", RowBox[
-                     {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], ",", 
-                        RowBox[{"-", "0.8419425882302402`"}], ",", RowBox[
-                         {"-", "0.9289801951873631`"}], ",", RowBox[{"-", 
-                          "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-               "Output", CellLabel -> "Out[1]=", CellID -> 133266929, 
-               ExpressionUUID -> "5be71cd2-d43a-4441-a2a2-1dcb6bd82b2b"]}, 
-             Open]], Cell[BoxData[InterpretationBox[Cell["\t", 
-               "ExampleDelimiter", ExpressionUUID -> 
-                "f5232db0-8fca-45b4-badf-64290a83b543"], $Line = 0; ]], 
-            "ExampleDelimiter", CellID -> 367562884, ExpressionUUID -> 
-             "98240a2a-d413-4ffa-81d0-6e41eabb28f4"], Cell["If a regression \
-reintroduces the recursion, the documented workaround is to call \
-TensorNetworkContraction with the same option and then apply ActivateTensors \
-explicitly:", "ExampleText", CellID -> 260645513, ExpressionUUID -> 
-             "54bdf29e-8f83-45aa-bca0-17547cfa336a"], 
-           Cell[CellGroupData[{Cell[BoxData[RowBox[{"ActivateTensors", "[", 
-                  RowBox[{"TensorNetworkContraction", "[", RowBox[{"tn", ",", 
-                      " ", RowBox[{"Method", " ", "->", " ", 
-                        "\"TableSum\""}]}], "]"}], "]"}]], "Input", 
-               CellLabel -> "In[2]:=", CellID -> 443089438, ExpressionUUID -> 
-                "a4927232-8e2a-4c92-837f-b96c462db51c"], Cell[BoxData[
-                RowBox[{"{", RowBox[{RowBox[{"{", RowBox[{RowBox[{"-", 
-                          "0.18810123590564354`"}], ",", RowBox[{"-", 
-                          "0.1375639713603935`"}], ",", RowBox[{"-", 
-                          "0.3280643531856991`"}], ",", RowBox[{"-", 
-                          "0.15160530546957365`"}], ",", RowBox[{"-", 
-                          "0.11297295531983972`"}]}], "}"}], ",", RowBox[
-                     {"{", RowBox[{RowBox[{"-", "0.3877929572240193`"}], ",", 
-                        "0.4698938521482284`", ",", RowBox[{"-", 
-                          "0.5314057435325985`"}], ",", 
-                        "0.22112338506591975`", ",", 
-                        "0.17904432546436433`"}], "}"}], ",", RowBox[
-                     {"{", RowBox[{RowBox[{"-", "1.3287180291671077`"}], ",", 
-                        RowBox[{"-", "0.8419425882302402`"}], ",", RowBox[
-                         {"-", "0.9289801951873631`"}], ",", RowBox[{"-", 
-                          "0.34719827385535224`"}], ",", RowBox[{"-", 
-                          "0.06822166097180982`"}]}], "}"}]}], "}"}]], 
-               "Output", CellLabel -> "Out[2]=", CellID -> 273965426, 
-               ExpressionUUID -> "ffc1444f-3c7a-484e-9663-9648824baff0"]}, 
-             Open]]}, Open]], Cell[BoxData[InterpretationBox[
-           Cell["Interactive Examples", "ExampleSection", ExpressionUUID -> 
-             "83204e32-2005-4458-87e9-4048d70d5672"], $Line = 0; ]], 
-         "ExampleSection", CellID -> 208976091, ExpressionUUID -> 
-          "df82ad76-9fa9-413c-9f08-5b87f068cc5f"], 
-        Cell[BoxData[InterpretationBox[Cell["Neat Examples", 
-            "ExampleSection", ExpressionUUID -> 
-             "ef6f8130-26e7-4b1a-8395-0aa47e0441ad"], $Line = 0; ]], 
-         "ExampleSection", CellID -> 155554451, ExpressionUUID -> 
-          "432b75a8-521c-4e7f-8f48-0ead8e8d9490"]}, Open]], 
-     Cell[CellGroupData[{Cell["Metadata", "MetadataSection", 
-         CellID -> 980272223, ExpressionUUID -> 
-          "229b59a9-198b-490f-a6c0-676e53a19378"], 
-        Cell[TextData[{"New in: ", Cell["1.0", "HistoryData", 
-            CellTags -> "New", ExpressionUUID -> 
-             "ca4475a0-9623-4f22-9604-21112d814fce"], " | Modified in: ", 
-           Cell[" ", "HistoryData", CellTags -> "Modified", 
-            ExpressionUUID -> "2bac4714-c986-4371-8b78-5eaf111b36a1"], 
-           " | Obsolete in: ", Cell[" ", "HistoryData", CellTags -> 
-             "Obsolete", ExpressionUUID -> 
-             "6d51bbd6-7042-4c66-b74f-22185a06f040"]}], "History", 
-         CellID -> 160637484, ExpressionUUID -> 
-          "920eb0b4-8baf-440a-97b1-b344e3937253"], 
-        Cell[CellGroupData[{Cell[TextData[{"Categorization", Cell[BoxData[
-                TemplateBox[{"Metadata", Cell[BoxData[FrameBox[Cell["Metadata \
-such as page URI, context, and type of documentation page.", "MoreInfoText"], 
-                     BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]}, 
-                 "MoreInfoOpenerButtonTemplate"]], ExpressionUUID -> 
-                "330f2f08-28d7-4c95-957e-4a9fc61c5538"]}], 
-            "CategorizationSection", CellID -> 680228926, ExpressionUUID -> 
-             "fd4affa5-265c-49db-8bf0-f3cccda02fd8"], Cell["Symbol", 
-            "Categorization", CellLabel -> "Entity Type", 
-            CellID -> 256663337, ExpressionUUID -> 
-             "4d79af30-6c80-4116-bca6-ad4b3c6cceda"], 
-           Cell["Wolfram/TensorNetworks", "Categorization", 
-            CellLabel -> "Paclet Name", CellID -> 602695077, 
-            ExpressionUUID -> "c267243a-e6ae-4988-bfc0-6002b9258fce"], 
-           Cell["Wolfram`TensorNetworks`", "Categorization", 
-            CellLabel -> "Context", CellID -> 146264134, ExpressionUUID -> 
-             "b04ba034-ed72-4ad2-a0c3-3eb0211ca4e0"], 
-           Cell["Wolfram/TensorNetworks/ref/TensorNetworkContract", 
-            "Categorization", CellLabel -> "URI", CellID -> 371350627, 
-            ExpressionUUID -> "f225d948-ce7f-41ff-b01b-3cf1e02f4835"]}, 
-          Closed]], Cell[CellGroupData[{Cell["Keywords", "KeywordsSection", 
-            CellID -> 581968835, ExpressionUUID -> 
-             "5e991cb9-1c34-43d9-8465-787db72ac01d"], Cell["tensor network", 
-            "Keywords", CellID -> 417837591, ExpressionUUID -> 
-             "02393c09-5b99-476f-b6d0-633ef469f980"], Cell["contraction", 
-            "Keywords", CellID -> 248274481, ExpressionUUID -> 
-             "7e76d39f-2eb2-4118-b9c0-1e9c572df193"], Cell["evaluate", 
-            "Keywords", CellID -> 743845955, ExpressionUUID -> 
-             "9106a64a-4984-49e2-a0e8-518d1114949f"], Cell["einsum", 
-            "Keywords", CellID -> 182786540, ExpressionUUID -> 
-             "eccb64ce-4803-4e10-a64f-7931d3627a67"], 
-           Cell["contraction path", "Keywords", CellID -> 888525662, 
-            ExpressionUUID -> "faadf951-889a-452d-ba80-e96f6acc887d"], 
-           Cell["binary contraction", "Keywords", CellID -> 856527812, 
-            ExpressionUUID -> "5c2d21a2-e94a-4c48-9319-54efb504feb2"], 
-           Cell["TensorContract", "Keywords", CellID -> 969830806, 
-            ExpressionUUID -> "e1647032-0f3e-4931-9f63-8ace0124bcfa"], 
-           Cell["TensorProduct", "Keywords", CellID -> 428417899, 
-            ExpressionUUID -> "c832bc51-516f-425c-8085-29c2186f12ac"], 
-           Cell["EinsteinSummation", "Keywords", CellID -> 482143966, 
-            ExpressionUUID -> "a1513f2b-1207-4332-b916-5cd49a4e7d0c"], 
-           Cell["opt_einsum", "Keywords", CellID -> 767322856, 
-            ExpressionUUID -> "0e1bdf86-3dbe-4d2f-970d-7a2684596f1c"]}, 
-          Closed]], Cell[CellGroupData[{Cell["Syntax Templates", 
-            "TemplatesSection", CellID -> 838854027, ExpressionUUID -> 
-             "90538669-5ed3-4a76-a80b-1767161a236f"], Cell[BoxData[""], 
-            "Template", CellLabel -> "Additional Function Template", 
-            CellID -> 818354154, ExpressionUUID -> 
-             "494329af-5ada-4cce-8bfd-8cfab2133322"], Cell[BoxData[""], 
-            "Template", CellLabel -> "Arguments Pattern", 
-            CellID -> 272819988, ExpressionUUID -> 
-             "1ec9cc6b-3bb8-4914-bc4c-90f28a0776c3"], Cell[BoxData[""], 
-            "Template", CellLabel -> "Local Variables", CellID -> 739518966, 
-            ExpressionUUID -> "10bf9cdd-615d-4ceb-a552-e63d35dfa70f"], 
-           Cell[BoxData[""], "Template", CellLabel -> "Color Equal Signs", 
-            CellID -> 106544420, ExpressionUUID -> 
-             "d1b3db1b-e831-4838-97eb-5cf2128b9266"]}, Closed]]}, Open]]}, 
-    Open]]}, WindowSize -> {700, 770}, WindowMargins -> 
-  {{5, Automatic}, {Automatic, 0}}, TaggingRules -> 
-  <|"Paclet" -> "Wolfram/TensorNetworks"|>, CellContext -> "Global`", 
- FrontEndVersion -> "15.0 for Mac OS X ARM (64-bit) (February 17, 2026)", 
- StyleDefinitions -> FrontEnd`FileName[{"Wolfram"}, 
-   "FunctionPageStylesExt.nb", CharacterEncoding -> "UTF-8"], 
- ExpressionUUID -> "1a3c2e81-0c2b-4a97-ad40-3518089ccd4e"]
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 15.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[    100761,       2736]
+NotebookOptionsPosition[     79941,       2308]
+NotebookOutlinePosition[     80727,       2334]
+CellTagsIndexPosition[     80647,       2329]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["TensorNetworkContract", "ObjectName",
+ CellID->175797813,ExpressionUUID->"05f213aa-60b7-4a60-82fc-f8bc8b690a05"],
+
+Cell[TextData[{
+ Cell["   ", "ModInfo",ExpressionUUID->"c26b4a32-9395-496a-981e-d394bc738469"],
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["TensorNetworkContract",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"], "[", 
+   StyleBox["tn", "TI"], "]"}]], "InlineFormula",ExpressionUUID->
+  "d45951d7-82c6-43cc-9f58-0309289aa3a8"],
+ "\[LineSeparator]contracts the entire tensor network ",
+ Cell[BoxData[
+  StyleBox["tn", "TI"]], "InlineFormula",ExpressionUUID->
+  "7c3c4a15-2c1b-43a8-849b-6671c7ebd401"],
+ " to a single tensor.\n",
+ Cell["   ", "ModInfo",ExpressionUUID->"dd03c9ed-733f-4216-8589-7c9a15f1cc5e"],
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["TensorNetworkContract",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"], "[", 
+   RowBox[{
+    StyleBox["tn", "TI"], ",", 
+    StyleBox["path", "TI"]}], "]"}]], "InlineFormula",ExpressionUUID->
+  "892ca2a0-4149-4671-a8a7-836f85f4af7e"],
+ "\[LineSeparator]uses the explicit canonical contraction ",
+ Cell[BoxData[
+  StyleBox["path", "TI"]], "InlineFormula",ExpressionUUID->
+  "f8d895b6-da9e-4159-9ac5-1bfc3d6486b6"],
+ ".\n",
+ Cell["   ", "ModInfo",ExpressionUUID->"ac4d87dc-c4c3-4eea-bc0d-19f3f43d9503"],
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["TensorNetworkContract",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"], "[", 
+   RowBox[{
+    StyleBox["tn", "TI"], ",", 
+    StyleBox["\"\<method\>\"", "TI"]}], "]"}]], "InlineFormula",
+  ExpressionUUID->"3454fdfc-094f-4d9a-ab19-d26036b1f7da"],
+ "\[LineSeparator]dispatches to ",
+ Cell[BoxData[
+  ButtonBox["GreedyContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/GreedyContractionPath"]], 
+  "InlineFormula",ExpressionUUID->"fd00018a-8dfd-4a0c-8a54-99556e87724a"],
+ " or ",
+ Cell[BoxData[
+  ButtonBox["OptimalContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/OptimalContractionPath"]], 
+  "InlineFormula",ExpressionUUID->"3fa9a856-b28d-4fc5-8aed-a1bbaf339dfb"],
+ " using the named cost function.\n",
+ Cell["   ", "ModInfo",ExpressionUUID->"a2bf2541-e986-4ce2-b3bc-8b3e2b13d65c"],
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["TensorNetworkContract",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"], "[", 
+   StyleBox["graph", "TI"], "]"}]], "InlineFormula",ExpressionUUID->
+  "3397034f-f041-4d27-a9bd-329b9f30ae7a"],
+ "\[LineSeparator]works directly on a tensor-network ",
+ Cell[BoxData[
+  ButtonBox["Graph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Graph"]], "InlineFormula",ExpressionUUID->
+  "6ac6da75-dcc9-41ca-8494-1069293a46a6"],
+ " ",
+ Cell[BoxData[
+  StyleBox["graph", "TI"]], "InlineFormula",ExpressionUUID->
+  "f2fea0e7-222e-4dd5-a8c1-0f120fb83b03"],
+ ".\n",
+ Cell["   ", "ModInfo",ExpressionUUID->"2ea5eb2a-0451-4a7b-94e0-1215fa59fcd4"],
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["TensorNetworkContract",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"], "[", 
+   StyleBox["data", "TI"], "]"}]], "InlineFormula",ExpressionUUID->
+  "12e296c8-1e6e-4e69-869e-7e0b8929bc27"],
+ "\[LineSeparator]accepts the low-level ",
+ Cell[BoxData[
+  ButtonBox["Association",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Association"]], "InlineFormula",ExpressionUUID->
+  "66bae910-0cad-4b21-9f2e-820ccdf0b363"],
+ " ",
+ Cell[BoxData[
+  StyleBox["data", "TI"]], "InlineFormula",ExpressionUUID->
+  "b2302f4d-189a-440a-9c66-68d7ca75084b"],
+ " produced by ",
+ Cell[BoxData[
+  ButtonBox["TensorNetworkData",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkData"]], 
+  "InlineFormula",ExpressionUUID->"9f318fa3-b756-4e28-ab6a-f9490d19eef9"],
+ "."
+}], "Usage",
+ CellID->946322640,ExpressionUUID->"2b7cb6e4-4944-4946-a50a-2166931fdf07"],
+
+Cell["\<\
+Returns the fully evaluated tensor (the contraction result), not an Inactive \
+expression.\
+\>", "Notes",
+ CellID->133266929,ExpressionUUID->"2c463918-d42b-4cf4-b3a2-aaf1e833c7a0"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContract",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"]], 
+  "InlineFormula",ExpressionUUID->"286e1ce5-dc60-47fe-b208-ccdb3501b04b"],
+ " is the ",
+ Cell[BoxData[
+  RowBox[{
+   StyleBox["\"\<Inactive\>\"",
+    ShowStringCharacters->True], "\[Rule]", 
+   ButtonBox["False",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/False"]}]], "InlineFormula",ExpressionUUID->
+  "ef928697-43e0-4843-a947-43e759deef29"],
+ " shortcut for ",
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContraction",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContraction"]],
+   "InlineFormula",ExpressionUUID->"98e6ab05-45c2-4c5d-9d9e-9e5c205e9486"],
+ "; the two return the same value once ",
+ Cell[BoxData[
+  ButtonBox["ActivateTensors",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ActivateTensors"]], 
+  "InlineFormula",ExpressionUUID->"b4a2b287-99f8-44cc-b9af-531c3bd250c2"],
+ " is applied to the inactive form."
+}], "Notes",
+ CellID->367562884,ExpressionUUID->"302dc38b-8be4-4afc-8f74-f012a7fce055"],
+
+Cell[TextData[{
+ "When no ",
+ Cell[BoxData[
+  StyleBox["path", "TI"]], "InlineFormula",ExpressionUUID->
+  "98f75d96-f84d-4da6-a064-9c0c9a54c8d0"],
+ " is supplied, the contraction is delegated to ",
+ Cell[BoxData[
+  ButtonBox["EinsteinSummation",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/EinsteinSummation"]], "InlineFormula",
+  ExpressionUUID->"76a5e124-2b4d-40cd-8f58-83a258f37b55"],
+ " on the network's indices and tensors. To use a search-derived path, pass \
+it explicitly or use the ",
+ Cell[BoxData[
+  StyleBox["\"\<method\>\"", "TI"]], "InlineFormula",ExpressionUUID->
+  "eeafdac4-a2a3-434a-969c-3b56133c6bae"],
+ " string form."
+}], "Notes",
+ CellID->260645513,ExpressionUUID->"61c2e32f-dfd3-4faf-8bce-cd5b61f0a600"],
+
+Cell[TextData[{
+ "When ",
+ Cell[BoxData[
+  StyleBox["path", "TI"]], "InlineFormula",ExpressionUUID->
+  "f9871b5d-ab10-49f1-abd5-f346d7b7e442"],
+ " is a string, it dispatches as follows: ",
+ Cell[BoxData[
+  StyleBox["\"\<Greedy\>\"",
+   ShowStringCharacters->True]], "InlineFormula",ExpressionUUID->
+  "0e38d624-51dd-4f9c-bf99-d33a55752118"],
+ " calls ",
+ Cell[BoxData[
+  ButtonBox["GreedyContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/GreedyContractionPath"]], 
+  "InlineFormula",ExpressionUUID->"87852a6b-dfe1-4d5d-82e0-0d9bab34e674"],
+ "; ",
+ Cell[BoxData[
+  StyleBox["\"\<Optimal\>\"",
+   ShowStringCharacters->True]], "InlineFormula",ExpressionUUID->
+  "baa8f646-0763-42bd-8451-016a03d4f0d1"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["\"\<flops\>\"",
+   ShowStringCharacters->True]], "InlineFormula",ExpressionUUID->
+  "70f7d97d-c674-406c-ab76-f786c3d0bf70"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["\"\<max\>\"",
+   ShowStringCharacters->True]], "InlineFormula",ExpressionUUID->
+  "d847df6f-9211-4ca2-8bf8-bebefcf28240"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["\"\<size\>\"",
+   ShowStringCharacters->True]], "InlineFormula",ExpressionUUID->
+  "4eac95fc-3dab-40c1-aabd-a1218e754242"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["\"\<write\>\"",
+   ShowStringCharacters->True]], "InlineFormula",ExpressionUUID->
+  "ac6d39d7-6e94-4d75-8a98-016ec9a53281"],
+ ", ",
+ Cell[BoxData[
+  StyleBox["\"\<combo\>\"",
+   ShowStringCharacters->True]], "InlineFormula",ExpressionUUID->
+  "1e48c9c0-2af6-4a20-9724-0110446aea1e"],
+ ", or ",
+ Cell[BoxData[
+  StyleBox["\"\<limit\>\"",
+   ShowStringCharacters->True]], "InlineFormula",ExpressionUUID->
+  "b03230a1-7f9f-4537-9ef4-7ae02d2e896e"],
+ " call ",
+ Cell[BoxData[
+  ButtonBox["OptimalContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/OptimalContractionPath"]], 
+  "InlineFormula",ExpressionUUID->"c6ac2fba-c200-4818-b524-cc3945646a43"],
+ " with the corresponding cost function."
+}], "Notes",
+ CellID->443089438,ExpressionUUID->"f69434dc-9a9d-45ee-bb40-bda1d6305da6"],
+
+Cell[TextData[{
+ "When the network has a hyper-edge (an index shared by three or more \
+tensors), ",
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContract",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"]], 
+  "InlineFormula",ExpressionUUID->"54a1fe92-3594-42b3-86b7-fa9c732b6b58"],
+ " first calls ",
+ Cell[BoxData[
+  ButtonBox["BinaryTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/BinaryTensorNetwork"]], 
+  "InlineFormula",ExpressionUUID->"aaa0c106-f752-4011-9ade-026252632a29"],
+ " to insert copy tensors and reduce the network to pairwise edges before \
+contracting."
+}], "Notes",
+ CellID->273965426,ExpressionUUID->"8b4178e5-d2de-4ef6-9cef-48b33d83c748"],
+
+Cell["The following options can be given:", "Notes",
+ CellID->755960541,ExpressionUUID->"f450fd0f-23bb-41ed-b2f2-80e8e41bad54"],
+
+Cell[BoxData[GridBox[{
+   {Cell["   ", "ModInfo",ExpressionUUID->
+     "74c0d63e-6978-4643-8e10-4707235b4ea5"], Cell[BoxData[
+     ButtonBox["Method",
+      BaseStyle->"Link",
+      ButtonData->"paclet:ref/Method"]], "TableText",ExpressionUUID->
+     "e813fd56-1c67-4d7c-8b8f-254b6c44ff33"], Cell[BoxData[
+     StyleBox["\"\<ArrayDot\>\"",
+      ShowStringCharacters->True]], "TableText",ExpressionUUID->
+     "81d931cc-4966-437e-8545-237cf8b27d14"], Cell[TextData[{
+     "binary-contraction engine; one of ",
+     Cell[BoxData[
+      ButtonBox["$TensorNetworkContractionMethods",
+       BaseStyle->"Link",
+       ButtonData->
+        "paclet:Wolfram/TensorNetworks/ref/$TensorNetworkContractionMethods"]]\
+, "InlineFormula",ExpressionUUID->"33e6dfeb-3ccd-40d4-856c-166ff6484a38"],
+     "."
+    }], "TableText",ExpressionUUID->"b82ea13f-0bba-463a-b528-995ddd893254"]},
+   {Cell["   ", "ModInfo",ExpressionUUID->
+     "ea51220f-b3ef-4ac0-894a-1b1b63f28db0"], Cell[BoxData[
+     StyleBox["\"\<Inactive\>\"",
+      ShowStringCharacters->True]], "TableText",ExpressionUUID->
+     "95610d5b-c146-4fd2-994f-6682fd2b9946"], Cell[BoxData[
+     ButtonBox["False",
+      BaseStyle->"Link",
+      ButtonData->"paclet:ref/False"]], "TableText",ExpressionUUID->
+     "6ded2aa9-1f47-471d-ad89-918597883c6f"], Cell[TextData[{
+     "when ",
+     Cell[BoxData[
+      ButtonBox["True",
+       BaseStyle->"Link",
+       ButtonData->"paclet:ref/True"]], "InlineFormula",ExpressionUUID->
+      "993ecf95-b2a9-461b-8912-04d1995821af"],
+     ", return an ",
+     Cell[BoxData[
+      ButtonBox["Inactive",
+       BaseStyle->"Link",
+       ButtonData->"paclet:ref/Inactive"]], "InlineFormula",ExpressionUUID->
+      "85364a57-8a07-47e9-b007-6460566bbcbc"],
+     " expression instead of evaluating (matches ",
+     Cell[BoxData[
+      ButtonBox["TensorNetworkContraction",
+       BaseStyle->"Link",
+       ButtonData->
+        "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContraction"]], 
+      "InlineFormula",ExpressionUUID->"9f2c7022-5daa-4967-b470-7b70078d1469"],
+     
+     ")."
+    }], "TableText",ExpressionUUID->"05044405-d8e0-4e7d-8fe4-df1a6b5791d0"]},
+   {Cell["   ", "ModInfo",ExpressionUUID->
+     "d15c49d8-8145-481e-a8a4-f0e9af9ad523"], Cell[BoxData[
+     StyleBox["\"\<TransposeFunction\>\"",
+      ShowStringCharacters->True]], "TableText",ExpressionUUID->
+     "812ee171-b9e1-4a09-ab51-d6ad6ccd4a39"], Cell[BoxData[
+     ButtonBox["Transpose",
+      BaseStyle->"Link",
+      ButtonData->"paclet:ref/Transpose"]], "TableText",ExpressionUUID->
+     "2ae2b965-f79a-4d24-ae7e-ced8d76b9bce"], Cell[
+    "primitive used for the final permutation of free indices.", "TableText",
+     ExpressionUUID->"a3fcd8d9-e882-4a61-a188-268f6c744a1b"]}
+  }]], "3ColumnTableMod",
+ CellID->208976091,ExpressionUUID->"fdc160fb-1f83-46c1-9cc8-f66f62ed777e"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "See Also",
+ Cell[BoxData[
+  TemplateBox[{"SeeAlso", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Insert links to any related reference (function) pages.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "4471f31c-a186-4cff-9d3c-5ba637e8dc6a"]
+}], "SeeAlsoSection",
+ CellID->155554451,ExpressionUUID->"3edb5bbb-d7b2-42fe-8337-29f6d5ceb3bc"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContraction",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContraction"]],
+   "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "b8ab0ac3-9edf-449e-bdc0-182c6dc83e90"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["ActivateTensors",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/ActivateTensors"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "f4bb7270-dfc5-4da4-b154-cbf46e74acf9"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["$TensorNetworkContractionMethods",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/$TensorNetworkContractionMethods"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "e2badd11-6868-4d28-8ea3-ad3f1ae33262"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["OptimalContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/OptimalContractionPath"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "d2278ea6-af57-49b2-befc-6e22a5b68b30"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["GreedyContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/GreedyContractionPath"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "8582cd2b-b477-4959-b839-cc3002b4b6aa"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["BinaryTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/BinaryTensorNetwork"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "a63325d3-0989-460d-934d-b2c252885d87"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["ContractionTree",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ContractionTree"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "b226e754-38c2-4249-a8cb-c30cb44f1c37"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["EinsteinSummation",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/EinsteinSummation"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "4525efe2-87a5-4dbf-a4cb-0f2f742d771a"]
+}], "SeeAlso",
+ CellID->453306760,ExpressionUUID->"9e2efb8c-297e-4d42-a75b-6784e803b19f"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Tech Notes",
+ Cell[BoxData[
+  TemplateBox[{"TechNotes", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell["Insert links to related tech notes.", "MoreInfoText"], BaseStyle -> 
+       "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "2fb3a993-ca36-4170-986b-a02719280c19"]
+}], "TechNotesSection",
+ CellID->160637484,ExpressionUUID->"9f840624-6c96-4a00-840d-94b53111e833"],
+
+Cell[TextData[ButtonBox["Contraction Paths and Execution",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/ContractionPathsAndExecution"]], \
+"Tutorials",
+ CellID->680228926,ExpressionUUID->"99bc879a-8cb8-4f17-958f-38c87ba03839"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Related Guides", "MoreAboutSection",
+ CellID->256663337,ExpressionUUID->"5e16cf4e-ae78-45cf-bb02-180502661ec4"],
+
+Cell[TextData[ButtonBox["TensorNetworks Package",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/guide/TensorNetworks"]], "MoreAbout",
+ CellID->602695077,ExpressionUUID->"950e20eb-54f0-44e8-a08a-4771dba76e0d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Related Links",
+ Cell[BoxData[
+  TemplateBox[{"RelatedLinks", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Insert links to any related page, including web pages.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "610631a6-bb19-49e2-8c6d-19cce7ba8327"]
+}], "RelatedLinksSection",
+ CellID->146264134,ExpressionUUID->"fc454325-6152-404a-87cb-cea8eff3ce43"],
+
+Cell[" ", "RelatedLinks",
+ CellID->371350627,ExpressionUUID->"c2bf11c6-5d7f-4072-a05b-0b527462715e"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Examples Initialization",
+ Cell[BoxData[
+  TemplateBox[{"ExamplesInitialization", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Input that is to be evaluated before any examples are run, e.g. \
+Needs[\[Ellipsis]].", "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
+     "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "9a4cc069-9f16-4a0d-ba04-e2a20e37dcd5"]
+}], "ExamplesInitializationSection",
+ CellID->581968835,ExpressionUUID->"ba77ad10-c6a8-4878-9763-222bf7137587"],
+
+Cell[BoxData[
+ RowBox[{"Needs", "[", "\"\<Wolfram`TensorNetworks`\>\"", 
+  "]"}]], "ExampleInitialization",
+ CellID->417837591,ExpressionUUID->"c6ea73d4-54ee-46ea-adee-40f3c43e230e"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[GridBox[{
+    {
+     StyleBox[
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+     ButtonBox[
+      RowBox[{
+       RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
+      BaseStyle->"ExtendedExamplesLink",
+      ButtonData:>"ExtendedExamples"]}
+   }],
+  $Line = 0; Null]], "PrimaryExamplesSection",
+ CellID->248274481,ExpressionUUID->"2de6a648-d56a-4575-bf13-6f069e73a4fa"],
+
+Cell["\<\
+Contract a two-tensor network into a single tensor. Without a path argument \
+the contraction is delegated to EinsteinSummation:\
+\>", "ExampleText",
+ CellID->175797813,ExpressionUUID->"b4cc7264-89c5-4c69-882e-303c0db8b2e7"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"A", " ", "=", " ", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", " ", "4"}], "}"}]}], "]"}]}], ";", " ", 
+  RowBox[{"B", " ", "=", " ", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"4", ",", " ", "5"}], "}"}]}], "]"}]}], ";", " ", 
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->658998519,ExpressionUUID->"6a228557-8bc5-4982-aca7-05951660863d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkContract", "[", "tn", "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->175797813,ExpressionUUID->"3c82ba20-c554-49bf-ba25-f76ab52594f1"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[2]=",
+ CellID->946322640,ExpressionUUID->"657386a9-ed91-477a-84b5-3a023e94db32"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "2acd8973-7e6c-4168-bfac-f0d38fe0b9f9"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->133266929,ExpressionUUID->"49a1070b-11ca-4513-b856-bb400ed235a9"],
+
+Cell["Contract using an explicit canonical path:", "ExampleText",
+ CellID->367562884,ExpressionUUID->"2d8ccd6b-0700-4ffc-8f73-eff012e34158"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", 
+   RowBox[{"{", 
+    RowBox[{"{", 
+     RowBox[{"1", ",", " ", "2"}], "}"}], "}"}]}], "]"}]}], "Input",
+ CellLabel->"In[1]:=",
+ CellID->260645513,ExpressionUUID->"14a275c2-5288-4d82-8522-6e702b9f312c"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->443089438,ExpressionUUID->"232870ee-9f27-4555-afb3-e65cae9475d6"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "95b51f39-0f3f-486a-b883-3d75af654eff"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->273965426,ExpressionUUID->"c95dacd5-df63-4cda-a31c-5f16b4caffe4"],
+
+Cell["\<\
+Use a path-as-method-string shortcut to dispatch to GreedyContractionPath:\
+\>", "ExampleText",
+ CellID->755960541,ExpressionUUID->"fa924642-ecc2-4df0-bf56-f9d64862867a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", "\"\<Greedy\>\""}], "]"}]}], "Input",
+ CellLabel->"In[1]:=",
+ CellID->833714920,ExpressionUUID->"fa3b6491-e950-4598-9012-69fa8db04edb"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->237467766,ExpressionUUID->"95659100-65c7-4ed3-b62b-367977d58264"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "More Examples",
+ Cell[BoxData[
+  TemplateBox[{"MoreExamples", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell["Extended examples in standardized sections.", "MoreInfoText"], 
+       BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "1033dcd2-51b8-4d0b-89f2-46d6dc97aa42"]
+}], "ExtendedExamplesSection",
+ CellTags->"ExtendedExamples",
+ CellID->453306760,ExpressionUUID->"5b8d20ef-2b89-4d17-b697-3a06f7d65937"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Scope", "ExampleSection",ExpressionUUID->
+   "aafa67b1-f003-441a-b5e6-e8dc6df844af"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->98618060,ExpressionUUID->"2cce1f83-ae46-4bee-ba8f-e5e9ee77ed65"],
+
+Cell[CellGroupData[{
+
+Cell["Input forms", "ExampleSubsection",
+ CellID->256663337,ExpressionUUID->"15972ef0-c62f-464e-a705-348ba8767e53"],
+
+Cell["The default first argument is a TensorNetwork:", "ExampleText",
+ CellID->175797813,ExpressionUUID->"a4c524fa-1e3b-4572-a3ab-5f3d11a93ce0"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", "tn", "]"}]}], "Input",
+ CellLabel->"In[1]:=",
+ CellID->946322640,ExpressionUUID->"ed324fe3-3e9b-4492-ac20-ad6a475343a7"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->133266929,ExpressionUUID->"ded80b43-58b3-4d5b-bcd7-29e068260b91"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "8596a96a-abf6-4dcb-ac92-b618f41d7ada"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->367562884,ExpressionUUID->"59042144-5207-46dd-a3da-b472ea58d5ef"],
+
+Cell["\<\
+Tensor-network Graph objects (produced by ToTensorNetworkGraph) are accepted \
+directly:\
+\>", "ExampleText",
+ CellID->260645513,ExpressionUUID->"2abfa1fc-9b31-46d6-9c2c-782711d6f0bf"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"g", " ", "=", " ", 
+  RowBox[{"ToTensorNetworkGraph", "[", "tn", "]"}]}]}], "Input",
+ CellLabel->"In[2]:=",
+ CellID->443089438,ExpressionUUID->"d9012bef-59bc-443e-801a-18957dad5b71"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkContract", "[", "g", "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->273965426,ExpressionUUID->"02ac0d6f-4805-4540-b442-4eddca030617"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[3]=",
+ CellID->755960541,ExpressionUUID->"d023111a-8a47-4cf7-9691-89594e8f77ed"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "49cfe0ef-3b32-4384-aec5-8c0bf1bc6d43"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->208976091,ExpressionUUID->"f02198a3-2275-45dd-ab37-4a1db54333c8"],
+
+Cell["\<\
+The low-level Association form, as produced by TensorNetworkData, is also \
+accepted:\
+\>", "ExampleText",
+ CellID->155554451,ExpressionUUID->"a67c3734-419a-4761-8a07-d39a96f80d30"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"data", " ", "=", " ", 
+  RowBox[{"TensorNetworkData", "[", "tn", "]"}]}]}], "Input",
+ CellLabel->"In[4]:=",
+ CellID->453306760,ExpressionUUID->"2b9ec094-4fa6-4dc7-b8e2-daaaf8b5befe"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkContract", "[", "data", "]"}]], "Input",
+ CellLabel->"In[5]:=",
+ CellID->160637484,ExpressionUUID->"cb13e4ba-9747-49e2-b0cc-3e6c3b0d5230"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[5]=",
+ CellID->680228926,ExpressionUUID->"ba3dc6a3-96aa-4637-80b0-a5f6dada05c1"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Path forms", "ExampleSubsection",
+ CellID->371350627,ExpressionUUID->"5c18cbec-a277-4859-a5f4-fc89636767f4"],
+
+Cell["\<\
+When the path argument is omitted, the contraction is delegated to \
+EinsteinSummation:\
+\>", "ExampleText",
+ CellID->175797813,ExpressionUUID->"e6c4ce5a-75b4-4d5a-bad7-1a9360cc789b"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", "tn", "]"}]}], "Input",
+ CellLabel->"In[1]:=",
+ CellID->946322640,ExpressionUUID->"2c561774-50fb-4ac2-b0f5-f8785cc7efd9"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->133266929,ExpressionUUID->"732d2f30-6979-4937-9f48-9e164917da49"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "a7a09add-8a30-4a5b-99e9-2597386f88ad"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->367562884,ExpressionUUID->"129dfac0-b1d0-4f40-af04-935dab2cf093"],
+
+Cell["\<\
+An explicit canonical path is a list of integer pairs in opt_einsum \
+convention:\
+\>", "ExampleText",
+ CellID->260645513,ExpressionUUID->"23022784-d778-4714-b0f4-092a677d32e8"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"path", " ", "=", " ", 
+  RowBox[{"GreedyContractionPath", "[", "tn", "]"}]}]}], "Input",
+ CellLabel->"In[2]:=",
+ CellID->443089438,ExpressionUUID->"684d1030-2fed-4146-8a91-8c43db1ec4b8"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", "path"}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->273965426,ExpressionUUID->"1b5b1e61-0263-45d3-86a4-de93ccc70b5c"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[3]=",
+ CellID->755960541,ExpressionUUID->"707557b9-1f29-44fd-b354-8cd2d22dca99"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "39ca4619-b634-47c6-8251-510306c9b65f"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->208976091,ExpressionUUID->"6da4610f-c448-48f0-8d7d-a58bf27ee738"],
+
+Cell["\<\
+Pass a cost-function string to dispatch to OptimalContractionPath under the \
+hood:\
+\>", "ExampleText",
+ CellID->155554451,ExpressionUUID->"3effd878-46ca-438e-a2fb-37770caecce2"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", "\"\<flops\>\""}], "]"}]}], "Input",
+ CellLabel->"In[4]:=",
+ CellID->453306760,ExpressionUUID->"8390ccc5-afa7-4b53-8b8a-4a6df51bee60"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[4]=",
+ CellID->160637484,ExpressionUUID->"b8092e4d-5b64-4537-8175-f89edd01415f"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "6fb6b789-ab97-465c-90b1-a6e120f22168"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->680228926,ExpressionUUID->"d73ca2e7-674b-4379-ba34-c5679a23d743"],
+
+Cell["Pass \"Greedy\" to use GreedyContractionPath instead:", "ExampleText",
+ CellID->256663337,ExpressionUUID->"3f37367b-4204-4c23-a725-ec4f2092e262"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", "\"\<Greedy\>\""}], "]"}]}], "Input",
+ CellLabel->"In[5]:=",
+ CellID->602695077,ExpressionUUID->"d40d2d28-5e2c-4a0d-a4e2-f946770f2c0d"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[5]=",
+ CellID->146264134,ExpressionUUID->"038318fe-dfb8-419e-9c8b-2f3884441fcf"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Engines", "ExampleSubsection",
+ CellID->146264134,ExpressionUUID->"fcd76768-9e73-4349-8649-948bf6730ae5"],
+
+Cell["\<\
+All five engines in $TensorNetworkContractionMethods produce the same value \
+to machine precision. The default is \"ArrayDot\":\
+\>", "ExampleText",
+ CellID->175797813,ExpressionUUID->"34537b7b-a929-4ce6-9682-174332e9f173"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", 
+   RowBox[{"Method", " ", "->", " ", "\"\<ArrayDot\>\""}]}], "]"}]}], "Input",\
+
+ CellLabel->"In[1]:=",
+ CellID->946322640,ExpressionUUID->"a4e3273f-6916-4a33-850d-6957aeceaa58"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->133266929,ExpressionUUID->"eddf97df-11a2-4b25-95c3-185cc3970ea0"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "2832b617-fdef-40c0-917d-5a8da85da508"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->367562884,ExpressionUUID->"6ffca3a5-7c77-4ad4-9018-30abe8040451"],
+
+Cell["\<\
+The \"TensorContract\" engine routes through Wolfram Language's built-in \
+TensorContract:\
+\>", "ExampleText",
+ CellID->260645513,ExpressionUUID->"acbb3f9a-9988-4365-a40e-8eaa1d600360"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", 
+   RowBox[{"Method", " ", "->", " ", "\"\<TensorContract\>\""}]}], 
+  "]"}]}], "Input",
+ CellLabel->"In[2]:=",
+ CellID->443089438,ExpressionUUID->"38b63024-57a3-4b52-b304-62792018d427"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[2]=",
+ CellID->273965426,ExpressionUUID->"5fe26d7c-3f5f-4e66-be42-a8dffdfb807d"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "64e8f472-e984-4dbe-92db-66c55596ec49"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->755960541,ExpressionUUID->"f52ae9ee-4d14-4437-a2eb-9a8c5f789497"],
+
+Cell["The \"Dot\" engine reshapes pairs into matrix multiplications:", \
+"ExampleText",
+ CellID->208976091,ExpressionUUID->"97e9b226-981c-441e-95d3-16917c4666a7"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", 
+   RowBox[{"Method", " ", "->", " ", "\"\<Dot\>\""}]}], "]"}]}], "Input",
+ CellLabel->"In[3]:=",
+ CellID->155554451,ExpressionUUID->"993d2a33-6daf-4a5d-8764-98dd419513eb"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[3]=",
+ CellID->453306760,ExpressionUUID->"0de8dd63-9bac-4c5f-bf73-ef674b9176ea"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "0f41821b-2320-4bd8-b5b8-e37d4591feaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->160637484,ExpressionUUID->"4ef429c5-05c8-4ce2-98d7-8283ae8150af"],
+
+Cell["\<\
+The \"TableSum\" engine emits an explicit Table-over-Sum body, useful for \
+tracing and symbolic inspection:\
+\>", "ExampleText",
+ CellID->680228926,ExpressionUUID->"c8c10ad7-1c60-4987-8cd3-49a2771b9062"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", 
+   RowBox[{"Method", " ", "->", " ", "\"\<TableSum\>\""}]}], "]"}]}], "Input",\
+
+ CellLabel->"In[4]:=",
+ CellID->256663337,ExpressionUUID->"f1b2d286-07aa-4cf3-95a8-48ad608b8d81"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[4]=",
+ CellID->602695077,ExpressionUUID->"6fdc8cc0-ceaf-4ba9-b140-90877db559ba"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Auto-binarization", "ExampleSubsection",
+ CellID->875395060,ExpressionUUID->"8e477e2d-ce5f-4c79-8aef-499a4a1c4346"],
+
+Cell["\<\
+Hyper-edge networks (an index shared by three or more tensors) are \
+auto-binarized via BinaryTensorNetwork before contraction. Here three vectors \
+share index i:\
+\>", "ExampleText",
+ CellID->661510580,ExpressionUUID->"5daed420-3d15-473c-914c-7d1921ce1ef8"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"v", " ", "=", " ", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+     RowBox[{"{", "3", "}"}]}], "]"}]}], ";", " ", 
+  RowBox[{"w", " ", "=", " ", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+     RowBox[{"{", "3", "}"}]}], "]"}]}], ";", " ", 
+  RowBox[{"x", " ", "=", " ", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+     RowBox[{"{", "3", "}"}]}], "]"}]}], ";", " ", 
+  RowBox[{"hyper", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"v", ",", " ", "w", ",", " ", "x"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", "i", "}"}], ",", " ", 
+       RowBox[{"{", "i", "}"}], ",", " ", 
+       RowBox[{"{", "i", "}"}]}], "}"}]}], "]"}]}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->848300949,ExpressionUUID->"e4e8845f-0d36-4e01-afa3-add608ced5fc"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkContract", "[", "hyper", "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->661510580,ExpressionUUID->"9a5a967e-b36f-4cd4-83de-0f98346cb7f2"],
+
+Cell[BoxData[
+ RowBox[{"-", "0.30006077090850625`"}]], "Output",
+ CellLabel->"Out[2]=",
+ CellID->483208377,ExpressionUUID->"46550b2c-8229-48b8-b02c-a75f4a876498"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "c0865198-11fa-4e92-97d7-d7bc63bd02c5"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->763268883,ExpressionUUID->"752a98ed-0e3a-45b9-b347-56e9cc52abfa"],
+
+Cell["\<\
+The auto-binarized network is equivalent to inserting a 3-way copy tensor and \
+pairwise-contracting:\
+\>", "ExampleText",
+ CellID->365919070,ExpressionUUID->"6152d443-c2c8-4e0b-a85c-3824da326df2"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"w", " ", "=", " ", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+     RowBox[{"{", "3", "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Total", "[", 
+  RowBox[{"v", "*", "w", "*", "x"}], "]"}]}], "Input",
+ CellLabel->"In[3]:=",
+ CellID->718686155,ExpressionUUID->"60d69275-27ae-4088-a8fe-a313f6416486"],
+
+Cell[BoxData[
+ RowBox[{"-", "0.30006077090850625`"}]], "Output",
+ CellLabel->"Out[3]=",
+ CellID->948838466,ExpressionUUID->"f4e7545e-5851-4e1a-b77e-6a77684d4090"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Options", "ExampleSection",ExpressionUUID->
+   "131aa92c-31cb-4155-8ca1-16133b34e3d6"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->208976091,ExpressionUUID->"5a88a735-c6c2-45e1-a37a-9d707c975f7b"],
+
+Cell[CellGroupData[{
+
+Cell["Method", "ExampleSubsection",
+ CellID->155554451,ExpressionUUID->"6c98acfd-2426-4c80-9e0a-8089389d0d67"],
+
+Cell["\<\
+Select a binary-contraction engine by name. All five engines listed in \
+$TensorNetworkContractionMethods are valid:\
+\>", "ExampleText",
+ CellID->175797813,ExpressionUUID->"1a0f5248-acc0-408f-866a-76f078de06fd"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"A", " ", "=", " ", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", " ", "4"}], "}"}]}], "]"}]}], ";", " ", 
+  RowBox[{"B", " ", "=", " ", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"4", ",", " ", "5"}], "}"}]}], "]"}]}], ";", " ", 
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->658998519,ExpressionUUID->"4366dbfd-886c-4a1c-80f4-9a26914393ca"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", 
+   RowBox[{"Method", " ", "->", " ", "\"\<Dot\>\""}]}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->175797813,ExpressionUUID->"b1081970-607d-43ee-b673-c5947bfbd72e"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[2]=",
+ CellID->946322640,ExpressionUUID->"5b2a4965-465e-4c91-9879-ce2efa3819a5"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\"Inactive\"", "ExampleSubsection",
+ CellID->453306760,ExpressionUUID->"8740e762-7d33-4e0b-b0e6-d046cefe3b2f"],
+
+Cell["\<\
+Set \"Inactive\" -> True to return an Inactive expression instead of \
+evaluating. This makes TensorNetworkContract equivalent to \
+TensorNetworkContraction:\
+\>", "ExampleText",
+ CellID->133266929,ExpressionUUID->"e69c7ee3-3837-4e0d-834c-a8f4f4c4a433"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", 
+   RowBox[{"\"\<Inactive\>\"", " ", "->", " ", "True"}]}], "]"}]}], "Input",
+ CellLabel->"In[1]:=",
+ CellID->367562884,ExpressionUUID->"bcfe23c7-1f1b-4a27-81e7-124e646a8242"],
+
+Cell[BoxData[
+ RowBox[{
+  TemplateBox[{"TensorContract"},
+   "InactiveHead",
+   BaseStyle->"Inactive",
+   SyntaxForm->"Symbol",
+   Tooltip->"Inactive[TensorContract]"], "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.14818943256807504`"}], ",", 
+        RowBox[{"-", "0.21795368025166306`"}], ",", 
+        RowBox[{"-", "0.3058612929806812`"}], ",", 
+        RowBox[{"-", "0.09251873862870985`"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"0.11192668407624007`", ",", 
+        RowBox[{"-", "0.42166149326522095`"}], ",", 
+        RowBox[{"-", "0.40630387470991236`"}], ",", 
+        RowBox[{"-", "0.5871847110722168`"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.34966058843392167`"}], ",", "0.9466493772228066`", ",", 
+        RowBox[{"-", "0.48240795699145744`"}], ",", "0.10116320880771523`"}], 
+       "}"}]}], "}"}], 
+    TagBox["\[TensorProduct]",
+     "InactiveToken",
+     BaseStyle->"Inactive",
+     SyntaxForm->"\[TensorProduct]"], 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "0.4345732974888721`", ",", "0.5087052010942732`", ",", 
+        "0.7206975987469231`", ",", "0.9939316893743566`", ",", 
+        "0.4784521923178975`"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.9232708884461172`"}], ",", 
+        RowBox[{"-", "0.24774568200958402`"}], ",", 
+        RowBox[{"-", "0.40760270489211115`"}], ",", "0.05628381788398151`", ",",
+         "0.21470361552642458`"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+       "0.805589214547942`", ",", "0.6813652154760748`", ",", 
+        "0.7715044018645734`", ",", "0.05416610261032684`", ",", 
+        "0.12120917563017741`"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"0.8488420393389275`", ",", 
+        RowBox[{"-", "0.996845911847545`"}], ",", "0.8012405031687013`", ",", 
+        
+        RowBox[{"-", "0.26502141490695497`"}], ",", 
+        RowBox[{"-", "0.4517705552075224`"}]}], "}"}]}], "}"}]}], ",", 
+   RowBox[{"{", 
+    RowBox[{"{", 
+     RowBox[{"2", ",", "3"}], "}"}], "}"}]}], "]"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->260645513,ExpressionUUID->"86b21e3b-ac7f-460b-bd2b-bd6284ed4f86"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\"TransposeFunction\"", "ExampleSubsection",
+ CellID->160637484,ExpressionUUID->"db59461b-bd2c-4067-9f31-c891ee722978"],
+
+Cell["\<\
+Override the final free-index permutation primitive with \
+\"TransposeFunction\":\
+\>", "ExampleText",
+ CellID->443089438,ExpressionUUID->"b2f224ef-a1f0-4c51-8dac-1b013c3e0d15"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"TensorNetworkContract", "[", 
+  RowBox[{"tn", ",", " ", 
+   RowBox[{"\"\<TransposeFunction\>\"", " ", "->", " ", "Transpose"}]}], 
+  "]"}]}], "Input",
+ CellLabel->"In[1]:=",
+ CellID->273965426,ExpressionUUID->"4c1b545b-660f-4e11-b51b-4aa436cd1c03"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.18810123590564354`"}], ",", 
+     RowBox[{"-", "0.1375639713603935`"}], ",", 
+     RowBox[{"-", "0.3280643531856991`"}], ",", 
+     RowBox[{"-", "0.15160530546957365`"}], ",", 
+     RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+     RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",", 
+     "0.17904432546436433`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"-", "1.3287180291671077`"}], ",", 
+     RowBox[{"-", "0.8419425882302402`"}], ",", 
+     RowBox[{"-", "0.9289801951873631`"}], ",", 
+     RowBox[{"-", "0.34719827385535224`"}], ",", 
+     RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->755960541,ExpressionUUID->"5bd6ef2d-e2f7-4c4e-8ac1-6ebaa3938fac"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Applications", "ExampleSection",ExpressionUUID->
+   "55151bb5-b167-472d-ade2-014d5b06bf84"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->367562884,ExpressionUUID->"6be0903c-7148-4e75-b08d-3604c8732515"],
+
+Cell["\<\
+Pre-compute a contraction path once and reuse it for an ensemble of \
+structurally identical networks. For ensembles of size O(100), the \
+path-search amortizes to zero per-instance cost:\
+\>", "ExampleText",
+ CellID->458113666,ExpressionUUID->"d82df936-8a99-41e3-9a84-55c9226e2130"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "7", "]"}], ";", " ", 
+  RowBox[{"tens1", " ", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"RandomReal", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"3", ",", " ", "3"}], "}"}]}], "]"}], ",", " ", "4"}], 
+    "]"}]}], ";", " ", 
+  RowBox[{"tens2", " ", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"RandomReal", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"3", ",", " ", "3"}], "}"}]}], "]"}], ",", " ", "4"}], 
+    "]"}]}], ";", " ", 
+  RowBox[{"ensemble", " ", "=", " ", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"TensorNetwork", "[", 
+      RowBox[{"tens1", ",", " ", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"j", ",", " ", "k"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"k", ",", " ", "l"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"l", ",", " ", "m"}], "}"}]}], "}"}]}], "]"}], ",", " ", 
+     RowBox[{"TensorNetwork", "[", 
+      RowBox[{"tens2", ",", " ", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"j", ",", " ", "k"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"k", ",", " ", "l"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"l", ",", " ", "m"}], "}"}]}], "}"}]}], "]"}]}], "}"}]}], ";",
+   " ", 
+  RowBox[{"path", " ", "=", " ", 
+   RowBox[{"OptimalContractionPath", "[", 
+    RowBox[{"First", "[", "ensemble", "]"}], "]"}]}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->458113666,ExpressionUUID->"d8f56a0c-e16e-4e4c-adaa-63154ca167d0"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["path"], "Input",
+ CellLabel->"In[2]:=",
+ CellID->458113666,ExpressionUUID->"ffe6d5ef-e378-4695-89a7-46a12eb8e29c"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"2", ",", "3"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "3"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "2"}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[2]=",
+ CellID->668929636,ExpressionUUID->"ada3364b-cca5-4389-b1a4-fc0a75e9316e"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "2852c7b1-29b7-43c6-8777-d4b2896e203c"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->958731447,ExpressionUUID->"bd26f6e4-deac-4779-a100-fddde55c112d"],
+
+Cell["Apply the cached path to every ensemble member:", "ExampleText",
+ CellID->208880943,ExpressionUUID->"6b1c33c6-d10d-430b-a984-849a28689b97"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tens1", " ", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"RandomReal", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"3", ",", " ", "3"}], "}"}]}], "]"}], ",", " ", "4"}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"tens2", " ", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"RandomReal", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"3", ",", " ", "3"}], "}"}]}], "]"}], ",", " ", "4"}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ensemble", " ", "=", " ", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"TensorNetwork", "[", 
+      RowBox[{"tens1", ",", " ", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"j", ",", " ", "k"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"k", ",", " ", "l"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"l", ",", " ", "m"}], "}"}]}], "}"}]}], "]"}], ",", " ", 
+     RowBox[{"TensorNetwork", "[", 
+      RowBox[{"tens2", ",", " ", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"j", ",", " ", "k"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"k", ",", " ", "l"}], "}"}], ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"l", ",", " ", "m"}], "}"}]}], "}"}]}], "]"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"path", " ", "=", " ", 
+   RowBox[{"OptimalContractionPath", "[", 
+    RowBox[{"First", "[", "ensemble", "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Dimensions", " ", "/@", " ", 
+  RowBox[{
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"TensorNetworkContract", "[", 
+      RowBox[{"#1", ",", " ", "path"}], "]"}], " ", "&"}], " ", ")"}], " ", "/@",
+    " ", "ensemble"}]}]}], "Input",
+ CellLabel->"In[3]:=",
+ CellID->592929583,ExpressionUUID->"930f53ef-0881-44b5-bc0d-8996b86f7c26"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"3", ",", "3"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", "3"}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[3]=",
+ CellID->606459127,ExpressionUUID->"e78f7e10-d998-4e7e-b320-34bd880c6f14"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "9bdae58f-a3ff-408d-8aec-395a27fc2800"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->260645513,ExpressionUUID->"10a377e3-2e12-4581-b073-59fd065b813d"],
+
+Cell["\<\
+Benchmark the four engines on a fixed network. All return the same value:\
+\>", "ExampleText",
+ CellID->175797813,ExpressionUUID->"e5fd4342-6e29-4aa6-b1eb-1208890b6462"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"AssociationMap", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"TensorNetworkContract", "[", 
+     RowBox[{"tn", ",", " ", 
+      RowBox[{"Method", " ", "->", " ", "#1"}]}], "]"}], " ", "&"}], " ", ",",
+    " ", 
+   RowBox[{"{", 
+    RowBox[{"\"\<ArrayDot\>\"", ",", " ", "\"\<Dot\>\"", ",", 
+     " ", "\"\<TensorContract\>\"", ",", " ", "\"\<ArrayDotTranspose\>\""}], 
+    "}"}]}], "]"}]}], "Input",
+ CellLabel->"In[1]:=",
+ CellID->946322640,ExpressionUUID->"e64ac96e-2441-4c10-af8f-4a3a557d4256"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{"\<\"ArrayDot\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.18810123590564354`"}], ",", 
+        RowBox[{"-", "0.1375639713603935`"}], ",", 
+        RowBox[{"-", "0.3280643531856991`"}], ",", 
+        RowBox[{"-", "0.15160530546957365`"}], ",", 
+        RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+        RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",",
+         "0.17904432546436433`"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "1.3287180291671077`"}], ",", 
+        RowBox[{"-", "0.8419425882302402`"}], ",", 
+        RowBox[{"-", "0.9289801951873631`"}], ",", 
+        RowBox[{"-", "0.34719827385535224`"}], ",", 
+        RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]}], ",", 
+   RowBox[{"\<\"Dot\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.18810123590564354`"}], ",", 
+        RowBox[{"-", "0.1375639713603935`"}], ",", 
+        RowBox[{"-", "0.3280643531856991`"}], ",", 
+        RowBox[{"-", "0.15160530546957365`"}], ",", 
+        RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+        RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",",
+         "0.17904432546436433`"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "1.3287180291671077`"}], ",", 
+        RowBox[{"-", "0.8419425882302402`"}], ",", 
+        RowBox[{"-", "0.9289801951873631`"}], ",", 
+        RowBox[{"-", "0.34719827385535224`"}], ",", 
+        RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]}], ",", 
+   RowBox[{"\<\"TensorContract\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.18810123590564354`"}], ",", 
+        RowBox[{"-", "0.1375639713603935`"}], ",", 
+        RowBox[{"-", "0.3280643531856991`"}], ",", 
+        RowBox[{"-", "0.15160530546957365`"}], ",", 
+        RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+        RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",",
+         "0.17904432546436433`"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "1.3287180291671077`"}], ",", 
+        RowBox[{"-", "0.8419425882302402`"}], ",", 
+        RowBox[{"-", "0.9289801951873631`"}], ",", 
+        RowBox[{"-", "0.34719827385535224`"}], ",", 
+        RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]}], ",", 
+   RowBox[{"\<\"ArrayDotTranspose\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.18810123590564354`"}], ",", 
+        RowBox[{"-", "0.1375639713603935`"}], ",", 
+        RowBox[{"-", "0.3280643531856991`"}], ",", 
+        RowBox[{"-", "0.15160530546957365`"}], ",", 
+        RowBox[{"-", "0.11297295531983972`"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "0.3877929572240193`"}], ",", "0.4698938521482284`", ",", 
+        RowBox[{"-", "0.5314057435325985`"}], ",", "0.22112338506591975`", ",",
+         "0.17904432546436433`"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "1.3287180291671077`"}], ",", 
+        RowBox[{"-", "0.8419425882302402`"}], ",", 
+        RowBox[{"-", "0.9289801951873631`"}], ",", 
+        RowBox[{"-", "0.34719827385535224`"}], ",", 
+        RowBox[{"-", "0.06822166097180982`"}]}], "}"}]}], "}"}]}]}], 
+  "\[RightAssociation]"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->133266929,ExpressionUUID->"852fbc23-de69-4d6b-8322-2ef70ef97961"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Properties & Relations", "ExampleSection",ExpressionUUID->
+   "4f4cc381-f91b-43ea-9677-1bd67ace9fe1"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->160637484,ExpressionUUID->"14296f5c-5172-4102-8417-d179539ef462"],
+
+Cell["\<\
+TensorNetworkContract is the \"Inactive\" -> False shortcut for \
+TensorNetworkContraction. The two forms agree once the inactive result is \
+activated:\
+\>", "ExampleText",
+ CellID->175797813,ExpressionUUID->"975ee6ca-0e50-4091-9b10-a1af64b9c1c7"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"TensorNetworkContract", "[", "tn", "]"}], " ", "===", " ", 
+  RowBox[{"ActivateTensors", "[", 
+   RowBox[{"TensorNetworkContraction", "[", "tn", "]"}], "]"}]}]}], "Input",
+ CellLabel->"In[1]:=",
+ CellID->946322640,ExpressionUUID->"89b4a27c-2109-436c-baf2-784e3c694e8a"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->133266929,ExpressionUUID->"0f2dada8-8d34-472a-b448-81300cdc6826"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "8db5e098-f25d-4ced-95e4-04de2014123d"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->367562884,ExpressionUUID->"b2b3f439-c4a0-410c-8c52-10574a03669f"],
+
+Cell["\<\
+Passing \"Inactive\" -> True recovers TensorNetworkContraction's behavior:\
+\>", "ExampleText",
+ CellID->260645513,ExpressionUUID->"478ce1e7-3a18-4c50-9fea-6e2ad8086b60"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"TensorNetworkContract", "[", 
+   RowBox[{"tn", ",", " ", 
+    RowBox[{"\"\<Inactive\>\"", " ", "->", " ", "True"}]}], "]"}], " ", "===",
+   " ", 
+  RowBox[{"TensorNetworkContraction", "[", "tn", "]"}]}]}], "Input",
+ CellLabel->"In[2]:=",
+ CellID->443089438,ExpressionUUID->"bf5eaf65-f33a-416c-92b1-f8d192200ef9"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[2]=",
+ CellID->273965426,ExpressionUUID->"0d1bd327-d7f3-492c-a011-6c4faf886941"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "19b8a44a-4d4e-4177-85ba-4c7390d3a3da"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->755960541,ExpressionUUID->"e1f01088-fced-4027-8f8e-53f27d83724c"],
+
+Cell["\<\
+Passing \"Greedy\" as the path is equivalent to wrapping the greedy path \
+explicitly:\
+\>", "ExampleText",
+ CellID->208976091,ExpressionUUID->"62bf34d2-de6c-46d5-b1df-5d5c6a93bacb"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", " ", "=", " ", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"A", ",", " ", "B"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", " ", "j"}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", " ", "k"}], "}"}]}], "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"TensorNetworkContract", "[", 
+   RowBox[{"tn", ",", " ", "\"\<Greedy\>\""}], "]"}], " ", "===", " ", 
+  RowBox[{"TensorNetworkContract", "[", 
+   RowBox[{"tn", ",", " ", 
+    RowBox[{"GreedyContractionPath", "[", "tn", "]"}]}], "]"}]}]}], "Input",
+ CellLabel->"In[3]:=",
+ CellID->155554451,ExpressionUUID->"d5e717d5-1bd4-4073-bbb7-671e406fbc07"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[3]=",
+ CellID->453306760,ExpressionUUID->"1690feaa-1599-4394-b4b8-c7d9886c3113"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Possible Issues", "ExampleSection",ExpressionUUID->
+   "76408935-9d64-482e-863a-5af9f330eefe"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->755960541,ExpressionUUID->"b2cc7806-bfb4-467c-b054-4b5145ee43be"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Interactive Examples", "ExampleSection",ExpressionUUID->
+   "83204e32-2005-4458-87e9-4048d70d5672"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->208976091,ExpressionUUID->"df82ad76-9fa9-413c-9f08-5b87f068cc5f"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Neat Examples", "ExampleSection",ExpressionUUID->
+   "ef6f8130-26e7-4b1a-8395-0aa47e0441ad"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->155554451,ExpressionUUID->"432b75a8-521c-4e7f-8f48-0ead8e8d9490"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Metadata", "MetadataSection",
+ CellID->980272223,ExpressionUUID->"229b59a9-198b-490f-a6c0-676e53a19378"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["1.0", "HistoryData",
+  CellTags->"New",ExpressionUUID->"ca4475a0-9623-4f22-9604-21112d814fce"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified",ExpressionUUID->"2bac4714-c986-4371-8b78-5eaf111b36a1"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete",ExpressionUUID->
+  "6d51bbd6-7042-4c66-b74f-22185a06f040"]
+}], "History",
+ CellID->160637484,ExpressionUUID->"920eb0b4-8baf-440a-97b1-b344e3937253"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Categorization",
+ Cell[BoxData[
+  TemplateBox[{"Metadata", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Metadata such as page URI, context, and type of documentation page.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "330f2f08-28d7-4c95-957e-4a9fc61c5538"]
+}], "CategorizationSection",
+ CellID->680228926,ExpressionUUID->"fd4affa5-265c-49db-8bf0-f3cccda02fd8"],
+
+Cell["Symbol", "Categorization",
+ CellLabel->"Entity Type",
+ CellID->256663337,ExpressionUUID->"4d79af30-6c80-4116-bca6-ad4b3c6cceda"],
+
+Cell["Wolfram/TensorNetworks", "Categorization",
+ CellLabel->"Paclet Name",
+ CellID->602695077,ExpressionUUID->"c267243a-e6ae-4988-bfc0-6002b9258fce"],
+
+Cell["Wolfram`TensorNetworks`", "Categorization",
+ CellLabel->"Context",
+ CellID->146264134,ExpressionUUID->"b04ba034-ed72-4ad2-a0c3-3eb0211ca4e0"],
+
+Cell["Wolfram/TensorNetworks/ref/TensorNetworkContract", "Categorization",
+ CellLabel->"URI",
+ CellID->371350627,ExpressionUUID->"f225d948-ce7f-41ff-b01b-3cf1e02f4835"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection",
+ CellID->581968835,ExpressionUUID->"5e991cb9-1c34-43d9-8465-787db72ac01d"],
+
+Cell["tensor network", "Keywords",
+ CellID->417837591,ExpressionUUID->"02393c09-5b99-476f-b6d0-633ef469f980"],
+
+Cell["contraction", "Keywords",
+ CellID->248274481,ExpressionUUID->"7e76d39f-2eb2-4118-b9c0-1e9c572df193"],
+
+Cell["evaluate", "Keywords",
+ CellID->743845955,ExpressionUUID->"9106a64a-4984-49e2-a0e8-518d1114949f"],
+
+Cell["einsum", "Keywords",
+ CellID->182786540,ExpressionUUID->"eccb64ce-4803-4e10-a64f-7931d3627a67"],
+
+Cell["contraction path", "Keywords",
+ CellID->888525662,ExpressionUUID->"faadf951-889a-452d-ba80-e96f6acc887d"],
+
+Cell["binary contraction", "Keywords",
+ CellID->856527812,ExpressionUUID->"5c2d21a2-e94a-4c48-9319-54efb504feb2"],
+
+Cell["TensorContract", "Keywords",
+ CellID->969830806,ExpressionUUID->"e1647032-0f3e-4931-9f63-8ace0124bcfa"],
+
+Cell["TensorProduct", "Keywords",
+ CellID->428417899,ExpressionUUID->"c832bc51-516f-425c-8085-29c2186f12ac"],
+
+Cell["EinsteinSummation", "Keywords",
+ CellID->482143966,ExpressionUUID->"a1513f2b-1207-4332-b916-5cd49a4e7d0c"],
+
+Cell["opt_einsum", "Keywords",
+ CellID->767322856,ExpressionUUID->"0e1bdf86-3dbe-4d2f-970d-7a2684596f1c"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Syntax Templates", "TemplatesSection",
+ CellID->838854027,ExpressionUUID->"90538669-5ed3-4a76-a80b-1767161a236f"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Additional Function Template",
+ CellID->818354154,ExpressionUUID->"494329af-5ada-4cce-8bfd-8cfab2133322"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Arguments Pattern",
+ CellID->272819988,ExpressionUUID->"1ec9cc6b-3bb8-4914-bc4c-90f28a0776c3"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Local Variables",
+ CellID->739518966,ExpressionUUID->"10bf9cdd-615d-4ceb-a552-e63d35dfa70f"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Color Equal Signs",
+ CellID->106544420,ExpressionUUID->"d1b3db1b-e831-4838-97eb-5cf2128b9266"]
+}, Closed]]
+}, Open  ]]
+},
+WindowSize->{700, 770},
+WindowMargins->{{5, Automatic}, {Automatic, 0}},
+TaggingRules-><|"Paclet" -> "Wolfram/TensorNetworks"|>,
+CellContext->CellGroup,
+FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (February 17, 2026)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"],
+ExpressionUUID->"1a3c2e81-0c2b-4a97-ad40-3518089ccd4e"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{
+ "ExtendedExamples"->{
+  Cell[25091, 698, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"5b8d20ef-2b89-4d17-b697-3a06f7d65937",
+   CellTags->"ExtendedExamples",
+   CellID->453306760]}
+ }
+*)
+(*CellTagsIndex
+CellTagsIndex->{
+ {"ExtendedExamples", 80453, 2322}
+ }
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 118, 1, 70, "ObjectName",ExpressionUUID->"05f213aa-60b7-4a60-82fc-f8bc8b690a05",
+ CellID->175797813],
+Cell[697, 25, 3880, 97, 70, "Usage",ExpressionUUID->"2b7cb6e4-4944-4946-a50a-2166931fdf07",
+ CellID->946322640],
+Cell[4580, 124, 190, 4, 70, "Notes",ExpressionUUID->"2c463918-d42b-4cf4-b3a2-aaf1e833c7a0",
+ CellID->133266929],
+Cell[4773, 130, 1150, 29, 70, "Notes",ExpressionUUID->"302dc38b-8be4-4afc-8f74-f012a7fce055",
+ CellID->367562884],
+Cell[5926, 161, 731, 18, 70, "Notes",ExpressionUUID->"61c2e32f-dfd3-4faf-8bce-cd5b61f0a600",
+ CellID->260645513],
+Cell[6660, 181, 2063, 59, 70, "Notes",ExpressionUUID->"f69434dc-9a9d-45ee-bb40-bda1d6305da6",
+ CellID->443089438],
+Cell[8726, 242, 744, 17, 70, "Notes",ExpressionUUID->"8b4178e5-d2de-4ef6-9cef-48b33d83c748",
+ CellID->273965426],
+Cell[9473, 261, 127, 1, 70, "Notes",ExpressionUUID->"f450fd0f-23bb-41ed-b2f2-80e8e41bad54",
+ CellID->755960541],
+Cell[9603, 264, 2828, 62, 70, "3ColumnTableMod",ExpressionUUID->"fdc160fb-1f83-46c1-9cc8-f66f62ed777e",
+ CellID->208976091]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12468, 331, 458, 13, 70, "SeeAlsoSection",ExpressionUUID->"3edb5bbb-d7b2-42fe-8337-29f6d5ceb3bc",
+ CellID->155554451],
+Cell[12929, 346, 2719, 64, 70, "SeeAlso",ExpressionUUID->"9e2efb8c-297e-4d42-a75b-6784e803b19f",
+ CellID->453306760]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15685, 415, 435, 12, 70, "TechNotesSection",ExpressionUUID->"9f840624-6c96-4a00-840d-94b53111e833",
+ CellID->160637484],
+Cell[16123, 429, 257, 5, 70, "Tutorials",ExpressionUUID->"99bc879a-8cb8-4f17-958f-38c87ba03839",
+ CellID->680228926]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16417, 439, 117, 1, 70, "MoreAboutSection",ExpressionUUID->"5e16cf4e-ae78-45cf-bb02-180502661ec4",
+ CellID->256663337],
+Cell[16537, 442, 229, 4, 70, "MoreAbout",ExpressionUUID->"950e20eb-54f0-44e8-a08a-4771dba76e0d",
+ CellID->602695077]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16803, 451, 472, 13, 70, "RelatedLinksSection",ExpressionUUID->"fc454325-6152-404a-87cb-cea8eff3ce43",
+ CellID->146264134],
+Cell[17278, 466, 100, 1, 70, "RelatedLinks",ExpressionUUID->"c2bf11c6-5d7f-4072-a05b-0b527462715e",
+ CellID->371350627]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[17415, 472, 530, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"ba77ad10-c6a8-4878-9763-222bf7137587",
+ CellID->581968835],
+Cell[17948, 488, 182, 3, 70, "ExampleInitialization",ExpressionUUID->"c6ea73d4-54ee-46ea-adee-40f3c43e230e",
+ CellID->417837591]
+}, Open  ]],
+Cell[18145, 494, 442, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"2de6a648-d56a-4575-bf13-6f069e73a4fa",
+ CellID->248274481],
+Cell[18590, 508, 234, 4, 70, "ExampleText",ExpressionUUID->"b4cc7264-89c5-4c69-882e-303c0db8b2e7",
+ CellID->175797813],
+Cell[18827, 514, 992, 30, 70, "Input",ExpressionUUID->"6a228557-8bc5-4982-aca7-05951660863d",
+ CellID->658998519],
+Cell[CellGroupData[{
+Cell[19844, 548, 173, 3, 70, "Input",ExpressionUUID->"3c82ba20-c554-49bf-ba25-f76ab52594f1",
+ CellID->175797813],
+Cell[20020, 553, 953, 23, 70, "Output",ExpressionUUID->"657386a9-ed91-477a-84b5-3a023e94db32",
+ CellID->946322640]
+}, Open  ]],
+Cell[20988, 579, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"49a1070b-11ca-4513-b856-bb400ed235a9",
+ CellID->133266929],
+Cell[21233, 586, 140, 1, 70, "ExampleText",ExpressionUUID->"2d8ccd6b-0700-4ffc-8f73-eff012e34158",
+ CellID->367562884],
+Cell[CellGroupData[{
+Cell[21398, 591, 673, 19, 70, "Input",ExpressionUUID->"14a275c2-5288-4d82-8522-6e702b9f312c",
+ CellID->260645513],
+Cell[22074, 612, 953, 23, 70, "Output",ExpressionUUID->"232870ee-9f27-4555-afb3-e65cae9475d6",
+ CellID->443089438]
+}, Open  ]],
+Cell[23042, 638, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"c95dacd5-df63-4cda-a31c-5f16b4caffe4",
+ CellID->273965426],
+Cell[23287, 645, 180, 3, 70, "ExampleText",ExpressionUUID->"fa924642-ecc2-4df0-bf56-f9d64862867a",
+ CellID->755960541],
+Cell[CellGroupData[{
+Cell[23492, 652, 606, 16, 70, "Input",ExpressionUUID->"fa3b6491-e950-4598-9012-69fa8db04edb",
+ CellID->833714920],
+Cell[24101, 670, 953, 23, 70, "Output",ExpressionUUID->"95659100-65c7-4ed3-b62b-367977d58264",
+ CellID->237467766]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[25091, 698, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"5b8d20ef-2b89-4d17-b697-3a06f7d65937",
+ CellTags->"ExtendedExamples",
+ CellID->453306760],
+Cell[CellGroupData[{
+Cell[25603, 715, 240, 5, 70, "ExampleSection",ExpressionUUID->"2cce1f83-ae46-4bee-ba8f-e5e9ee77ed65",
+ CellID->98618060],
+Cell[CellGroupData[{
+Cell[25868, 724, 115, 1, 70, "ExampleSubsection",ExpressionUUID->"15972ef0-c62f-464e-a705-348ba8767e53",
+ CellID->256663337],
+Cell[25986, 727, 144, 1, 70, "ExampleText",ExpressionUUID->"a4c524fa-1e3b-4572-a3ab-5f3d11a93ce0",
+ CellID->175797813],
+Cell[CellGroupData[{
+Cell[26155, 732, 565, 15, 70, "Input",ExpressionUUID->"ed324fe3-3e9b-4492-ac20-ad6a475343a7",
+ CellID->946322640],
+Cell[26723, 749, 953, 23, 70, "Output",ExpressionUUID->"ded80b43-58b3-4d5b-bcd7-29e068260b91",
+ CellID->133266929]
+}, Open  ]],
+Cell[27691, 775, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"59042144-5207-46dd-a3da-b472ea58d5ef",
+ CellID->367562884],
+Cell[27936, 782, 194, 4, 70, "ExampleText",ExpressionUUID->"2abfa1fc-9b31-46d6-9c2c-782711d6f0bf",
+ CellID->260645513],
+Cell[28133, 788, 597, 16, 70, "Input",ExpressionUUID->"d9012bef-59bc-443e-801a-18957dad5b71",
+ CellID->443089438],
+Cell[CellGroupData[{
+Cell[28755, 808, 172, 3, 70, "Input",ExpressionUUID->"02ac0d6f-4805-4540-b442-4eddca030617",
+ CellID->273965426],
+Cell[28930, 813, 953, 23, 70, "Output",ExpressionUUID->"d023111a-8a47-4cf7-9691-89594e8f77ed",
+ CellID->755960541]
+}, Open  ]],
+Cell[29898, 839, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"f02198a3-2275-45dd-ab37-4a1db54333c8",
+ CellID->208976091],
+Cell[30143, 846, 191, 4, 70, "ExampleText",ExpressionUUID->"a67c3734-419a-4761-8a07-d39a96f80d30",
+ CellID->155554451],
+Cell[30337, 852, 597, 16, 70, "Input",ExpressionUUID->"2b9ec094-4fa6-4dc7-b8e2-daaaf8b5befe",
+ CellID->453306760],
+Cell[CellGroupData[{
+Cell[30959, 872, 175, 3, 70, "Input",ExpressionUUID->"cb13e4ba-9747-49e2-b0cc-3e6c3b0d5230",
+ CellID->160637484],
+Cell[31137, 877, 953, 23, 70, "Output",ExpressionUUID->"ba3dc6a3-96aa-4637-80b0-a5f6dada05c1",
+ CellID->680228926]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[32139, 906, 114, 1, 70, "ExampleSubsection",ExpressionUUID->"5c18cbec-a277-4859-a5f4-fc89636767f4",
+ CellID->371350627],
+Cell[32256, 909, 193, 4, 70, "ExampleText",ExpressionUUID->"e6c4ce5a-75b4-4d5a-bad7-1a9360cc789b",
+ CellID->175797813],
+Cell[CellGroupData[{
+Cell[32474, 917, 565, 15, 70, "Input",ExpressionUUID->"2c561774-50fb-4ac2-b0f5-f8785cc7efd9",
+ CellID->946322640],
+Cell[33042, 934, 953, 23, 70, "Output",ExpressionUUID->"732d2f30-6979-4937-9f48-9e164917da49",
+ CellID->133266929]
+}, Open  ]],
+Cell[34010, 960, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"129dfac0-b1d0-4f40-af04-935dab2cf093",
+ CellID->367562884],
+Cell[34255, 967, 187, 4, 70, "ExampleText",ExpressionUUID->"23022784-d778-4714-b0f4-092a677d32e8",
+ CellID->260645513],
+Cell[34445, 973, 601, 16, 70, "Input",ExpressionUUID->"684d1030-2fed-4146-8a91-8c43db1ec4b8",
+ CellID->443089438],
+Cell[CellGroupData[{
+Cell[35071, 993, 204, 4, 70, "Input",ExpressionUUID->"1b5b1e61-0263-45d3-86a4-de93ccc70b5c",
+ CellID->273965426],
+Cell[35278, 999, 953, 23, 70, "Output",ExpressionUUID->"707557b9-1f29-44fd-b354-8cd2d22dca99",
+ CellID->755960541]
+}, Open  ]],
+Cell[36246, 1025, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"6da4610f-c448-48f0-8d7d-a58bf27ee738",
+ CellID->208976091],
+Cell[36491, 1032, 189, 4, 70, "ExampleText",ExpressionUUID->"3effd878-46ca-438e-a2fb-37770caecce2",
+ CellID->155554451],
+Cell[CellGroupData[{
+Cell[36705, 1040, 605, 16, 70, "Input",ExpressionUUID->"8390ccc5-afa7-4b53-8b8a-4a6df51bee60",
+ CellID->453306760],
+Cell[37313, 1058, 953, 23, 70, "Output",ExpressionUUID->"b8092e4d-5b64-4537-8175-f89edd01415f",
+ CellID->160637484]
+}, Open  ]],
+Cell[38281, 1084, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"d73ca2e7-674b-4379-ba34-c5679a23d743",
+ CellID->680228926],
+Cell[38526, 1091, 151, 1, 70, "ExampleText",ExpressionUUID->"3f37367b-4204-4c23-a725-ec4f2092e262",
+ CellID->256663337],
+Cell[CellGroupData[{
+Cell[38702, 1096, 606, 16, 70, "Input",ExpressionUUID->"d40d2d28-5e2c-4a0d-a4e2-f946770f2c0d",
+ CellID->602695077],
+Cell[39311, 1114, 953, 23, 70, "Output",ExpressionUUID->"038318fe-dfb8-419e-9c8b-2f3884441fcf",
+ CellID->146264134]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[40313, 1143, 111, 1, 70, "ExampleSubsection",ExpressionUUID->"fcd76768-9e73-4349-8649-948bf6730ae5",
+ CellID->146264134],
+Cell[40427, 1146, 234, 4, 70, "ExampleText",ExpressionUUID->"34537b7b-a929-4ce6-9682-174332e9f173",
+ CellID->175797813],
+Cell[CellGroupData[{
+Cell[40686, 1154, 650, 18, 70, "Input",ExpressionUUID->"a4e3273f-6916-4a33-850d-6957aeceaa58",
+ CellID->946322640],
+Cell[41339, 1174, 953, 23, 70, "Output",ExpressionUUID->"eddf97df-11a2-4b25-95c3-185cc3970ea0",
+ CellID->133266929]
+}, Open  ]],
+Cell[42307, 1200, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"6ffca3a5-7c77-4ad4-9018-30abe8040451",
+ CellID->367562884],
+Cell[42552, 1207, 196, 4, 70, "ExampleText",ExpressionUUID->"acbb3f9a-9988-4365-a40e-8eaa1d600360",
+ CellID->260645513],
+Cell[CellGroupData[{
+Cell[42773, 1215, 657, 18, 70, "Input",ExpressionUUID->"38b63024-57a3-4b52-b304-62792018d427",
+ CellID->443089438],
+Cell[43433, 1235, 953, 23, 70, "Output",ExpressionUUID->"5fe26d7c-3f5f-4e66-be42-a8dffdfb807d",
+ CellID->273965426]
+}, Open  ]],
+Cell[44401, 1261, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"f52ae9ee-4d14-4437-a2eb-9a8c5f789497",
+ CellID->755960541],
+Cell[44646, 1268, 162, 2, 70, "ExampleText",ExpressionUUID->"97e9b226-981c-441e-95d3-16917c4666a7",
+ CellID->208976091],
+Cell[CellGroupData[{
+Cell[44833, 1274, 643, 17, 70, "Input",ExpressionUUID->"993d2a33-6daf-4a5d-8764-98dd419513eb",
+ CellID->155554451],
+Cell[45479, 1293, 953, 23, 70, "Output",ExpressionUUID->"0de8dd63-9bac-4c5f-bf73-ef674b9176ea",
+ CellID->453306760]
+}, Open  ]],
+Cell[46447, 1319, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"4ef429c5-05c8-4ce2-98d7-8283ae8150af",
+ CellID->160637484],
+Cell[46692, 1326, 214, 4, 70, "ExampleText",ExpressionUUID->"c8c10ad7-1c60-4987-8cd3-49a2771b9062",
+ CellID->680228926],
+Cell[CellGroupData[{
+Cell[46931, 1334, 650, 18, 70, "Input",ExpressionUUID->"f1b2d286-07aa-4cf3-95a8-48ad608b8d81",
+ CellID->256663337],
+Cell[47584, 1354, 953, 23, 70, "Output",ExpressionUUID->"6fdc8cc0-ceaf-4ba9-b140-90877db559ba",
+ CellID->602695077]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[48586, 1383, 121, 1, 70, "ExampleSubsection",ExpressionUUID->"8e477e2d-ce5f-4c79-8aef-499a4a1c4346",
+ CellID->875395060],
+Cell[48710, 1386, 269, 5, 70, "ExampleText",ExpressionUUID->"5daed420-3d15-473c-914c-7d1921ce1ef8",
+ CellID->661510580],
+Cell[48982, 1393, 1144, 34, 70, "Input",ExpressionUUID->"e4e8845f-0d36-4e01-afa3-add608ced5fc",
+ CellID->848300949],
+Cell[CellGroupData[{
+Cell[50151, 1431, 176, 3, 70, "Input",ExpressionUUID->"9a5a967e-b36f-4cd4-83de-0f98346cb7f2",
+ CellID->661510580],
+Cell[50330, 1436, 162, 3, 70, "Output",ExpressionUUID->"46550b2c-8229-48b8-b02c-a75f4a876498",
+ CellID->483208377]
+}, Open  ]],
+Cell[50507, 1442, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"752a98ed-0e3a-45b9-b347-56e9cc52abfa",
+ CellID->763268883],
+Cell[50752, 1449, 207, 4, 70, "ExampleText",ExpressionUUID->"6152d443-c2c8-4e0b-a85c-3824da326df2",
+ CellID->365919070],
+Cell[CellGroupData[{
+Cell[50984, 1457, 444, 12, 70, "Input",ExpressionUUID->"60d69275-27ae-4088-a8fe-a313f6416486",
+ CellID->718686155],
+Cell[51431, 1471, 162, 3, 70, "Output",ExpressionUUID->"f4e7545e-5851-4e1a-b77e-6a77684d4090",
+ CellID->948838466]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[51654, 1481, 243, 5, 70, "ExampleSection",ExpressionUUID->"5a88a735-c6c2-45e1-a37a-9d707c975f7b",
+ CellID->208976091],
+Cell[CellGroupData[{
+Cell[51922, 1490, 110, 1, 70, "ExampleSubsection",ExpressionUUID->"6c98acfd-2426-4c80-9e0a-8089389d0d67",
+ CellID->155554451],
+Cell[52035, 1493, 222, 4, 70, "ExampleText",ExpressionUUID->"1a0f5248-acc0-408f-866a-76f078de06fd",
+ CellID->175797813],
+Cell[52260, 1499, 992, 30, 70, "Input",ExpressionUUID->"4366dbfd-886c-4a1c-80f4-9a26914393ca",
+ CellID->658998519],
+Cell[CellGroupData[{
+Cell[53277, 1533, 251, 5, 70, "Input",ExpressionUUID->"b1081970-607d-43ee-b673-c5947bfbd72e",
+ CellID->175797813],
+Cell[53531, 1540, 953, 23, 70, "Output",ExpressionUUID->"5b2a4965-465e-4c91-9879-ce2efa3819a5",
+ CellID->946322640]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[54533, 1569, 116, 1, 70, "ExampleSubsection",ExpressionUUID->"8740e762-7d33-4e0b-b0e6-d046cefe3b2f",
+ CellID->453306760],
+Cell[54652, 1572, 263, 5, 70, "ExampleText",ExpressionUUID->"e69c7ee3-3837-4e0d-834c-a8f4f4c4a433",
+ CellID->133266929],
+Cell[CellGroupData[{
+Cell[54940, 1581, 646, 17, 70, "Input",ExpressionUUID->"bcfe23c7-1f1b-4a27-81e7-124e646a8242",
+ CellID->367562884],
+Cell[55589, 1600, 2256, 59, 70, "Output",ExpressionUUID->"86b21e3b-ac7f-460b-bd2b-bd6284ed4f86",
+ CellID->260645513]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[57894, 1665, 125, 1, 70, "ExampleSubsection",ExpressionUUID->"db59461b-bd2c-4067-9f31-c891ee722978",
+ CellID->160637484],
+Cell[58022, 1668, 187, 4, 70, "ExampleText",ExpressionUUID->"b2f224ef-a1f0-4c51-8dac-1b013c3e0d15",
+ CellID->443089438],
+Cell[CellGroupData[{
+Cell[58234, 1676, 663, 18, 70, "Input",ExpressionUUID->"4c1b545b-660f-4e11-b51b-4aa436cd1c03",
+ CellID->273965426],
+Cell[58900, 1696, 953, 23, 70, "Output",ExpressionUUID->"5bd6ef2d-e2f7-4c4e-8ac1-6ebaa3938fac",
+ CellID->755960541]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[59914, 1726, 248, 5, 70, "ExampleSection",ExpressionUUID->"6be0903c-7148-4e75-b08d-3604c8732515",
+ CellID->367562884],
+Cell[60165, 1733, 293, 5, 70, "ExampleText",ExpressionUUID->"d82df936-8a99-41e3-9a84-55c9226e2130",
+ CellID->458113666],
+Cell[60461, 1740, 1980, 57, 70, "Input",ExpressionUUID->"d8f56a0c-e16e-4e4c-adaa-63154ca167d0",
+ CellID->458113666],
+Cell[CellGroupData[{
+Cell[62466, 1801, 128, 2, 70, "Input",ExpressionUUID->"ffe6d5ef-e378-4695-89a7-46a12eb8e29c",
+ CellID->458113666],
+Cell[62597, 1805, 328, 10, 70, "Output",ExpressionUUID->"ada3364b-cca5-4389-b1a4-fc0a75e9316e",
+ CellID->668929636]
+}, Open  ]],
+Cell[62940, 1818, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"bd26f6e4-deac-4779-a100-fddde55c112d",
+ CellID->958731447],
+Cell[63185, 1825, 145, 1, 70, "ExampleText",ExpressionUUID->"6b1c33c6-d10d-430b-a984-849a28689b97",
+ CellID->208880943],
+Cell[CellGroupData[{
+Cell[63355, 1830, 2281, 66, 70, "Input",ExpressionUUID->"930f53ef-0881-44b5-bc0d-8996b86f7c26",
+ CellID->592929583],
+Cell[65639, 1898, 269, 8, 70, "Output",ExpressionUUID->"e78f7e10-d998-4e7e-b320-34bd880c6f14",
+ CellID->606459127]
+}, Open  ]],
+Cell[65923, 1909, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"10a377e3-2e12-4581-b073-59fd065b813d",
+ CellID->260645513],
+Cell[66168, 1916, 179, 3, 70, "ExampleText",ExpressionUUID->"e5fd4342-6e29-4aa6-b1eb-1208890b6462",
+ CellID->175797813],
+Cell[CellGroupData[{
+Cell[66372, 1923, 909, 25, 70, "Input",ExpressionUUID->"e64ac96e-2441-4c10-af8f-4a3a557d4256",
+ CellID->946322640],
+Cell[67284, 1950, 3979, 93, 70, "Output",ExpressionUUID->"852fbc23-de69-4d6b-8322-2ef70ef97961",
+ CellID->133266929]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[71312, 2049, 258, 5, 70, "ExampleSection",ExpressionUUID->"14296f5c-5172-4102-8417-d179539ef462",
+ CellID->160637484],
+Cell[71573, 2056, 258, 5, 70, "ExampleText",ExpressionUUID->"975ee6ca-0e50-4091-9b10-a1af64b9c1c7",
+ CellID->175797813],
+Cell[CellGroupData[{
+Cell[71856, 2065, 695, 18, 70, "Input",ExpressionUUID->"89b4a27c-2109-436c-baf2-784e3c694e8a",
+ CellID->946322640],
+Cell[72554, 2085, 129, 2, 70, "Output",ExpressionUUID->"0f2dada8-8d34-472a-b448-81300cdc6826",
+ CellID->133266929]
+}, Open  ]],
+Cell[72698, 2090, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"b2b3f439-c4a0-410c-8c52-10574a03669f",
+ CellID->367562884],
+Cell[72943, 2097, 180, 3, 70, "ExampleText",ExpressionUUID->"478ce1e7-3a18-4c50-9fea-6e2ad8086b60",
+ CellID->260645513],
+Cell[CellGroupData[{
+Cell[73148, 2104, 738, 20, 70, "Input",ExpressionUUID->"bf5eaf65-f33a-416c-92b1-f8d192200ef9",
+ CellID->443089438],
+Cell[73889, 2126, 129, 2, 70, "Output",ExpressionUUID->"0d1bd327-d7f3-492c-a011-6c4faf886941",
+ CellID->273965426]
+}, Open  ]],
+Cell[74033, 2131, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"e1f01088-fced-4027-8f8e-53f27d83724c",
+ CellID->755960541],
+Cell[74278, 2138, 192, 4, 70, "ExampleText",ExpressionUUID->"62bf34d2-de6c-46d5-b1df-5d5c6a93bacb",
+ CellID->208976091],
+Cell[CellGroupData[{
+Cell[74495, 2146, 771, 20, 70, "Input",ExpressionUUID->"d5e717d5-1bd4-4073-bbb7-671e406fbc07",
+ CellID->155554451],
+Cell[75269, 2168, 129, 2, 70, "Output",ExpressionUUID->"1690feaa-1599-4394-b4b8-c7d9886c3113",
+ CellID->453306760]
+}, Open  ]]
+}, Open  ]],
+Cell[75425, 2174, 251, 5, 70, "ExampleSection",ExpressionUUID->"b2cc7806-bfb4-467c-b054-4b5145ee43be",
+ CellID->755960541],
+Cell[75679, 2181, 256, 5, 70, "ExampleSection",ExpressionUUID->"df82ad76-9fa9-413c-9f08-5b87f068cc5f",
+ CellID->208976091],
+Cell[75938, 2188, 249, 5, 70, "ExampleSection",ExpressionUUID->"432b75a8-521c-4e7f-8f48-0ead8e8d9490",
+ CellID->155554451]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[76224, 2198, 110, 1, 70, "MetadataSection",ExpressionUUID->"229b59a9-198b-490f-a6c0-676e53a19378",
+ CellID->980272223],
+Cell[76337, 2201, 477, 12, 70, "History",ExpressionUUID->"920eb0b4-8baf-440a-97b1-b344e3937253",
+ CellID->160637484],
+Cell[CellGroupData[{
+Cell[76839, 2217, 484, 13, 70, "CategorizationSection",ExpressionUUID->"fd4affa5-265c-49db-8bf0-f3cccda02fd8",
+ CellID->680228926],
+Cell[77326, 2232, 134, 2, 70, "Categorization",ExpressionUUID->"4d79af30-6c80-4116-bca6-ad4b3c6cceda",
+ CellID->256663337],
+Cell[77463, 2236, 150, 2, 70, "Categorization",ExpressionUUID->"c267243a-e6ae-4988-bfc0-6002b9258fce",
+ CellID->602695077],
+Cell[77616, 2240, 147, 2, 70, "Categorization",ExpressionUUID->"b04ba034-ed72-4ad2-a0c3-3eb0211ca4e0",
+ CellID->146264134],
+Cell[77766, 2244, 168, 2, 70, "Categorization",ExpressionUUID->"f225d948-ce7f-41ff-b01b-3cf1e02f4835",
+ CellID->371350627]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[77971, 2251, 110, 1, 70, "KeywordsSection",ExpressionUUID->"5e991cb9-1c34-43d9-8465-787db72ac01d",
+ CellID->581968835],
+Cell[78084, 2254, 109, 1, 70, "Keywords",ExpressionUUID->"02393c09-5b99-476f-b6d0-633ef469f980",
+ CellID->417837591],
+Cell[78196, 2257, 106, 1, 70, "Keywords",ExpressionUUID->"7e76d39f-2eb2-4118-b9c0-1e9c572df193",
+ CellID->248274481],
+Cell[78305, 2260, 103, 1, 70, "Keywords",ExpressionUUID->"9106a64a-4984-49e2-a0e8-518d1114949f",
+ CellID->743845955],
+Cell[78411, 2263, 101, 1, 70, "Keywords",ExpressionUUID->"eccb64ce-4803-4e10-a64f-7931d3627a67",
+ CellID->182786540],
+Cell[78515, 2266, 111, 1, 70, "Keywords",ExpressionUUID->"faadf951-889a-452d-ba80-e96f6acc887d",
+ CellID->888525662],
+Cell[78629, 2269, 113, 1, 70, "Keywords",ExpressionUUID->"5c2d21a2-e94a-4c48-9319-54efb504feb2",
+ CellID->856527812],
+Cell[78745, 2272, 109, 1, 70, "Keywords",ExpressionUUID->"e1647032-0f3e-4931-9f63-8ace0124bcfa",
+ CellID->969830806],
+Cell[78857, 2275, 108, 1, 70, "Keywords",ExpressionUUID->"c832bc51-516f-425c-8085-29c2186f12ac",
+ CellID->428417899],
+Cell[78968, 2278, 112, 1, 70, "Keywords",ExpressionUUID->"a1513f2b-1207-4332-b916-5cd49a4e7d0c",
+ CellID->482143966],
+Cell[79083, 2281, 105, 1, 70, "Keywords",ExpressionUUID->"0e1bdf86-3dbe-4d2f-970d-7a2684596f1c",
+ CellID->767322856]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[79225, 2287, 119, 1, 70, "TemplatesSection",ExpressionUUID->"90538669-5ed3-4a76-a80b-1767161a236f",
+ CellID->838854027],
+Cell[79347, 2290, 148, 2, 70, "Template",ExpressionUUID->"494329af-5ada-4cce-8bfd-8cfab2133322",
+ CellID->818354154],
+Cell[79498, 2294, 137, 2, 70, "Template",ExpressionUUID->"1ec9cc6b-3bb8-4914-bc4c-90f28a0776c3",
+ CellID->272819988],
+Cell[79638, 2298, 135, 2, 70, "Template",ExpressionUUID->"10bf9cdd-615d-4ceb-a552-e63d35dfa70f",
+ CellID->739518966],
+Cell[79776, 2302, 137, 2, 70, "Template",ExpressionUUID->"d1b3db1b-e831-4838-97eb-5cf2128b9266",
+ CellID->106544420]
+}, Closed]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
