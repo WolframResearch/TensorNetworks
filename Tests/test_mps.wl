@@ -1,7 +1,12 @@
 (* Tests/test_mps.wl *)
-(* Tests for MPS algorithms *)
+(* Tests for MPS algorithms. Each test asserts a STRUCTURAL property
+   (canonicality, isometry, norm positivity, ...), not a specific numeric
+   value — but we pin RNG so the same MPS instances are exercised on every
+   run for reproducibility. *)
 
 Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
+
+SeedRandom[42];
 
 (* ============================================ *)
 (* Test: Left Canonicalization                 *)

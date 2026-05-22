@@ -1,19 +1,14 @@
 (* Setup *)
 Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
 
-tensorDimensions = Wolfram`TensorNetworks`PackageScope`tensorDimensions;
+(* Pin RNG seed so structural tests are reproducible across runs. *)
+SeedRandom[42];
 
 (* Helper to create standard test network *)
 makeTestNet[] := TensorNetwork[
     {RandomReal[{-1, 1}, {2, 3}], RandomReal[{-1, 1}, {3, 4}]},
     {{1, 2}, {2, 3}},
     Cycles[{{1, 2}}] (* free indices 1, 3 -> positions 1, 2. Swapped. *)
-]
-
-VerificationTest[
-    tensorDimensions[{{1, 2}, {3, 4}}],
-    {2, 2},
-    TestID -> "Debug_TensorDimensions_Works"
 ]
 
 (* Test TensorNetwork head *)

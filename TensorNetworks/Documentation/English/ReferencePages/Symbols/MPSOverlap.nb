@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     20248,        554]
-NotebookOptionsPosition[     13708,        416]
-NotebookOutlinePosition[     14492,        442]
-CellTagsIndexPosition[     14413,        437]
+NotebookDataLength[     50514,       1329]
+NotebookOptionsPosition[     35611,       1040]
+NotebookOutlinePosition[     36397,       1066]
+CellTagsIndexPosition[     36317,       1061]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -21,39 +21,166 @@ Notebook[{
 
 Cell[CellGroupData[{
 Cell["MPSOverlap", "ObjectName",
- CellID->735154253,ExpressionUUID->"a6d1112d-b95f-440c-b75d-c48e371fe5ac"],
+ CellID->536421856,ExpressionUUID->"44865ce6-6964-421b-80f0-7c5943619f7b"],
 
 Cell[TextData[{
- Cell["   ", "ModInfo",ExpressionUUID->"619eb09e-f4ba-4376-8ee3-a834b53ef3db"],
+ Cell["   ", "ModInfo",ExpressionUUID->"1866bd35-1c71-40fb-928e-b4d97b211782"],
  Cell[BoxData[
   RowBox[{
    ButtonBox["MPSOverlap",
     BaseStyle->"Link",
-    ButtonData->"paclet:WolframTensorNetworks/ref/MPSOverlap"], "[", 
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSOverlap"], "[", 
    RowBox[{
-    StyleBox["mps\:2081", "TI"], ",", 
-    StyleBox["mps\:2082", "TI"]}], "]"}]], "InlineFormula",ExpressionUUID->
-  "d9bb215b-6bfa-4b39-a999-f6616d695125"],
- "\[LineSeparator]computes the inner product \[LeftAngleBracket]\[Psi]\:2081|\
-\[Psi]\:2082\[RightAngleBracket] between two MPS. \[Bullet] The second MPS is \
-conjugated in the inner product. \[Bullet] \n",
- Cell["   ", "ModInfo",ExpressionUUID->"f2173503-d973-49c9-a23a-99bf97fc1066"],
+    SubscriptBox[
+     StyleBox["mps", "TI"], "1"], ",", 
+    SubscriptBox[
+     StyleBox["mps", "TI"], "2"]}], "]"}]], "InlineFormula",ExpressionUUID->
+  "8d61452d-7c6d-4a21-8f4b-6a50a2863671"],
+ "\[LineSeparator]computes the inner product ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"\[LeftAngleBracket]", 
+    SubscriptBox["\[Psi]", "1"], "|", 
+    SubscriptBox["\[Psi]", "2"], "\[RightAngleBracket]"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"97d9104c-0d5f-4bc3-9553-f704a3cc6e91"],
+ " between two matrix-product states. \[Bullet] \n",
+ Cell["   ", "ModInfo",ExpressionUUID->"412de9e2-0ba4-45f7-b60a-00f68c07924d"],
  Cell[BoxData[
   RowBox[{
    ButtonBox["MPSOverlap",
     BaseStyle->"Link",
-    ButtonData->"paclet:WolframTensorNetworks/ref/MPSOverlap"], "[", 
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSOverlap"], "[", 
    RowBox[{
     StyleBox["mps", "TI"], ",", 
     StyleBox["mps", "TI"]}], "]"}]], "InlineFormula",ExpressionUUID->
-  "c540fecf-9d91-4492-b28b-9565aebdb765"],
- "\[LineSeparator]returns the squared norm of the MPS."
+  "21892f5b-45ee-45e1-85ff-5a79829460e7"],
+ "\[LineSeparator]returns the squared norm ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox[
+     RowBox[{
+     "\[LeftDoubleBracketingBar]", "\[Psi]", "\[RightDoubleBracketingBar]"}], 
+     "2"], "=", 
+    RowBox[{
+    "\[LeftAngleBracket]", "\[Psi]", "|", "\[Psi]", 
+     "\[RightAngleBracket]"}]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"3770ff40-43c3-439f-95a8-eb5e85cd761b"],
+ "."
 }], "Usage",
- CellChangeTimes->{{3.9786383801608047`*^9, 3.978638380200629*^9}},
- CellID->1264108980,ExpressionUUID->"928ae0ba-4957-4f27-a98a-3470198a354a"],
+ CellID->343718104,ExpressionUUID->"7070dfde-a989-488b-8845-d07444525730"],
 
-Cell[" ", "Notes",
- CellID->823907089,ExpressionUUID->"18c5e086-2ccc-46aa-973b-410c7c65e82e"]
+Cell[TextData[{
+ "The second argument is conjugated: ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"\[LeftAngleBracket]", 
+    SubscriptBox["\[Psi]", "1"], "|", 
+    SubscriptBox["\[Psi]", "2"], "\[RightAngleBracket]"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"a1923587-8263-4700-bbbe-994088766fc5"],
+ " is the standard quantum-mechanical inner product, antilinear in the first \
+argument and linear in the second."
+}], "Notes",
+ CellID->557581098,ExpressionUUID->"a70226dd-5e3b-4a7b-ba34-ff66af94dadb"],
+
+Cell["\<\
+The two MPS must have the same number of sites and matching physical \
+dimensions on every site.\
+\>", "Notes",
+ CellID->153824125,ExpressionUUID->"3ebf7231-c39e-469a-9962-d1a9816afdbd"],
+
+Cell[TextData[{
+ "Internally, ",
+ Cell[BoxData[
+  ButtonBox["MPSOverlap",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSOverlap"]], 
+  "InlineFormula",ExpressionUUID->"16cb6ada-d0e3-45b0-a0a6-1b992104a3b7"],
+ " performs a left-to-right transfer-matrix sweep: at each site the running \
+transfer matrix is contracted with the current site's tensor of ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["\[Psi]", "1"], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"9e557358-4583-4555-a8e3-5f519f92e474"],
+ " and the conjugate of the corresponding tensor of ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["\[Psi]", "2"], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"2e7a829a-0190-47f0-868e-78eb99c69295"],
+ ". The final result is a scalar."
+}], "Notes",
+ CellID->124046270,ExpressionUUID->"892eedba-0ccd-4b22-b395-2b5025ab29e0"],
+
+Cell[TextData[{
+ "The per-site contractions are expressed with ",
+ Cell[BoxData[
+  ButtonBox["EinsteinSummation",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/EinsteinSummation"]], 
+  "InlineFormula",ExpressionUUID->"58f9afc2-0f47-44c3-914a-00f2b378bbe9"],
+ " and evaluated with ",
+ Cell[BoxData[
+  ButtonBox["ActivateTensors",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ActivateTensors"]], 
+  "InlineFormula",ExpressionUUID->"b9a372f5-3e79-4165-bd20-50da00506d0d"],
+ "."
+}], "Notes",
+ CellID->583623566,ExpressionUUID->"7a9182ab-28de-4460-8a96-16aeae5dc8c9"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["MPSOverlap",
+    BaseStyle->"Link",
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSOverlap"], "[", 
+   RowBox[{
+    StyleBox["mps", "TI"], ",", 
+    StyleBox["mps", "TI"]}], "]"}]], "InlineFormula",ExpressionUUID->
+  "05077c78-54c3-4199-b1ea-f37be68cdc01"],
+ " is the squared 2-norm of the state; ",
+ Cell[BoxData[
+  ButtonBox["MPSNorm",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSNorm"]], "InlineFormula",
+  ExpressionUUID->"389fa891-76ef-46e4-8faf-feff8af64175"],
+ " returns its square root: ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"MPSNorm", "[", 
+    StyleBox["mps", "TI"], "]", "=", 
+    SqrtBox[
+     RowBox[{"Abs", "[", 
+      RowBox[{"MPSOverlap", "[", 
+       RowBox[{
+        StyleBox["mps", "TI"], ",", 
+        StyleBox["mps", "TI"]}], "]"}], "]"}]]}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"6c9e2399-d468-41de-b426-e6f49edc0cfc"],
+ "."
+}], "Notes",
+ CellID->199655225,ExpressionUUID->"6e537c8d-86db-4846-8cb9-46422330a6d6"],
+
+Cell[TextData[{
+ "If the two arguments have different numbers of sites, ",
+ Cell[BoxData[
+  ButtonBox["MPSOverlap",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSOverlap"]], 
+  "InlineFormula",ExpressionUUID->"a4e8d3b7-0b25-4582-9d40-d3228b40b4be"],
+ " issues the message ",
+ Cell[BoxData[
+  StyleBox[
+   RowBox[{"MPSOverlap", "::", "length"}], "TI"]], "InlineFormula",
+  ExpressionUUID->"222541f4-f3ad-43bc-aef9-e562e30c7ce3"],
+ " and returns ",
+ Cell[BoxData[
+  ButtonBox["$Failed",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/$Failed"]], "InlineFormula",ExpressionUUID->
+  "1a7c6d0b-ab5b-4ee8-b1b3-7c4dca6906a6"],
+ "."
+}], "Notes",
+ CellID->958532271,ExpressionUUID->"1e5037e1-03d2-4efb-8d6c-bc7c3b703bab"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -65,55 +192,84 @@ Cell[TextData[{
     Cell[
      BoxData[
       FrameBox[
-       Cell[
-       "Insert links to any related reference (function) pages.", 
-        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+       Cell["Related reference pages.", "MoreInfoText"], BaseStyle -> 
+       "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "a49311ff-8cf4-4395-8355-48752b1e7c82"]
+  "b3b6d462-dc19-422e-bf29-1699ab0a0099"]
 }], "SeeAlsoSection",
- CellID->431888967,ExpressionUUID->"fc641c1a-b549-46b4-9db3-bfd937de044e"],
+ CellID->307448745,ExpressionUUID->"fd173047-72f4-49c6-a503-d1040228ef3a"],
 
 Cell[TextData[{
  Cell[BoxData[
-  TagBox[
-   FrameBox["\<\"XXXX\"\>"],
-   "FunctionPlaceholder"]], "InlineSeeAlsoFunction",
+  ButtonBox["MPSNorm",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSNorm"]], 
+  "InlineSeeAlsoFunction",
   TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
-  "38b20ea1-565e-460d-ac13-131f67080aa2"],
+  "bcff2510-d3ab-45a6-8bbc-9e3a7d8c3ab0"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"301a44b2-25e8-4447-91f8-0179e15747e1"],
  Cell[BoxData[
-  RowBox[{
-  Cell[TextData[StyleBox[
-   " \[FilledVerySmallSquare] ", "InlineSeparator"]],ExpressionUUID->
-    "9170759f-e039-4a30-b4cb-c8167651616c"], 
-   DynamicModuleBox[{$CellContext`nbobj$$ = NotebookObject[
-     FrontEndObject[
-      LinkObject["i7bzb_shm", 209, 9]], 22], $CellContext`cellobj$$ = 
-    CellObject[6753]}, 
-    TemplateBox[{
-      GraphicsBox[{{
-         Thickness[0.06], 
-         StrokeForm[
-          Hue[0.4167, 0.406, 0.502]], 
-         CircleBox[{0, 0}]}, {
-         Thickness[0.06], 
-         StrokeForm[
-          Hue[0.4167, 0.406, 0.502]], 
-         LineBox[{{0, 0.62}, {0, -0.62}}]}, {
-         Thickness[0.06], 
-         StrokeForm[
-          Hue[0.4167, 0.406, 0.502]], 
-         LineBox[{{-0.62, 0}, {0.62, 0}}]}}, 
-       ImagePadding -> {{1., 1.}, {2.4, 1.}}, ImageSize -> 16, 
-       PlotRange -> {{-1.06, 1.06}, {-1.06, 1.06}}, 
-       BaselinePosition -> (Center -> 
-        Center)], $CellContext`nbobj$$, $CellContext`cellobj$$},
-     "InlineListingAddButton"],
-    Initialization:>($CellContext`nbobj$$ = 
-      EvaluationNotebook[]; $CellContext`cellobj$$ = EvaluationCell[])]}]], 
-  "InlineListingAddButton",ExpressionUUID->
-  "5ca121c4-3dc6-49cf-b19e-44f4a548199c"]
+  ButtonBox["MPSNormalize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSNormalize"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "f39ff5f4-9489-4a24-ad4d-c7d13f4d8528"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"2c791dc4-e696-4732-a312-48b44da07cce"],
+ Cell[BoxData[
+  ButtonBox["MPSCanonicalForm",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSCanonicalForm"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "17ffbe1d-6544-48de-93aa-3c9062ba6c65"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"5c1adc61-33b3-49f0-ab67-b64a88e74e19"],
+ Cell[BoxData[
+  ButtonBox["MPSSchmidtValues",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSSchmidtValues"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "b65d0d72-b4eb-4055-af0b-c229cf5fb222"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"36efe7cb-9b3f-4519-914a-d004f088e8d0"],
+ Cell[BoxData[
+  ButtonBox["MPSEntanglementEntropy",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSEntanglementEntropy"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "96aa99b3-e11e-40d8-abcc-4f188089158f"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"9810014a-2b09-4240-a035-be0deae00c7a"],
+ Cell[BoxData[
+  ButtonBox["RandomTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/RandomTensorNetwork"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "38c1a86b-39a4-4686-b390-f01e6ac252ff"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"147264ae-4dd3-45a9-b537-4259250713d5"],
+ Cell[BoxData[
+  ButtonBox["Conjugate",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Conjugate"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "4c9bf440-4acc-437e-8a3f-8d3545f3741a"],
+ Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
+  ExpressionUUID->"daf110a1-94e0-4ccb-b57c-48b022bec943"],
+ Cell[BoxData[
+  ButtonBox["Dot",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Dot"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "9aa7f3c7-25e3-45a1-be65-54247913fba6"]
 }], "SeeAlso",
- CellID->263141509,ExpressionUUID->"6ee0d400-f064-42d7-b7f2-18c87b9a0f46"]
+ CellID->907619075,ExpressionUUID->"68523528-bfcb-46a8-9c2a-b5446a4c7c72"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -125,24 +281,30 @@ Cell[TextData[{
     Cell[
      BoxData[
       FrameBox[
-       Cell["Insert links to related tech notes.", "MoreInfoText"], BaseStyle -> 
+       Cell["Related tech notes.", "MoreInfoText"], BaseStyle -> 
        "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "dd406586-cd53-4654-86b0-3c3b642ab64c"]
+  "df2ebe17-55cc-481d-a328-d25a8bf1fe43"]
 }], "TechNotesSection",
- CellID->950512590,ExpressionUUID->"43f84ef0-b3ac-42a3-9672-b2b8a9eeac23"],
+ CellID->531877277,ExpressionUUID->"4148e72e-51a6-4599-ba27-83617f87fb74"],
 
-Cell[" ", "Tutorials",
- CellID->134250097,ExpressionUUID->"ad9d49f7-2df7-4741-9430-fc9f81bca43d"]
+Cell[TextData[ButtonBox["MPS Algorithms",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/MPSAlgorithms"]], "Tutorials",
+ CellID->277182257,ExpressionUUID->"6571c7fe-03e2-403b-b66a-b266c10d8951"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
 Cell["Related Guides", "MoreAboutSection",
- CellID->1483550929,ExpressionUUID->"fc8566b5-46be-4f89-af80-75799c0bd160"],
+ CellID->903451653,ExpressionUUID->"6a2d8f97-38d0-4fb2-b14a-517235cf0553"],
 
-Cell[" ", "MoreAbout",
- CellID->1755322033,ExpressionUUID->"342c6a07-a4ea-4909-8c8a-1d401ae1cec8"]
+Cell[TextData[ButtonBox["Tensor Networks",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/guide/TensorNetworks"]], "MoreAbout",
+ CellID->359157051,ExpressionUUID->"35f50da1-ddca-4c6f-8719-c104899007b7"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -154,16 +316,15 @@ Cell[TextData[{
     Cell[
      BoxData[
       FrameBox[
-       Cell[
-       "Insert links to any related page, including web pages.", 
-        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+       Cell["External links.", "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
+     "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "14cfecb5-880e-4ccd-8b7a-b382708e373a"]
+  "6aa1b1be-5fde-408f-952c-ddb67626f26b"]
 }], "RelatedLinksSection",
- CellID->1714549792,ExpressionUUID->"540eef6e-939d-442a-99ea-95a2caa0976f"],
+ CellID->987384565,ExpressionUUID->"2af3964a-8f4e-4f55-b0cf-aab52e22fc8d"],
 
 Cell[" ", "RelatedLinks",
- CellID->1502778698,ExpressionUUID->"33e0b5a9-4b4a-4008-a938-354354f875be"]
+ CellID->202585659,ExpressionUUID->"9aa1bccc-ffc0-4427-947d-046d5b04c2ec"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -180,14 +341,14 @@ Cell[TextData[{
 Needs[\[Ellipsis]].", "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
      "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "cfea5b67-7b95-4d08-892b-b583f668b9e5"]
+  "2351b292-4706-47bb-9c98-3e8ff923da7e"]
 }], "ExamplesInitializationSection",
- CellID->646404919,ExpressionUUID->"437dcc7e-a359-45a6-aaca-268cea628459"],
+ CellID->858350790,ExpressionUUID->"3d5137a6-59e5-40a0-9b45-7203e14faa24"],
 
 Cell[BoxData[
  RowBox[{"Needs", "[", "\"\<Wolfram`TensorNetworks`\>\"", 
   "]"}]], "ExampleInitialization",
- CellID->7703460,ExpressionUUID->"a2722e5f-1b23-4230-98eb-4f4a3ca97958"]
+ CellID->39120595,ExpressionUUID->"6972b843-9cb3-4de6-a424-feb895117cd3"]
 }, Open  ]],
 
 Cell[BoxData[
@@ -202,41 +363,114 @@ Cell[BoxData[
       ButtonData:>"ExtendedExamples"]}
    }],
   $Line = 0; Null]], "PrimaryExamplesSection",
- CellID->623033400,ExpressionUUID->"162494ca-c11b-47c2-8ef7-0175d4cefa6c"],
+ CellID->559237235,ExpressionUUID->"71260463-03fb-48fe-96bb-3f7312391a06"],
 
-Cell["Compute the overlap between two MPS:", "ExampleText",
- CellID->250293871,ExpressionUUID->"c207cc35-3376-4dc8-8219-cfd972be8baa"],
+Cell["Set a seed for reproducibility:", "ExampleText",
+ CellID->934500192,ExpressionUUID->"f5b1b586-b5c3-4fe6-b998-729c375191bb"],
 
 Cell[BoxData[
- RowBox[{"mps1", "=", 
-  RowBox[{"RandomTensorNetwork", "[", 
-   RowBox[{"\"\<MPS\>\"", "[", 
-    RowBox[{"4", ",", "2", ",", "3"}], "]"}], "]"}]}]], "Input",
+ RowBox[{"SeedRandom", "[", "42", "]"}]], "Input",
  CellLabel->"In[1]:=",
- CellID->250293872,ExpressionUUID->"e6e8392f-6e8a-4125-a92f-9e8249789c25"],
+ CellID->24376878,ExpressionUUID->"b701789a-38a1-4587-9d8b-806d41f68cbf"],
+
+Cell["Build a length-6, bond-4, physical-2 MPS:", "ExampleText",
+ CellID->805084731,ExpressionUUID->"a7de347b-dd00-4c5e-ab4e-677b8caa7231"],
 
 Cell[BoxData[
- RowBox[{"mps2", "=", 
-  RowBox[{"RandomTensorNetwork", "[", 
-   RowBox[{"\"\<MPS\>\"", "[", 
-    RowBox[{"4", ",", "2", ",", "3"}], "]"}], "]"}]}]], "Input",
+ RowBox[{
+  RowBox[{"mps", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], 
+  ";"}]], "Input",
  CellLabel->"In[2]:=",
- CellID->250293873,ExpressionUUID->"c86ca383-c4f0-4b68-be3f-8378d0cd82a9"],
+ CellID->702603258,ExpressionUUID->"c7683156-1a5e-4e3b-a8eb-3b9093f82259"],
+
+Cell["\<\
+Compute the squared norm of the state as the overlap with itself:\
+\>", "ExampleText",
+ CellID->36008707,ExpressionUUID->"4a08b928-c20e-44c3-a8e2-63496d0bf064"],
 
 Cell[BoxData[
  RowBox[{"MPSOverlap", "[", 
-  RowBox[{"mps1", ",", "mps2"}], "]"}]], "Input",
+  RowBox[{"mps", ",", " ", "mps"}], "]"}]], "Input",
  CellLabel->"In[3]:=",
- CellID->250293874,ExpressionUUID->"d56b6b2c-39a9-4083-bc71-1261effe6ba2"],
+ CellID->310496240,ExpressionUUID->"b049453e-ed5b-4852-89f5-b3bf8e6a9ac7"],
 
-Cell["Compute the squared norm of an MPS:", "ExampleText",
- CellID->250293875,ExpressionUUID->"4dfd3e21-7c2f-4bb7-9941-0a24ebca2737"],
+Cell[BoxData["69.34374125852828`"], "Output",
+ CellLabel->"Out[3]=",
+ CellID->575199444,ExpressionUUID->"c2c7aa3c-eb9c-4994-a7ee-41a6c214dc80"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "fc6692b1-a209-41cb-be75-08ae05c0cb11"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->701623890,ExpressionUUID->"6f907f61-5995-4eb3-b190-8192465a6c99"],
+
+Cell["Build two independent MPSs and overlap them:", "ExampleText",
+ CellID->517012148,ExpressionUUID->"9a74af0a-4523-4bb9-b795-310d19b3e5da"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"mps1", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->800285540,ExpressionUUID->"c4c9e28c-ce06-434b-b19b-b219509f45da"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"mps2", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->"In[5]:=",
+ CellID->751854161,ExpressionUUID->"b55e359f-4279-4587-838a-138519715063"],
 
 Cell[BoxData[
  RowBox[{"MPSOverlap", "[", 
-  RowBox[{"mps1", ",", "mps1"}], "]"}]], "Input",
- CellLabel->"In[4]:=",
- CellID->250293876,ExpressionUUID->"91ca50ef-4669-49ca-a141-d961da7b41ab"],
+  RowBox[{"mps1", ",", " ", "mps2"}], "]"}]], "Input",
+ CellLabel->"In[6]:=",
+ CellID->188673117,ExpressionUUID->"7a928b5b-ceec-4a54-bcec-1d44e2e5c9d0"],
+
+Cell[BoxData["5.425336267165517`"], "Output",
+ CellLabel->"Out[6]=",
+ CellID->759864439,ExpressionUUID->"22c5aaa6-c1ff-43b3-beda-3d4056c7cf40"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "a735b3c9-e998-4745-8fde-3e3f74118b5e"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->812340239,ExpressionUUID->"d9f0fc95-e588-4de3-93cd-f684dd20f713"],
+
+Cell["The overlap is Hermitian-symmetric in its two arguments:", "ExampleText",
+ CellID->343670933,ExpressionUUID->"006ef420-c08f-4612-ace0-0630ebecee33"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"mps1", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"mps2", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Conjugate", "[", 
+  RowBox[{"MPSOverlap", "[", 
+   RowBox[{"mps2", ",", " ", "mps1"}], "]"}], "]"}]}], "Input",
+ CellLabel->"In[7]:=",
+ CellID->352798411,ExpressionUUID->"ef65513f-d792-495b-88d2-bc6903f68f89"],
+
+Cell[BoxData["5.425336267165516`"], "Output",
+ CellLabel->"Out[7]=",
+ CellID->63493552,ExpressionUUID->"f26f791a-1d3c-41a6-b834-e4a5df238b94"],
 
 Cell[CellGroupData[{
 
@@ -250,103 +484,475 @@ Cell[TextData[{
        Cell["Extended examples in standardized sections.", "MoreInfoText"], 
        BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "a99bfaa4-6d91-460d-83bd-30bd43aec890"]
+  "52c73ded-28cd-44c2-a757-513a4e49959e"]
 }], "ExtendedExamplesSection",
  CellTags->"ExtendedExamples",
- CellID->192091028,ExpressionUUID->"914ec8d7-3b89-4b27-8fe8-a3cf877d2908"],
+ CellID->503934106,ExpressionUUID->"a73c52f8-5a36-4adb-bd9e-b7a342b308fc"],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Scope", "ExampleSection",ExpressionUUID->
-   "6572ed94-720c-46a0-afeb-7e4c2f8d1174"],
+   "87ad9c0b-1023-4fe8-92a8-c88ff70bc2ac"],
   $Line = 0; Null]], "ExampleSection",
- CellID->805986155,ExpressionUUID->"8fbfb3d4-f00f-4b7e-8ac1-29cd48c4fdf7"],
+ CellID->731595763,ExpressionUUID->"02c36571-6f8f-49a0-96b6-73cf986099ae"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Self-overlap and squared norm", "ExampleSubsection",ExpressionUUID->
+   "d8495d62-3225-4105-9bf6-d7b516b9e71c"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->541295903,ExpressionUUID->"3c7dfefa-7b88-468e-ac41-3740bc084f9e"],
+
+Cell["Self-overlap returns the squared 2-norm of the MPS:", "ExampleText",
+ CellID->345110454,ExpressionUUID->"5dce1291-0fbc-45ff-bf79-7e2e27372578"],
+
+Cell[BoxData[
+ RowBox[{"SeedRandom", "[", "42", "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->148042911,ExpressionUUID->"440b1b24-73ab-4a9b-992e-3654a31ae631"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"mps", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->452000499,ExpressionUUID->"aa33fc45-6030-445c-8dbe-3170b9b09782"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"MPSOverlap", "[", 
+    RowBox[{"mps", ",", " ", "mps"}], "]"}], ",", " ", 
+   RowBox[{
+    RowBox[{"MPSNorm", "[", "mps", "]"}], "^", "2"}]}], "}"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->15253677,ExpressionUUID->"93358514-2784-4f32-a052-8c21797b9e0a"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"69.34374125852828`", ",", "69.3437412585283`"}], "}"}]], "Output",
+ CellLabel->"Out[3]=",
+ CellID->863643675,ExpressionUUID->"0c066b6c-c60c-4f28-9dca-af89f11c7605"],
+
+Cell["The difference is zero to floating-point precision:", "ExampleText",
+ CellID->550555444,ExpressionUUID->"ce0c2633-7447-4794-919b-8e9e2a269f6c"],
+
+Cell[BoxData[
+ RowBox[{"Chop", "[", 
+  RowBox[{
+   RowBox[{"MPSOverlap", "[", 
+    RowBox[{"mps", ",", " ", "mps"}], "]"}], " ", "-", " ", 
+   RowBox[{
+    RowBox[{"MPSNorm", "[", "mps", "]"}], "^", "2"}]}], "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->994557560,ExpressionUUID->"aa0d7f0d-e1c9-4676-99e9-a3ef5e8df2c8"],
+
+Cell[BoxData["0"], "Output",
+ CellLabel->"Out[4]=",
+ CellID->94438986,ExpressionUUID->"66aa25b4-54f2-4093-9a64-01dd161ef231"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Conjugate (Hermitian) symmetry", "ExampleSubsection",ExpressionUUID->
+   "2d0ac45e-7d5c-440c-bedf-32da558fc33b"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->112931233,ExpressionUUID->"f818d158-af07-426d-9f2a-a2dcca462f14"],
+
+Cell["\<\
+The overlap is conjugate-symmetric when the arguments are exchanged:\
+\>", "ExampleText",
+ CellID->570190521,ExpressionUUID->"910a0a6d-7c62-45be-9aa0-9f36987b9e9e"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"mps1", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->"In[5]:=",
+ CellID->957081086,ExpressionUUID->"a32498d0-3122-4d6a-b3db-9f3ede3ffe88"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"mps2", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->"In[6]:=",
+ CellID->152690062,ExpressionUUID->"3b7f0e68-ae86-4be7-a4d2-325c45a47eb4"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"MPSOverlap", "[", 
+    RowBox[{"mps1", ",", " ", "mps2"}], "]"}], ",", " ", 
+   RowBox[{"Conjugate", "[", 
+    RowBox[{"MPSOverlap", "[", 
+     RowBox[{"mps2", ",", " ", "mps1"}], "]"}], "]"}]}], "}"}]], "Input",
+ CellLabel->"In[7]:=",
+ CellID->971949656,ExpressionUUID->"87a68fa9-a9e0-46f6-87c8-8aa026a85ae1"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"5.425336267165517`", ",", "5.425336267165516`"}], "}"}]], "Output",\
+
+ CellLabel->"Out[7]=",
+ CellID->950092380,ExpressionUUID->"f970a50f-dc64-4219-8dd2-8e1fd651dcea"],
+
+Cell[BoxData[
+ RowBox[{"Chop", "[", 
+  RowBox[{
+   RowBox[{"MPSOverlap", "[", 
+    RowBox[{"mps1", ",", " ", "mps2"}], "]"}], " ", "-", " ", 
+   RowBox[{"Conjugate", "[", 
+    RowBox[{"MPSOverlap", "[", 
+     RowBox[{"mps2", ",", " ", "mps1"}], "]"}], "]"}]}], "]"}]], "Input",
+ CellLabel->"In[8]:=",
+ CellID->441278310,ExpressionUUID->"97a25dd4-b21a-4de2-b925-66880951c805"],
+
+Cell[BoxData["0"], "Output",
+ CellLabel->"Out[8]=",
+ CellID->399086832,ExpressionUUID->"0abfd7b7-7614-4f6f-9112-e69f0932a48a"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Normalized MPSs", "ExampleSubsection",ExpressionUUID->
+   "a34e6446-6b52-4b7e-9344-00dc99d6c3a1"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->512611757,ExpressionUUID->"5af80e5e-49b0-4556-842c-1e06f12a19fd"],
+
+Cell["A normalized MPS has unit squared norm:", "ExampleText",
+ CellID->267201334,ExpressionUUID->"61777e6a-28a9-4f9b-9f04-901339087709"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"mps", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"MPSOverlap", "[", 
+  RowBox[{
+   RowBox[{"MPSNormalize", "[", "mps", "]"}], ",", " ", 
+   RowBox[{"MPSNormalize", "[", "mps", "]"}]}], "]"}]}], "Input",
+ CellLabel->"In[9]:=",
+ CellID->244772187,ExpressionUUID->"fc7efd11-fb71-4390-a7da-7f8f3a0be78b"],
+
+Cell[BoxData["1.0000000000000002`"], "Output",
+ CellLabel->"Out[9]=",
+ CellID->22711435,ExpressionUUID->"1145d140-83a4-40b5-bdfa-8529a11aad3b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Length mismatch", "ExampleSubsection",ExpressionUUID->
+   "1d341b36-ce45-4633-ac52-58e38f49905f"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->982099924,ExpressionUUID->"7fd69ed4-9a8a-4218-a787-097273a9e18a"],
+
+Cell["\<\
+Different numbers of sites cause MPSOverlap to fail; we wrap the call in \
+Quiet + MatchQ to detect the rejection:\
+\>", "ExampleText",
+ CellID->139556629,ExpressionUUID->"ce32cb71-0c68-4a6d-a015-24303e795f55"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"mps", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"shortMPS", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"5", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], 
+  ";"}]}], "Input",
+ CellLabel->"In[10]:=",
+ CellID->191356342,ExpressionUUID->"23296663-1d80-4be0-9457-1d753e613847"],
+
+Cell[BoxData[
+ RowBox[{"MatchQ", "[", 
+  RowBox[{
+   RowBox[{"Quiet", "[", 
+    RowBox[{"MPSOverlap", "[", 
+     RowBox[{"mps", ",", " ", "shortMPS"}], "]"}], "]"}], ",", " ", 
+   "$Failed"}], "]"}]], "Input",
+ CellLabel->"In[11]:=",
+ CellID->443133463,ExpressionUUID->"d1450aa0-f840-48de-bcfc-c6d5e3a86efb"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[11]=",
+ CellID->360973972,ExpressionUUID->"a3a09c40-81e6-493e-b773-e30f887deb9b"],
+
+Cell[BoxData["Null"], "Input",ExpressionUUID->"2c07947c-85b2-4f8a-b960-77a2c6d6b11c"]
+}, Open  ]]
+}, Open  ]],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Generalizations & Extensions", "ExampleSection",ExpressionUUID->
-   "470d28aa-065c-4599-b262-1225ef408a1e"],
+   "6359ef01-0717-4ffe-9cc8-05fc879e23a3"],
   $Line = 0; Null]], "ExampleSection",
- CellID->2029945456,ExpressionUUID->"1b3c71fc-ef65-4c37-ad8a-5c3f283593a7"],
+ CellID->169507509,ExpressionUUID->"bc28f698-1a02-4d96-8fec-01803fe8508b"],
 
 Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Options", "ExampleSection",ExpressionUUID->
-   "ff807b36-178e-41d6-9ac3-a6eebb1c6353"],
+   "483cee87-ebaf-4b53-be96-128c89713b87"],
   $Line = 0; Null]], "ExampleSection",
- CellID->220579103,ExpressionUUID->"4576cb0d-e940-4215-937e-1f853e58a4b3"],
+ CellID->945411456,ExpressionUUID->"ff7e1835-2c5f-460c-a264-25a0b5192c7d"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   " ", "ExampleSubsection",ExpressionUUID->
-   "33fd26b7-07f8-4e49-a53c-886688c134fd"],
+   "86785a1a-b1ab-4d1e-9eb1-720161021a81"],
   $Line = 0; Null]], "ExampleSubsection",
- CellID->716209399,ExpressionUUID->"cdc56383-b0b2-4274-9346-5598448df5a6"],
+ CellID->72524419,ExpressionUUID->"92d2c79d-175e-4859-b6f7-59426c7c309f"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   " ", "ExampleSubsection",ExpressionUUID->
-   "57a6ffcf-b5c6-41f2-805e-4fe68b2bbd5c"],
+   "9fef7ecc-e22f-442f-8ae4-9d9441ad868c"],
   $Line = 0; Null]], "ExampleSubsection",
- CellID->685527558,ExpressionUUID->"b9c05048-625f-479c-8819-a24fae37efee"]
+ CellID->585521777,ExpressionUUID->"ee9cc200-d904-4035-8bca-c8b29c1c05a3"]
 }, Open  ]],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Applications", "ExampleSection",ExpressionUUID->
-   "2730fcd4-7c40-4434-901c-f6c83b779303"],
+   "9c9efa00-9b8a-41c7-91c4-65d726f7b665"],
   $Line = 0; Null]], "ExampleSection",
- CellID->411901151,ExpressionUUID->"df702651-8cd3-49db-be15-455396267f08"],
+ CellID->426465682,ExpressionUUID->"f149f6ad-5068-4af8-a1cd-8a0405437358"],
+
+Cell["Distance between two normalized MPS:", "ExampleText",
+ CellID->32118819,ExpressionUUID->"2e6107fb-f483-4f2c-9a8f-6cd1b9e4ee66"],
+
+Cell[BoxData[
+ RowBox[{"SeedRandom", "[", "43", "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->795887183,ExpressionUUID->"bc966ef9-2099-4338-9176-dd924f6f31dc"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"mpsA", " ", "=", " ", 
+   RowBox[{"MPSNormalize", "[", 
+    RowBox[{"RandomTensorNetwork", "[", 
+     RowBox[{"\"\<MPS\>\"", "[", 
+      RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->651726158,ExpressionUUID->"4a023616-1349-47bd-b00c-a3d75753e043"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"mpsB", " ", "=", " ", 
+   RowBox[{"MPSNormalize", "[", 
+    RowBox[{"RandomTensorNetwork", "[", 
+     RowBox[{"\"\<MPS\>\"", "[", 
+      RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->598812641,ExpressionUUID->"8335682c-db9b-4fad-9022-078116c37777"],
+
+Cell[BoxData[
+ RowBox[{"Sqrt", "[", 
+  RowBox[{"Abs", "[", 
+   RowBox[{
+    RowBox[{"MPSOverlap", "[", 
+     RowBox[{"mpsA", ",", " ", "mpsA"}], "]"}], " ", "-", " ", 
+    RowBox[{"2", " ", 
+     RowBox[{"Re", "[", 
+      RowBox[{"MPSOverlap", "[", 
+       RowBox[{"mpsA", ",", " ", "mpsB"}], "]"}], "]"}]}], " ", "+", " ", 
+    RowBox[{"MPSOverlap", "[", 
+     RowBox[{"mpsB", ",", " ", "mpsB"}], "]"}]}], "]"}], "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->574787637,ExpressionUUID->"424f06f6-93ad-4733-a3ec-ce23d57a9645"],
+
+Cell[BoxData["1.4307621842635339`"], "Output",
+ CellLabel->"Out[4]=",
+ CellID->505346272,ExpressionUUID->"357d52ed-a0ed-4b01-a408-e6147a7bf746"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "8721b1b0-f517-414b-847d-4eba325361f5"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->388498723,ExpressionUUID->"6b5862f6-6b20-46a2-8d4d-914cfcd007ba"],
+
+Cell["\<\
+Fidelity (squared overlap modulus) between two normalized MPS:\
+\>", "ExampleText",
+ CellID->847658255,ExpressionUUID->"7f16be9e-4c1d-4f0e-9fc5-bff532e49820"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"mpsA", " ", "=", " ", 
+   RowBox[{"MPSNormalize", "[", 
+    RowBox[{"RandomTensorNetwork", "[", 
+     RowBox[{"\"\<MPS\>\"", "[", 
+      RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"mpsB", " ", "=", " ", 
+   RowBox[{"MPSNormalize", "[", 
+    RowBox[{"RandomTensorNetwork", "[", 
+     RowBox[{"\"\<MPS\>\"", "[", 
+      RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Abs", "[", 
+   RowBox[{"MPSOverlap", "[", 
+    RowBox[{"mpsA", ",", " ", "mpsB"}], "]"}], "]"}], "^", "2"}]}], "Input",
+ CellLabel->"In[5]:=",
+ CellID->100448067,ExpressionUUID->"24916c5d-5157-4a02-855d-61d8d73aea7b"],
+
+Cell[BoxData["0.0005541416732485555`"], "Output",
+ CellLabel->"Out[5]=",
+ CellID->420034120,ExpressionUUID->"1a1df9a1-51d5-460a-b7ea-da0468a813a4"],
+
+Cell[BoxData["Null"], "Input",ExpressionUUID->"e8bae872-7b4b-4763-b302-b352646183da"]
+}, Open  ]],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Properties & Relations", "ExampleSection",ExpressionUUID->
-   "a27322f8-c55e-4cdc-a3d2-05b44afd9bb3"],
+   "ddf5472b-7580-4ea8-8862-37feaf3d798a"],
   $Line = 0; Null]], "ExampleSection",
- CellID->1482850576,ExpressionUUID->"7b30c9e5-faf5-4f5d-ac6e-7ac623ed3a25"],
+ CellID->67386644,ExpressionUUID->"f35e3284-52bf-4e4f-a697-619ef93e51e1"],
+
+Cell["\<\
+The MPS norm is the square root of the self-overlap absolute value:\
+\>", "ExampleText",
+ CellID->298874722,ExpressionUUID->"12d6938b-d270-4a86-a6f4-c545da101c2b"],
+
+Cell[BoxData[
+ RowBox[{"SeedRandom", "[", "42", "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->216899900,ExpressionUUID->"f126ce2c-d707-44b5-b168-7dc7c0d088c7"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"mps", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->633068577,ExpressionUUID->"87253a76-e1b3-4fff-8d0e-addf15cf581e"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"Sqrt", "[", 
+    RowBox[{"Abs", "[", 
+     RowBox[{"MPSOverlap", "[", 
+      RowBox[{"mps", ",", " ", "mps"}], "]"}], "]"}], "]"}], ",", " ", 
+   RowBox[{"MPSNorm", "[", "mps", "]"}]}], "}"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->195640508,ExpressionUUID->"8777e1ed-a9f8-4e56-bb0c-7e2be88f29bc"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"8.327288950104247`", ",", "8.327288950104247`"}], "}"}]], "Output",\
+
+ CellLabel->"Out[3]=",
+ CellID->103471014,ExpressionUUID->"f17e662c-3123-49d8-af0d-b7a4791386a8"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "b00315b1-b69d-4c1a-a54e-a4be9133d48b"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->589269111,ExpressionUUID->"94f4ebc2-e7db-465f-a9f2-6df20f527712"],
+
+Cell["Normalization rescales an MPS so its self-overlap is one:", \
+"ExampleText",
+ CellID->941265909,ExpressionUUID->"3d3875e1-fb08-4b4d-a380-a1e5e146290b"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"mps", " ", "=", " ", 
+   RowBox[{"RandomTensorNetwork", "[", 
+    RowBox[{"\"\<MPS\>\"", "[", 
+     RowBox[{"6", ",", " ", "4", ",", " ", "2"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"MPSOverlap", "[", 
+  RowBox[{
+   RowBox[{"MPSNormalize", "[", "mps", "]"}], ",", " ", 
+   RowBox[{"MPSNormalize", "[", "mps", "]"}]}], "]"}]}], "Input",
+ CellLabel->"In[4]:=",
+ CellID->90067601,ExpressionUUID->"a53ec4f3-4e6e-4d7a-be40-d972bfce95ce"],
+
+Cell[BoxData["1.0000000000000002`"], "Output",
+ CellLabel->"Out[4]=",
+ CellID->873324768,ExpressionUUID->"cef97051-1ec3-4778-86bc-753cbf7c116a"],
+
+Cell[BoxData["Null"], "Input",ExpressionUUID->"c7d097ed-3b22-4134-82c8-38a0244bc0a9"]
+}, Open  ]],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Possible Issues", "ExampleSection",ExpressionUUID->
-   "56994b59-623a-4871-91df-7fbd3c1baa83"],
+   "7d8a4c4e-cd82-4994-b190-3a2610d064ac"],
   $Line = 0; Null]], "ExampleSection",
- CellID->721907397,ExpressionUUID->"672545a0-b2a9-4faa-90e4-aee7bac9d6f9"],
+ CellID->170584839,ExpressionUUID->"57e1cb8d-ab60-4726-9dba-310bfc6d8917"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Interactive Examples", "ExampleSection",ExpressionUUID->
-   "342f1f09-e54d-4e38-986c-975ca82c0967"],
+   "3b217f11-5c89-433c-815c-9bb4bb44ea33"],
   $Line = 0; Null]], "ExampleSection",
- CellID->1962499476,ExpressionUUID->"18b4bcb6-7865-4d6d-b2a9-10f9e272b789"],
+ CellID->755956100,ExpressionUUID->"c5d93139-0493-43c6-bfd3-1f8c8130715f"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Neat Examples", "ExampleSection",ExpressionUUID->
-   "20c7f652-8b32-414a-acb5-60ff8fb0a694"],
+   "8721dbe5-28f6-48d9-910b-f2559a73f5ec"],
   $Line = 0; Null]], "ExampleSection",
- CellID->527358859,ExpressionUUID->"b3dd9bd9-d70d-4343-b697-add58de25e58"]
+ CellID->422871614,ExpressionUUID->"83f76d29-83bf-4857-a21c-6bb4103fea85"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
 Cell["Metadata", "MetadataSection",
- CellID->655332044,ExpressionUUID->"2df6d942-a892-4fa0-9278-694e12b41db3"],
+ CellID->60341462,ExpressionUUID->"448bbf74-c684-4b5a-bc62-645e762790a7"],
 
 Cell[TextData[{
  "New in: ",
- Cell["XX", "HistoryData",
-  CellTags->"New",ExpressionUUID->"d9ce1c2f-5a71-49a6-bd1e-76e839b5d6cd"],
+ Cell["1.0", "HistoryData",
+  CellTags->"New",ExpressionUUID->"ab20166f-580e-4288-9f81-c1fd9a9badf4"],
  " | Modified in: ",
  Cell[" ", "HistoryData",
-  CellTags->"Modified",ExpressionUUID->"efa054bf-de0a-4f61-8ebf-897b9e0289ec"],
+  CellTags->"Modified",ExpressionUUID->"b86ed0ca-0b58-41fc-8168-87b1ea67ca68"],
  " | Obsolete in: ",
  Cell[" ", "HistoryData",
   CellTags->"Obsolete",ExpressionUUID->
-  "c3a3f880-182e-4519-9095-de55b38706a3"]
+  "2decf710-3ae1-419d-84af-9607f7c6ad84"]
 }], "History",
- CellID->1869521692,ExpressionUUID->"c79a515a-d4ae-4f16-bba2-d6f86351ead4"],
+ CellID->485007864,ExpressionUUID->"48023b4d-fa82-4b80-8955-e7e4e4da3cfd"],
 
 Cell[CellGroupData[{
 
@@ -361,67 +967,85 @@ Cell[TextData[{
        "Metadata such as page URI, context, and type of documentation page.", 
         "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
-  "ecbc20ff-0999-4ad9-b945-dfededd1b0b0"]
+  "547b2fba-cb17-4e86-b125-0fda20250f38"]
 }], "CategorizationSection",
- CellID->1217838187,ExpressionUUID->"2b4e958c-64ce-42a6-a782-1c1bfbceeaff"],
+ CellID->422956419,ExpressionUUID->"301e7664-7311-433b-9d90-80cd2f69d14a"],
 
 Cell["Symbol", "Categorization",
  CellLabel->"Entity Type",
- CellID->539769352,ExpressionUUID->"f7ea4227-5eb6-442c-9e4a-f92ad89f340c"],
+ CellID->676702599,ExpressionUUID->"c51d0b42-c858-4eaf-b1df-98ca13aaa7bc"],
 
 Cell["Wolfram/TensorNetworks", "Categorization",
  CellLabel->"Paclet Name",
- CellID->1841156331,ExpressionUUID->"0b884921-49a6-4ed3-8e6b-2f041bb130c4"],
+ CellID->872214930,ExpressionUUID->"a66e09f2-f43e-4941-a0f4-9666067f8546"],
 
 Cell["Wolfram`TensorNetworks`", "Categorization",
  CellLabel->"Context",
- CellID->1222585494,ExpressionUUID->"68a16e6d-5d70-4e7d-b25c-d2b1e3d5a962"],
+ CellID->580675319,ExpressionUUID->"440e5274-d69c-434c-a76f-887ab80d347c"],
 
 Cell["Wolfram/TensorNetworks/ref/MPSOverlap", "Categorization",
  CellLabel->"URI",
- CellID->870863162,ExpressionUUID->"87008266-8812-41c1-b6d6-ee6d54241ab9"]
+ CellID->774708529,ExpressionUUID->"fc62aa67-3990-4e8d-8a04-7332f2c0ec54"]
 }, Closed]],
 
 Cell[CellGroupData[{
 
 Cell["Keywords", "KeywordsSection",
- CellID->1080258868,ExpressionUUID->"62f2a81e-65c8-4dba-a45d-19567ecca55d"],
+ CellID->512270649,ExpressionUUID->"fbcf6314-6fe7-4d46-a544-eeb9161c86ec"],
 
-Cell[" ", "Keywords",
- CellID->1084042738,ExpressionUUID->"317edb4f-856c-4f11-86db-c550f09847c6"]
+Cell["matrix product state", "Keywords",
+ CellID->239152809,ExpressionUUID->"44e9dca5-63ec-4950-aa3a-bf3dabc0458a"],
+
+Cell["inner product", "Keywords",
+ CellID->907084689,ExpressionUUID->"425962bd-5327-4924-9058-a7bd2ddff2db"],
+
+Cell["overlap", "Keywords",
+ CellID->917114821,ExpressionUUID->"75dd4abd-2f4f-408c-839f-b71e7757a0af"],
+
+Cell["fidelity", "Keywords",
+ CellID->488521345,ExpressionUUID->"38ce2666-11f9-4658-96a8-aabc0df317f9"],
+
+Cell["transfer matrix", "Keywords",
+ CellID->874517580,ExpressionUUID->"3dff969f-9a18-4075-8376-0492f6c2b9f4"],
+
+Cell["MPS norm", "Keywords",
+ CellID->298570536,ExpressionUUID->"9c9016e9-ff5b-42eb-a311-c9d16f42acfd"],
+
+Cell["quantum state distance", "Keywords",
+ CellID->369720311,ExpressionUUID->"78772a10-4550-41bf-bc5c-ca6ece38ff9d"]
 }, Closed]],
 
 Cell[CellGroupData[{
 
 Cell["Syntax Templates", "TemplatesSection",
- CellID->255036418,ExpressionUUID->"a065c8a0-8d72-47ca-b76d-fc30445cc783"],
+ CellID->690653418,ExpressionUUID->"3890b08f-3e6c-4861-9804-056f5c187c43"],
 
 Cell[BoxData[""], "Template",
  CellLabel->"Additional Function Template",
- CellID->19717914,ExpressionUUID->"f6853e2c-9d5f-4151-8e62-d278745a235e"],
+ CellID->463331207,ExpressionUUID->"da98b318-086f-4539-887b-6fc7816c8c2d"],
 
 Cell[BoxData[""], "Template",
  CellLabel->"Arguments Pattern",
- CellID->686498960,ExpressionUUID->"9138d5c8-c8b4-4216-9448-f59efdb656da"],
+ CellID->646977565,ExpressionUUID->"4499a2a8-0725-486f-a123-62482cb27b34"],
 
 Cell[BoxData[""], "Template",
  CellLabel->"Local Variables",
- CellID->1705869036,ExpressionUUID->"2e7a8923-b408-47b8-bb09-fecbfb21fe59"],
+ CellID->343859729,ExpressionUUID->"21fe36db-fc6c-49e0-a586-bed5c95681ae"],
 
 Cell[BoxData[""], "Template",
  CellLabel->"Color Equal Signs",
- CellID->1634200602,ExpressionUUID->"c06343e9-85f6-4d96-8c72-18a476282bc1"]
+ CellID->189328634,ExpressionUUID->"f4761b7a-a52c-4a72-98cb-f3209c917cf4"]
 }, Closed]]
 }, Open  ]]
 },
 WindowSize->{700, 770},
 WindowMargins->{{5, Automatic}, {Automatic, 0}},
 TaggingRules-><|"Paclet" -> "Wolfram/TensorNetworks"|>,
-CellContext->"Global`",
+CellContext->CellGroup,
 FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (February 17, 2026)",
 StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
   CharacterEncoding -> "UTF-8"],
-ExpressionUUID->"2f8abdbc-f9d3-439c-9075-a689f1e90731"
+ExpressionUUID->"938ba623-f4cf-418f-b32e-4273a4d129c4"
 ]
 (* End of Notebook Content *)
 
@@ -429,131 +1053,282 @@ ExpressionUUID->"2f8abdbc-f9d3-439c-9075-a689f1e90731"
 (*CellTagsOutline
 CellTagsIndex->{
  "ExtendedExamples"->{
-  Cell[7917, 242, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"914ec8d7-3b89-4b27-8fe8-a3cf877d2908",
+  Cell[16646, 476, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"a73c52f8-5a36-4adb-bd9e-b7a342b308fc",
    CellTags->"ExtendedExamples",
-   CellID->192091028]}
+   CellID->503934106]}
  }
 *)
 (*CellTagsIndex
 CellTagsIndex->{
- {"ExtendedExamples", 14220, 430}
+ {"ExtendedExamples", 36123, 1054}
  }
 *)
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[576, 22, 107, 1, 70, "ObjectName",ExpressionUUID->"a6d1112d-b95f-440c-b75d-c48e371fe5ac",
- CellID->735154253],
-Cell[686, 25, 1215, 27, 70, "Usage",ExpressionUUID->"928ae0ba-4957-4f27-a98a-3470198a354a",
- CellID->1264108980],
-Cell[1904, 54, 93, 1, 70, "Notes",ExpressionUUID->"18c5e086-2ccc-46aa-973b-410c7c65e82e",
- CellID->823907089]
+Cell[576, 22, 107, 1, 70, "ObjectName",ExpressionUUID->"44865ce6-6964-421b-80f0-7c5943619f7b",
+ CellID->536421856],
+Cell[686, 25, 1691, 45, 70, "Usage",ExpressionUUID->"7070dfde-a989-488b-8845-d07444525730",
+ CellID->343718104],
+Cell[2380, 72, 512, 11, 70, "Notes",ExpressionUUID->"a70226dd-5e3b-4a7b-ba34-ff66af94dadb",
+ CellID->557581098],
+Cell[2895, 85, 196, 4, 70, "Notes",ExpressionUUID->"3ebf7231-c39e-469a-9962-d1a9816afdbd",
+ CellID->153824125],
+Cell[3094, 91, 865, 20, 70, "Notes",ExpressionUUID->"892eedba-0ccd-4b22-b395-2b5025ab29e0",
+ CellID->124046270],
+Cell[3962, 113, 615, 15, 70, "Notes",ExpressionUUID->"7a9182ab-28de-4460-8a96-16aeae5dc8c9",
+ CellID->583623566],
+Cell[4580, 130, 1047, 30, 70, "Notes",ExpressionUUID->"6e537c8d-86db-4846-8cb9-46422330a6d6",
+ CellID->199655225],
+Cell[5630, 162, 743, 20, 70, "Notes",ExpressionUUID->"1e5037e1-03d2-4efb-8d6c-bc7c3b703bab",
+ CellID->958532271]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[2034, 60, 458, 13, 70, "SeeAlsoSection",ExpressionUUID->"fc641c1a-b549-46b4-9db3-bfd937de044e",
- CellID->431888967],
-Cell[2495, 75, 1543, 40, 70, "SeeAlso",ExpressionUUID->"6ee0d400-f064-42d7-b7f2-18c87b9a0f46",
- CellID->263141509]
+Cell[6410, 187, 418, 12, 70, "SeeAlsoSection",ExpressionUUID->"fd173047-72f4-49c6-a503-d1040228ef3a",
+ CellID->307448745],
+Cell[6831, 201, 3110, 70, 70, "SeeAlso",ExpressionUUID->"68523528-bfcb-46a8-9c2a-b5446a4c7c72",
+ CellID->907619075]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4075, 120, 435, 12, 70, "TechNotesSection",ExpressionUUID->"43f84ef0-b3ac-42a3-9672-b2b8a9eeac23",
- CellID->950512590],
-Cell[4513, 134, 97, 1, 70, "Tutorials",ExpressionUUID->"ad9d49f7-2df7-4741-9430-fc9f81bca43d",
- CellID->134250097]
+Cell[9978, 276, 419, 12, 70, "TechNotesSection",ExpressionUUID->"4148e72e-51a6-4599-ba27-83617f87fb74",
+ CellID->531877277],
+Cell[10400, 290, 223, 4, 70, "Tutorials",ExpressionUUID->"6571c7fe-03e2-403b-b66a-b266c10d8951",
+ CellID->277182257]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4647, 140, 118, 1, 70, "MoreAboutSection",ExpressionUUID->"fc8566b5-46be-4f89-af80-75799c0bd160",
- CellID->1483550929],
-Cell[4768, 143, 98, 1, 70, "MoreAbout",ExpressionUUID->"342c6a07-a4ea-4909-8c8a-1d401ae1cec8",
- CellID->1755322033]
+Cell[10660, 299, 117, 1, 70, "MoreAboutSection",ExpressionUUID->"6a2d8f97-38d0-4fb2-b14a-517235cf0553",
+ CellID->903451653],
+Cell[10780, 302, 222, 4, 70, "MoreAbout",ExpressionUUID->"35f50da1-ddca-4c6f-8719-c104899007b7",
+ CellID->359157051]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4903, 149, 473, 13, 70, "RelatedLinksSection",ExpressionUUID->"540eef6e-939d-442a-99ea-95a2caa0976f",
- CellID->1714549792],
-Cell[5379, 164, 101, 1, 70, "RelatedLinks",ExpressionUUID->"33e0b5a9-4b4a-4008-a938-354354f875be",
- CellID->1502778698]
+Cell[11039, 311, 422, 12, 70, "RelatedLinksSection",ExpressionUUID->"2af3964a-8f4e-4f55-b0cf-aab52e22fc8d",
+ CellID->987384565],
+Cell[11464, 325, 100, 1, 70, "RelatedLinks",ExpressionUUID->"9aa1bccc-ffc0-4427-947d-046d5b04c2ec",
+ CellID->202585659]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[5517, 170, 530, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"437dcc7e-a359-45a6-aaca-268cea628459",
- CellID->646404919],
-Cell[6050, 186, 180, 3, 70, "ExampleInitialization",ExpressionUUID->"a2722e5f-1b23-4230-98eb-4f4a3ca97958",
- CellID->7703460]
+Cell[11601, 331, 530, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"3d5137a6-59e5-40a0-9b45-7203e14faa24",
+ CellID->858350790],
+Cell[12134, 347, 181, 3, 70, "ExampleInitialization",ExpressionUUID->"6972b843-9cb3-4de6-a424-feb895117cd3",
+ CellID->39120595]
 }, Open  ]],
-Cell[6245, 192, 442, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"162494ca-c11b-47c2-8ef7-0175d4cefa6c",
- CellID->623033400],
-Cell[6690, 206, 134, 1, 70, "ExampleText",ExpressionUUID->"c207cc35-3376-4dc8-8219-cfd972be8baa",
- CellID->250293871],
-Cell[6827, 209, 270, 6, 70, "Input",ExpressionUUID->"e6e8392f-6e8a-4125-a92f-9e8249789c25",
- CellID->250293872],
-Cell[7100, 217, 270, 6, 70, "Input",ExpressionUUID->"c86ca383-c4f0-4b68-be3f-8378d0cd82a9",
- CellID->250293873],
-Cell[7373, 225, 190, 4, 70, "Input",ExpressionUUID->"d56b6b2c-39a9-4083-bc71-1261effe6ba2",
- CellID->250293874],
-Cell[7566, 231, 133, 1, 70, "ExampleText",ExpressionUUID->"4dfd3e21-7c2f-4bb7-9941-0a24ebca2737",
- CellID->250293875],
-Cell[7702, 234, 190, 4, 70, "Input",ExpressionUUID->"91ca50ef-4669-49ca-a141-d961da7b41ab",
- CellID->250293876],
+Cell[12330, 353, 442, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"71260463-03fb-48fe-96bb-3f7312391a06",
+ CellID->559237235],
+Cell[12775, 367, 129, 1, 70, "ExampleText",ExpressionUUID->"f5b1b586-b5c3-4fe6-b998-729c375191bb",
+ CellID->934500192],
+Cell[12907, 370, 161, 3, 70, "Input",ExpressionUUID->"b701789a-38a1-4587-9d8b-806d41f68cbf",
+ CellID->24376878],
+Cell[13071, 375, 139, 1, 70, "ExampleText",ExpressionUUID->"a7de347b-dd00-4c5e-ab4e-677b8caa7231",
+ CellID->805084731],
+Cell[13213, 378, 313, 8, 70, "Input",ExpressionUUID->"c7683156-1a5e-4e3b-a8eb-3b9093f82259",
+ CellID->702603258],
+Cell[13529, 388, 170, 3, 70, "ExampleText",ExpressionUUID->"4a08b928-c20e-44c3-a8e2-63496d0bf064",
+ CellID->36008707],
+Cell[13702, 393, 193, 4, 70, "Input",ExpressionUUID->"b049453e-ed5b-4852-89f5-b3bf8e6a9ac7",
+ CellID->310496240],
+Cell[13898, 399, 143, 2, 70, "Output",ExpressionUUID->"c2c7aa3c-eb9c-4994-a7ee-41a6c214dc80",
+ CellID->575199444],
+Cell[14044, 403, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"6f907f61-5995-4eb3-b190-8192465a6c99",
+ CellID->701623890],
+Cell[14289, 410, 142, 1, 70, "ExampleText",ExpressionUUID->"9a74af0a-4523-4bb9-b795-310d19b3e5da",
+ CellID->517012148],
+Cell[14434, 413, 314, 8, 70, "Input",ExpressionUUID->"c4c9e28c-ce06-434b-b19b-b219509f45da",
+ CellID->800285540],
+Cell[14751, 423, 314, 8, 70, "Input",ExpressionUUID->"b55e359f-4279-4587-838a-138519715063",
+ CellID->751854161],
+Cell[15068, 433, 195, 4, 70, "Input",ExpressionUUID->"7a928b5b-ceec-4a54-bcec-1d44e2e5c9d0",
+ CellID->188673117],
+Cell[15266, 439, 143, 2, 70, "Output",ExpressionUUID->"22c5aaa6-c1ff-43b3-beda-3d4056c7cf40",
+ CellID->759864439],
+Cell[15412, 443, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"d9f0fc95-e588-4de3-93cd-f684dd20f713",
+ CellID->812340239],
+Cell[15657, 450, 154, 1, 70, "ExampleText",ExpressionUUID->"006ef420-c08f-4612-ace0-0630ebecee33",
+ CellID->343670933],
+Cell[15814, 453, 662, 15, 70, "Input",ExpressionUUID->"ef65513f-d792-495b-88d2-bc6903f68f89",
+ CellID->352798411],
+Cell[16479, 470, 142, 2, 70, "Output",ExpressionUUID->"f26f791a-1d3c-41a6-b834-e4a5df238b94",
+ CellID->63493552],
 Cell[CellGroupData[{
-Cell[7917, 242, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"914ec8d7-3b89-4b27-8fe8-a3cf877d2908",
+Cell[16646, 476, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"a73c52f8-5a36-4adb-bd9e-b7a342b308fc",
  CellTags->"ExtendedExamples",
- CellID->192091028],
-Cell[8407, 257, 241, 5, 70, "ExampleSection",ExpressionUUID->"8fbfb3d4-f00f-4b7e-8ac1-29cd48c4fdf7",
- CellID->805986155],
-Cell[8651, 264, 265, 5, 70, "ExampleSection",ExpressionUUID->"1b3c71fc-ef65-4c37-ad8a-5c3f283593a7",
- CellID->2029945456],
+ CellID->503934106],
 Cell[CellGroupData[{
-Cell[8941, 273, 243, 5, 70, "ExampleSection",ExpressionUUID->"4576cb0d-e940-4215-937e-1f853e58a4b3",
- CellID->220579103],
-Cell[9187, 280, 243, 5, 70, "ExampleSubsection",ExpressionUUID->"cdc56383-b0b2-4274-9346-5598448df5a6",
- CellID->716209399],
-Cell[9433, 287, 243, 5, 70, "ExampleSubsection",ExpressionUUID->"b9c05048-625f-479c-8819-a24fae37efee",
- CellID->685527558]
+Cell[17158, 493, 241, 5, 70, "ExampleSection",ExpressionUUID->"02c36571-6f8f-49a0-96b6-73cf986099ae",
+ CellID->731595763],
+Cell[CellGroupData[{
+Cell[17424, 502, 271, 5, 70, "ExampleSubsection",ExpressionUUID->"3c7dfefa-7b88-468e-ac41-3740bc084f9e",
+ CellID->541295903],
+Cell[17698, 509, 149, 1, 70, "ExampleText",ExpressionUUID->"5dce1291-0fbc-45ff-bf79-7e2e27372578",
+ CellID->345110454],
+Cell[17850, 512, 162, 3, 70, "Input",ExpressionUUID->"440b1b24-73ab-4a9b-992e-3654a31ae631",
+ CellID->148042911],
+Cell[18015, 517, 313, 8, 70, "Input",ExpressionUUID->"aa33fc45-6030-445c-8dbe-3170b9b09782",
+ CellID->452000499],
+Cell[18331, 527, 308, 8, 70, "Input",ExpressionUUID->"93358514-2784-4f32-a052-8c21797b9e0a",
+ CellID->15253677],
+Cell[18642, 537, 204, 4, 70, "Output",ExpressionUUID->"0c066b6c-c60c-4f28-9dca-af89f11c7605",
+ CellID->863643675],
+Cell[18849, 543, 149, 1, 70, "ExampleText",ExpressionUUID->"ce0c2633-7447-4794-919b-8e9e2a269f6c",
+ CellID->550555444],
+Cell[19001, 546, 322, 8, 70, "Input",ExpressionUUID->"aa0d7f0d-e1c9-4676-99e9-a3ef5e8df2c8",
+ CellID->994557560],
+Cell[19326, 556, 125, 2, 70, "Output",ExpressionUUID->"66aa25b4-54f2-4093-9a64-01dd161ef231",
+ CellID->94438986]
 }, Open  ]],
-Cell[9691, 295, 248, 5, 70, "ExampleSection",ExpressionUUID->"df702651-8cd3-49db-be15-455396267f08",
- CellID->411901151],
-Cell[9942, 302, 259, 5, 70, "ExampleSection",ExpressionUUID->"7b30c9e5-faf5-4f5d-ac6e-7ac623ed3a25",
- CellID->1482850576],
-Cell[10204, 309, 251, 5, 70, "ExampleSection",ExpressionUUID->"672545a0-b2a9-4faa-90e4-aee7bac9d6f9",
- CellID->721907397],
-Cell[10458, 316, 257, 5, 70, "ExampleSection",ExpressionUUID->"18b4bcb6-7865-4d6d-b2a9-10f9e272b789",
- CellID->1962499476],
-Cell[10718, 323, 249, 5, 70, "ExampleSection",ExpressionUUID->"b3dd9bd9-d70d-4343-b697-add58de25e58",
- CellID->527358859]
+Cell[CellGroupData[{
+Cell[19488, 563, 272, 5, 70, "ExampleSubsection",ExpressionUUID->"f818d158-af07-426d-9f2a-a2dcca462f14",
+ CellID->112931233],
+Cell[19763, 570, 174, 3, 70, "ExampleText",ExpressionUUID->"910a0a6d-7c62-45be-9aa0-9f36987b9e9e",
+ CellID->570190521],
+Cell[19940, 575, 314, 8, 70, "Input",ExpressionUUID->"a32498d0-3122-4d6a-b3db-9f3ede3ffe88",
+ CellID->957081086],
+Cell[20257, 585, 314, 8, 70, "Input",ExpressionUUID->"3b7f0e68-ae86-4be7-a4d2-325c45a47eb4",
+ CellID->152690062],
+Cell[20574, 595, 362, 9, 70, "Input",ExpressionUUID->"87a68fa9-a9e0-46f6-87c8-8aa026a85ae1",
+ CellID->971949656],
+Cell[20939, 606, 207, 5, 70, "Output",ExpressionUUID->"f970a50f-dc64-4219-8dd2-8e1fd651dcea",
+ CellID->950092380],
+Cell[21149, 613, 375, 9, 70, "Input",ExpressionUUID->"97a25dd4-b21a-4de2-b925-66880951c805",
+ CellID->441278310],
+Cell[21527, 624, 126, 2, 70, "Output",ExpressionUUID->"0abfd7b7-7614-4f6f-9112-e69f0932a48a",
+ CellID->399086832]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[11004, 333, 110, 1, 70, "MetadataSection",ExpressionUUID->"2df6d942-a892-4fa0-9278-694e12b41db3",
- CellID->655332044],
-Cell[11117, 336, 477, 12, 70, "History",ExpressionUUID->"c79a515a-d4ae-4f16-bba2-d6f86351ead4",
- CellID->1869521692],
+Cell[21690, 631, 257, 5, 70, "ExampleSubsection",ExpressionUUID->"5af80e5e-49b0-4556-842c-1e06f12a19fd",
+ CellID->512611757],
+Cell[21950, 638, 137, 1, 70, "ExampleText",ExpressionUUID->"61777e6a-28a9-4f9b-9f04-901339087709",
+ CellID->267201334],
+Cell[22090, 641, 488, 11, 70, "Input",ExpressionUUID->"fc7efd11-fb71-4390-a7da-7f8f3a0be78b",
+ CellID->244772187],
+Cell[22581, 654, 143, 2, 70, "Output",ExpressionUUID->"1145d140-83a4-40b5-bdfa-8529a11aad3b",
+ CellID->22711435]
+}, Open  ]],
 Cell[CellGroupData[{
-Cell[11619, 352, 485, 13, 70, "CategorizationSection",ExpressionUUID->"2b4e958c-64ce-42a6-a782-1c1bfbceeaff",
- CellID->1217838187],
-Cell[12107, 367, 134, 2, 70, "Categorization",ExpressionUUID->"f7ea4227-5eb6-442c-9e4a-f92ad89f340c",
- CellID->539769352],
-Cell[12244, 371, 151, 2, 70, "Categorization",ExpressionUUID->"0b884921-49a6-4ed3-8e6b-2f041bb130c4",
- CellID->1841156331],
-Cell[12398, 375, 148, 2, 70, "Categorization",ExpressionUUID->"68a16e6d-5d70-4e7d-b25c-d2b1e3d5a962",
- CellID->1222585494],
-Cell[12549, 379, 157, 2, 70, "Categorization",ExpressionUUID->"87008266-8812-41c1-b6d6-ee6d54241ab9",
- CellID->870863162]
+Cell[22761, 661, 257, 5, 70, "ExampleSubsection",ExpressionUUID->"7fd69ed4-9a8a-4218-a787-097273a9e18a",
+ CellID->982099924],
+Cell[23021, 668, 220, 4, 70, "ExampleText",ExpressionUUID->"ce32cb71-0c68-4a6d-a015-24303e795f55",
+ CellID->139556629],
+Cell[23244, 674, 534, 13, 70, "Input",ExpressionUUID->"23296663-1d80-4be0-9457-1d753e613847",
+ CellID->191356342],
+Cell[23781, 689, 308, 8, 70, "Input",ExpressionUUID->"d1450aa0-f840-48de-bcfc-c6d5e3a86efb",
+ CellID->443133463],
+Cell[24092, 699, 130, 2, 70, "Output",ExpressionUUID->"a3a09c40-81e6-493e-b773-e30f887deb9b",
+ CellID->360973972],
+Cell[24225, 703, 85, 0, 70, "Input",ExpressionUUID->"2c07947c-85b2-4f8a-b960-77a2c6d6b11c"]
+}, Open  ]]
+}, Open  ]],
+Cell[24337, 707, 264, 5, 70, "ExampleSection",ExpressionUUID->"bc28f698-1a02-4d96-8fec-01803fe8508b",
+ CellID->169507509],
+Cell[CellGroupData[{
+Cell[24626, 716, 243, 5, 70, "ExampleSection",ExpressionUUID->"ff7e1835-2c5f-460c-a264-25a0b5192c7d",
+ CellID->945411456],
+Cell[24872, 723, 242, 5, 70, "ExampleSubsection",ExpressionUUID->"92d2c79d-175e-4859-b6f7-59426c7c309f",
+ CellID->72524419],
+Cell[25117, 730, 243, 5, 70, "ExampleSubsection",ExpressionUUID->"ee9cc200-d904-4035-8bca-c8b29c1c05a3",
+ CellID->585521777]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[25397, 740, 248, 5, 70, "ExampleSection",ExpressionUUID->"f149f6ad-5068-4af8-a1cd-8a0405437358",
+ CellID->426465682],
+Cell[25648, 747, 133, 1, 70, "ExampleText",ExpressionUUID->"2e6107fb-f483-4f2c-9a8f-6cd1b9e4ee66",
+ CellID->32118819],
+Cell[25784, 750, 162, 3, 70, "Input",ExpressionUUID->"bc966ef9-2099-4338-9176-dd924f6f31dc",
+ CellID->795887183],
+Cell[25949, 755, 357, 9, 70, "Input",ExpressionUUID->"4a023616-1349-47bd-b00c-a3d75753e043",
+ CellID->651726158],
+Cell[26309, 766, 357, 9, 70, "Input",ExpressionUUID->"8335682c-db9b-4fad-9022-078116c37777",
+ CellID->598812641],
+Cell[26669, 777, 528, 13, 70, "Input",ExpressionUUID->"424f06f6-93ad-4733-a3ec-ce23d57a9645",
+ CellID->574787637],
+Cell[27200, 792, 144, 2, 70, "Output",ExpressionUUID->"357d52ed-a0ed-4b01-a408-e6147a7bf746",
+ CellID->505346272],
+Cell[27347, 796, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"6b5862f6-6b20-46a2-8d4d-914cfcd007ba",
+ CellID->388498723],
+Cell[27592, 803, 168, 3, 70, "ExampleText",ExpressionUUID->"7f16be9e-4c1d-4f0e-9fc5-bff532e49820",
+ CellID->847658255],
+Cell[27763, 808, 773, 20, 70, "Input",ExpressionUUID->"24916c5d-5157-4a02-855d-61d8d73aea7b",
+ CellID->100448067],
+Cell[28539, 830, 147, 2, 70, "Output",ExpressionUUID->"1a1df9a1-51d5-460a-b7ea-da0468a813a4",
+ CellID->420034120],
+Cell[28689, 834, 85, 0, 70, "Input",ExpressionUUID->"e8bae872-7b4b-4763-b302-b352646183da"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[28811, 839, 257, 5, 70, "ExampleSection",ExpressionUUID->"f35e3284-52bf-4e4f-a697-619ef93e51e1",
+ CellID->67386644],
+Cell[29071, 846, 173, 3, 70, "ExampleText",ExpressionUUID->"12d6938b-d270-4a86-a6f4-c545da101c2b",
+ CellID->298874722],
+Cell[29247, 851, 162, 3, 70, "Input",ExpressionUUID->"f126ce2c-d707-44b5-b168-7dc7c0d088c7",
+ CellID->216899900],
+Cell[29412, 856, 313, 8, 70, "Input",ExpressionUUID->"87253a76-e1b3-4fff-8d0e-addf15cf581e",
+ CellID->633068577],
+Cell[29728, 866, 352, 9, 70, "Input",ExpressionUUID->"8777e1ed-a9f8-4e56-bb0c-7e2be88f29bc",
+ CellID->195640508],
+Cell[30083, 877, 207, 5, 70, "Output",ExpressionUUID->"f17e662c-3123-49d8-af0d-b7a4791386a8",
+ CellID->103471014],
+Cell[30293, 884, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"94f4ebc2-e7db-465f-a9f2-6df20f527712",
+ CellID->589269111],
+Cell[30538, 891, 157, 2, 70, "ExampleText",ExpressionUUID->"3d3875e1-fb08-4b4d-a380-a1e5e146290b",
+ CellID->941265909],
+Cell[30698, 895, 487, 11, 70, "Input",ExpressionUUID->"a53ec4f3-4e6e-4d7a-be40-d972bfce95ce",
+ CellID->90067601],
+Cell[31188, 908, 144, 2, 70, "Output",ExpressionUUID->"cef97051-1ec3-4778-86bc-753cbf7c116a",
+ CellID->873324768],
+Cell[31335, 912, 85, 0, 70, "Input",ExpressionUUID->"c7d097ed-3b22-4134-82c8-38a0244bc0a9"]
+}, Open  ]],
+Cell[31435, 915, 251, 5, 70, "ExampleSection",ExpressionUUID->"57e1cb8d-ab60-4726-9dba-310bfc6d8917",
+ CellID->170584839],
+Cell[31689, 922, 256, 5, 70, "ExampleSection",ExpressionUUID->"c5d93139-0493-43c6-bfd3-1f8c8130715f",
+ CellID->755956100],
+Cell[31948, 929, 249, 5, 70, "ExampleSection",ExpressionUUID->"83f76d29-83bf-4857-a21c-6bb4103fea85",
+ CellID->422871614]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[32234, 939, 109, 1, 70, "MetadataSection",ExpressionUUID->"448bbf74-c684-4b5a-bc62-645e762790a7",
+ CellID->60341462],
+Cell[32346, 942, 477, 12, 70, "History",ExpressionUUID->"48023b4d-fa82-4b80-8955-e7e4e4da3cfd",
+ CellID->485007864],
+Cell[CellGroupData[{
+Cell[32848, 958, 484, 13, 70, "CategorizationSection",ExpressionUUID->"301e7664-7311-433b-9d90-80cd2f69d14a",
+ CellID->422956419],
+Cell[33335, 973, 134, 2, 70, "Categorization",ExpressionUUID->"c51d0b42-c858-4eaf-b1df-98ca13aaa7bc",
+ CellID->676702599],
+Cell[33472, 977, 150, 2, 70, "Categorization",ExpressionUUID->"a66e09f2-f43e-4941-a0f4-9666067f8546",
+ CellID->872214930],
+Cell[33625, 981, 147, 2, 70, "Categorization",ExpressionUUID->"440e5274-d69c-434c-a76f-887ab80d347c",
+ CellID->580675319],
+Cell[33775, 985, 157, 2, 70, "Categorization",ExpressionUUID->"fc62aa67-3990-4e8d-8a04-7332f2c0ec54",
+ CellID->774708529]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[12743, 386, 111, 1, 70, "KeywordsSection",ExpressionUUID->"62f2a81e-65c8-4dba-a45d-19567ecca55d",
- CellID->1080258868],
-Cell[12857, 389, 97, 1, 70, "Keywords",ExpressionUUID->"317edb4f-856c-4f11-86db-c550f09847c6",
- CellID->1084042738]
+Cell[33969, 992, 110, 1, 70, "KeywordsSection",ExpressionUUID->"fbcf6314-6fe7-4d46-a544-eeb9161c86ec",
+ CellID->512270649],
+Cell[34082, 995, 115, 1, 70, "Keywords",ExpressionUUID->"44e9dca5-63ec-4950-aa3a-bf3dabc0458a",
+ CellID->239152809],
+Cell[34200, 998, 108, 1, 70, "Keywords",ExpressionUUID->"425962bd-5327-4924-9058-a7bd2ddff2db",
+ CellID->907084689],
+Cell[34311, 1001, 102, 1, 70, "Keywords",ExpressionUUID->"75dd4abd-2f4f-408c-839f-b71e7757a0af",
+ CellID->917114821],
+Cell[34416, 1004, 103, 1, 70, "Keywords",ExpressionUUID->"38ce2666-11f9-4658-96a8-aabc0df317f9",
+ CellID->488521345],
+Cell[34522, 1007, 110, 1, 70, "Keywords",ExpressionUUID->"3dff969f-9a18-4075-8376-0492f6c2b9f4",
+ CellID->874517580],
+Cell[34635, 1010, 103, 1, 70, "Keywords",ExpressionUUID->"9c9016e9-ff5b-42eb-a311-c9d16f42acfd",
+ CellID->298570536],
+Cell[34741, 1013, 117, 1, 70, "Keywords",ExpressionUUID->"78772a10-4550-41bf-bc5c-ca6ece38ff9d",
+ CellID->369720311]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[12991, 395, 119, 1, 70, "TemplatesSection",ExpressionUUID->"a065c8a0-8d72-47ca-b76d-fc30445cc783",
- CellID->255036418],
-Cell[13113, 398, 147, 2, 70, "Template",ExpressionUUID->"f6853e2c-9d5f-4151-8e62-d278745a235e",
- CellID->19717914],
-Cell[13263, 402, 137, 2, 70, "Template",ExpressionUUID->"9138d5c8-c8b4-4216-9448-f59efdb656da",
- CellID->686498960],
-Cell[13403, 406, 136, 2, 70, "Template",ExpressionUUID->"2e7a8923-b408-47b8-bb09-fecbfb21fe59",
- CellID->1705869036],
-Cell[13542, 410, 138, 2, 70, "Template",ExpressionUUID->"c06343e9-85f6-4d96-8c72-18a476282bc1",
- CellID->1634200602]
+Cell[34895, 1019, 119, 1, 70, "TemplatesSection",ExpressionUUID->"3890b08f-3e6c-4861-9804-056f5c187c43",
+ CellID->690653418],
+Cell[35017, 1022, 148, 2, 70, "Template",ExpressionUUID->"da98b318-086f-4539-887b-6fc7816c8c2d",
+ CellID->463331207],
+Cell[35168, 1026, 137, 2, 70, "Template",ExpressionUUID->"4499a2a8-0725-486f-a123-62482cb27b34",
+ CellID->646977565],
+Cell[35308, 1030, 135, 2, 70, "Template",ExpressionUUID->"21fe36db-fc6c-49e0-a586-bed5c95681ae",
+ CellID->343859729],
+Cell[35446, 1034, 137, 2, 70, "Template",ExpressionUUID->"f4761b7a-a52c-4a72-98cb-f3209c917cf4",
+ CellID->189328634]
 }, Closed]]
 }, Open  ]]
 }

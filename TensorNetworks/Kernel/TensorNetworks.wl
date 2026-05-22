@@ -3,6 +3,8 @@ Package["Wolfram`TensorNetworks`"]
 PackageExport[GreedyContractionPath]
 PackageExport[OptimalContractionPath]
 
+PackageScope[extractContractionParameters]
+
 
 
 ClearAll["Wolfram`TensorNetworks`*", "Wolfram`TensorNetworks`**`*"]
@@ -199,26 +201,34 @@ extractContractionParameters[net_Graph ? TensorNetworkGraphQ] :=
 extractContractionParameters[net_TensorNetwork ? TensorNetworkQ] :=
     extractContractionParameters[TensorNetworkData[BinaryTensorNetwork[net]]]
 
+(* `"FixedIndexing" -> True` puts the Rust path in SSA form (positions > input length).
+   CanonicalPath assumes the opt_einsum convention and fails with `Delete::partw`
+   on SSA positions, so we skip the canonicalize step in that case. *)
+fixedIndexingQ[args___] := MemberQ[{args}, ("FixedIndexing" -> True) | (True /; False)] ||
+    Cases[{args}, ("FixedIndexing" -> v_) :> TrueQ[v]] === {True}
+maybeCanonicalize[result_, args___] :=
+    If[fixedIndexingQ[args] || !MatchQ[result, _List ? PathQ], result, CanonicalPath[result]]
+
 (* TensorNetwork input patterns *)
 GreedyContractionPath[net_TensorNetwork ? TensorNetworkQ, args___] :=
     With[{params = extractContractionParameters[net]},
-        CanonicalPath @ GreedyContractionPath[Sequence @@ params, args]
+        maybeCanonicalize[GreedyContractionPath[Sequence @@ params, args], args]
     ]
 
 OptimalContractionPath[net_TensorNetwork ? TensorNetworkQ, args___] :=
     With[{params = extractContractionParameters[net]},
-        CanonicalPath @ OptimalContractionPath[Sequence @@ params, args]
+        maybeCanonicalize[OptimalContractionPath[Sequence @@ params, args], args]
     ]
 
 (* Graph input patterns *)
 GreedyContractionPath[net_Graph ? TensorNetworkGraphQ, args___] :=
     With[{params = extractContractionParameters[net]},
-        CanonicalPath @ GreedyContractionPath[Sequence @@ params, args]
+        maybeCanonicalize[GreedyContractionPath[Sequence @@ params, args], args]
     ]
 
 OptimalContractionPath[net_Graph ? TensorNetworkGraphQ, args___] :=
     With[{params = extractContractionParameters[net]},
-        CanonicalPath @ OptimalContractionPath[Sequence @@ params, args]
+        maybeCanonicalize[OptimalContractionPath[Sequence @@ params, args], args]
     ]
 
 (* Association/data input patterns *)
@@ -226,14 +236,14 @@ GreedyContractionPath[data : KeyValuePattern[{
     "Dimensions" -> _, "Indices" -> _, "Contractions" -> _
 }], args___] :=
     With[{params = extractContractionParameters[data]},
-        CanonicalPath @ GreedyContractionPath[Sequence @@ params, args]
+        maybeCanonicalize[GreedyContractionPath[Sequence @@ params, args], args]
     ]
 
 OptimalContractionPath[data : KeyValuePattern[{
     "Dimensions" -> _, "Indices" -> _, "Contractions" -> _
 }], args___] :=
     With[{params = extractContractionParameters[data]},
-        CanonicalPath @ OptimalContractionPath[Sequence @@ params, args]
+        maybeCanonicalize[OptimalContractionPath[Sequence @@ params, args], args]
     ]
 
 (* Inactive TensorContract/Transpose input patterns *)

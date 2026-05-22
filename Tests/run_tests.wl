@@ -41,10 +41,19 @@ filesToRun = If[StringQ[targetFile],
     FileNames["*.wl", testsDir]
 ];
 
-(* Filter out the runner itself and setup/debug files *)
-filesToRun = Select[filesToRun, 
-    !StringContainsQ[FileNameTake[#], "run_tests.wl"] &
+(* Filter out the master runner itself and other standalone runners. Each
+   "run_*.wl" file is its own entry point (typically calling Quit[]) and
+   would terminate this script if Get'd here; standalone tests live in
+   test_*.wl. *)
+filesToRun = Select[filesToRun,
+    With[{name = FileNameTake[#]},
+        name =!= "run_tests.wl" && !StringStartsQ[name, "run_"]
+    ] &
 ];
+
+(* Pre-load the paclet so test_setup.wl Get failures are harmless. *)
+PacletDirectoryLoad[FileNameJoin[{root, "TensorNetworks"}]];
+Needs["Wolfram`TensorNetworks`"];
 
 totalPassed = 0;
 totalFailed = 0;

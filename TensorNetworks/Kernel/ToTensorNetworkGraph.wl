@@ -90,27 +90,52 @@ TensorNetworkIndexDimensions[indices_List, tensors_List] :=
     TensorNetworkIndexDimensions[<|"Indices" -> indices, "Dimensions" -> tensorDimensions /@ tensors|>]
 
 
-TensorNetworkReplaceIndices[net_ ? TensorNetworkGraphQ, rules_] :=
-    Graph[net, AnnotationRules -> MapThread[#1 -> {"Index" -> #2} &, {VertexList[net], Replace[TensorNetworkIndices[net], rules, {2}]}]]
-
-
-InitializeTensorNetwork[net_Graph ? TensorNetworkGraphQ, tensor_, index_List : Automatic] := Annotate[
-    {
-        EdgeAdd[
-            VertexDelete[net, _ ? NonPositive],
-            MapIndexed[
-                Replace[#1, DirectedEdge[_, i_, {_, to_}] :> DirectedEdge[0, i, {Superscript[0, #2[[1]]], to}]] &,
-                EdgeList[net, DirectedEdge[_ ? NonPositive, __]]
-            ]
-        ],
-        0
-    },
-    {
-        "Tensor" -> tensor,
-        "Index" -> Replace[index, Automatic :> (Superscript[0, #] & /@ Range[tensorRank[tensor]])],
-        VertexLabels -> "Initial"
-    }
+TensorNetworkReplaceIndices[net_ ? TensorNetworkGraphQ, rules_] := With[{
+    vs = VertexList[net],
+    newIndices = Replace[TensorNetworkIndices[net], rules, {2}],
+    newEdges = Replace[EdgeList[net], e : DirectedEdge[_, _, _] :> MapAt[Replace[#, rules, {1}] &, e, 3], {1}]
+},
+    Graph[
+        vs,
+        newEdges,
+        AnnotationRules -> MapThread[#1 -> {"Index" -> #2} &, {vs, newIndices}]
+    ]
 ]
+
+
+InitializeTensorNetwork::nostub = "Graph has no non-positive (boundary stub) vertex to replace. Construct an initial graph with at least one vertex labeled by a non-positive integer before calling InitializeTensorNetwork.";
+InitializeTensorNetwork::rank = "Tensor rank `1` does not match the length of the index list `2`.";
+
+InitializeTensorNetwork[net_Graph ? TensorNetworkGraphQ, tensor_, index : _List | Automatic : Automatic] :=
+    Module[{resolvedIndex, rank},
+        If[!MemberQ[VertexList[net], _ ? NonPositive],
+            Message[InitializeTensorNetwork::nostub];
+            Return[$Failed]
+        ];
+        rank = tensorRank[tensor];
+        resolvedIndex = Replace[index, Automatic :> (Superscript[0, #] & /@ Range[rank])];
+        If[Length[resolvedIndex] =!= rank,
+            Message[InitializeTensorNetwork::rank, rank, Length[resolvedIndex]];
+            Return[$Failed]
+        ];
+        Annotate[
+            {
+                EdgeAdd[
+                    VertexDelete[net, _ ? NonPositive],
+                    MapIndexed[
+                        Replace[#1, DirectedEdge[_, i_, {_, to_}] :> DirectedEdge[0, i, {Superscript[0, #2[[1]]], to}]] &,
+                        EdgeList[net, DirectedEdge[_ ? NonPositive, __]]
+                    ]
+                ],
+                0
+            },
+            {
+                "Tensor" -> tensor,
+                "Index" -> resolvedIndex,
+                VertexLabels -> "Initial"
+            }
+        ]
+    ]
 
 TensorNetworkAdd[net_Graph ? TensorNetworkGraphQ, Labeled[tensor_, label_ : None], autoIndex : _List | Automatic : Automatic] := Enclose @ With[{
     newVertex = Max[VertexList[net, _Integer], 0] + 1,
@@ -409,8 +434,8 @@ TensorNetworkRemoveCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Grap
             dim = Enclose[First[Dimensions[Confirm[AnnotationValue[{net, edge[[1]]}, "Tensor"]]], 1], 2 &]
         ];
 
-		net = Annotate[{net, cup}, {"Tensor" -> Flatten[IdentityMatrix[dim]], VertexLabels -> "Cup"}];
-		net = Annotate[{net, cap}, {"Tensor" -> Flatten[IdentityMatrix[dim]], VertexLabels -> "Cap"}];
+		net = Annotate[{net, cup}, {"Tensor" -> IdentityMatrix[dim], VertexLabels -> "Cup"}];
+		net = Annotate[{net, cap}, {"Tensor" -> IdentityMatrix[dim], VertexLabels -> "Cap"}];
 	];
 	Graph[net, opts]
 ]

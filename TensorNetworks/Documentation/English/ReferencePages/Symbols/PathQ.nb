@@ -10,17 +10,18 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     17238,        457]
-NotebookOptionsPosition[     11587,        362]
-NotebookOutlinePosition[     12349,        387]
-CellTagsIndexPosition[     12270,        382]
+NotebookDataLength[     54193,       1505]
+NotebookOptionsPosition[     37848,       1167]
+NotebookOutlinePosition[     38634,       1193]
+CellTagsIndexPosition[     38554,       1188]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
 
 Cell[CellGroupData[{
-Cell["PathQ", "ObjectName",ExpressionUUID->"e92afdc9-29a9-4cdb-ba91-db13d8513527"],
+Cell["PathQ", "ObjectName",
+ CellID->420010001,ExpressionUUID->"e92afdc9-29a9-4cdb-ba91-db13d8513527"],
 
 Cell[TextData[{
  Cell["   ", "ModInfo",ExpressionUUID->"abaa24d3-1f94-46a3-a014-d3014a471ce7"],
@@ -28,15 +29,156 @@ Cell[TextData[{
   RowBox[{
    ButtonBox["PathQ",
     BaseStyle->"Link",
-    ButtonData->"paclet:WolframTensorNetworks/ref/PathQ"], "[", 
+    ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathQ"], "[", 
    StyleBox["path", "TI"], "]"}]], "InlineFormula",ExpressionUUID->
   "3f5d3ff5-8954-4a1a-9e37-b002cda2a050"],
- "\[LineSeparator]yields True if path is a valid contraction path (a list of \
-integer pairs), and False otherwise."
+ "\[LineSeparator]yields ",
+ Cell[BoxData[
+  ButtonBox["True",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/True"]], "InlineFormula",ExpressionUUID->
+  "42002000-1aaa-abbb-bccc-caaaaaaaaaaa"],
+ " if ",
+ Cell[BoxData[
+  StyleBox["path", "TI"]], "InlineFormula",ExpressionUUID->
+  "42002000-2aaa-abbb-bccc-caaaaaaaaaaa"],
+ " is a list whose elements are either ",
+ Cell[BoxData[
+  RowBox[{"{", 
+   StyleBox["i", "TI"], "}"}]], "InlineFormula",ExpressionUUID->
+  "42002000-3aaa-abbb-bccc-caaaaaaaaaaa"],
+ " (singleton) or ",
+ Cell[BoxData[
+  RowBox[{"{", 
+   RowBox[{
+    StyleBox["i", "TI"], ",", 
+    StyleBox["j", "TI"]}], "}"}]], "InlineFormula",ExpressionUUID->
+  "42002000-4aaa-abbb-bccc-caaaaaaaaaaa"],
+ " (pair) integer lists, and ",
+ Cell[BoxData[
+  ButtonBox["False",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/False"]], "InlineFormula",ExpressionUUID->
+  "42002000-5aaa-abbb-bccc-caaaaaaaaaaa"],
+ " otherwise."
 }], "Usage",
- CellID->2117285418,ExpressionUUID->"9fa504f2-0967-4282-b5f6-c593e20fe7da"],
+ CellID->420010002,ExpressionUUID->"9fa504f2-0967-4282-b5f6-c593e20fe7da"],
 
-Cell[" ", "Notes",ExpressionUUID->"d43f25f1-572b-4903-bf07-12d4b6447161"]
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["PathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathQ"]], "InlineFormula",
+  ExpressionUUID->"42003000-1aaa-abbb-bccc-caaaaaaaaaaa"],
+ " returns ",
+ Cell[BoxData[
+  ButtonBox["True",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/True"]], "InlineFormula",ExpressionUUID->
+  "42003000-2aaa-abbb-bccc-caaaaaaaaaaa"],
+ " for any nonempty list whose every element matches the pattern ",
+ Cell[BoxData[
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"_", "Integer"}], "}"}], "|", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"_", "Integer"}], ",", 
+     RowBox[{"_", "Integer"}]}], "}"}]}]], "InlineFormula",ExpressionUUID->
+  "42003000-3aaa-abbb-bccc-caaaaaaaaaaa"],
+ ". Both forms are valid because the contraction-path utilities accept either \
+linear paths (all pairs, ",
+ Cell[BoxData[
+  ButtonBox["CanonicalPathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPathQ"]], 
+  "InlineFormula",ExpressionUUID->"42003000-4aaa-abbb-bccc-caaaaaaaaaaa"],
+ ") or paths interleaved with singleton ",
+ Cell[BoxData[
+  RowBox[{"{", 
+   StyleBox["i", "TI"], "}"}]], "InlineFormula",ExpressionUUID->
+  "42003000-5aaa-abbb-bccc-caaaaaaaaaaa"],
+ " markers that record a tensor's presence without contracting it."
+}], "Notes",
+ CellID->420010003,ExpressionUUID->"d43f25f1-572b-4903-bf07-12d4b6447161"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["PathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathQ"]], "InlineFormula",
+  ExpressionUUID->"42003010-1aaa-abbb-bccc-caaaaaaaaaaa"],
+ " is the looser of the path predicates. For the strict canonical form (every \
+element is a pair in opt_einsum convention), use ",
+ Cell[BoxData[
+  ButtonBox["CanonicalPathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPathQ"]], 
+  "InlineFormula",ExpressionUUID->"42003010-2aaa-abbb-bccc-caaaaaaaaaaa"],
+ ". For the nested-tree form, use ",
+ Cell[BoxData[
+  ButtonBox["TreePathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TreePathQ"]], 
+  "InlineFormula",ExpressionUUID->"42003010-3aaa-abbb-bccc-caaaaaaaaaaa"],
+ "."
+}], "Notes",
+ CellID->420010004,ExpressionUUID->"42003010-4aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[TextData[{
+ "Both linear (canonical) and tree-fragment paths satisfy ",
+ Cell[BoxData[
+  ButtonBox["PathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathQ"]], "InlineFormula",
+  ExpressionUUID->"42003020-1aaa-abbb-bccc-caaaaaaaaaaa"],
+ ", which makes it the right input check for utilities that accept either \
+form, such as ",
+ Cell[BoxData[
+  ButtonBox["CanonicalPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPath"]], 
+  "InlineFormula",ExpressionUUID->"42003020-2aaa-abbb-bccc-caaaaaaaaaaa"],
+ ", ",
+ Cell[BoxData[
+  ButtonBox["PathToTreePath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathToTreePath"]], 
+  "InlineFormula",ExpressionUUID->"42003020-3aaa-abbb-bccc-caaaaaaaaaaa"],
+ ", and ",
+ Cell[BoxData[
+  ButtonBox["PathIndexContractions",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathIndexContractions"]], 
+  "InlineFormula",ExpressionUUID->"42003020-4aaa-abbb-bccc-caaaaaaaaaaa"],
+ "."
+}], "Notes",
+ CellID->420010005,ExpressionUUID->"42003020-5aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["PathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathQ"]], "InlineFormula",
+  ExpressionUUID->"42003030-1aaa-abbb-bccc-caaaaaaaaaaa"],
+ " returns ",
+ Cell[BoxData[
+  ButtonBox["False",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/False"]], "InlineFormula",ExpressionUUID->
+  "42003030-2aaa-abbb-bccc-caaaaaaaaaaa"],
+ " for the empty list ",
+ Cell[BoxData[
+  RowBox[{"{", "}"}]], "InlineFormula",ExpressionUUID->
+  "42003030-3aaa-abbb-bccc-caaaaaaaaaaa"],
+ " (the underlying pattern ",
+ Cell[BoxData["..."], "InlineFormula",ExpressionUUID->
+  "42003030-4aaa-abbb-bccc-caaaaaaaaaaa"],
+ " requires at least one element), and for anything else not matching the \
+pattern: bare integers, symbolic entries, lists of triples, or non-list \
+inputs."
+}], "Notes",
+ CellID->420010006,ExpressionUUID->"42003030-5aaa-abbb-bccc-caaaaaaaaaaa"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -53,29 +195,75 @@ Cell[TextData[{
         "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
   "7ad12c0f-47cc-4300-91d6-c1baeb410354"]
-}], "SeeAlsoSection",ExpressionUUID->"2f524797-c550-4c2c-94f8-16f0c4652bf4"],
+}], "SeeAlsoSection",
+ CellID->420010007,ExpressionUUID->"2f524797-c550-4c2c-94f8-16f0c4652bf4"],
 
 Cell[TextData[{
  Cell[BoxData[
   ButtonBox["CanonicalPathQ",
    BaseStyle->"Link",
-   ButtonData->"paclet:WolframTensorNetworks/ref/CanonicalPathQ"]], 
-  "InlineFormula",ExpressionUUID->"c6189e1e-ed1c-44e4-9a3b-a51595370b4e"],
- Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
-  ExpressionUUID->"9e4bdace-f888-4e01-9a0c-299fa956e0b5"],
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPathQ"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "42004000-1aaa-abbb-bccc-caaaaaaaaaaa"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
  Cell[BoxData[
   ButtonBox["TreePathQ",
    BaseStyle->"Link",
-   ButtonData->"paclet:WolframTensorNetworks/ref/TreePathQ"]], 
-  "InlineFormula",ExpressionUUID->"4d0405e6-bf8c-431c-b03f-b1986f4c73f8"],
- Cell[TextData[StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"]],
-  ExpressionUUID->"9e4bdace-f888-4e01-9a0c-299fa956e0b5"],
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TreePathQ"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "42004000-2aaa-abbb-bccc-caaaaaaaaaaa"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["CanonicalPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPath"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "42004000-3aaa-abbb-bccc-caaaaaaaaaaa"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["TreePathToPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TreePathToPath"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "42004000-4aaa-abbb-bccc-caaaaaaaaaaa"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["PathToTreePath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathToTreePath"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "42004000-5aaa-abbb-bccc-caaaaaaaaaaa"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["PathIndexContractions",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathIndexContractions"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "42004000-6aaa-abbb-bccc-caaaaaaaaaaa"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["OptimalContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/OptimalContractionPath"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "42004000-7aaa-abbb-bccc-caaaaaaaaaaa"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
  Cell[BoxData[
   ButtonBox["GreedyContractionPath",
    BaseStyle->"Link",
-   ButtonData->"paclet:WolframTensorNetworks/ref/GreedyContractionPath"]], 
-  "InlineFormula",ExpressionUUID->"abd25a58-e397-43f3-9b3b-62a4a04157cc"]
-}], "SeeAlso",ExpressionUUID->"73d06013-dada-458a-a36f-b9821cc67d5e"]
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/GreedyContractionPath"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "42004000-8aaa-abbb-bccc-caaaaaaaaaaa"]
+}], "SeeAlso",
+ CellID->420010008,ExpressionUUID->"73d06013-dada-458a-a36f-b9821cc67d5e"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -91,16 +279,27 @@ Cell[TextData[{
        "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
   "9426258c-ab47-4b24-9e51-623aab9f657f"]
-}], "TechNotesSection",ExpressionUUID->"0f78f702-c8a2-45e1-8987-fea93b0867e7"],
+}], "TechNotesSection",
+ CellID->420010009,ExpressionUUID->"0f78f702-c8a2-45e1-8987-fea93b0867e7"],
 
-Cell[" ", "Tutorials",ExpressionUUID->"d0804a61-7113-421c-ba46-513069878e64"]
+Cell[TextData[ButtonBox["Contraction Paths and Execution",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/ContractionPathsAndExecution"]], \
+"Tutorials",
+ CellID->420010010,ExpressionUUID->"d0804a61-7113-421c-ba46-513069878e64"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
-Cell["Related Guides", "MoreAboutSection",ExpressionUUID->"ad9f0049-f6b6-40b2-9b80-01b006bcb3d1"],
+Cell["Related Guides", "MoreAboutSection",
+ CellID->420010011,ExpressionUUID->"ad9f0049-f6b6-40b2-9b80-01b006bcb3d1"],
 
-Cell[" ", "MoreAbout",ExpressionUUID->"e023aa6d-7b8a-4973-86c5-216d25ab1f74"]
+Cell[TextData[ButtonBox["Tensor Networks",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/guide/TensorNetworks"]], "MoreAbout",
+ CellID->420010012,ExpressionUUID->"e023aa6d-7b8a-4973-86c5-216d25ab1f74"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -117,10 +316,11 @@ Cell[TextData[{
         "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
   "ec2a3e2e-5849-442c-ae89-98f4c899875e"]
-}], "RelatedLinksSection",ExpressionUUID->"c7606bb7-e986-4b3f-9ea7-\
-3551eaac6e15"],
+}], "RelatedLinksSection",
+ CellID->420010013,ExpressionUUID->"c7606bb7-e986-4b3f-9ea7-3551eaac6e15"],
 
-Cell[" ", "RelatedLinks",ExpressionUUID->"f5498fd8-6f2d-4d73-b506-b980051a0961"]
+Cell[" ", "RelatedLinks",
+ CellID->420010014,ExpressionUUID->"f5498fd8-6f2d-4d73-b506-b980051a0961"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -138,13 +338,13 @@ Needs[\[Ellipsis]].", "MoreInfoText"], BaseStyle -> "IFrameBox"]],
      "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
   "303807b0-e662-4b89-a3b2-a0b1e2504d6c"]
-}], "ExamplesInitializationSection",ExpressionUUID->"1d5492ce-147a-479d-8503-\
-26e1b1635a69"],
+}], "ExamplesInitializationSection",
+ CellID->420010015,ExpressionUUID->"1d5492ce-147a-479d-8503-26e1b1635a69"],
 
 Cell[BoxData[
  RowBox[{"Needs", "[", "\"\<Wolfram`TensorNetworks`\>\"", 
-  "]"}]], "ExampleInitialization",ExpressionUUID->"24a961ca-e468-40f9-bd60-\
-71d92c05d5e2"]
+  "]"}]], "ExampleInitialization",
+ CellID->420010016,ExpressionUUID->"24a961ca-e468-40f9-bd60-71d92c05d5e2"]
 }, Open  ]],
 
 Cell[BoxData[
@@ -158,37 +358,108 @@ Cell[BoxData[
       BaseStyle->"ExtendedExamplesLink",
       ButtonData:>"ExtendedExamples"]}
    }],
-  $Line = 0; Null]], "PrimaryExamplesSection",ExpressionUUID->"543e04cd-57fe-\
-462a-8293-146b6901acc6"],
+  $Line = 0; Null]], "PrimaryExamplesSection",
+ CellID->420010017,ExpressionUUID->"543e04cd-57fe-462a-8293-146b6901acc6"],
 
-Cell["\<\
-Test that the output of GreedyContractionPath is a valid path:\
-\>", "ExampleText",ExpressionUUID->"edf35f9d-d987-4de7-82b7-62ac9d40f9e6"],
+Cell["A canonical-form contraction path satisfies PathQ:", "ExampleText",
+ CellID->420010018,ExpressionUUID->"42007000-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
- RowBox[{"tn", "=", 
-  RowBox[{"RandomTensorNetwork", "[", 
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
    RowBox[{
     RowBox[{"{", 
-     RowBox[{"4", ",", "5"}], "}"}], ",", "3"}], "]"}]}]], "Input",
- CellLabel->"In[1]:=",ExpressionUUID->"6cf7ff6c-63ed-4e1d-8d9c-5c8bed19c672"],
-
-Cell[BoxData[
- RowBox[{"path", "=", 
-  RowBox[{"GreedyContractionPath", "[", "tn", "]"}]}]], "Input",
- CellLabel->"In[2]:=",ExpressionUUID->"fe9b1c52-1c29-4a61-a9fc-c552b941c96c"],
-
-Cell[BoxData[
- RowBox[{"PathQ", "[", "path", "]"}]], "Input",
- CellLabel->"In[3]:=",ExpressionUUID->"db86d1aa-ceb0-4ac0-a8b6-0a6e7b4a97f9"],
-
-Cell["A non-list is not a path:", "ExampleText",
- CellID->1420089206,ExpressionUUID->"c419bbd6-806b-4f3b-aadd-6bda11e7eabb"],
-
-Cell[BoxData[
- RowBox[{"PathQ", "[", "42", "]"}]], "Input",
+     RowBox[{"1", ",", "2"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"1", ",", "2"}], "}"}]}], "}"}], "]"}]], "Input",
  CellLabel->"In[1]:=",
- CellID->372306876,ExpressionUUID->"b93902de-27d9-4e29-b234-bfa645d91922"],
+ CellID->420010019,ExpressionUUID->"42007000-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->420010020,ExpressionUUID->"42007000-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42007010-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010021,ExpressionUUID->"42007010-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["A path with singleton markers is also accepted:", "ExampleText",
+ CellID->420010022,ExpressionUUID->"42007020-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"{", "1", "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"2", ",", "3"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"1", ",", "2"}], "}"}]}], "}"}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->420010023,ExpressionUUID->"42007020-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[2]=",
+ CellID->420010024,ExpressionUUID->"42007020-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42007030-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010025,ExpressionUUID->"42007030-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["A single contraction step is the smallest accepted path:", "ExampleText",
+ CellID->420010026,ExpressionUUID->"42007040-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "2"}], "}"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->420010027,ExpressionUUID->"42007040-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[3]=",
+ CellID->420010028,ExpressionUUID->"42007040-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42007050-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010029,ExpressionUUID->"42007050-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["A non-integer entry breaks the match:", "ExampleText",
+ CellID->420010030,ExpressionUUID->"42007060-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
+   RowBox[{"{", 
+    RowBox[{"1.5", ",", "2"}], "}"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->420010031,ExpressionUUID->"42007060-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["False"], "Output",
+ CellLabel->"Out[4]=",
+ CellID->420010032,ExpressionUUID->"42007060-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
@@ -204,90 +475,601 @@ Cell[TextData[{
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
   "d150c7a6-efa2-429b-aa44-f29a3304f6a4"]
 }], "ExtendedExamplesSection",
- CellTags->
-  "ExtendedExamples",ExpressionUUID->"41d02985-ba59-4207-879b-709baa0f9399"],
+ CellTags->"ExtendedExamples",
+ CellID->420010033,ExpressionUUID->"41d02985-ba59-4207-879b-709baa0f9399"],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Scope", "ExampleSection",ExpressionUUID->
    "b4412812-dc2c-43e5-bfb6-7256538bc8c4"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"70576492-f3aa-41d3-\
-b66f-dbf320a10ad5"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->420010034,ExpressionUUID->"70576492-f3aa-41d3-b66f-dbf320a10ad5"],
+
+Cell[CellGroupData[{
+
+Cell["Mixed singletons and pairs", "ExampleSubsection",
+ CellID->420010035,ExpressionUUID->"42008000-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["Any combination of singleton and pair entries is accepted:", \
+"ExampleText",
+ CellID->420010036,ExpressionUUID->"42008000-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"{", "1", "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"2", ",", "3"}], "}"}]}], "}"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->420010037,ExpressionUUID->"42008000-3aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->420010038,ExpressionUUID->"42008000-4aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42008010-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010039,ExpressionUUID->"42008010-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["A pair followed by a singleton marker:", "ExampleText",
+ CellID->420010040,ExpressionUUID->"42008020-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"{", "1", "}"}], ",", 
+    RowBox[{"{", "2", "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"1", ",", "2"}], "}"}]}], "}"}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->420010041,ExpressionUUID->"42008020-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[2]=",
+ CellID->420010042,ExpressionUUID->"42008020-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42008030-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010043,ExpressionUUID->"42008030-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["An all-singleton list is still a valid tree-fragment path:", \
+"ExampleText",
+ CellID->420010044,ExpressionUUID->"42008040-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"{", "1", "}"}], ",", 
+    RowBox[{"{", "2", "}"}], ",", 
+    RowBox[{"{", "3", "}"}]}], "}"}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->420010045,ExpressionUUID->"42008040-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[3]=",
+ CellID->420010046,ExpressionUUID->"42008040-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Output of path-finders", "ExampleSubsection",
+ CellID->420010047,ExpressionUUID->"42009000-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["OptimalContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/OptimalContractionPath"]], 
+  "InlineFormula",ExpressionUUID->"42009000-2aaa-abbb-bccc-caaaaaaaaaaa"],
+ " and ",
+ Cell[BoxData[
+  ButtonBox["GreedyContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/GreedyContractionPath"]], 
+  "InlineFormula",ExpressionUUID->"42009000-3aaa-abbb-bccc-caaaaaaaaaaa"],
+ " return all-pair canonical paths, so their output satisfies ",
+ Cell[BoxData[
+  ButtonBox["PathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathQ"]], "InlineFormula",
+  ExpressionUUID->"42009000-4aaa-abbb-bccc-caaaaaaaaaaa"],
+ ":"
+}], "ExampleText",
+ CellID->420010048,ExpressionUUID->"42009000-5aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=", 
+   RowBox[{"BlockRandom", "[", 
+    RowBox[{
+     RowBox[{"SeedRandom", "[", "42", "]"}], ";", 
+     RowBox[{"RandomTensorNetwork", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"4", ",", "5"}], "}"}], ",", "3"}], "]"}]}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->420010049,ExpressionUUID->"42009000-6aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"OptimalContractionPath", "[", "tn", "]"}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->420010050,ExpressionUUID->"42009000-7aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[2]=",
+ CellID->420010051,ExpressionUUID->"42009000-8aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42009010-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010052,ExpressionUUID->"42009010-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["The greedy path is the same in this case:", "ExampleText",
+ CellID->420010053,ExpressionUUID->"42009020-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tn", "=", 
+   RowBox[{"BlockRandom", "[", 
+    RowBox[{
+     RowBox[{"SeedRandom", "[", "42", "]"}], ";", 
+     RowBox[{"RandomTensorNetwork", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"4", ",", "5"}], "}"}], ",", "3"}], "]"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"PathQ", "[", 
+  RowBox[{"GreedyContractionPath", "[", "tn", "]"}], "]"}]}], "Input",
+ CellLabel->"In[3]:=",
+ CellID->420010054,ExpressionUUID->"42009020-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[3]=",
+ CellID->420010055,ExpressionUUID->"42009020-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Rejection cases", "ExampleSubsection",
+ CellID->420010056,ExpressionUUID->"42010000-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["Symbolic entries do not match the integer pattern:", "ExampleText",
+ CellID->420010057,ExpressionUUID->"42010000-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
+   RowBox[{"{", 
+    RowBox[{"a", ",", "b"}], "}"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->420010058,ExpressionUUID->"42010000-3aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["False"], "Output",
+ CellLabel->"Out[1]=",
+ CellID->420010059,ExpressionUUID->"42010000-4aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42010010-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010060,ExpressionUUID->"42010010-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["A triple is not a singleton or pair:", "ExampleText",
+ CellID->420010061,ExpressionUUID->"42010020-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "2", ",", "3"}], "}"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->420010062,ExpressionUUID->"42010020-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["False"], "Output",
+ CellLabel->"Out[2]=",
+ CellID->420010063,ExpressionUUID->"42010020-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42010030-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010064,ExpressionUUID->"42010030-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["\<\
+A list of bare integers fails because each entry must itself be a list:\
+\>", "ExampleText",
+ CellID->420010065,ExpressionUUID->"42010040-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
+   RowBox[{"1", ",", "2"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->420010066,ExpressionUUID->"42010040-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["False"], "Output",
+ CellLabel->"Out[3]=",
+ CellID->420010067,ExpressionUUID->"42010040-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42010050-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010068,ExpressionUUID->"42010050-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["Non-list inputs are rejected:", "ExampleText",
+ CellID->420010069,ExpressionUUID->"42010060-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", "42", "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->420010070,ExpressionUUID->"42010060-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["False"], "Output",
+ CellLabel->"Out[4]=",
+ CellID->420010071,ExpressionUUID->"42010060-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42010070-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010072,ExpressionUUID->"42010070-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["A list with a stray non-list entry mixed in fails:", "ExampleText",
+ CellID->420010073,ExpressionUUID->"42010080-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PathQ", "[", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"1", ",", "2"}], "}"}], ",", "5"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[5]:=",
+ CellID->420010074,ExpressionUUID->"42010080-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["False"], "Output",
+ CellLabel->"Out[5]=",
+ CellID->420010075,ExpressionUUID->"42010080-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Generalizations & Extensions", "ExampleSection",ExpressionUUID->
    "512c286c-9b9f-4638-b98e-daccfa40e11b"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"0a0ba152-d218-4027-\
-a633-5e9f8cbcd748"],
-
-Cell[CellGroupData[{
+  $Line = 0; Null]], "ExampleSection",
+ CellID->420010076,ExpressionUUID->"0a0ba152-d218-4027-a633-5e9f8cbcd748"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Options", "ExampleSection",ExpressionUUID->
    "c03a2575-8716-497c-b5ba-d43a3dc3f784"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"26f089a8-b5ba-46f3-\
-b4ef-77b80af278eb"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->420010077,ExpressionUUID->"26f089a8-b5ba-46f3-b4ef-77b80af278eb"],
 
-Cell[BoxData[
- InterpretationBox[Cell[
-  " ", "ExampleSubsection",ExpressionUUID->
-   "03255bd5-66c8-4796-8671-feb699e4a47f"],
-  $Line = 0; Null]], "ExampleSubsection",ExpressionUUID->"20e026d9-f28e-49f5-\
-8e4f-03817e17b42d"],
-
-Cell[BoxData[
- InterpretationBox[Cell[
-  " ", "ExampleSubsection",ExpressionUUID->
-   "c6be16b5-78b2-4203-811f-20b633b8f548"],
-  $Line = 0; Null]], "ExampleSubsection",ExpressionUUID->"de535b92-09d2-46a8-\
-b44c-b1b3dfd53b66"]
-}, Open  ]],
+Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Applications", "ExampleSection",ExpressionUUID->
    "998fd397-6f92-47a4-ab1f-738ac55569eb"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"102fa480-8b07-43bd-\
-83ca-436f4ca0a84a"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->420010078,ExpressionUUID->"102fa480-8b07-43bd-83ca-436f4ca0a84a"],
+
+Cell["\<\
+Input validation for path-handling utilities: only call a path consumer when \
+the argument is a valid path.\
+\>", "ExampleText",
+ CellID->420010079,ExpressionUUID->"42011000-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"safeCanonicalize", "[", "p_", "]"}], ":=", 
+  RowBox[{"If", "[", 
+   RowBox[{
+    RowBox[{"PathQ", "[", "p", "]"}], ",", 
+    RowBox[{"CanonicalPath", "[", "p", "]"}], ",", 
+    RowBox[{"Missing", "[", "\"\<NotAPath\>\"", "]"}]}], "]"}]}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->420010080,ExpressionUUID->"42011000-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData[
+ RowBox[{"safeCanonicalize", "[", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"{", "1", "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"2", ",", "3"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"1", ",", "2"}], "}"}]}], "}"}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->420010081,ExpressionUUID->"42011000-3aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"3", ",", "1"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "2"}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[2]=",
+ CellID->420010082,ExpressionUUID->"42011000-4aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42011010-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010083,ExpressionUUID->"42011010-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["\<\
+Invalid input is caught up front without invoking the path machinery:\
+\>", "ExampleText",
+ CellID->420010084,ExpressionUUID->"42011020-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"safeCanonicalize", "[", 
+  RowBox[{"{", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "2", ",", "3"}], "}"}], "}"}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->420010085,ExpressionUUID->"42011020-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["$Failed"], "Output",
+ CellLabel->"Out[3]=",
+ CellID->420010086,ExpressionUUID->"42011020-3aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Properties & Relations", "ExampleSection",ExpressionUUID->
    "c3ff076c-89f4-4fef-ae0a-c426e8d827e4"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"c99616c3-953e-4be3-\
-b56a-a2fa7d585aad"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->420010087,ExpressionUUID->"c99616c3-953e-4be3-b56a-a2fa7d585aad"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["CanonicalPathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPathQ"]], 
+  "InlineFormula",ExpressionUUID->"42012000-1aaa-abbb-bccc-caaaaaaaaaaa"],
+ " is the stricter predicate: it requires every element to be a pair. Every \
+",
+ Cell[BoxData[
+  ButtonBox["CanonicalPathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPathQ"]], 
+  "InlineFormula",ExpressionUUID->"42012000-2aaa-abbb-bccc-caaaaaaaaaaa"],
+ "-valid input is also ",
+ Cell[BoxData[
+  ButtonBox["PathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathQ"]], "InlineFormula",
+  ExpressionUUID->"42012000-3aaa-abbb-bccc-caaaaaaaaaaa"],
+ "-valid:"
+}], "ExampleText",
+ CellID->420010088,ExpressionUUID->"42012000-4aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"CanonicalPathQ", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"1", ",", "2"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", "2"}], "}"}]}], "}"}], "]"}], ",", 
+   RowBox[{"PathQ", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"1", ",", "2"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", "2"}], "}"}]}], "}"}], "]"}]}], "}"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->420010089,ExpressionUUID->"42012000-5aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"True", ",", "True"}], "}"}]], "Output",
+ CellLabel->"Out[1]=",
+ CellID->420010090,ExpressionUUID->"42012000-6aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42012010-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010091,ExpressionUUID->"42012010-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[TextData[{
+ "But a path with singletons satisfies ",
+ Cell[BoxData[
+  ButtonBox["PathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathQ"]], "InlineFormula",
+  ExpressionUUID->"42012020-1aaa-abbb-bccc-caaaaaaaaaaa"],
+ " while failing ",
+ Cell[BoxData[
+  ButtonBox["CanonicalPathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPathQ"]], 
+  "InlineFormula",ExpressionUUID->"42012020-2aaa-abbb-bccc-caaaaaaaaaaa"],
+ ":"
+}], "ExampleText",
+ CellID->420010092,ExpressionUUID->"42012020-3aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"PathQ", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", "1", "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"2", ",", "3"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", "2"}], "}"}]}], "}"}], "]"}], ",", 
+   RowBox[{"CanonicalPathQ", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", "1", "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"2", ",", "3"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", "2"}], "}"}]}], "}"}], "]"}]}], "}"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->420010093,ExpressionUUID->"42012030-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"True", ",", "False"}], "}"}]], "Output",
+ CellLabel->"Out[2]=",
+ CellID->420010094,ExpressionUUID->"42012030-2aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "42012040-1aaa-abbb-bccc-caaaaaaaaaaa"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->420010095,ExpressionUUID->"42012040-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["CanonicalPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPath"]], 
+  "InlineFormula",ExpressionUUID->"42012050-1aaa-abbb-bccc-caaaaaaaaaaa"],
+ " takes any ",
+ Cell[BoxData[
+  ButtonBox["PathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathQ"]], "InlineFormula",
+  ExpressionUUID->"42012050-2aaa-abbb-bccc-caaaaaaaaaaa"],
+ "-valid input and returns a ",
+ Cell[BoxData[
+  ButtonBox["CanonicalPathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPathQ"]], 
+  "InlineFormula",ExpressionUUID->"42012050-3aaa-abbb-bccc-caaaaaaaaaaa"],
+ "-valid normalization:"
+}], "ExampleText",
+ CellID->420010096,ExpressionUUID->"42012050-4aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"CanonicalPathQ", "[", 
+  RowBox[{"CanonicalPath", "[", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "1", "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "3"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "2"}], "}"}]}], "}"}], "]"}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->420010097,ExpressionUUID->"42012060-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[3]=",
+ CellID->420010098,ExpressionUUID->"42012060-2aaa-abbb-bccc-caaaaaaaaaaa"]
+}, Open  ]]
+}, Open  ]],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Possible Issues", "ExampleSection",ExpressionUUID->
    "a6df560c-721f-4c92-8d46-480d63e77b0b"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"abc028ac-ea19-44cd-\
-a5ee-daf9f2dea58a"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->420010099,ExpressionUUID->"abc028ac-ea19-44cd-a5ee-daf9f2dea58a"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Interactive Examples", "ExampleSection",ExpressionUUID->
    "0ed6b1d5-8d0e-4eb2-96d8-a3cfeb5c14f5"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"fdad17f2-87c1-4be0-\
-bce7-e263cab655fd"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->420010114,ExpressionUUID->"fdad17f2-87c1-4be0-bce7-e263cab655fd"],
 
 Cell[BoxData[
  InterpretationBox[Cell[
   "Neat Examples", "ExampleSection",ExpressionUUID->
    "889ea595-1b3c-4237-b40b-8e7e50f8ad1f"],
-  $Line = 0; Null]], "ExampleSection",ExpressionUUID->"4d6743ab-094f-4789-\
-ace0-214162d4204f"]
+  $Line = 0; Null]], "ExampleSection",
+ CellID->420010115,ExpressionUUID->"4d6743ab-094f-4789-ace0-214162d4204f"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
-Cell["Metadata", "MetadataSection",ExpressionUUID->"8c8dc7d5-b421-4abb-91c0-06acfa787ebc"],
+Cell["Metadata", "MetadataSection",
+ CellID->420010116,ExpressionUUID->"8c8dc7d5-b421-4abb-91c0-06acfa787ebc"],
 
 Cell[TextData[{
  "New in: ",
- Cell["XX", "HistoryData",
+ Cell["1.0", "HistoryData",
   CellTags->"New",ExpressionUUID->"d9530d5b-3139-4264-ac9a-f301bf9d36a0"],
  " | Modified in: ",
  Cell[" ", "HistoryData",
@@ -296,7 +1078,8 @@ Cell[TextData[{
  Cell[" ", "HistoryData",
   CellTags->"Obsolete",ExpressionUUID->
   "4482c834-87ed-43b6-950c-d573c13f9dad"]
-}], "History",ExpressionUUID->"3679a195-e944-409b-ae45-82b565f9c804"],
+}], "History",
+ CellID->420010117,ExpressionUUID->"3679a195-e944-409b-ae45-82b565f9c804"],
 
 Cell[CellGroupData[{
 
@@ -312,58 +1095,80 @@ Cell[TextData[{
         "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
    "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
   "c14115c7-6206-4877-96dd-0b3128e561cc"]
-}], "CategorizationSection",ExpressionUUID->"da75b079-d063-4016-8829-\
-6e4b8cff6835"],
+}], "CategorizationSection",
+ CellID->420010118,ExpressionUUID->"da75b079-d063-4016-8829-6e4b8cff6835"],
 
 Cell["Symbol", "Categorization",
- CellLabel->
-  "Entity Type",ExpressionUUID->"aa8c144e-b23b-4391-8a1f-a464f697aa4f"],
+ CellLabel->"Entity Type",
+ CellID->420010119,ExpressionUUID->"aa8c144e-b23b-4391-8a1f-a464f697aa4f"],
 
 Cell["Wolfram/TensorNetworks", "Categorization",
- CellLabel->
-  "Paclet Name",ExpressionUUID->"eda7980d-8125-41af-a2ed-e537c93a457d"],
+ CellLabel->"Paclet Name",
+ CellID->420010120,ExpressionUUID->"eda7980d-8125-41af-a2ed-e537c93a457d"],
 
 Cell["Wolfram`TensorNetworks`", "Categorization",
- CellLabel->"Context",ExpressionUUID->"539cd16d-8965-4c17-9fe4-39d68b7876ad"],
+ CellLabel->"Context",
+ CellID->420010121,ExpressionUUID->"539cd16d-8965-4c17-9fe4-39d68b7876ad"],
 
 Cell["Wolfram/TensorNetworks/ref/PathQ", "Categorization",
- CellLabel->"URI",ExpressionUUID->"f2ea6a24-21ac-404e-923a-e0883c2cd5d3"]
+ CellLabel->"URI",
+ CellID->420010122,ExpressionUUID->"f2ea6a24-21ac-404e-923a-e0883c2cd5d3"]
 }, Closed]],
 
 Cell[CellGroupData[{
 
-Cell["Keywords", "KeywordsSection",ExpressionUUID->"2275cf08-fe31-4fd0-9501-c96892d044bc"],
+Cell["Keywords", "KeywordsSection",
+ CellID->420010123,ExpressionUUID->"2275cf08-fe31-4fd0-9501-c96892d044bc"],
 
-Cell[" ", "Keywords",ExpressionUUID->"4884cbe5-2846-45c9-b3d6-4dd3577b36dd"]
+Cell["tensor network", "Keywords",
+ CellID->420010124,ExpressionUUID->"42014000-1aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["contraction path", "Keywords",
+ CellID->420010125,ExpressionUUID->"42014000-2aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["predicate", "Keywords",
+ CellID->420010126,ExpressionUUID->"42014000-3aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["path validation", "Keywords",
+ CellID->420010127,ExpressionUUID->"42014000-4aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["singleton", "Keywords",
+ CellID->420010128,ExpressionUUID->"42014000-5aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["pair", "Keywords",
+ CellID->420010129,ExpressionUUID->"42014000-6aaa-abbb-bccc-caaaaaaaaaaa"],
+
+Cell["opt_einsum", "Keywords",
+ CellID->420010130,ExpressionUUID->"42014000-7aaa-abbb-bccc-caaaaaaaaaaa"]
 }, Closed]],
 
 Cell[CellGroupData[{
 
-Cell["Syntax Templates", "TemplatesSection",ExpressionUUID->"ebf796b9-ac73-4fa4-8f7c-01cf0a0c6cba"],
+Cell["Syntax Templates", "TemplatesSection",
+ CellID->420010131,ExpressionUUID->"ebf796b9-ac73-4fa4-8f7c-01cf0a0c6cba"],
 
 Cell[BoxData[""], "Template",
- CellLabel->
-  "Additional Function \
-Template",ExpressionUUID->"43b8f90a-22ea-4d38-b594-2702e11bec0f"],
+ CellLabel->"Additional Function Template",
+ CellID->420010132,ExpressionUUID->"43b8f90a-22ea-4d38-b594-2702e11bec0f"],
 
 Cell[BoxData[""], "Template",
- CellLabel->
-  "Arguments Pattern",ExpressionUUID->"0757d6c0-06e5-4205-8581-4542dc7c8e6e"],
+ CellLabel->"Arguments Pattern",
+ CellID->420010133,ExpressionUUID->"0757d6c0-06e5-4205-8581-4542dc7c8e6e"],
 
 Cell[BoxData[""], "Template",
- CellLabel->
-  "Local Variables",ExpressionUUID->"031db6f3-c23d-48ee-ae07-9d8fdc364c21"],
+ CellLabel->"Local Variables",
+ CellID->420010134,ExpressionUUID->"031db6f3-c23d-48ee-ae07-9d8fdc364c21"],
 
 Cell[BoxData[""], "Template",
- CellLabel->
-  "Color Equal Signs",ExpressionUUID->"1478c3de-ac81-4d05-9d95-f1b49e46cf41"]
+ CellLabel->"Color Equal Signs",
+ CellID->420010135,ExpressionUUID->"1478c3de-ac81-4d05-9d95-f1b49e46cf41"]
 }, Closed]]
 }, Open  ]]
 },
 WindowSize->{700, 770},
 WindowMargins->{{5, Automatic}, {Automatic, 0}},
 TaggingRules-><|"Paclet" -> "Wolfram/TensorNetworks"|>,
-CellContext->"Global`",
+CellContext->CellGroup,
 FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (February 17, 2026)",
 StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
   CharacterEncoding -> "UTF-8"],
@@ -375,88 +1180,331 @@ ExpressionUUID->"6a58ef87-f620-4912-833a-ed15a1d9e8aa"
 (*CellTagsOutline
 CellTagsIndex->{
  "ExtendedExamples"->{
-  Cell[6266, 194, 470, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"41d02985-ba59-4207-879b-709baa0f9399",
-   CellTags->"ExtendedExamples"]}
+  Cell[15614, 465, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"41d02985-ba59-4207-879b-709baa0f9399",
+   CellTags->"ExtendedExamples",
+   CellID->420010033]}
  }
 *)
 (*CellTagsIndex
 CellTagsIndex->{
- {"ExtendedExamples", 12099, 376}
+ {"ExtendedExamples", 38360, 1181}
  }
 *)
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[576, 22, 82, 0, 70, "ObjectName",ExpressionUUID->"e92afdc9-29a9-4cdb-ba91-db13d8513527"],
-Cell[661, 24, 548, 12, 70, "Usage",ExpressionUUID->"9fa504f2-0967-4282-b5f6-c593e20fe7da",
- CellID->2117285418],
-Cell[1212, 38, 73, 0, 70, "Notes",ExpressionUUID->"d43f25f1-572b-4903-bf07-12d4b6447161"]
+Cell[576, 22, 102, 1, 70, "ObjectName",ExpressionUUID->"e92afdc9-29a9-4cdb-ba91-db13d8513527",
+ CellID->420010001],
+Cell[681, 25, 1360, 39, 70, "Usage",ExpressionUUID->"9fa504f2-0967-4282-b5f6-c593e20fe7da",
+ CellID->420010002],
+Cell[2044, 66, 1390, 36, 70, "Notes",ExpressionUUID->"d43f25f1-572b-4903-bf07-12d4b6447161",
+ CellID->420010003],
+Cell[3437, 104, 885, 21, 70, "Notes",ExpressionUUID->"42003010-4aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010004],
+Cell[4325, 127, 1122, 28, 70, "Notes",ExpressionUUID->"42003020-5aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010005],
+Cell[5450, 157, 908, 23, 70, "Notes",ExpressionUUID->"42003030-5aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010006]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1322, 43, 438, 12, 70, "SeeAlsoSection",ExpressionUUID->"2f524797-c550-4c2c-94f8-16f0c4652bf4"],
-Cell[1763, 57, 989, 20, 70, "SeeAlso",ExpressionUUID->"73d06013-dada-458a-a36f-b9821cc67d5e"]
+Cell[6395, 185, 458, 13, 70, "SeeAlsoSection",ExpressionUUID->"2f524797-c550-4c2c-94f8-16f0c4652bf4",
+ CellID->420010007],
+Cell[6856, 200, 2692, 65, 70, "SeeAlso",ExpressionUUID->"73d06013-dada-458a-a36f-b9821cc67d5e",
+ CellID->420010008]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[2789, 82, 415, 11, 70, "TechNotesSection",ExpressionUUID->"0f78f702-c8a2-45e1-8987-fea93b0867e7"],
-Cell[3207, 95, 77, 0, 70, "Tutorials",ExpressionUUID->"d0804a61-7113-421c-ba46-513069878e64"]
+Cell[9585, 270, 435, 12, 70, "TechNotesSection",ExpressionUUID->"0f78f702-c8a2-45e1-8987-fea93b0867e7",
+ CellID->420010009],
+Cell[10023, 284, 257, 5, 70, "Tutorials",ExpressionUUID->"d0804a61-7113-421c-ba46-513069878e64",
+ CellID->420010010]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[3321, 100, 97, 0, 70, "MoreAboutSection",ExpressionUUID->"ad9f0049-f6b6-40b2-9b80-01b006bcb3d1"],
-Cell[3421, 102, 77, 0, 70, "MoreAbout",ExpressionUUID->"e023aa6d-7b8a-4973-86c5-216d25ab1f74"]
+Cell[10317, 294, 117, 1, 70, "MoreAboutSection",ExpressionUUID->"ad9f0049-f6b6-40b2-9b80-01b006bcb3d1",
+ CellID->420010011],
+Cell[10437, 297, 222, 4, 70, "MoreAbout",ExpressionUUID->"e023aa6d-7b8a-4973-86c5-216d25ab1f74",
+ CellID->420010012]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[3535, 107, 454, 13, 70, "RelatedLinksSection",ExpressionUUID->"c7606bb7-e986-4b3f-9ea7-3551eaac6e15"],
-Cell[3992, 122, 80, 0, 70, "RelatedLinks",ExpressionUUID->"f5498fd8-6f2d-4d73-b506-b980051a0961"]
+Cell[10696, 306, 472, 13, 70, "RelatedLinksSection",ExpressionUUID->"c7606bb7-e986-4b3f-9ea7-3551eaac6e15",
+ CellID->420010013],
+Cell[11171, 321, 100, 1, 70, "RelatedLinks",ExpressionUUID->"f5498fd8-6f2d-4d73-b506-b980051a0961",
+ CellID->420010014]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4109, 127, 512, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"1d5492ce-147a-479d-8503-26e1b1635a69"],
-Cell[4624, 143, 164, 3, 70, "ExampleInitialization",ExpressionUUID->"24a961ca-e468-40f9-bd60-71d92c05d5e2"]
+Cell[11308, 327, 530, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"1d5492ce-147a-479d-8503-26e1b1635a69",
+ CellID->420010015],
+Cell[11841, 343, 182, 3, 70, "ExampleInitialization",ExpressionUUID->"24a961ca-e468-40f9-bd60-71d92c05d5e2",
+ CellID->420010016]
 }, Open  ]],
-Cell[4803, 149, 424, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"543e04cd-57fe-462a-8293-146b6901acc6"],
-Cell[5230, 163, 148, 2, 70, "ExampleText",ExpressionUUID->"edf35f9d-d987-4de7-82b7-62ac9d40f9e6"],
-Cell[5381, 167, 249, 6, 70, "Input",ExpressionUUID->"6cf7ff6c-63ed-4e1d-8d9c-5c8bed19c672"],
-Cell[5633, 175, 179, 3, 70, "Input",ExpressionUUID->"fe9b1c52-1c29-4a61-a9fc-c552b941c96c"],
-Cell[5815, 180, 139, 2, 70, "Input",ExpressionUUID->"db86d1aa-ceb0-4ac0-a8b6-0a6e7b4a97f9"],
-Cell[5957, 184, 124, 1, 70, "ExampleText",ExpressionUUID->"c419bbd6-806b-4f3b-aadd-6bda11e7eabb",
- CellID->1420089206],
-Cell[6084, 187, 157, 3, 70, "Input",ExpressionUUID->"b93902de-27d9-4e29-b234-bfa645d91922",
- CellID->372306876],
+Cell[12038, 349, 442, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"543e04cd-57fe-462a-8293-146b6901acc6",
+ CellID->420010017],
+Cell[12483, 363, 148, 1, 70, "ExampleText",ExpressionUUID->"42007000-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010018],
 Cell[CellGroupData[{
-Cell[6266, 194, 470, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"41d02985-ba59-4207-879b-709baa0f9399",
- CellTags->"ExtendedExamples"],
-Cell[6739, 209, 223, 5, 70, "ExampleSection",ExpressionUUID->"70576492-f3aa-41d3-b66f-dbf320a10ad5"],
-Cell[6965, 216, 246, 5, 70, "ExampleSection",ExpressionUUID->"0a0ba152-d218-4027-a633-5e9f8cbcd748"],
-Cell[CellGroupData[{
-Cell[7236, 225, 225, 5, 70, "ExampleSection",ExpressionUUID->"26f089a8-b5ba-46f3-b4ef-77b80af278eb"],
-Cell[7464, 232, 225, 5, 70, "ExampleSubsection",ExpressionUUID->"20e026d9-f28e-49f5-8e4f-03817e17b42d"],
-Cell[7692, 239, 225, 5, 70, "ExampleSubsection",ExpressionUUID->"de535b92-09d2-46a8-b44c-b1b3dfd53b66"]
+Cell[12656, 368, 305, 9, 70, "Input",ExpressionUUID->"42007000-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010019],
+Cell[12964, 379, 129, 2, 70, "Output",ExpressionUUID->"42007000-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010020]
 }, Open  ]],
-Cell[7932, 247, 230, 5, 70, "ExampleSection",ExpressionUUID->"102fa480-8b07-43bd-83ca-436f4ca0a84a"],
-Cell[8165, 254, 240, 5, 70, "ExampleSection",ExpressionUUID->"c99616c3-953e-4be3-b56a-a2fa7d585aad"],
-Cell[8408, 261, 233, 5, 70, "ExampleSection",ExpressionUUID->"abc028ac-ea19-44cd-a5ee-daf9f2dea58a"],
-Cell[8644, 268, 238, 5, 70, "ExampleSection",ExpressionUUID->"fdad17f2-87c1-4be0-bce7-e263cab655fd"],
-Cell[8885, 275, 231, 5, 70, "ExampleSection",ExpressionUUID->"4d6743ab-094f-4789-ace0-214162d4204f"]
+Cell[13108, 384, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42007010-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010021],
+Cell[13353, 391, 145, 1, 70, "ExampleText",ExpressionUUID->"42007020-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010022],
+Cell[CellGroupData[{
+Cell[13523, 396, 340, 10, 70, "Input",ExpressionUUID->"42007020-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010023],
+Cell[13866, 408, 129, 2, 70, "Output",ExpressionUUID->"42007020-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010024]
+}, Open  ]],
+Cell[14010, 413, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42007030-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010025],
+Cell[14255, 420, 154, 1, 70, "ExampleText",ExpressionUUID->"42007040-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010026],
+Cell[CellGroupData[{
+Cell[14434, 425, 228, 6, 70, "Input",ExpressionUUID->"42007040-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010027],
+Cell[14665, 433, 129, 2, 70, "Output",ExpressionUUID->"42007040-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010028]
+}, Open  ]],
+Cell[14809, 438, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42007050-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010029],
+Cell[15054, 445, 135, 1, 70, "ExampleText",ExpressionUUID->"42007060-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010030],
+Cell[CellGroupData[{
+Cell[15214, 450, 230, 6, 70, "Input",ExpressionUUID->"42007060-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010031],
+Cell[15447, 458, 130, 2, 70, "Output",ExpressionUUID->"42007060-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010032]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[9153, 285, 90, 0, 70, "MetadataSection",ExpressionUUID->"8c8dc7d5-b421-4abb-91c0-06acfa787ebc"],
-Cell[9246, 287, 456, 11, 70, "History",ExpressionUUID->"3679a195-e944-409b-ae45-82b565f9c804"],
+Cell[15614, 465, 487, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"41d02985-ba59-4207-879b-709baa0f9399",
+ CellTags->"ExtendedExamples",
+ CellID->420010033],
 Cell[CellGroupData[{
-Cell[9727, 302, 466, 13, 70, "CategorizationSection",ExpressionUUID->"da75b079-d063-4016-8829-6e4b8cff6835"],
-Cell[10196, 317, 117, 2, 70, "Categorization",ExpressionUUID->"aa8c144e-b23b-4391-8a1f-a464f697aa4f"],
-Cell[10316, 321, 133, 2, 70, "Categorization",ExpressionUUID->"eda7980d-8125-41af-a2ed-e537c93a457d"],
-Cell[10452, 325, 127, 1, 70, "Categorization",ExpressionUUID->"539cd16d-8965-4c17-9fe4-39d68b7876ad"],
-Cell[10582, 328, 132, 1, 70, "Categorization",ExpressionUUID->"f2ea6a24-21ac-404e-923a-e0883c2cd5d3"]
+Cell[16126, 482, 241, 5, 70, "ExampleSection",ExpressionUUID->"70576492-f3aa-41d3-b66f-dbf320a10ad5",
+ CellID->420010034],
+Cell[CellGroupData[{
+Cell[16392, 491, 130, 1, 70, "ExampleSubsection",ExpressionUUID->"42008000-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010035],
+Cell[16525, 494, 158, 2, 70, "ExampleText",ExpressionUUID->"42008000-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010036],
+Cell[CellGroupData[{
+Cell[16708, 500, 279, 8, 70, "Input",ExpressionUUID->"42008000-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010037],
+Cell[16990, 510, 129, 2, 70, "Output",ExpressionUUID->"42008000-4aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010038]
+}, Open  ]],
+Cell[17134, 515, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42008010-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010039],
+Cell[17379, 522, 136, 1, 70, "ExampleText",ExpressionUUID->"42008020-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010040],
+Cell[CellGroupData[{
+Cell[17540, 527, 314, 9, 70, "Input",ExpressionUUID->"42008020-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010041],
+Cell[17857, 538, 129, 2, 70, "Output",ExpressionUUID->"42008020-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010042]
+}, Open  ]],
+Cell[18001, 543, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42008030-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010043],
+Cell[18246, 550, 158, 2, 70, "ExampleText",ExpressionUUID->"42008040-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010044],
+Cell[CellGroupData[{
+Cell[18429, 556, 288, 8, 70, "Input",ExpressionUUID->"42008040-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010045],
+Cell[18720, 566, 129, 2, 70, "Output",ExpressionUUID->"42008040-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010046]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[18898, 574, 126, 1, 70, "ExampleSubsection",ExpressionUUID->"42009000-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010047],
+Cell[19027, 577, 837, 20, 70, "ExampleText",ExpressionUUID->"42009000-5aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010048],
+Cell[19867, 599, 407, 12, 70, "Input",ExpressionUUID->"42009000-6aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010049],
+Cell[CellGroupData[{
+Cell[20299, 615, 206, 4, 70, "Input",ExpressionUUID->"42009000-7aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010050],
+Cell[20508, 621, 129, 2, 70, "Output",ExpressionUUID->"42009000-8aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010051]
+}, Open  ]],
+Cell[20652, 626, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42009010-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010052],
+Cell[20897, 633, 139, 1, 70, "ExampleText",ExpressionUUID->"42009020-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010053],
+Cell[CellGroupData[{
+Cell[21061, 638, 514, 13, 70, "Input",ExpressionUUID->"42009020-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010054],
+Cell[21578, 653, 129, 2, 70, "Output",ExpressionUUID->"42009020-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010055]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[21756, 661, 119, 1, 70, "ExampleSubsection",ExpressionUUID->"42010000-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010056],
+Cell[21878, 664, 148, 1, 70, "ExampleText",ExpressionUUID->"42010000-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010057],
+Cell[CellGroupData[{
+Cell[22051, 669, 228, 6, 70, "Input",ExpressionUUID->"42010000-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010058],
+Cell[22282, 677, 130, 2, 70, "Output",ExpressionUUID->"42010000-4aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010059]
+}, Open  ]],
+Cell[22427, 682, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42010010-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010060],
+Cell[22672, 689, 134, 1, 70, "ExampleText",ExpressionUUID->"42010020-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010061],
+Cell[CellGroupData[{
+Cell[22831, 694, 238, 6, 70, "Input",ExpressionUUID->"42010020-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010062],
+Cell[23072, 702, 130, 2, 70, "Output",ExpressionUUID->"42010020-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010063]
+}, Open  ]],
+Cell[23217, 707, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42010030-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010064],
+Cell[23462, 714, 177, 3, 70, "ExampleText",ExpressionUUID->"42010040-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010065],
+Cell[CellGroupData[{
+Cell[23664, 721, 203, 5, 70, "Input",ExpressionUUID->"42010040-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010066],
+Cell[23870, 728, 130, 2, 70, "Output",ExpressionUUID->"42010040-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010067]
+}, Open  ]],
+Cell[24015, 733, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42010050-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010068],
+Cell[24260, 740, 127, 1, 70, "ExampleText",ExpressionUUID->"42010060-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010069],
+Cell[CellGroupData[{
+Cell[24412, 745, 157, 3, 70, "Input",ExpressionUUID->"42010060-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010070],
+Cell[24572, 750, 130, 2, 70, "Output",ExpressionUUID->"42010060-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010071]
+}, Open  ]],
+Cell[24717, 755, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42010070-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010072],
+Cell[24962, 762, 148, 1, 70, "ExampleText",ExpressionUUID->"42010080-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010073],
+Cell[CellGroupData[{
+Cell[25135, 767, 254, 7, 70, "Input",ExpressionUUID->"42010080-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010074],
+Cell[25392, 776, 130, 2, 70, "Output",ExpressionUUID->"42010080-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010075]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[25561, 783, 264, 5, 70, "ExampleSection",ExpressionUUID->"0a0ba152-d218-4027-a633-5e9f8cbcd748",
+ CellID->420010076],
+Cell[25828, 790, 243, 5, 70, "ExampleSection",ExpressionUUID->"26f089a8-b5ba-46f3-b4ef-77b80af278eb",
+ CellID->420010077],
+Cell[CellGroupData[{
+Cell[26096, 799, 248, 5, 70, "ExampleSection",ExpressionUUID->"102fa480-8b07-43bd-83ca-436f4ca0a84a",
+ CellID->420010078],
+Cell[26347, 806, 214, 4, 70, "ExampleText",ExpressionUUID->"42011000-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010079],
+Cell[CellGroupData[{
+Cell[26586, 814, 382, 9, 70, "Input",ExpressionUUID->"42011000-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010080],
+Cell[26971, 825, 351, 10, 70, "Input",ExpressionUUID->"42011000-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010081],
+Cell[27325, 837, 269, 8, 70, "Output",ExpressionUUID->"42011000-4aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010082]
+}, Open  ]],
+Cell[27609, 848, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42011010-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010083],
+Cell[27854, 855, 175, 3, 70, "ExampleText",ExpressionUUID->"42011020-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010084],
+Cell[CellGroupData[{
+Cell[28054, 862, 249, 6, 70, "Input",ExpressionUUID->"42011020-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010085],
+Cell[28306, 870, 132, 2, 70, "Output",ExpressionUUID->"42011020-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010086]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[28487, 878, 258, 5, 70, "ExampleSection",ExpressionUUID->"c99616c3-953e-4be3-b56a-a2fa7d585aad",
+ CellID->420010087],
+Cell[28748, 885, 845, 21, 70, "ExampleText",ExpressionUUID->"42012000-4aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010088],
+Cell[CellGroupData[{
+Cell[29618, 910, 567, 18, 70, "Input",ExpressionUUID->"42012000-5aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010089],
+Cell[30188, 930, 177, 4, 70, "Output",ExpressionUUID->"42012000-6aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010090]
+}, Open  ]],
+Cell[30380, 937, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42012010-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010091],
+Cell[30625, 944, 582, 15, 70, "ExampleText",ExpressionUUID->"42012020-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010092],
+Cell[CellGroupData[{
+Cell[31232, 963, 641, 20, 70, "Input",ExpressionUUID->"42012030-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010093],
+Cell[31876, 985, 178, 4, 70, "Output",ExpressionUUID->"42012030-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010094]
+}, Open  ]],
+Cell[32069, 992, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"42012040-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010095],
+Cell[32314, 999, 798, 20, 70, "ExampleText",ExpressionUUID->"42012050-4aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010096],
+Cell[CellGroupData[{
+Cell[33137, 1023, 396, 11, 70, "Input",ExpressionUUID->"42012060-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010097],
+Cell[33536, 1036, 129, 2, 70, "Output",ExpressionUUID->"42012060-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010098]
+}, Open  ]]
+}, Open  ]],
+Cell[33692, 1042, 251, 5, 70, "ExampleSection",ExpressionUUID->"abc028ac-ea19-44cd-a5ee-daf9f2dea58a",
+ CellID->420010099],
+Cell[33946, 1049, 256, 5, 70, "ExampleSection",ExpressionUUID->"fdad17f2-87c1-4be0-bce7-e263cab655fd",
+ CellID->420010114],
+Cell[34205, 1056, 249, 5, 70, "ExampleSection",ExpressionUUID->"4d6743ab-094f-4789-ace0-214162d4204f",
+ CellID->420010115]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[34491, 1066, 110, 1, 70, "MetadataSection",ExpressionUUID->"8c8dc7d5-b421-4abb-91c0-06acfa787ebc",
+ CellID->420010116],
+Cell[34604, 1069, 477, 12, 70, "History",ExpressionUUID->"3679a195-e944-409b-ae45-82b565f9c804",
+ CellID->420010117],
+Cell[CellGroupData[{
+Cell[35106, 1085, 484, 13, 70, "CategorizationSection",ExpressionUUID->"da75b079-d063-4016-8829-6e4b8cff6835",
+ CellID->420010118],
+Cell[35593, 1100, 134, 2, 70, "Categorization",ExpressionUUID->"aa8c144e-b23b-4391-8a1f-a464f697aa4f",
+ CellID->420010119],
+Cell[35730, 1104, 150, 2, 70, "Categorization",ExpressionUUID->"eda7980d-8125-41af-a2ed-e537c93a457d",
+ CellID->420010120],
+Cell[35883, 1108, 147, 2, 70, "Categorization",ExpressionUUID->"539cd16d-8965-4c17-9fe4-39d68b7876ad",
+ CellID->420010121],
+Cell[36033, 1112, 152, 2, 70, "Categorization",ExpressionUUID->"f2ea6a24-21ac-404e-923a-e0883c2cd5d3",
+ CellID->420010122]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[10751, 334, 90, 0, 70, "KeywordsSection",ExpressionUUID->"2275cf08-fe31-4fd0-9501-c96892d044bc"],
-Cell[10844, 336, 76, 0, 70, "Keywords",ExpressionUUID->"4884cbe5-2846-45c9-b3d6-4dd3577b36dd"]
+Cell[36222, 1119, 110, 1, 70, "KeywordsSection",ExpressionUUID->"2275cf08-fe31-4fd0-9501-c96892d044bc",
+ CellID->420010123],
+Cell[36335, 1122, 109, 1, 70, "Keywords",ExpressionUUID->"42014000-1aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010124],
+Cell[36447, 1125, 111, 1, 70, "Keywords",ExpressionUUID->"42014000-2aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010125],
+Cell[36561, 1128, 104, 1, 70, "Keywords",ExpressionUUID->"42014000-3aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010126],
+Cell[36668, 1131, 110, 1, 70, "Keywords",ExpressionUUID->"42014000-4aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010127],
+Cell[36781, 1134, 104, 1, 70, "Keywords",ExpressionUUID->"42014000-5aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010128],
+Cell[36888, 1137, 99, 1, 70, "Keywords",ExpressionUUID->"42014000-6aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010129],
+Cell[36990, 1140, 105, 1, 70, "Keywords",ExpressionUUID->"42014000-7aaa-abbb-bccc-caaaaaaaaaaa",
+ CellID->420010130]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[10957, 341, 99, 0, 70, "TemplatesSection",ExpressionUUID->"ebf796b9-ac73-4fa4-8f7c-01cf0a0c6cba"],
-Cell[11059, 343, 133, 3, 70, "Template",ExpressionUUID->"43b8f90a-22ea-4d38-b594-2702e11bec0f"],
-Cell[11195, 348, 120, 2, 70, "Template",ExpressionUUID->"0757d6c0-06e5-4205-8581-4542dc7c8e6e"],
-Cell[11318, 352, 118, 2, 70, "Template",ExpressionUUID->"031db6f3-c23d-48ee-ae07-9d8fdc364c21"],
-Cell[11439, 356, 120, 2, 70, "Template",ExpressionUUID->"1478c3de-ac81-4d05-9d95-f1b49e46cf41"]
+Cell[37132, 1146, 119, 1, 70, "TemplatesSection",ExpressionUUID->"ebf796b9-ac73-4fa4-8f7c-01cf0a0c6cba",
+ CellID->420010131],
+Cell[37254, 1149, 148, 2, 70, "Template",ExpressionUUID->"43b8f90a-22ea-4d38-b594-2702e11bec0f",
+ CellID->420010132],
+Cell[37405, 1153, 137, 2, 70, "Template",ExpressionUUID->"0757d6c0-06e5-4205-8581-4542dc7c8e6e",
+ CellID->420010133],
+Cell[37545, 1157, 135, 2, 70, "Template",ExpressionUUID->"031db6f3-c23d-48ee-ae07-9d8fdc364c21",
+ CellID->420010134],
+Cell[37683, 1161, 137, 2, 70, "Template",ExpressionUUID->"1478c3de-ac81-4d05-9d95-f1b49e46cf41",
+ CellID->420010135]
 }, Closed]]
 }, Open  ]]
 }

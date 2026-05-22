@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[     19396,        541]
-NotebookOptionsPosition[     13195,        409]
-NotebookOutlinePosition[     13980,        435]
-CellTagsIndexPosition[     13901,        430]
+NotebookDataLength[     46952,       1269]
+NotebookOptionsPosition[     33470,        999]
+NotebookOutlinePosition[     34257,       1025]
+CellTagsIndexPosition[     34177,       1020]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -29,18 +29,201 @@ Cell[TextData[{
   RowBox[{
    ButtonBox["TensorNetworkRemoveCycles",
     BaseStyle->"Link",
-    ButtonData->"paclet:WolframTensorNetworks/ref/TensorNetworkRemoveCycles"],
-    "[", 
-   StyleBox["net", "TI"], "]"}]], "InlineFormula",ExpressionUUID->
+    ButtonData->
+     "paclet:Wolfram/TensorNetworks/ref/TensorNetworkRemoveCycles"], "[", 
+   StyleBox["graph", "TI"], "]"}]], "InlineFormula",ExpressionUUID->
   "e6c17db7-1f20-4e7f-a44a-5efdbcbf9364"],
- "\[LineSeparator]inserts identity tensors to break any cycles in the network \
-graph, making it acyclic."
+ "\[LineSeparator]returns an acyclic ",
+ Cell[BoxData[
+  ButtonBox["Graph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Graph"]], "InlineFormula",ExpressionUUID->
+  "7a4ab103-9b41-4cc8-b6a4-6e6c20bdc101"],
+ " by inserting one cup/cap pair of identity tensors for each cycle in the \
+directed input ",
+ Cell[BoxData[
+  StyleBox["graph", "TI"]], "InlineFormula",ExpressionUUID->
+  "f9b1b51c-71e7-4d44-9ae5-fa019d6e6f37"],
+ "."
 }], "Usage",
- CellChangeTimes->{3.978638243178014*^9},
  CellID->1747517898,ExpressionUUID->"837768f8-2fe0-4171-b3eb-2b2466f4551a"],
 
-Cell[" ", "Notes",
- CellID->1546955314,ExpressionUUID->"eb3da48f-af27-42d3-806d-412c2c9f6648"]
+Cell[TextData[{
+ "The input ",
+ Cell[BoxData[
+  StyleBox["graph", "TI"]], "InlineFormula",ExpressionUUID->
+  "a01a1ac1-eeb8-4d8c-9d70-1e2c9c7ee9b1"],
+ " must satisfy ",
+ Cell[BoxData[
+  ButtonBox["DirectedGraphQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/DirectedGraphQ"]], "InlineFormula",ExpressionUUID->
+  "61e4f5b4-c6ae-4ddc-aa1e-6e4d9efc4ad9"],
+ "; undirected input is held unevaluated. The caller ",
+ Cell[BoxData[
+  ButtonBox["ToTensorNetworkGraph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ToTensorNetworkGraph"]], 
+  "InlineFormula",ExpressionUUID->"5a6c2e2c-7e21-4d6e-b3bc-1b80a7f1f9c1"],
+ " handles undirected graphs upstream via ",
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["DirectedGraph",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/DirectedGraph"], "[", 
+   StyleBox["g", "TI"], ",", "\"\<Acyclic\>\"", "]"}]], "InlineFormula",
+  ExpressionUUID->"a5db0fa7-1fcb-44dc-a92a-3a5a51b6f8a3"],
+ "."
+}], "Notes",
+ CellID->810000001,ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a001"],
+
+Cell[TextData[{
+ "Each cup/cap pair represents an identity contraction. The cup vertex \
+carries ",
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["Flatten",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Flatten"], "[", 
+   RowBox[{
+    ButtonBox["IdentityMatrix",
+     BaseStyle->"Link",
+     ButtonData->"paclet:ref/IdentityMatrix"], "[", 
+    StyleBox["d", "TI"], "]"}], "]"}]], "InlineFormula",ExpressionUUID->
+  "a8be7ddb-d0f0-4af9-907a-2d51b15e57ff"],
+ " (the rank-2 identity reshaped to a rank-1 length-",
+ Cell[BoxData[
+  RowBox[{
+   StyleBox["d", "TI"], "^", "2"}]], "InlineFormula",ExpressionUUID->
+  "c9f4ce1f-9a72-4612-aaad-7eb8b7e7c01b"],
+ " vector); the cap vertex carries the same. Reshaping either tensor back to ",
+ Cell[BoxData[
+  RowBox[{"{", 
+   StyleBox["d", "TI"], ",", 
+   StyleBox["d", "TI"], "}"}]], "InlineFormula",ExpressionUUID->
+  "d83c8c9a-d33b-490a-a85d-23a35d44b101"],
+ " recovers ",
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["IdentityMatrix",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/IdentityMatrix"], "[", 
+   StyleBox["d", "TI"], "]"}]], "InlineFormula",ExpressionUUID->
+  "e9b50ed7-3f78-4eea-b8e1-3a8c70ed1003"],
+ "."
+}], "Notes",
+ CellID->810000002,ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a002"],
+
+Cell[TextData[{
+ "For annotated tensor-network graphs (with ",
+ Cell[BoxData["\"\<Tensor\>\""], "InlineFormula",ExpressionUUID->
+  "a1d1c0c0-86cd-490e-9d2b-1de2a87b3c01"],
+ ", ",
+ Cell[BoxData["\"\<Index\>\""], "InlineFormula",ExpressionUUID->
+  "a1d1c0c0-86cd-490e-9d2b-1de2a87b3c02"],
+ ", and ",
+ Cell[BoxData[
+  RowBox[{"{", 
+   ButtonBox["Superscript",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Superscript"], ",", 
+   ButtonBox["Subscript",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Subscript"], "}"}]], "InlineFormula",
+  ExpressionUUID->"a1d1c0c0-86cd-490e-9d2b-1de2a87b3c03"],
+ " edge tags), the cup vertex is given two ",
+ Cell[BoxData[
+  ButtonBox["Superscript",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Superscript"]], "InlineFormula",ExpressionUUID->
+  "a1d1c0c0-86cd-490e-9d2b-1de2a87b3c04"],
+ " labels (the contravariant end) and the cap vertex two ",
+ Cell[BoxData[
+  ButtonBox["Subscript",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/Subscript"]], "InlineFormula",ExpressionUUID->
+  "a1d1c0c0-86cd-490e-9d2b-1de2a87b3c05"],
+ " labels (the covariant end); the broken edge's original tag slots are \
+inherited as the second component of each index."
+}], "Notes",
+ CellID->810000003,ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a003"],
+
+Cell[TextData[{
+ "The function processes one cycle at a time via ",
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["FindCycle",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/FindCycle"], "[", 
+   StyleBox["net", "TI"], ",", 
+   ButtonBox["Infinity",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Infinity"], ",", "1", "]"}]], "InlineFormula",
+  ExpressionUUID->"d2c2c2c2-2222-4444-aaaa-bbbbcccc0001"],
+ " in a ",
+ Cell[BoxData[
+  ButtonBox["While",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/While"]], "InlineFormula",ExpressionUUID->
+  "d2c2c2c2-2222-4444-aaaa-bbbbcccc0002"],
+ " loop \[Dash] each iteration breaks one cycle and re-runs ",
+ Cell[BoxData[
+  ButtonBox["FindCycle",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/FindCycle"]], "InlineFormula",ExpressionUUID->
+  "d2c2c2c2-2222-4444-aaaa-bbbbcccc0003"],
+ " on the rewritten graph until no cycles remain."
+}], "Notes",
+ CellID->810000004,ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a004"],
+
+Cell[TextData[{
+ "Vertex labels in the input are canonicalized to integers by ",
+ Cell[BoxData[
+  ButtonBox["IndexGraph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/IndexGraph"]], "InlineFormula",ExpressionUUID->
+  "d2c2c2c2-3333-4444-aaaa-bbbbcccc0001"],
+ " before cycle removal; the new cup and cap vertices are allocated as fresh \
+integers starting from ",
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["Max",
+    BaseStyle->"Link",
+    ButtonData->"paclet:ref/Max"], "[", 
+   RowBox[{
+    ButtonBox["VertexList",
+     BaseStyle->"Link",
+     ButtonData->"paclet:ref/VertexList"], "[", 
+    StyleBox["net", "TI"], "]"}], "]", "+", "1"}]], "InlineFormula",
+  ExpressionUUID->"d2c2c2c2-3333-4444-aaaa-bbbbcccc0002"],
+ "."
+}], "Notes",
+ CellID->810000005,ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a005"],
+
+Cell["\<\
+Each cycle adds exactly two vertices (one cup, one cap) and rewrites three \
+edges (the broken edge is replaced by cup\[Rule]cap, cup\[Rule]target, source\
+\[Rule]cap).\
+\>", "Notes",
+ CellID->810000006,ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a006"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ToTensorNetworkGraph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ToTensorNetworkGraph"]], 
+  "InlineFormula",ExpressionUUID->"d2c2c2c2-4444-4444-aaaa-bbbbcccc0001"],
+ " calls ",
+ Cell[BoxData[
+  ButtonBox["TensorNetworkRemoveCycles",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/TensorNetworkRemoveCycles"]], 
+  "InlineFormula",ExpressionUUID->"d2c2c2c2-4444-4444-aaaa-bbbbcccc0002"],
+ " automatically on any cyclic directed input, so direct calls are rare in \
+typical usage."
+}], "Notes",
+ CellID->810000007,ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a007"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -62,43 +245,71 @@ Cell[TextData[{
 
 Cell[TextData[{
  Cell[BoxData[
-  TagBox[
-   FrameBox["\<\"XXXX\"\>"],
-   "FunctionPlaceholder"]], "InlineSeeAlsoFunction",
+  ButtonBox["ToTensorNetworkGraph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ToTensorNetworkGraph"]], 
+  "InlineSeeAlsoFunction",
   TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
-  "0e2c292e-40a4-475b-a49f-b2ccf991c8dc"],
+  "ee000001-0000-0000-0000-000000000001"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
  Cell[BoxData[
-  RowBox[{
-  Cell[TextData[StyleBox[
-   " \[FilledVerySmallSquare] ", "InlineSeparator"]],ExpressionUUID->
-    "b5667a25-0305-472e-be2c-55bf6c22996b"], 
-   DynamicModuleBox[{$CellContext`nbobj$$ = NotebookObject[
-     FrontEndObject[
-      LinkObject["i7bzb_shm", 209, 9]], 22], $CellContext`cellobj$$ = 
-    CellObject[6753]}, 
-    TemplateBox[{
-      GraphicsBox[{{
-         Thickness[0.06], 
-         StrokeForm[
-          Hue[0.4167, 0.406, 0.502]], 
-         CircleBox[{0, 0}]}, {
-         Thickness[0.06], 
-         StrokeForm[
-          Hue[0.4167, 0.406, 0.502]], 
-         LineBox[{{0, 0.62}, {0, -0.62}}]}, {
-         Thickness[0.06], 
-         StrokeForm[
-          Hue[0.4167, 0.406, 0.502]], 
-         LineBox[{{-0.62, 0}, {0.62, 0}}]}}, 
-       ImagePadding -> {{1., 1.}, {2.4, 1.}}, ImageSize -> 16, 
-       PlotRange -> {{-1.06, 1.06}, {-1.06, 1.06}}, 
-       BaselinePosition -> (Center -> 
-        Center)], $CellContext`nbobj$$, $CellContext`cellobj$$},
-     "InlineListingAddButton"],
-    Initialization:>($CellContext`nbobj$$ = 
-      EvaluationNotebook[]; $CellContext`cellobj$$ = EvaluationCell[])]}]], 
-  "InlineListingAddButton",ExpressionUUID->
-  "5d2a7b65-0744-4937-af62-c202c93e1c56"]
+  ButtonBox["TensorNetworkGraphQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkGraphQ"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "ee000001-0000-0000-0000-000000000002"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["TensorNetworkIndexGraph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndexGraph"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "ee000001-0000-0000-0000-000000000003"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["BinaryTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/BinaryTensorNetwork"]], 
+  "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "ee000001-0000-0000-0000-000000000004"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["FindCycle",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/FindCycle"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "ee000001-0000-0000-0000-000000000005"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["DirectedGraphQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/DirectedGraphQ"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "ee000001-0000-0000-0000-000000000006"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["AcyclicGraphQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/AcyclicGraphQ"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "ee000001-0000-0000-0000-000000000007"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["VertexAdd",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/VertexAdd"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "ee000001-0000-0000-0000-000000000008"],
+ StyleBox[" \[FilledVerySmallSquare] ", "InlineSeparator"],
+ Cell[BoxData[
+  ButtonBox["EdgeDelete",
+   BaseStyle->"Link",
+   ButtonData->"paclet:ref/EdgeDelete"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "ee000001-0000-0000-0000-000000000009"]
 }], "SeeAlso",
  CellID->772830426,ExpressionUUID->"292301fd-7614-484e-b715-123efde75d77"]
 }, Open  ]],
@@ -119,7 +330,11 @@ Cell[TextData[{
 }], "TechNotesSection",
  CellID->979872726,ExpressionUUID->"0a145879-59a2-4d4a-9c55-f5d859363ef5"],
 
-Cell[" ", "Tutorials",
+Cell[TextData[ButtonBox["Building Tensor Networks",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/BuildingTensorNetworks"]], \
+"Tutorials",
  CellID->1816300686,ExpressionUUID->"5679c32f-2ad8-4597-9198-6c0a35f2e217"]
 }, Open  ]],
 
@@ -128,7 +343,10 @@ Cell[CellGroupData[{
 Cell["Related Guides", "MoreAboutSection",
  CellID->85587497,ExpressionUUID->"37d5a121-09e4-41aa-b678-14de10b4e8b3"],
 
-Cell[" ", "MoreAbout",
+Cell[TextData[ButtonBox["TensorNetworks Package",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/guide/TensorNetworks"]], "MoreAbout",
  CellID->1802502236,ExpressionUUID->"9ca55cee-f984-4298-99eb-c958ef1307b6"]
 }, Open  ]],
 
@@ -192,44 +410,71 @@ Cell[BoxData[
  CellID->1509633488,ExpressionUUID->"e6a39298-17a1-45cf-ac7f-82f790039893"],
 
 Cell["\<\
-Break cycles in a tensor network by inserting identity tensors:\
+A simple directed 3-cycle is broken by inserting one cup/cap pair:\
 \>", "ExampleText",
- CellID->730001001,ExpressionUUID->"fd955856-81a2-4037-8bb5-6d402cccbac1"],
+ CellID->811000001,ExpressionUUID->"fd955856-81a2-4037-8bb5-6d402cccbac1"],
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"tn", "=", 
-   RowBox[{"TensorNetwork", "[", 
-    RowBox[{
-     RowBox[{"{", 
-      RowBox[{
-       RowBox[{"RandomReal", "[", 
-        RowBox[{
-         RowBox[{"{", 
-          RowBox[{
-           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
-         RowBox[{"{", 
-          RowBox[{"2", ",", "3"}], "}"}]}], "]"}], ",", 
-       RowBox[{"RandomReal", "[", 
-        RowBox[{
-         RowBox[{"{", 
-          RowBox[{
-           RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
-         RowBox[{"{", 
-          RowBox[{"3", ",", "2"}], "}"}]}], "]"}]}], "}"}], ",", 
-     RowBox[{"{", 
-      RowBox[{
-       RowBox[{"{", 
-        RowBox[{"i", ",", "j"}], "}"}], ",", 
-       RowBox[{"{", 
-        RowBox[{"j", ",", "i"}], "}"}]}], "}"}]}], "]"}]}], ";"}]], "Input",
+  RowBox[{"g", "=", 
+   RowBox[{"Graph", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"1", "\[Rule]", "2"}], ",", 
+      RowBox[{"2", "\[Rule]", "3"}], ",", 
+      RowBox[{"3", "\[Rule]", "1"}]}], "}"}], "]"}]}], ";"}]], "Input",
  CellLabel->"In[1]:=",
- CellID->730001002,ExpressionUUID->"c43c0e9a-8570-452b-a2c3-001172988baa"],
+ CellID->811000002,ExpressionUUID->"c43c0e9a-8570-452b-a2c3-001172988baa"],
 
 Cell[BoxData[
- RowBox[{"TensorNetworkRemoveCycles", "[", "tn", "]"}]], "Input",
+ RowBox[{"TensorNetworkRemoveCycles", "[", "g", "]"}]], "Input",
  CellLabel->"In[2]:=",
- CellID->730001003,ExpressionUUID->"d82c0785-5e2d-4f2c-adbc-82eeffe95c3d"],
+ CellID->811000003,ExpressionUUID->"d82c0785-5e2d-4f2c-adbc-82eeffe95c3d"],
+
+Cell["The result is acyclic:", "ExampleText",
+ CellID->811000004,ExpressionUUID->"ab000004-1000-4000-8000-000000000004"],
+
+Cell[BoxData[
+ RowBox[{"AcyclicGraphQ", "[", 
+  RowBox[{"TensorNetworkRemoveCycles", "[", "g", "]"}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->811000005,ExpressionUUID->"ab000005-1000-4000-8000-000000000005"],
+
+Cell["Each cycle adds two vertices (a cup and a cap) to the input:", \
+"ExampleText",
+ CellID->811000006,ExpressionUUID->"ab000006-1000-4000-8000-000000000006"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"VertexCount", "[", "g", "]"}], ",", 
+   RowBox[{"VertexCount", "[", 
+    RowBox[{"TensorNetworkRemoveCycles", "[", "g", "]"}], "]"}]}], 
+  "}"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->811000007,ExpressionUUID->"ab000007-1000-4000-8000-000000000007"],
+
+Cell["\<\
+The cup and cap carry a flattened identity matrix as their tensor:\
+\>", "ExampleText",
+ CellID->811000008,ExpressionUUID->"ab000008-1000-4000-8000-000000000008"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"res", "=", 
+   RowBox[{"TensorNetworkRemoveCycles", "[", "g", "]"}]}], ";"}]], "Input",
+ CellLabel->"In[5]:=",
+ CellID->811000009,ExpressionUUID->"ab000009-1000-4000-8000-000000000009"],
+
+Cell[BoxData[
+ RowBox[{"AnnotationValue", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"res", ",", 
+     RowBox[{"VertexList", "[", "res", "]"}]}], "}"}], ",", "VertexLabels"}], 
+  "]"}]], "Input",
+ CellLabel->"In[6]:=",
+ CellID->811000010,ExpressionUUID->"ab00000a-1000-4000-8000-00000000000a"],
 
 Cell[CellGroupData[{
 
@@ -248,12 +493,184 @@ Cell[TextData[{
  CellTags->"ExtendedExamples",
  CellID->2038227158,ExpressionUUID->"6a8230c2-fd9a-47a4-80f2-1c8a96d74230"],
 
+Cell[CellGroupData[{
+
 Cell[BoxData[
  InterpretationBox[Cell[
   "Scope", "ExampleSection",ExpressionUUID->
    "9daafc6b-b6ea-4c15-a6fb-3676d5868164"],
   $Line = 0; Null]], "ExampleSection",
  CellID->1972191209,ExpressionUUID->"eecec4c0-0bc1-4daf-85d3-045c12ed1f15"],
+
+Cell[CellGroupData[{
+
+Cell["Unannotated directed graph", "ExampleSubsection",
+ CellID->812100001,ExpressionUUID->"ab100001-1000-4000-8000-000000000011"],
+
+Cell["\<\
+Unannotated directed graph. A raw cyclic Graph gets cup/cap vertices and \
+untagged DirectedEdges:\
+\>", "ExampleText",
+ CellID->812100002,ExpressionUUID->"ab100002-1000-4000-8000-000000000012"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"gU", "=", 
+   RowBox[{"Graph", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"1", "\[Rule]", "2"}], ",", 
+      RowBox[{"2", "\[Rule]", "3"}], ",", 
+      RowBox[{"3", "\[Rule]", "1"}]}], "}"}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->812100003,ExpressionUUID->"ab100003-1000-4000-8000-000000000013"],
+
+Cell[BoxData[
+ RowBox[{"EdgeList", "[", 
+  RowBox[{"TensorNetworkRemoveCycles", "[", "gU", "]"}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->812100004,ExpressionUUID->"ab100004-1000-4000-8000-000000000014"],
+
+Cell["The new vertices carry the labels \"Cup\" and \"Cap\":", "ExampleText",
+ CellID->812100005,ExpressionUUID->"ab100005-1000-4000-8000-000000000015"],
+
+Cell[BoxData[
+ RowBox[{"AnnotationValue", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"TensorNetworkRemoveCycles", "[", "gU", "]"}], ",", 
+     RowBox[{"VertexList", "[", 
+      RowBox[{"TensorNetworkRemoveCycles", "[", "gU", "]"}], "]"}]}], "}"}], ",",
+    "VertexLabels"}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->812100006,ExpressionUUID->"ab100006-1000-4000-8000-000000000016"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "ab100007-1000-4000-8000-000000000017"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->812100007,ExpressionUUID->"ab100008-1000-4000-8000-000000000018"],
+
+Cell[CellGroupData[{
+
+Cell["Annotated TN graph", "ExampleSubsection",
+ CellID->812200001,ExpressionUUID->"ab200001-1000-4000-8000-000000000021"],
+
+Cell["\<\
+Annotated TN graph. A cyclic graph whose edges already carry {Superscript, \
+Subscript} tags keeps that variance pattern on the inserted cup and cap:\
+\>", "ExampleText",
+ CellID->812200002,ExpressionUUID->"ab200002-1000-4000-8000-000000000022"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"gA", "=", 
+   RowBox[{"Graph", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"DirectedEdge", "[", 
+       RowBox[{"1", ",", "2", ",", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"Superscript", "[", 
+           RowBox[{"1", ",", "1"}], "]"}], ",", 
+          RowBox[{"Subscript", "[", 
+           RowBox[{"2", ",", "1"}], "]"}]}], "}"}]}], "]"}], ",", 
+      RowBox[{"DirectedEdge", "[", 
+       RowBox[{"2", ",", "1", ",", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"Superscript", "[", 
+           RowBox[{"2", ",", "2"}], "]"}], ",", 
+          RowBox[{"Subscript", "[", 
+           RowBox[{"1", ",", "2"}], "]"}]}], "}"}]}], "]"}]}], "}"}], "]"}]}],
+   ";"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->812200003,ExpressionUUID->"ab200003-1000-4000-8000-000000000023"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"out", "=", 
+   RowBox[{"TensorNetworkRemoveCycles", "[", "gA", "]"}]}], ";"}]], "Input",
+ CellLabel->"In[5]:=",
+ CellID->812200004,ExpressionUUID->"ab200004-1000-4000-8000-000000000024"],
+
+Cell[BoxData[
+ RowBox[{"EdgeList", "[", "out", "]"}]], "Input",
+ CellLabel->"In[6]:=",
+ CellID->812200005,ExpressionUUID->"ab200005-1000-4000-8000-000000000025"],
+
+Cell["\<\
+The cup vertex receives a pair of Superscripts, the cap vertex a pair of \
+Subscripts:\
+\>", "ExampleText",
+ CellID->812200006,ExpressionUUID->"ab200006-1000-4000-8000-000000000026"],
+
+Cell[BoxData[
+ RowBox[{"AnnotationValue", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"out", ",", 
+     RowBox[{"VertexList", "[", "out", "]"}]}], "}"}], ",", "\"\<Index\>\""}],
+   "]"}]], "Input",
+ CellLabel->"In[7]:=",
+ CellID->812200007,ExpressionUUID->"ab200007-1000-4000-8000-000000000027"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "ab200008-1000-4000-8000-000000000028"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->812200008,ExpressionUUID->"ab200009-1000-4000-8000-000000000029"],
+
+Cell[CellGroupData[{
+
+Cell["Multi-cycle graph", "ExampleSubsection",
+ CellID->812300001,ExpressionUUID->"ab300001-1000-4000-8000-000000000031"],
+
+Cell["\<\
+Multi-cycle graph. Each cycle is broken in turn and adds two vertices, so a \
+graph with two disjoint 2-cycles grows by four vertices in total:\
+\>", "ExampleText",
+ CellID->812300002,ExpressionUUID->"ab300002-1000-4000-8000-000000000032"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"gMulti", "=", 
+   RowBox[{"Graph", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"1", "\[Rule]", "2"}], ",", 
+      RowBox[{"2", "\[Rule]", "1"}], ",", 
+      RowBox[{"3", "\[Rule]", "4"}], ",", 
+      RowBox[{"4", "\[Rule]", "3"}]}], "}"}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[8]:=",
+ CellID->812300003,ExpressionUUID->"ab300003-1000-4000-8000-000000000033"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"VertexCount", "[", "gMulti", "]"}], ",", 
+   RowBox[{"VertexCount", "[", 
+    RowBox[{"TensorNetworkRemoveCycles", "[", "gMulti", "]"}], "]"}]}], 
+  "}"}]], "Input",
+ CellLabel->"In[9]:=",
+ CellID->812300004,ExpressionUUID->"ab300004-1000-4000-8000-000000000034"],
+
+Cell["The output is acyclic:", "ExampleText",
+ CellID->812300005,ExpressionUUID->"ab300005-1000-4000-8000-000000000035"],
+
+Cell[BoxData[
+ RowBox[{"AcyclicGraphQ", "[", 
+  RowBox[{"TensorNetworkRemoveCycles", "[", "gMulti", "]"}], "]"}]], "Input",
+ CellLabel->"In[10]:=",
+ CellID->812300006,ExpressionUUID->"ab300006-1000-4000-8000-000000000036"]
+}, Open  ]]
+}, Open  ]],
 
 Cell[BoxData[
  InterpretationBox[Cell[
@@ -286,6 +703,8 @@ Cell[BoxData[
  CellID->399683096,ExpressionUUID->"ff2adaae-5cf7-464f-aa7d-ab6674dc6597"]
 }, Open  ]],
 
+Cell[CellGroupData[{
+
 Cell[BoxData[
  InterpretationBox[Cell[
   "Applications", "ExampleSection",ExpressionUUID->
@@ -293,12 +712,159 @@ Cell[BoxData[
   $Line = 0; Null]], "ExampleSection",
  CellID->144946656,ExpressionUUID->"c10ba571-7ad3-47b7-b7b8-cd085b9d83b3"],
 
+Cell[CellGroupData[{
+
+Cell["\<\
+Prepare a cyclic graph for sequential pairwise contraction. The contraction \
+engines require an acyclic graph, so cycles must be removed first:\
+\>", "ExampleText",
+ CellID->813100001,ExpressionUUID->"ab400001-1000-4000-8000-000000000041"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"gCyc", "=", 
+   RowBox[{"Graph", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"1", "\[Rule]", "2"}], ",", 
+      RowBox[{"2", "\[Rule]", "3"}], ",", 
+      RowBox[{"3", "\[Rule]", "1"}]}], "}"}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->813100002,ExpressionUUID->"ab400002-1000-4000-8000-000000000042"],
+
+Cell[BoxData[
+ RowBox[{"gAcyc", "=", 
+  RowBox[{"TensorNetworkRemoveCycles", "[", "gCyc", "]"}]}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->813100003,ExpressionUUID->"ab400003-1000-4000-8000-000000000043"],
+
+Cell["\<\
+The acyclic result is suitable for the downstream graph algorithms \
+(FindCycle, TopologicalSort, contraction-path engines):\
+\>", "ExampleText",
+ CellID->813100004,ExpressionUUID->"ab400004-1000-4000-8000-000000000044"],
+
+Cell[BoxData[
+ RowBox[{"AcyclicGraphQ", "[", "gAcyc", "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->813100005,ExpressionUUID->"ab400005-1000-4000-8000-000000000045"],
+
+Cell[BoxData[
+ RowBox[{"TopologicalSort", "[", "gAcyc", "]"}]], "Input",
+ CellLabel->"In[4]:=",
+ CellID->813100006,ExpressionUUID->"ab400006-1000-4000-8000-000000000046"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
 Cell[BoxData[
  InterpretationBox[Cell[
   "Properties & Relations", "ExampleSection",ExpressionUUID->
    "927c9b60-5bfe-41b1-a307-3491e4dcab3f"],
   $Line = 0; Null]], "ExampleSection",
  CellID->871991694,ExpressionUUID->"ba35007c-7ade-4959-8f1f-17d984f7a168"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+ToTensorNetworkGraph calls TensorNetworkRemoveCycles on any cyclic directed \
+input:\
+\>", "ExampleText",
+ CellID->813200001,ExpressionUUID->"ab500001-1000-4000-8000-000000000051"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"gC", "=", 
+   RowBox[{"Graph", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"1", "\[Rule]", "2"}], ",", 
+      RowBox[{"2", "\[Rule]", "1"}]}], "}"}], "]"}]}], ";"}]], "Input",
+ CellLabel->"In[1]:=",
+ CellID->813200002,ExpressionUUID->"ab500002-1000-4000-8000-000000000052"],
+
+Cell[BoxData[
+ RowBox[{"VertexCount", "[", 
+  RowBox[{"TensorNetworkRemoveCycles", "[", "gC", "]"}], "]"}]], "Input",
+ CellLabel->"In[2]:=",
+ CellID->813200003,ExpressionUUID->"ab500003-1000-4000-8000-000000000053"],
+
+Cell[BoxData[
+ RowBox[{"VertexCount", "[", 
+  RowBox[{"ToTensorNetworkGraph", "[", "gC", "]"}], "]"}]], "Input",
+ CellLabel->"In[3]:=",
+ CellID->813200004,ExpressionUUID->"ab500004-1000-4000-8000-000000000054"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "ab500005-1000-4000-8000-000000000055"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->813200005,ExpressionUUID->"ab500006-1000-4000-8000-000000000056"],
+
+Cell[CellGroupData[{
+
+Cell["The result has no cycles, as detected by FindCycle:", "ExampleText",
+ CellID->813200007,ExpressionUUID->"ab500007-1000-4000-8000-000000000057"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"gC", "=", 
+   RowBox[{"Graph", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"1", "\[Rule]", "2"}], ",", 
+      RowBox[{"2", "\[Rule]", "1"}]}], "}"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"FindCycle", "[", 
+  RowBox[{"TensorNetworkRemoveCycles", "[", "gC", "]"}], "]"}]}], "Input",
+ CellLabel->"In[4]:=",
+ CellID->813200008,ExpressionUUID->"ab500008-1000-4000-8000-000000000058"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\t", "ExampleDelimiter",ExpressionUUID->
+   "ab500009-1000-4000-8000-000000000059"],
+  $Line = 0; Null]], "ExampleDelimiter",
+ CellID->813200009,ExpressionUUID->"ab50000a-1000-4000-8000-00000000005a"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+The cup and cap tensors, reshaped from length d^2 vectors back to {d, d}, are \
+identity matrices:\
+\>", "ExampleText",
+ CellID->813200010,ExpressionUUID->"ab50000b-1000-4000-8000-00000000005b"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"gC", "=", 
+   RowBox[{"Graph", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"1", "\[Rule]", "2"}], ",", 
+      RowBox[{"2", "\[Rule]", "1"}]}], "}"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"res", "=", 
+   RowBox[{"TensorNetworkRemoveCycles", "[", "gC", "]"}]}], ";"}]}], "Input",
+ CellLabel->"In[5]:=",
+ CellID->813200011,ExpressionUUID->"ab50000c-1000-4000-8000-00000000005c"],
+
+Cell[BoxData[
+ RowBox[{"ArrayReshape", "[", 
+  RowBox[{
+   RowBox[{"AnnotationValue", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"res", ",", "3"}], "}"}], ",", "\"\<Tensor\>\""}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "2"}], "}"}]}], "]"}]], "Input",
+ CellLabel->"In[6]:=",
+ CellID->813200012,ExpressionUUID->"ab50000d-1000-4000-8000-00000000005d"]
+}, Open  ]]
+}, Open  ]],
 
 Cell[BoxData[
  InterpretationBox[Cell[
@@ -329,7 +895,7 @@ Cell["Metadata", "MetadataSection",
 
 Cell[TextData[{
  "New in: ",
- Cell["XX", "HistoryData",
+ Cell["1.0", "HistoryData",
   CellTags->"New",ExpressionUUID->"a144636b-6cd5-4791-bdff-2eeba88dbf90"],
  " | Modified in: ",
  Cell[" ", "HistoryData",
@@ -380,8 +946,32 @@ Cell[CellGroupData[{
 Cell["Keywords", "KeywordsSection",
  CellID->435728338,ExpressionUUID->"a2dd53c7-2f6c-42db-8c7d-b87dd64d474a"],
 
-Cell[" ", "Keywords",
- CellID->366940496,ExpressionUUID->"c0daf46c-f2a0-494c-914f-9d7fdc0b886b"]
+Cell["tensor network", "Keywords",
+ CellID->820100001,ExpressionUUID->"ab700001-1000-4000-8000-000000000071"],
+
+Cell["cycle removal", "Keywords",
+ CellID->820100002,ExpressionUUID->"ab700002-1000-4000-8000-000000000072"],
+
+Cell["acyclic", "Keywords",
+ CellID->820100003,ExpressionUUID->"ab700003-1000-4000-8000-000000000073"],
+
+Cell["graph", "Keywords",
+ CellID->820100004,ExpressionUUID->"ab700004-1000-4000-8000-000000000074"],
+
+Cell["directed graph", "Keywords",
+ CellID->820100005,ExpressionUUID->"ab700005-1000-4000-8000-000000000075"],
+
+Cell["cup", "Keywords",
+ CellID->820100006,ExpressionUUID->"ab700006-1000-4000-8000-000000000076"],
+
+Cell["cap", "Keywords",
+ CellID->820100007,ExpressionUUID->"ab700007-1000-4000-8000-000000000077"],
+
+Cell["identity contraction", "Keywords",
+ CellID->820100008,ExpressionUUID->"ab700008-1000-4000-8000-000000000078"],
+
+Cell["FindCycle", "Keywords",
+ CellID->820100009,ExpressionUUID->"ab700009-1000-4000-8000-000000000079"]
 }, Closed]],
 
 Cell[CellGroupData[{
@@ -410,7 +1000,7 @@ Cell[BoxData[""], "Template",
 WindowSize->{700, 770},
 WindowMargins->{{5, Automatic}, {Automatic, 0}},
 TaggingRules-><|"Paclet" -> "Wolfram/TensorNetworks"|>,
-CellContext->"Global`",
+CellContext->CellGroup,
 FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (February 17, 2026)",
 StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
   CharacterEncoding -> "UTF-8"],
@@ -422,14 +1012,14 @@ ExpressionUUID->"43f9ff5b-61e9-4174-adf2-61b335303ed2"
 (*CellTagsOutline
 CellTagsIndex->{
  "ExtendedExamples"->{
-  Cell[7384, 235, 488, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"6a8230c2-fd9a-47a4-80f2-1c8a96d74230",
+  Cell[16464, 480, 488, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"6a8230c2-fd9a-47a4-80f2-1c8a96d74230",
    CellTags->"ExtendedExamples",
    CellID->2038227158]}
  }
 *)
 (*CellTagsIndex
 CellTagsIndex->{
- {"ExtendedExamples", 13707, 423}
+ {"ExtendedExamples", 33982, 1013}
  }
 *)
 (*NotebookFileOutline
@@ -437,109 +1027,247 @@ Notebook[{
 Cell[CellGroupData[{
 Cell[576, 22, 123, 1, 70, "ObjectName",ExpressionUUID->"6464d452-1e46-4d29-8abe-6ba6821de9a9",
  CellID->1843487481],
-Cell[702, 25, 623, 14, 70, "Usage",ExpressionUUID->"837768f8-2fe0-4171-b3eb-2b2466f4551a",
+Cell[702, 25, 909, 23, 70, "Usage",ExpressionUUID->"837768f8-2fe0-4171-b3eb-2b2466f4551a",
  CellID->1747517898],
-Cell[1328, 41, 94, 1, 70, "Notes",ExpressionUUID->"eb3da48f-af27-42d3-806d-412c2c9f6648",
- CellID->1546955314]
+Cell[1614, 50, 1037, 27, 70, "Notes",ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a001",
+ CellID->810000001],
+Cell[2654, 79, 1245, 35, 70, "Notes",ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a002",
+ CellID->810000002],
+Cell[3902, 116, 1282, 32, 70, "Notes",ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a003",
+ CellID->810000003],
+Cell[5187, 150, 966, 26, 70, "Notes",ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a004",
+ CellID->810000004],
+Cell[6156, 178, 810, 22, 70, "Notes",ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a005",
+ CellID->810000005],
+Cell[6969, 202, 268, 5, 70, "Notes",ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a006",
+ CellID->810000006],
+Cell[7240, 209, 671, 16, 70, "Notes",ExpressionUUID->"b5a8b7a8-3b78-4d36-a8d8-bf04f3e0a007",
+ CellID->810000007]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1459, 47, 457, 13, 70, "SeeAlsoSection",ExpressionUUID->"fc59ea75-9899-4cdd-95df-48b77be30640",
+Cell[7948, 230, 457, 13, 70, "SeeAlsoSection",ExpressionUUID->"fc59ea75-9899-4cdd-95df-48b77be30640",
  CellID->93448169],
-Cell[1919, 62, 1543, 40, 70, "SeeAlso",ExpressionUUID->"292301fd-7614-484e-b715-123efde75d77",
+Cell[8408, 245, 2877, 68, 70, "SeeAlso",ExpressionUUID->"292301fd-7614-484e-b715-123efde75d77",
  CellID->772830426]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[3499, 107, 435, 12, 70, "TechNotesSection",ExpressionUUID->"0a145879-59a2-4d4a-9c55-f5d859363ef5",
+Cell[11322, 318, 435, 12, 70, "TechNotesSection",ExpressionUUID->"0a145879-59a2-4d4a-9c55-f5d859363ef5",
  CellID->979872726],
-Cell[3937, 121, 98, 1, 70, "Tutorials",ExpressionUUID->"5679c32f-2ad8-4597-9198-6c0a35f2e217",
+Cell[11760, 332, 245, 5, 70, "Tutorials",ExpressionUUID->"5679c32f-2ad8-4597-9198-6c0a35f2e217",
  CellID->1816300686]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4072, 127, 116, 1, 70, "MoreAboutSection",ExpressionUUID->"37d5a121-09e4-41aa-b678-14de10b4e8b3",
+Cell[12042, 342, 116, 1, 70, "MoreAboutSection",ExpressionUUID->"37d5a121-09e4-41aa-b678-14de10b4e8b3",
  CellID->85587497],
-Cell[4191, 130, 98, 1, 70, "MoreAbout",ExpressionUUID->"9ca55cee-f984-4298-99eb-c958ef1307b6",
+Cell[12161, 345, 230, 4, 70, "MoreAbout",ExpressionUUID->"9ca55cee-f984-4298-99eb-c958ef1307b6",
  CellID->1802502236]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4326, 136, 472, 13, 70, "RelatedLinksSection",ExpressionUUID->"937ab961-61ee-4edc-b30b-e23b138a3568",
+Cell[12428, 354, 472, 13, 70, "RelatedLinksSection",ExpressionUUID->"937ab961-61ee-4edc-b30b-e23b138a3568",
  CellID->103272223],
-Cell[4801, 151, 100, 1, 70, "RelatedLinks",ExpressionUUID->"6b2ef381-ad51-40dd-a0cc-bb85a632617a",
+Cell[12903, 369, 100, 1, 70, "RelatedLinks",ExpressionUUID->"6b2ef381-ad51-40dd-a0cc-bb85a632617a",
  CellID->529465185]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[4938, 157, 531, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"0558d659-79ec-41cc-8206-86d1a2872f4f",
+Cell[13040, 375, 531, 14, 70, "ExamplesInitializationSection",ExpressionUUID->"0558d659-79ec-41cc-8206-86d1a2872f4f",
  CellID->1696614774],
-Cell[5472, 173, 182, 3, 70, "ExampleInitialization",ExpressionUUID->"efe8f20a-ae3c-4ea1-8107-e2fc042ad47a",
+Cell[13574, 391, 182, 3, 70, "ExampleInitialization",ExpressionUUID->"efe8f20a-ae3c-4ea1-8107-e2fc042ad47a",
  CellID->716641752]
 }, Open  ]],
-Cell[5669, 179, 443, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"e6a39298-17a1-45cf-ac7f-82f790039893",
+Cell[13771, 397, 443, 12, 70, "PrimaryExamplesSection",ExpressionUUID->"e6a39298-17a1-45cf-ac7f-82f790039893",
  CellID->1509633488],
-Cell[6115, 193, 169, 3, 70, "ExampleText",ExpressionUUID->"fd955856-81a2-4037-8bb5-6d402cccbac1",
- CellID->730001001],
-Cell[6287, 198, 892, 28, 70, "Input",ExpressionUUID->"c43c0e9a-8570-452b-a2c3-001172988baa",
- CellID->730001002],
-Cell[7182, 228, 177, 3, 70, "Input",ExpressionUUID->"d82c0785-5e2d-4f2c-adbc-82eeffe95c3d",
- CellID->730001003],
+Cell[14217, 411, 172, 3, 70, "ExampleText",ExpressionUUID->"fd955856-81a2-4037-8bb5-6d402cccbac1",
+ CellID->811000001],
+Cell[14392, 416, 358, 10, 70, "Input",ExpressionUUID->"c43c0e9a-8570-452b-a2c3-001172988baa",
+ CellID->811000002],
+Cell[14753, 428, 176, 3, 70, "Input",ExpressionUUID->"d82c0785-5e2d-4f2c-adbc-82eeffe95c3d",
+ CellID->811000003],
+Cell[14932, 433, 120, 1, 70, "ExampleText",ExpressionUUID->"ab000004-1000-4000-8000-000000000004",
+ CellID->811000004],
+Cell[15055, 436, 216, 4, 70, "Input",ExpressionUUID->"ab000005-1000-4000-8000-000000000005",
+ CellID->811000005],
+Cell[15274, 442, 160, 2, 70, "ExampleText",ExpressionUUID->"ab000006-1000-4000-8000-000000000006",
+ CellID->811000006],
+Cell[15437, 446, 305, 8, 70, "Input",ExpressionUUID->"ab000007-1000-4000-8000-000000000007",
+ CellID->811000007],
+Cell[15745, 456, 172, 3, 70, "ExampleText",ExpressionUUID->"ab000008-1000-4000-8000-000000000008",
+ CellID->811000008],
+Cell[15920, 461, 220, 5, 70, "Input",ExpressionUUID->"ab000009-1000-4000-8000-000000000009",
+ CellID->811000009],
+Cell[16143, 468, 296, 8, 70, "Input",ExpressionUUID->"ab00000a-1000-4000-8000-00000000000a",
+ CellID->811000010],
 Cell[CellGroupData[{
-Cell[7384, 235, 488, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"6a8230c2-fd9a-47a4-80f2-1c8a96d74230",
+Cell[16464, 480, 488, 13, 70, "ExtendedExamplesSection",ExpressionUUID->"6a8230c2-fd9a-47a4-80f2-1c8a96d74230",
  CellTags->"ExtendedExamples",
  CellID->2038227158],
-Cell[7875, 250, 242, 5, 70, "ExampleSection",ExpressionUUID->"eecec4c0-0bc1-4daf-85d3-045c12ed1f15",
+Cell[CellGroupData[{
+Cell[16977, 497, 242, 5, 70, "ExampleSection",ExpressionUUID->"eecec4c0-0bc1-4daf-85d3-045c12ed1f15",
  CellID->1972191209],
-Cell[8120, 257, 264, 5, 70, "ExampleSection",ExpressionUUID->"35ef00b5-7ae1-4e11-965d-2d9e743e5d91",
+Cell[CellGroupData[{
+Cell[17244, 506, 130, 1, 70, "ExampleSubsection",ExpressionUUID->"ab100001-1000-4000-8000-000000000011",
+ CellID->812100001],
+Cell[17377, 509, 204, 4, 70, "ExampleText",ExpressionUUID->"ab100002-1000-4000-8000-000000000012",
+ CellID->812100002],
+Cell[17584, 515, 359, 10, 70, "Input",ExpressionUUID->"ab100003-1000-4000-8000-000000000013",
+ CellID->812100003],
+Cell[17946, 527, 212, 4, 70, "Input",ExpressionUUID->"ab100004-1000-4000-8000-000000000014",
+ CellID->812100004],
+Cell[18161, 533, 152, 1, 70, "ExampleText",ExpressionUUID->"ab100005-1000-4000-8000-000000000015",
+ CellID->812100005],
+Cell[18316, 536, 406, 10, 70, "Input",ExpressionUUID->"ab100006-1000-4000-8000-000000000016",
+ CellID->812100006]
+}, Open  ]],
+Cell[18737, 549, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"ab100008-1000-4000-8000-000000000018",
+ CellID->812100007],
+Cell[CellGroupData[{
+Cell[19004, 558, 122, 1, 70, "ExampleSubsection",ExpressionUUID->"ab200001-1000-4000-8000-000000000021",
+ CellID->812200001],
+Cell[19129, 561, 255, 4, 70, "ExampleText",ExpressionUUID->"ab200002-1000-4000-8000-000000000022",
+ CellID->812200002],
+Cell[19387, 567, 841, 24, 70, "Input",ExpressionUUID->"ab200003-1000-4000-8000-000000000023",
+ CellID->812200003],
+Cell[20231, 593, 221, 5, 70, "Input",ExpressionUUID->"ab200004-1000-4000-8000-000000000024",
+ CellID->812200004],
+Cell[20455, 600, 161, 3, 70, "Input",ExpressionUUID->"ab200005-1000-4000-8000-000000000025",
+ CellID->812200005],
+Cell[20619, 605, 192, 4, 70, "ExampleText",ExpressionUUID->"ab200006-1000-4000-8000-000000000026",
+ CellID->812200006],
+Cell[20814, 611, 297, 8, 70, "Input",ExpressionUUID->"ab200007-1000-4000-8000-000000000027",
+ CellID->812200007]
+}, Open  ]],
+Cell[21126, 622, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"ab200009-1000-4000-8000-000000000029",
+ CellID->812200008],
+Cell[CellGroupData[{
+Cell[21393, 631, 121, 1, 70, "ExampleSubsection",ExpressionUUID->"ab300001-1000-4000-8000-000000000031",
+ CellID->812300001],
+Cell[21517, 634, 249, 4, 70, "ExampleText",ExpressionUUID->"ab300002-1000-4000-8000-000000000032",
+ CellID->812300002],
+Cell[21769, 640, 406, 11, 70, "Input",ExpressionUUID->"ab300003-1000-4000-8000-000000000033",
+ CellID->812300003],
+Cell[22178, 653, 315, 8, 70, "Input",ExpressionUUID->"ab300004-1000-4000-8000-000000000034",
+ CellID->812300004],
+Cell[22496, 663, 120, 1, 70, "ExampleText",ExpressionUUID->"ab300005-1000-4000-8000-000000000035",
+ CellID->812300005],
+Cell[22619, 666, 222, 4, 70, "Input",ExpressionUUID->"ab300006-1000-4000-8000-000000000036",
+ CellID->812300006]
+}, Open  ]]
+}, Open  ]],
+Cell[22868, 674, 264, 5, 70, "ExampleSection",ExpressionUUID->"35ef00b5-7ae1-4e11-965d-2d9e743e5d91",
  CellID->207558218],
 Cell[CellGroupData[{
-Cell[8409, 266, 243, 5, 70, "ExampleSection",ExpressionUUID->"d27144ca-bed0-4f40-8bc5-a09753d75f67",
+Cell[23157, 683, 243, 5, 70, "ExampleSection",ExpressionUUID->"d27144ca-bed0-4f40-8bc5-a09753d75f67",
  CellID->917527198],
-Cell[8655, 273, 244, 5, 70, "ExampleSubsection",ExpressionUUID->"75292a27-f858-4860-8c08-a6b876328a02",
+Cell[23403, 690, 244, 5, 70, "ExampleSubsection",ExpressionUUID->"75292a27-f858-4860-8c08-a6b876328a02",
  CellID->1947031326],
-Cell[8902, 280, 243, 5, 70, "ExampleSubsection",ExpressionUUID->"ff2adaae-5cf7-464f-aa7d-ab6674dc6597",
+Cell[23650, 697, 243, 5, 70, "ExampleSubsection",ExpressionUUID->"ff2adaae-5cf7-464f-aa7d-ab6674dc6597",
  CellID->399683096]
 }, Open  ]],
-Cell[9160, 288, 248, 5, 70, "ExampleSection",ExpressionUUID->"c10ba571-7ad3-47b7-b7b8-cd085b9d83b3",
+Cell[CellGroupData[{
+Cell[23930, 707, 248, 5, 70, "ExampleSection",ExpressionUUID->"c10ba571-7ad3-47b7-b7b8-cd085b9d83b3",
  CellID->144946656],
-Cell[9411, 295, 258, 5, 70, "ExampleSection",ExpressionUUID->"ba35007c-7ade-4959-8f1f-17d984f7a168",
+Cell[CellGroupData[{
+Cell[24203, 716, 250, 4, 70, "ExampleText",ExpressionUUID->"ab400001-1000-4000-8000-000000000041",
+ CellID->813100001],
+Cell[24456, 722, 361, 10, 70, "Input",ExpressionUUID->"ab400002-1000-4000-8000-000000000042",
+ CellID->813100002],
+Cell[24820, 734, 206, 4, 70, "Input",ExpressionUUID->"ab400003-1000-4000-8000-000000000043",
+ CellID->813100003],
+Cell[25029, 740, 230, 4, 70, "ExampleText",ExpressionUUID->"ab400004-1000-4000-8000-000000000044",
+ CellID->813100004],
+Cell[25262, 746, 168, 3, 70, "Input",ExpressionUUID->"ab400005-1000-4000-8000-000000000045",
+ CellID->813100005],
+Cell[25433, 751, 170, 3, 70, "Input",ExpressionUUID->"ab400006-1000-4000-8000-000000000046",
+ CellID->813100006]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[25652, 760, 258, 5, 70, "ExampleSection",ExpressionUUID->"ba35007c-7ade-4959-8f1f-17d984f7a168",
  CellID->871991694],
-Cell[9672, 302, 252, 5, 70, "ExampleSection",ExpressionUUID->"f2ecea9a-72f0-4a3f-a646-7f62e102562f",
+Cell[CellGroupData[{
+Cell[25935, 769, 190, 4, 70, "ExampleText",ExpressionUUID->"ab500001-1000-4000-8000-000000000051",
+ CellID->813200001],
+Cell[26128, 775, 316, 9, 70, "Input",ExpressionUUID->"ab500002-1000-4000-8000-000000000052",
+ CellID->813200002],
+Cell[26447, 786, 215, 4, 70, "Input",ExpressionUUID->"ab500003-1000-4000-8000-000000000053",
+ CellID->813200003],
+Cell[26665, 792, 210, 4, 70, "Input",ExpressionUUID->"ab500004-1000-4000-8000-000000000054",
+ CellID->813200004]
+}, Open  ]],
+Cell[26890, 799, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"ab500006-1000-4000-8000-000000000056",
+ CellID->813200005],
+Cell[CellGroupData[{
+Cell[27157, 808, 149, 1, 70, "ExampleText",ExpressionUUID->"ab500007-1000-4000-8000-000000000057",
+ CellID->813200007],
+Cell[27309, 811, 434, 11, 70, "Input",ExpressionUUID->"ab500008-1000-4000-8000-000000000058",
+ CellID->813200008]
+}, Open  ]],
+Cell[27758, 825, 242, 5, 70, "ExampleDelimiter",ExpressionUUID->"ab50000a-1000-4000-8000-00000000005a",
+ CellID->813200009],
+Cell[CellGroupData[{
+Cell[28025, 834, 204, 4, 70, "ExampleText",ExpressionUUID->"ab50000b-1000-4000-8000-00000000005b",
+ CellID->813200010],
+Cell[28232, 840, 442, 12, 70, "Input",ExpressionUUID->"ab50000c-1000-4000-8000-00000000005c",
+ CellID->813200011],
+Cell[28677, 854, 371, 10, 70, "Input",ExpressionUUID->"ab50000d-1000-4000-8000-00000000005d",
+ CellID->813200012]
+}, Open  ]]
+}, Open  ]],
+Cell[29075, 868, 252, 5, 70, "ExampleSection",ExpressionUUID->"f2ecea9a-72f0-4a3f-a646-7f62e102562f",
  CellID->1135993930],
-Cell[9927, 309, 257, 5, 70, "ExampleSection",ExpressionUUID->"f23d79a9-c796-41e7-9405-381da7140cec",
+Cell[29330, 875, 257, 5, 70, "ExampleSection",ExpressionUUID->"f23d79a9-c796-41e7-9405-381da7140cec",
  CellID->1520359680],
-Cell[10187, 316, 250, 5, 70, "ExampleSection",ExpressionUUID->"0d075ac3-1ded-4f2f-aae1-e64108fcef38",
+Cell[29590, 882, 250, 5, 70, "ExampleSection",ExpressionUUID->"0d075ac3-1ded-4f2f-aae1-e64108fcef38",
  CellID->1924709754]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[10474, 326, 111, 1, 70, "MetadataSection",ExpressionUUID->"f74a4aaa-4d91-4092-9088-a73468df4bf7",
+Cell[29877, 892, 111, 1, 70, "MetadataSection",ExpressionUUID->"f74a4aaa-4d91-4092-9088-a73468df4bf7",
  CellID->1050660717],
-Cell[10588, 329, 477, 12, 70, "History",ExpressionUUID->"5b6df138-1727-4445-bc2e-82f0387805f4",
+Cell[29991, 895, 478, 12, 70, "History",ExpressionUUID->"5b6df138-1727-4445-bc2e-82f0387805f4",
  CellID->1844124985],
 Cell[CellGroupData[{
-Cell[11090, 345, 485, 13, 70, "CategorizationSection",ExpressionUUID->"3ee7b24c-1106-42eb-9129-69ad5bb77b47",
+Cell[30494, 911, 485, 13, 70, "CategorizationSection",ExpressionUUID->"3ee7b24c-1106-42eb-9129-69ad5bb77b47",
  CellID->1724629391],
-Cell[11578, 360, 135, 2, 70, "Categorization",ExpressionUUID->"1560767c-300e-43a7-9abf-afa5c3f3085c",
+Cell[30982, 926, 135, 2, 70, "Categorization",ExpressionUUID->"1560767c-300e-43a7-9abf-afa5c3f3085c",
  CellID->1259390978],
-Cell[11716, 364, 150, 2, 70, "Categorization",ExpressionUUID->"86df9a8f-1c37-457d-9024-435db947adbd",
+Cell[31120, 930, 150, 2, 70, "Categorization",ExpressionUUID->"86df9a8f-1c37-457d-9024-435db947adbd",
  CellID->934125088],
-Cell[11869, 368, 148, 2, 70, "Categorization",ExpressionUUID->"6d136441-16e8-4f84-b131-41fb545950ce",
+Cell[31273, 934, 148, 2, 70, "Categorization",ExpressionUUID->"6d136441-16e8-4f84-b131-41fb545950ce",
  CellID->1734894446],
-Cell[12020, 372, 173, 2, 70, "Categorization",ExpressionUUID->"3d3936d9-98e1-4348-80a7-9b7ed1761d97",
+Cell[31424, 938, 173, 2, 70, "Categorization",ExpressionUUID->"3d3936d9-98e1-4348-80a7-9b7ed1761d97",
  CellID->1985478603]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[12230, 379, 110, 1, 70, "KeywordsSection",ExpressionUUID->"a2dd53c7-2f6c-42db-8c7d-b87dd64d474a",
+Cell[31634, 945, 110, 1, 70, "KeywordsSection",ExpressionUUID->"a2dd53c7-2f6c-42db-8c7d-b87dd64d474a",
  CellID->435728338],
-Cell[12343, 382, 96, 1, 70, "Keywords",ExpressionUUID->"c0daf46c-f2a0-494c-914f-9d7fdc0b886b",
- CellID->366940496]
+Cell[31747, 948, 109, 1, 70, "Keywords",ExpressionUUID->"ab700001-1000-4000-8000-000000000071",
+ CellID->820100001],
+Cell[31859, 951, 108, 1, 70, "Keywords",ExpressionUUID->"ab700002-1000-4000-8000-000000000072",
+ CellID->820100002],
+Cell[31970, 954, 102, 1, 70, "Keywords",ExpressionUUID->"ab700003-1000-4000-8000-000000000073",
+ CellID->820100003],
+Cell[32075, 957, 100, 1, 70, "Keywords",ExpressionUUID->"ab700004-1000-4000-8000-000000000074",
+ CellID->820100004],
+Cell[32178, 960, 109, 1, 70, "Keywords",ExpressionUUID->"ab700005-1000-4000-8000-000000000075",
+ CellID->820100005],
+Cell[32290, 963, 98, 1, 70, "Keywords",ExpressionUUID->"ab700006-1000-4000-8000-000000000076",
+ CellID->820100006],
+Cell[32391, 966, 98, 1, 70, "Keywords",ExpressionUUID->"ab700007-1000-4000-8000-000000000077",
+ CellID->820100007],
+Cell[32492, 969, 115, 1, 70, "Keywords",ExpressionUUID->"ab700008-1000-4000-8000-000000000078",
+ CellID->820100008],
+Cell[32610, 972, 104, 1, 70, "Keywords",ExpressionUUID->"ab700009-1000-4000-8000-000000000079",
+ CellID->820100009]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[12476, 388, 120, 1, 70, "TemplatesSection",ExpressionUUID->"50cc1948-78b5-4f0d-9e57-59893810c5d3",
+Cell[32751, 978, 120, 1, 70, "TemplatesSection",ExpressionUUID->"50cc1948-78b5-4f0d-9e57-59893810c5d3",
  CellID->1743365735],
-Cell[12599, 391, 148, 2, 70, "Template",ExpressionUUID->"ddd0a15e-a502-4e7b-b0f4-7becc2445d4f",
+Cell[32874, 981, 148, 2, 70, "Template",ExpressionUUID->"ddd0a15e-a502-4e7b-b0f4-7becc2445d4f",
  CellID->481028477],
-Cell[12750, 395, 138, 2, 70, "Template",ExpressionUUID->"4e2255cc-1a4b-40b2-be19-61c2b9b9a0a7",
+Cell[33025, 985, 138, 2, 70, "Template",ExpressionUUID->"4e2255cc-1a4b-40b2-be19-61c2b9b9a0a7",
  CellID->1517165631],
-Cell[12891, 399, 136, 2, 70, "Template",ExpressionUUID->"71d8fd01-076a-42d6-9847-8c30ca7c9737",
+Cell[33166, 989, 136, 2, 70, "Template",ExpressionUUID->"71d8fd01-076a-42d6-9847-8c30ca7c9737",
  CellID->1929419386],
-Cell[13030, 403, 137, 2, 70, "Template",ExpressionUUID->"99919b3b-90de-4c5f-8357-9ae18a449c59",
+Cell[33305, 993, 137, 2, 70, "Template",ExpressionUUID->"99919b3b-90de-4c5f-8357-9ae18a449c59",
  CellID->748550802]
 }, Closed]]
 }, Open  ]]

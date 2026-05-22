@@ -42,11 +42,11 @@ youngTableauQ[YoungTableau[rows_List]] := And[
     AllTrue[rows, Length[#] > 0 &],
     (* Row lengths are non-increasing *)
     OrderedQ[Length /@ rows, GreaterEqual],
-    (* All entries are distinct positive integers *)
+    (* All entries are exactly 1..n (standard tableau convention) *)
     With[{flat = Flatten[rows]},
         And[
             AllTrue[flat, IntegerQ[#] && # > 0 &],
-            DuplicateFreeQ[flat]
+            Sort[flat] === Range[Length[flat]]
         ]
     ]
 ]
@@ -111,16 +111,14 @@ TransposePartition[expr_] := (Message[TransposePartition::notpar, expr]; $Failed
    - plus cells below in the same column *)
 
 (* Single cell hook length - O(1) using precomputed transpose *)
-HookLength[YoungTableau[rows_List] ? YoungTableauQ, {row_Integer, col_Integer}] :=
-    Module[{partition, transposed, armLength, legLength},
-        partition = Length /@ rows;
-        transposed = TransposePartition[partition];
-        (* Arm length: cells to the right (excluding current) *)
-        armLength = partition[[row]] - col;
-        (* Leg length: cells below (excluding current) *)
-        legLength = transposed[[col]] - row;
-        (* Hook = arm + leg + 1 (current cell) *)
-        armLength + legLength + 1
+HookLength::range = "Position {`1`, `2`} is out of range for tableau of shape `3`.";
+
+HookLength[yt : YoungTableau[rows_List] ? YoungTableauQ, {row_Integer, col_Integer}] :=
+    With[{partition = Length /@ rows},
+        If[1 <= row <= Length[partition] && 1 <= col <= partition[[row]],
+            partition[[row]] - col + TransposePartition[partition][[col]] - row + 1,
+            Message[HookLength::range, row, col, partition]; $Failed
+        ]
     ]
 
 HookLength::noyt = "HookLength accepts only YoungTableau as input, got `1`.";
@@ -157,18 +155,18 @@ HookLengths[expr_] := (Message[HookLengths::notpar, expr]; $Failed)
 (* Hook Factor (Frobenius Determinant Formula)  *)
 (* ============================================ *)
 
-(* HookFactor computes 1/(product of hook lengths) using the Frobenius determinant.
-   This is more efficient for partitions with few rows: O(r^3) where r = number of rows.
+(* HookFactor computes 1/(product of hook lengths) using the Vandermonde form
+   of the Frobenius determinant. O(r^2) where r = number of rows.
 
-   Formula: HookFactor[par] = det(C(par[i]-i+r, j-1)) / prod(par[i]-i+r)!
-   where r = Length[par] and C(n,k) = Binomial(n,k)
+   Formula: HookFactor[par] = Prod_{i<j}(l_i - l_j) / Prod l_i!
+   where l_i = par[i] + r - i (strictly decreasing) and r = Length[par].
 
-   The dimension of the irrep is: n! * HookFactor[par] where n = Total[par]
+   The dimension of the irrep is: n! * HookFactor[par] where n = Total[par].
 *)
 
-(* Determinant helper for Frobenius formula *)
-frobeniusDet[{x_Integer}] := 1
-frobeniusDet[list_List] := Det[Outer[Binomial, list, Range[0, Length[list] - 1]]]
+(* Vandermonde product Prod_{i<j}(list[[i]] - list[[j]]). *)
+frobeniusDet[{_Integer}] := 1
+frobeniusDet[list_List] := Times @@ (Subtract @@@ Subsets[list, {2}])
 
 HookFactor[partition_List] /; PartitionQ[partition] :=
     Module[{r, shifted},
@@ -327,7 +325,7 @@ YoungProject[tensor_ ? ArrayQ, yt : YoungTableau[rows_List] ? YoungTableauQ] :=
 (* Create standard tableau from partition *)
 (* E.g., {3,2} -> YoungTableau[{{1,2,3},{4,5}}] *)
 
-YoungTableau[partition_List] /; AllTrue[partition, IntegerQ[#] && # > 0 &] && OrderedQ[partition, GreaterEqual] :=
+YoungTableau[partition_List] /; Length[partition] > 0 && AllTrue[partition, IntegerQ[#] && # > 0 &] && OrderedQ[partition, GreaterEqual] :=
     Module[{rows, idx = 1},
         rows = Table[
             Table[idx++, {partition[[i]]}],

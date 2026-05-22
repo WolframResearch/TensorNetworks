@@ -5,13 +5,38 @@
 
 (* CreatedBy='Wolfram 15.0' *)
 
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     66566,       1693]
+NotebookOptionsPosition[     48777,       1361]
+NotebookOutlinePosition[     49340,       1380]
+CellTagsIndexPosition[     49297,       1377]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
 Notebook[{
 
 Cell[CellGroupData[{
 Cell["TensorNetworks", "GuideTitle",
  CellID->215046386,ExpressionUUID->"24d01a88-09c1-4a92-96f2-a645ce1597f3"],
 
-Cell["XXXX", "GuideAbstract",
+Cell["\<\
+A TensorNetwork bundles a list of tensors with their hyperedge index lists \
+and defers execution to a contraction path (usually optimized in some ways). \
+The paclet covers explicit and randomized construction of common topologies \
+(MPS, MPO, PEPS, TTN, MERA), Rust-backed greedy and dynamic-programming path \
+optimizers, five interchangeable binary-contraction engines, and \
+chain-specific algorithms for Matrix Product State canonical forms, Schmidt \
+values, entanglement entropy and bond truncation. Two subpackages extend the \
+core: an IndexArray layer adding named indices with explicit covariant and \
+contravariant variance (plus a curated catalog of relativity metrics), and a \
+Symmetry layer providing Young tableaux and the hook-length formula for \
+projecting tensors onto symmetric-group irreducible representations.\
+\>", "GuideAbstract",
+ CellChangeTimes->{{3.988048682689766*^9, 3.9880486939817343`*^9}},
  CellID->69631601,ExpressionUUID->"536a2795-a02b-441e-9dd6-dcbf9484a91d"]
 }, Open  ]],
 
@@ -26,32 +51,11 @@ Cell[TextData[{
    BaseStyle->"Link",
    ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetwork"]], 
   "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] creates a tensor network object with a summary box display."
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "0f615d98-bb5f-415a-a258-6384b5980b7f"],
+ " \[LongDash] atomic object bundling tensors with hyperedge index lists."
 }], "GuideText",
- CellID->100000001],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkQ",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkQ"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] yields True if an expression is a valid TensorNetwork object."
-}], "GuideText",
- CellID->100000002],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["ToTensorNetworkGraph",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ToTensorNetworkGraph"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] constructs a tensor network from a graph."
-}], "GuideText",
- CellID->100000003],
+ CellID->100000001,ExpressionUUID->"d4399560-9842-4ea7-a697-a161a8c9465c"],
 
 Cell[TextData[{
  Cell[BoxData[
@@ -59,314 +63,12 @@ Cell[TextData[{
    BaseStyle->"Link",
    ButtonData->"paclet:Wolfram/TensorNetworks/ref/RandomTensorNetwork"]], 
   "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] creates a tensor network with random tensors and topology."
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "88fd89b8-bff7-400a-bfac-3540246467fd"],
+ " \[LongDash] random network on a given graph or a named topology (MPS, TT, \
+MPO, PEPS, TTN, MERA)."
 }], "GuideText",
- CellID->100000004],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["SparseTensorNetwork",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/SparseTensorNetwork"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] converts a tensor network's tensors to SparseArray."
-}], "GuideText",
- CellID->100000005],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["BinaryTensorNetwork",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/BinaryTensorNetwork"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] converts a tensor network to binary form (at most 2 tensors per index)."
-}], "GuideText",
- CellID->100000006],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["BinaryTensorNetworkQ",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/BinaryTensorNetworkQ"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] yields True if a tensor network is in binary form."
-}], "GuideText",
- CellID->100000007],
-
-Cell[CellGroupData[{
-
-Cell["\t", "GuideDelimiter",
- CellID->200000001],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkGraphQ",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkGraphQ"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] yields True if a graph is a valid tensor network graph."
-}], "GuideText",
- CellID->100000008],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkIndexGraph",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndexGraph"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns a graph representing the index connectivity of the network."
-}], "GuideText",
- CellID->100000009],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkToNetGraph",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkToNetGraph"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] converts a tensor network into a Neural NetGraph object."
-}], "GuideText",
- CellID->100000010],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkRemoveCycles",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkRemoveCycles"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] inserts identity tensors to break cycles in the network graph."
-}], "GuideText",
- CellID->100000011]
-}, Open  ]],
-
-Cell[CellGroupData[{
-
-Cell["\t", "GuideDelimiter",
- CellID->200000002],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkAdd",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkAdd"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] adds a new tensor to the network with specified indices."
-}], "GuideText",
- CellID->100000012],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkReplaceIndices",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkReplaceIndices"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] replaces indices in the network according to rules."
-}], "GuideText",
- CellID->100000013],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["InitializeTensorNetwork",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/InitializeTensorNetwork"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] initializes a tensor network with specific tensors."
-}], "GuideText",
- CellID->100000014]
-}, Open  ]],
-
-Cell[CellGroupData[{
-
-Cell["\t", "GuideDelimiter",
- CellID->200000003],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkIndices",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndices"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns the index lists for each tensor in the network."
-}], "GuideText",
- CellID->100000015],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkTensors",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkTensors"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns the list of tensors stored in the network."
-}], "GuideText",
- CellID->100000016],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkGraphData",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkGraphData"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns raw data (tensors, indices, dimensions) of the network."
-}], "GuideText",
- CellID->100000017],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkIndexDimensions",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndexDimensions"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns the dimensions associated with each index."
-}], "GuideText",
- CellID->100000018],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkFreeIndices",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkFreeIndices"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns the list of uncontracted (free) indices in the network."
-}], "GuideText",
- CellID->100000019],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkData",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkData"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns an association of all internal data for a TensorNetwork."
-}], "GuideText",
- CellID->100000020],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkSize",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkSize"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns the number of tensors in the network."
-}], "GuideText",
- CellID->100000021],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkContractions",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContractions"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns the tensor network indices grouped by connectivity."
-}], "GuideText",
- CellID->100000022]
-}, Open  ]],
-
-Cell[CellGroupData[{
-
-Cell["\t", "GuideDelimiter",
- CellID->200000004],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkContract",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] contracts the entire tensor network to a single tensor."
-}], "GuideText",
- CellID->100000023],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkFindContractionPath",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkFindContractionPath"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] computes an optimized contraction path for the network."
-}], "GuideText",
- CellID->100000024],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["TensorNetworkContraction",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContraction"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns a contraction expression for the network along a path."
-}], "GuideText",
- CellID->100000025],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["$TensorNetworkContractionMethods",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/$TensorNetworkContractionMethods"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] list of available types for contraction expressions."
-}], "GuideText",
- CellID->100000026],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["ContractionTree",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ContractionTree"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] visualizes the contraction process as a tree."
-}], "GuideText",
- CellID->100000027],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["GreedyContractionPath",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/GreedyContractionPath"]],
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] finds a contraction path using a greedy heuristic."
-}], "GuideText",
- CellID->100000028],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["OptimalContractionPath",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/OptimalContractionPath"]],
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] finds an optimal contraction path."
-}], "GuideText",
- CellID->100000029]
-}, Open  ]],
-
-Cell[CellGroupData[{
-
-Cell["\t", "GuideDelimiter",
- CellID->200000005],
+ CellID->100000002,ExpressionUUID->"c3405e55-c8cb-4feb-a3fc-246ecb6cd876"],
 
 Cell[TextData[{
  Cell[BoxData[
@@ -374,21 +76,314 @@ Cell[TextData[{
    BaseStyle->"Link",
    ButtonData->"paclet:Wolfram/TensorNetworks/ref/EinsteinSummation"]], 
   "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] contracts given arrays according to the index specification."
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "77a692a0-17f8-486e-8faf-0253669f6595"],
+ " \[LongDash] contracts tensors by Einstein summation, given index lists or \
+an einsum string."
 }], "GuideText",
- CellID->100000030],
+ CellID->100000003,ExpressionUUID->"adb05094-4af5-439f-9d08-c683424f2e77"],
 
 Cell[TextData[{
  Cell[BoxData[
   ButtonBox["IndexedMultiply",
    BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexedMultiply"]],
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexedMultiply"]], 
   "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] joins arrays over shared indices."
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "74ba7349-6a75-4638-bcbf-4ccf962c88eb"],
+ " \[LongDash] joins tensors over shared indices, broadcasting along \
+non-shared dimensions."
 }], "GuideText",
- CellID->100000031],
+ CellID->100000004,ExpressionUUID->"f3731cd3-dd19-435f-8bc8-906819a839c7"],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000001,ExpressionUUID->"a528bb6d-4363-483a-bf7d-dd2c946c2aac"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "d5940d29-36b6-4444-9586-92cdcb4da5d0"],
+ " \[LongDash] yields True for a valid TensorNetwork object."
+}], "GuideText",
+ CellID->100000005,ExpressionUUID->"55f33360-31a0-4062-9b61-ac414313f368"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkData",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkData"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "b809a8bd-c1ca-4975-ac30-035a039e9006"],
+ " \[LongDash] returns an Association of vertices, tensors, indices, \
+dimensions, contractions and free indices."
+}], "GuideText",
+ CellID->100000006,ExpressionUUID->"f7cf8067-271b-4283-ba1f-5fe4953deb1c"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContractions",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/TensorNetworkContractions"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "4971cd8f-ecdc-4ac2-80db-ce6d9b2d1e58"],
+ " \[LongDash] returns the hyperedges with internal indices replaced by \
+canonical contracted-index labels."
+}], "GuideText",
+ CellID->100000007,ExpressionUUID->"4e49f591-5212-4863-a89d-82afe52bdee7"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["BinaryTensorNetworkQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/BinaryTensorNetworkQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "cc6dde67-bb1a-432b-b576-e4c4ec611933"],
+ " \[LongDash] yields True if every index of the network appears in at most \
+two tensors."
+}], "GuideText",
+ CellID->100000008,ExpressionUUID->"8568ddd9-e511-4360-9b14-4958be451629"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkSize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkSize"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "cabaaf31-1e01-484b-92f0-208495b88fc7"],
+ " \[LongDash] returns the number of tensors in the network."
+}], "GuideText",
+ CellID->100000009,ExpressionUUID->"b2bfba03-370a-43e0-8203-5de0846750b5"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkFreeIndices",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkFreeIndices"]],
+   "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "8b9d3f74-9015-446e-9c25-b93fa7638e0b"],
+ " \[LongDash] returns the uncontracted (open) indices of the network."
+}], "GuideText",
+ CellID->100000010,ExpressionUUID->"fdea6fba-f686-43c4-a801-ef3a1c44a8fd"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkIndexDimensions",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndexDimensions"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "f1e632b9-34df-41bd-a838-27de652f6e38"],
+ " \[LongDash] returns an Association mapping each index to its dimension."
+}], "GuideText",
+ CellID->100000011,ExpressionUUID->"17e7b665-591c-485b-8fe1-9d48d05b4113"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkIndices",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndices"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "899dd45a-61dd-40fc-a346-e252bb0d5d40"],
+ " \[LongDash] returns the index specifications for each tensor vertex."
+}], "GuideText",
+ CellID->100000012,ExpressionUUID->"e734c4c6-e5f2-4b4a-81ee-e120cd921737"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkTensors",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkTensors"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "9e77ba4c-e14d-4b35-9614-803a7a8c2d47"],
+ " \[LongDash] returns the list of tensors stored in the network."
+}], "GuideText",
+ CellID->100000013,ExpressionUUID->"d7fd6c8f-3d71-4fbd-9564-a3ebad5a7185"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000002,ExpressionUUID->"d4c127f3-5ab4-4220-81b4-4ad7aef030d1"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["BinaryTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/BinaryTensorNetwork"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "d3770682-6382-4048-a0d7-d9ab4aca1c62"],
+ " \[LongDash] converts a hyper-edge network to a pairwise binary one by \
+inserting spider tensors."
+}], "GuideText",
+ CellID->100000014,ExpressionUUID->"979d0bfa-d1ed-4b5c-a05a-a0a95c35dc44"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["SparseTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/SparseTensorNetwork"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "338817fb-b5c2-49f2-aaed-ea2ab03aeaf0"],
+ " \[LongDash] converts the tensors of a network to SparseArray."
+}], "GuideText",
+ CellID->100000015,ExpressionUUID->"cee9ba28-5d1c-400c-8e2b-1644c4eb1824"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ToTensorNetworkGraph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ToTensorNetworkGraph"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "93b68f2b-f107-4991-9f88-46b55ff60d78"],
+ " \[LongDash] converts a network into an annotated directed graph \
+representation."
+}], "GuideText",
+ CellID->100000016,ExpressionUUID->"4bf79387-896a-4373-a27b-1b55a8a204ba"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkAdd",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkAdd"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "71e1ec9a-0c46-48c4-927d-72ae804402a1"],
+ " \[LongDash] appends a new tensor to the network with specified indices."
+}], "GuideText",
+ CellID->100000017,ExpressionUUID->"a92088ac-d687-43fa-a5de-93fe0d4cf47c"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkDelete",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkDelete"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "dc4d1814-1d0a-4a0b-a849-00cc791e6a29"],
+ " \[LongDash] removes the k-th tensor from the network."
+}], "GuideText",
+ CellID->100000018,ExpressionUUID->"7b0e8575-ee3a-42ea-a3fd-187a0eaf9679"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkReplaceIndices",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/TensorNetworkReplaceIndices"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "6346178d-c81a-4097-8ea8-f58210f0691c"],
+ " \[LongDash] renames indices in the network according to rules."
+}], "GuideText",
+ CellID->100000019,ExpressionUUID->"385640f2-5992-4ce1-a15b-f535548f20ce"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkRemoveCycles",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/TensorNetworkRemoveCycles"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "ccf861f5-8f6d-4dda-8d7a-f7e198bd3a5a"],
+ " \[LongDash] inserts cup/cap pairs to make a cyclic graph TN acyclic."
+}], "GuideText",
+ CellID->100000020,ExpressionUUID->"55ed1e59-95e5-4c3e-82d6-710c8df0a136"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkIndexGraph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkIndexGraph"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "bc8a9956-5bb0-42ba-888d-e331b52d83ec"],
+ " \[LongDash] returns a graph showing the index connectivity of the \
+network."
+}], "GuideText",
+ CellID->100000021,ExpressionUUID->"9bdd8fa3-dcbb-4463-96a6-7b7f13957050"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000003,ExpressionUUID->"a4e44841-3ede-42ee-abcc-2d93a74c79c5"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["OptimalContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/OptimalContractionPath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "cc2ef328-eb4b-49dd-8449-ca0cefefa050"],
+ " \[LongDash] dynamic-programming optimum (Method \[Rule] \"size\", \
+\"flops\", \"max\", \"write\", \"combo\", \"limit\")."
+}], "GuideText",
+ CellID->100000022,ExpressionUUID->"717bd13b-66f8-43ce-b607-bf382ce45417"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["GreedyContractionPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/GreedyContractionPath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "e7d120a6-872c-45e8-833a-46ab199ac23f"],
+ " \[LongDash] fast greedy heuristic with optional temperature, neighbor \
+budget, and seed."
+}], "GuideText",
+ CellID->100000023,ExpressionUUID->"a4a18755-b0e3-4430-8e16-d64ff2d1204a"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000004,ExpressionUUID->"9a08bb61-881d-47c6-af00-9f41cf646ff9"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContract",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContract"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "75f9a1a1-c5c8-4065-b37b-a2dbb0383536"],
+ " \[LongDash] contracts the network to a single tensor along a given or \
+computed path."
+}], "GuideText",
+ CellID->100000025,ExpressionUUID->"7c5d61d0-5a16-4d84-a1b8-b263aa58bd7b"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkContraction",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkContraction"]],
+   "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "95860690-ff0d-4970-b8a5-ef12e5c80110"],
+ " \[LongDash] returns a symbolic Inactive contraction expression for the \
+network and path."
+}], "GuideText",
+ CellID->100000026,ExpressionUUID->"8340d6e5-f5e4-4ecd-bc7c-64cfd95b120e"],
 
 Cell[TextData[{
  Cell[BoxData[
@@ -396,10 +391,32 @@ Cell[TextData[{
    BaseStyle->"Link",
    ButtonData->"paclet:Wolfram/TensorNetworks/ref/ActivateTensors"]], 
   "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] activates Inactive tensor operations in an expression."
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "c896c0b8-5b17-4cbe-a492-4a6df31cfa50"],
+ " \[LongDash] activates Inactive[TensorProduct], Inactive[TensorContract], \
+Inactive[Transpose] in an expression."
 }], "GuideText",
- CellID->100000032],
+ CellID->100000027,ExpressionUUID->"4c9a5a5a-52bf-49a9-b9d6-35b7d8a298ee"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["$TensorNetworkContractionMethods",
+   BaseStyle->"Link",
+   ButtonData->
+    "paclet:Wolfram/TensorNetworks/ref/$TensorNetworkContractionMethods"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "f948bf45-b7f2-41b1-9258-8c4c3935c228"],
+ " \[LongDash] list of binary-contraction engines: ArrayDotTranspose, \
+ArrayDot, Dot, TensorContract, TableSum."
+}], "GuideText",
+ CellID->100000028,ExpressionUUID->"77da365e-27b3-4c3c-af79-56f4a1d43428"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000005,ExpressionUUID->"00243f0a-0d32-42fa-bb7a-6191389adcc6"],
 
 Cell[TextData[{
  Cell[BoxData[
@@ -407,32 +424,24 @@ Cell[TextData[{
    BaseStyle->"Link",
    ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPath"]], 
   "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns a canonical representation of a contraction path."
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "bb1b6f5d-ff1c-4fe5-8245-a8341611ea8c"],
+ " \[LongDash] returns a canonical (normalized) form of a contraction path."
 }], "GuideText",
- CellID->100000033],
+ CellID->100000029,ExpressionUUID->"8bafbbea-eb5f-40ff-ac7a-a89c82c0f6b5"],
 
 Cell[TextData[{
  Cell[BoxData[
-  ButtonBox["TreePathToPath",
+  ButtonBox["ContractionTree",
    BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TreePathToPath"]], 
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ContractionTree"]], 
   "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] converts a tree-structured path to a linear contraction path."
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "cd8be35c-1642-412c-968d-8424184c7b4f"],
+ " \[LongDash] returns a Tree representing the contraction hierarchy of a \
+network."
 }], "GuideText",
- CellID->100000034],
-
-Cell[TextData[{
- Cell[BoxData[
-  ButtonBox["PathToTreePath",
-   BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathToTreePath"]], 
-  "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] converts a linear contraction path to a tree-structured path."
-}], "GuideText",
- CellID->100000035],
+ CellID->100000030,ExpressionUUID->"2ed56caf-6be6-4e69-b4b1-ab65b4963e6c"],
 
 Cell[TextData[{
  Cell[BoxData[
@@ -440,21 +449,713 @@ Cell[TextData[{
    BaseStyle->"Link",
    ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathIndexContractions"]], 
   "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns the sequence of indices contracted at each step."
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "2c889438-850f-4789-ab84-ef53a8a5f4cf"],
+ " \[LongDash] returns the indices contracted at each step of a path."
 }], "GuideText",
- CellID->100000036],
+ CellID->100000031,ExpressionUUID->"dbcbb2fb-dfe3-4485-a6bb-9f3552aa2406"],
 
 Cell[TextData[{
  Cell[BoxData[
-  ButtonBox["ContractIndices",
+  ButtonBox["PathQ",
    BaseStyle->"Link",
-   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ContractIndices"]], 
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathQ"]], 
   "InlineGuideFunction",
-  TaggingRules->{"PageType" -> "Function"}],
- " \[LongDash] returns the indices that would be contracted between two index sets."
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "546a27bc-477d-4870-b8aa-a81a0f7ad8e5"],
+ " \[LongDash] yields True for a list of integer pairs encoding a contraction \
+path."
 }], "GuideText",
- CellID->100000037]
+ CellID->100000032,ExpressionUUID->"50451840-ac68-4c62-b2a2-ae7c53ff1117"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["CanonicalPathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/CanonicalPathQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "8282f9eb-3956-4518-9ad8-1647c8e02a3b"],
+ " \[LongDash] yields True for a path already in canonical form."
+}], "GuideText",
+ CellID->100000033,ExpressionUUID->"984123e6-901c-48d0-9509-ce5702876db8"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TreePathQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TreePathQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "d0ab6465-4db1-4dd8-aafd-11f8d7c5d832"],
+ " \[LongDash] yields True for a tree-structured contraction path."
+}], "GuideText",
+ CellID->100000034,ExpressionUUID->"bcd1ce73-ecc2-4266-b588-919985268a27"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TreePathToPath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TreePathToPath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "085ea64d-e9d2-4d6e-a458-79141b051996"],
+ " \[LongDash] converts a tree-structured contraction path to a linear \
+pairwise path."
+}], "GuideText",
+ CellID->100000035,ExpressionUUID->"796600b9-68fa-4433-a42b-92de590c8769"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["PathToTreePath",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PathToTreePath"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "b49285dd-b62c-4032-86ac-b17436d58077"],
+ " \[LongDash] converts a linear pairwise contraction path to a \
+tree-structured path."
+}], "GuideText",
+ CellID->100000036,ExpressionUUID->"732d53cd-fad1-44db-bde6-55e5910cc7cc"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000006,ExpressionUUID->"e76a4107-d576-4f0f-93ea-d4564332eb4a"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["MPSCanonicalForm",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSCanonicalForm"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "831100ca-3345-46da-99db-2af21fc62014"],
+ " \[LongDash] transforms an MPS into left, right, or mixed-canonical form, \
+with optional bond truncation."
+}], "GuideText",
+ CellID->100000037,ExpressionUUID->"c2607bc9-c0a4-41b6-9ed0-bd74e6b7e177"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["MPSOverlap",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSOverlap"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "ab1f8b53-f9eb-43d4-9696-b2ae89f3b5bc"],
+ " \[LongDash] computes the inner product ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"\[LeftAngleBracket]", 
+    SubscriptBox["\[Psi]", "1"], "|", 
+    SubscriptBox["\[Psi]", "2"], "\[RightAngleBracket]"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"ba6523e0-5378-4898-a2a3-c232aa80b6ac"],
+ " between two MPSs."
+}], "GuideText",
+ CellID->100000038,ExpressionUUID->"df17b601-4112-4fd1-9ea8-bdc477efb2a1"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["MPSEntanglementEntropy",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSEntanglementEntropy"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "6e2c5f4f-683b-4943-8e64-c510509272d0"],
+ " \[LongDash] computes the von Neumann entanglement entropy across a bond."
+}], "GuideText",
+ CellID->100000039,ExpressionUUID->"c7d22188-1409-41ce-b929-bfb665d5ddbb"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["MPSCanonicalQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSCanonicalQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "c53a1ce9-5a38-4c6a-b363-330a684d5ae4"],
+ " \[LongDash] yields True if an MPS is in the specified canonical form."
+}], "GuideText",
+ CellID->100000040,ExpressionUUID->"99e7d08a-8694-4ead-96c4-9d3cb0fab068"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["MPSNorm",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSNorm"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "f660cd99-d05a-4327-8548-20c1f29dcc27"],
+ " \[LongDash] computes the norm \[LeftDoubleBracketingBar]\[Psi]\
+\[RightDoubleBracketingBar] of an MPS."
+}], "GuideText",
+ CellID->100000041,ExpressionUUID->"1407b76b-aa1e-43e9-94b2-f0217190f153"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["MPSNormalize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSNormalize"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "fcd2bcb7-f524-48a0-b139-bb293e2414b4"],
+ " \[LongDash] returns an MPS rescaled to unit norm."
+}], "GuideText",
+ CellID->100000042,ExpressionUUID->"f1b50f03-8ef0-4f48-86a9-7c128a40c26e"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["MPSSchmidtValues",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSSchmidtValues"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "930f7f3a-1805-4e61-ad6b-d92a742240b7"],
+ " \[LongDash] returns the normalized Schmidt coefficients at a specified \
+bond."
+}], "GuideText",
+ CellID->100000043,ExpressionUUID->"26399571-8d07-4862-9b3d-e2ddaa4035af"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["MPSTruncate",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MPSTruncate"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "2c887bf4-2e25-490f-9b96-1b40d6ff4155"],
+ " \[LongDash] compresses an MPS by truncating bond dimensions to a maximum."
+}], "GuideText",
+ CellID->100000044,ExpressionUUID->"438637aa-ac5f-42aa-935c-3add19549e6c"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000007,ExpressionUUID->"83a9b4c9-895f-4af1-859a-c6e0ff2245c7"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkGraphQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkGraphQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "d46314fe-c350-4fd5-85ef-c97c1c908bab"],
+ " \[LongDash] yields True for a valid tensor-network graph (annotated \
+directed graph)."
+}], "GuideText",
+ CellID->100000045,ExpressionUUID->"b0f07a44-a649-4c07-b35f-7d4c272ea471"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkGraphData",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkGraphData"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "45bf7524-faa1-4125-b38d-00d8b83f5cc5"],
+ " \[LongDash] returns vertices, tensors, indices, dimensions, contractions \
+of a graph TN."
+}], "GuideText",
+ CellID->100000046,ExpressionUUID->"94b22510-ecf4-4d08-a52a-df8e8cad53b2"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TensorNetworkToNetGraph",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TensorNetworkToNetGraph"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "996f97d2-2b04-4cef-b49d-60917352b973"],
+ " \[LongDash] converts a tensor network into a Wolfram Neural NetGraph for \
+ML pipelines."
+}], "GuideText",
+ CellID->100000047,ExpressionUUID->"36f8ae26-6052-4c4b-88e0-5271513989d9"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["InitializeTensorNetwork",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/InitializeTensorNetwork"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "f1eaa5dc-aa3f-4585-b8f4-61630c7fe9a0"],
+ " \[LongDash] binds concrete tensors into the boundary vertices of a \
+tensor-network graph."
+}], "GuideText",
+ CellID->100000048,ExpressionUUID->"ce1efbba-a5b5-46ff-be49-9ae4790cf2b2"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Named Indices and Metrics", "GuideFunctionsSection",
+ CellID->2067214040,ExpressionUUID->"2a32238a-94e2-4b18-b8aa-3a5f9d3edb01"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["IndexArray",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexArray"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "bed1bb55-8538-446f-8c43-1ce8afc56e22"],
+ " \[LongDash] wraps a tensor with a Shape, parameters and assumptions for \
+named, variant-aware indices."
+}], "GuideText",
+ CellID->100000049,ExpressionUUID->"939f84d3-68bc-4666-aaca-98ecd0e330c6"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["IndexTensor",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexTensor"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "98395a3a-b547-4672-bb62-83f6c8d59db6"],
+ " \[LongDash] wraps an IndexArray with per-position metrics for automatic \
+raising and lowering."
+}], "GuideText",
+ CellID->100000050,ExpressionUUID->"fce8a9bc-8f1c-4dc4-b43c-9e53f7b56315"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["MetricTensor",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MetricTensor"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "2a5ee4f3-c026-44df-ba61-08a3b2eb7994"],
+ " \[LongDash] catalog of metrics (Minkowski, Schwarzschild, Kerr, \
+KerrNewman, FLRW, \[Ellipsis]) and constructor from a matrix."
+}], "GuideText",
+ CellID->100000051,ExpressionUUID->"c1143b9e-5f4f-4aa0-836c-01980b01c3b5"],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000008,ExpressionUUID->"5675d916-d904-495b-b74b-bc73ede015de"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["Dimension",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/Dimension"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "334bbc48-260f-4ea2-94df-85446d7eddaa"],
+ " \[LongDash] a single named tensor index (positive size = upper, negative = \
+lower)."
+}], "GuideText",
+ CellID->100000052,ExpressionUUID->"445c4f0d-851a-40e6-b2ab-e78d9cc42cff"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["Shape",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/Shape"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "29439111-9700-473e-95e7-5f5357b1d102"],
+ " \[LongDash] ordered sequence of Dimension objects describing a tensor's \
+index structure."
+}], "GuideText",
+ CellID->100000053,ExpressionUUID->"6be0064c-60a7-48a7-9b20-f03d1a178f14"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["DimensionQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/DimensionQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "563f8c93-41bc-40ea-9f5e-fdca9f64bdb2"],
+ " \[LongDash] yields True for a valid Dimension object."
+}], "GuideText",
+ CellID->100000054,ExpressionUUID->"8be3be48-d3d4-4b86-976c-6ef1d0550730"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ShapeQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ShapeQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "e14e0445-b469-4762-8c44-c19ff00911de"],
+ " \[LongDash] yields True for a valid Shape."
+}], "GuideText",
+ CellID->100000055,ExpressionUUID->"3d2923ee-840d-4a46-938d-0de7dce1b046"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["IndexArrayQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexArrayQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "533f98bb-51c5-47da-85a6-c95f4a4bc571"],
+ " \[LongDash] yields True for a valid IndexArray."
+}], "GuideText",
+ CellID->100000056,ExpressionUUID->"57e16430-6381-4464-8e2b-0e14046699ad"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["IndexTensorQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexTensorQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "1aa2b20c-49c7-411b-8dd9-3165be0ab655"],
+ " \[LongDash] yields True for a valid IndexTensor."
+}], "GuideText",
+ CellID->100000057,ExpressionUUID->"0d5e608c-743f-4fac-a9fd-8945faf8b63c"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["MetricTensorQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/MetricTensorQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "5a900120-59a3-4888-b632-b08d7ba08b59"],
+ " \[LongDash] yields True for a valid MetricTensor."
+}], "GuideText",
+ CellID->100000058,ExpressionUUID->"022cb908-a9f5-4904-a728-2cfa3c502bfa"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["IndexContract",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexContract"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "c3a7d010-a41c-41e1-a2ec-59e7f0c5033e"],
+ " \[LongDash] contracts matching free index names across IndexArray or \
+IndexTensor objects."
+}], "GuideText",
+ CellID->100000059,ExpressionUUID->"7eea6cf7-9389-4309-86c8-d34abbdb4632"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["IndexJuggling",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexJuggling"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "3db6c1f6-9d86-4067-a753-73e2dcbf76bf"],
+ " \[LongDash] permutes and renames the indices of an IndexArray or \
+IndexTensor (raises/lowers via the metric)."
+}], "GuideText",
+ CellID->100000060,ExpressionUUID->"2fb1dae6-4d92-492d-9334-c0f9612cecca"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["IndexPart",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/IndexPart"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "4ad7bbea-6d05-488b-9f2b-a52ef5c0f6ef"],
+ " \[LongDash] extracts a sub-array of an IndexArray or IndexTensor at named \
+positions."
+}], "GuideText",
+ CellID->100000061,ExpressionUUID->"afe761e9-c0a6-4437-8b84-17ee8edc7954"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000009,ExpressionUUID->"2a39b522-55ab-4f5c-a15e-57df7fdc5d71"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ArrayDimensions",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayDimensions"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "5eb21ceb-75fa-4a4f-940e-d21de50a0d38"],
+ " \[LongDash] dimensions of a tensor, tracking through Inactive \
+TensorContract, TensorProduct, Transpose, D."
+}], "GuideText",
+ CellID->100000062,ExpressionUUID->"fc5c6b8e-9a98-4c36-a73a-8dbf1abdfb90"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ArrayRank",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayRank"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "b5ef3ac0-ee5b-4ead-ba8e-f8fe5483cb47"],
+ " \[LongDash] rank (number of indices) of a tensor."
+}], "GuideText",
+ CellID->100000063,ExpressionUUID->"1cdc4198-c596-41bd-906d-9b1333bf549b"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ArraySymmetry",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArraySymmetry"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "a6e00c5f-f88d-4347-9f39-c9271b6c4a63"],
+ " \[LongDash] symmetry declaration (Symmetric, Antisymmetric, ZeroSymmetric) \
+of a tensor."
+}], "GuideText",
+ CellID->100000064,ExpressionUUID->"c0918dcb-7ede-4a35-af9d-282c79739485"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ArrayName",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayName"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "40369ef3-98cd-4efc-96ea-b199931b90e7"],
+ " \[LongDash] underlying name symbol of a VectorSymbol, MatrixSymbol or \
+ArraySymbol."
+}], "GuideText",
+ CellID->100000065,ExpressionUUID->"0f53cb27-9934-4ccd-95f5-484e1eefdda4"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ArrayPart",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayPart"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "719c10e1-2a65-409f-a463-c89fc6e947f9"],
+ " \[LongDash] extracts a sub-array, propagating dimensional metadata for \
+symbolic arrays."
+}], "GuideText",
+ CellID->100000066,ExpressionUUID->"847b99f7-0b4a-462a-a9f7-4f4bbc26e8a5"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ArrayTranspose",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayTranspose"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "3232d747-ca18-4719-86e4-ed4edb0a4afb"],
+ " \[LongDash] permutes the axes of a tensor and simplifies the result."
+}], "GuideText",
+ CellID->100000067,ExpressionUUID->"5da8cd01-48cd-4014-bde2-dd5490713de3"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ArrayContract",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ArrayContract"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "7c211332-a968-45e3-a135-9c5474af939c"],
+ " \[LongDash] contracts pairs of indices in a tensor (or a product of \
+tensors) and simplifies."
+}], "GuideText",
+ CellID->100000068,ExpressionUUID->"3ca77ba7-2320-4cb1-b5c1-df88a8c4f079"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["SimplifyArray",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/SimplifyArray"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "7ea1367c-99b8-4dd7-a950-f6770e2d098e"],
+ " \[LongDash] simplifies a nested array expression by removing empty \
+contractions and singleton products."
+}], "GuideText",
+ CellID->100000069,ExpressionUUID->"0881d92a-5c3a-4e94-a214-06ac27a848e3"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["ZeroArrayQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/ZeroArrayQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "dbc228c0-a9ab-409e-a02b-3fbc023f3656"],
+ " \[LongDash] yields True if any dimension of the tensor is zero."
+}], "GuideText",
+ CellID->100000070,ExpressionUUID->"6372d1dd-6dc1-46e2-8695-a798d5fdcf93"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Tensor Symmetries", "GuideFunctionsSection",
+ CellID->2067214041,ExpressionUUID->"3b43349b-a5f3-4c29-9bcb-4b6fae4eec12"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["YoungTableau",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungTableau"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "57a23ddc-267e-4cb6-a71f-6a7fb30ef63b"],
+ " \[LongDash] Young tableau as a list of rows specifying a tensor-index \
+symmetry class."
+}], "GuideText",
+ CellID->100000071,ExpressionUUID->"f0a61566-7ae4-4a0e-884f-4e00fd519fe8"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["YoungProject",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungProject"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "fabcd749-6f22-47b8-9dfe-780325f6fb2d"],
+ " \[LongDash] normalized projection of a tensor onto a Young-tableau irrep \
+(idempotent: ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox["P", "2"], "=", "P"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"9ea61726-651d-44f2-a41c-125b56a6d1cb"],
+ ")."
+}], "GuideText",
+ CellID->100000072,ExpressionUUID->"d70a021a-4225-4146-b1cb-f6dca19f2916"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TableauDimension",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauDimension"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "f9f93e1d-ac3d-41ec-af22-9c8a71ebc5e7"],
+ " \[LongDash] dimension of the ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["S", "n"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "ac4fa33c-2cf5-46c3-8dff-4e06391c9922"],
+ " irrep for a Young tableau, via the hook-length formula."
+}], "GuideText",
+ CellID->100000073,ExpressionUUID->"0d621da5-5bc9-41a1-a95d-f646f4dda8ee"],
+
+Cell[CellGroupData[{
+
+Cell["\t", "GuideDelimiter",
+ CellID->200000010,ExpressionUUID->"438c278c-5a48-4fc2-8019-841b297c136b"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["YoungTableauQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungTableauQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "d4119986-df34-497f-b3d0-7d0fd5e64e63"],
+ " \[LongDash] yields True for a valid Young tableau."
+}], "GuideText",
+ CellID->100000074,ExpressionUUID->"0e14499f-7b92-4264-abcd-864cb710e24a"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["YoungSymmetrize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/YoungSymmetrize"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "a9a977e7-d505-4b39-865b-965f27321982"],
+ " \[LongDash] symmetrizes over rows then antisymmetrizes over columns of a \
+tableau."
+}], "GuideText",
+ CellID->100000075,ExpressionUUID->"5d69945d-ee76-41d9-95ec-95c039000dfb"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["PartitionQ",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/PartitionQ"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "1e750a8a-ba0f-4fb9-8123-409b04da38b0"],
+ " \[LongDash] yields True for a valid integer partition (non-increasing \
+positive integers)."
+}], "GuideText",
+ CellID->100000076,ExpressionUUID->"f93d7a15-315b-4529-914c-7722e5e06a60"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TransposePartition",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TransposePartition"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "5f24fc67-8ab2-4b0e-a2dc-4ac9e7d8c027"],
+ " \[LongDash] returns the conjugate (transpose) of an integer partition."
+}], "GuideText",
+ CellID->100000077,ExpressionUUID->"56b3107f-0ede-4d5c-8896-9ecd875a59ce"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TableauShape",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauShape"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "1aab91ba-e15c-4323-8502-12b763d385a2"],
+ " \[LongDash] returns the shape (row lengths) of a Young tableau."
+}], "GuideText",
+ CellID->100000078,ExpressionUUID->"88841c62-a535-4f11-bd90-7630b41ff109"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TableauSize",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/TableauSize"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "4820df68-2365-4655-8985-f0544046b5d2"],
+ " \[LongDash] returns the total number of boxes in a Young tableau."
+}], "GuideText",
+ CellID->100000079,ExpressionUUID->"b52ede96-6034-40e4-8f77-cac2bbb0ff4b"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["HookLength",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/HookLength"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "9c3d2fe7-d8c7-43b2-af37-9dcf3a5672e6"],
+ " \[LongDash] hook length at a single cell of a Young tableau."
+}], "GuideText",
+ CellID->100000080,ExpressionUUID->"8e4e9eac-551f-407d-b2ef-43c21982cb66"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["HookLengths",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/HookLengths"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "cb794595-87bb-4da1-bb91-63b6cc81879d"],
+ " \[LongDash] all hook lengths for cells of a Young diagram, matching the \
+tableau shape."
+}], "GuideText",
+ CellID->100000081,ExpressionUUID->"6c44bed5-e812-42cc-91ac-5f5fb7de492a"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["HookFactor",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Wolfram/TensorNetworks/ref/HookFactor"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "5e38544d-92ad-4c06-a0a4-4bdf3b2f646f"],
+ " \[LongDash] 1/(product of hook lengths) for a partition, via the Frobenius \
+determinant formula."
+}], "GuideText",
+ CellID->100000082,ExpressionUUID->"04da75b3-c9e9-4525-9d68-196e3fe007ec"]
 }, Open  ]]
 }, Open  ]],
 
@@ -463,11 +1164,46 @@ Cell[CellGroupData[{
 Cell["Tech Notes", "GuideTutorialsSection",
  CellID->1498261206,ExpressionUUID->"f70d92fe-947d-41c9-9d10-2ab278471e3a"],
 
-Cell["XXXX", "GuideTutorial",
- CellID->2030328167,ExpressionUUID->"145c9926-8a51-4749-99b3-f78d54bfca9d"],
+Cell[TextData[ButtonBox["Tensor Networks Overview",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/TensorNetworksOverview"]], \
+"GuideTutorial",
+ CellID->300000001,ExpressionUUID->"89a239d6-4b11-484d-aeba-9903870a1f11"],
 
-Cell["XXXX", "GuideTutorial",
- CellID->210351939,ExpressionUUID->"8740c4b2-4c2e-4d3f-8185-e72227b342f5"]
+Cell[TextData[ButtonBox["Building Tensor Networks",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/BuildingTensorNetworks"]], \
+"GuideTutorial",
+ CellID->300000002,ExpressionUUID->"ee062903-bef4-47ad-87c2-f4b0cfbe36a4"],
+
+Cell[TextData[ButtonBox["Contraction Paths and Execution",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/ContractionPathsAndExecution"]], \
+"GuideTutorial",
+ CellID->300000003,ExpressionUUID->"f2cf0bea-a5a0-49a5-bc1f-5fccce8526fd"],
+
+Cell[TextData[ButtonBox["Matrix Product States",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/MPSAlgorithms"]], "GuideTutorial",
+ CellID->300000004,ExpressionUUID->"7243c445-2878-4d07-ab32-72e77f4bbef7"],
+
+Cell[TextData[ButtonBox["Named Indices and Metrics",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/IndexArrayAndMetrics"]], \
+"GuideTutorial",
+ CellID->300000005,ExpressionUUID->"eb530d3c-9f43-4bbc-a82c-42cc6d878218"],
+
+Cell[TextData[ButtonBox["Young Tableaux and Tensor Symmetries",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:Wolfram/TensorNetworks/tutorial/YoungSymmetries"]], "GuideTutorial",\
+
+ CellID->300000006,ExpressionUUID->"4001a779-3757-4a3b-8c39-f831fb9b53bc"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -476,11 +1212,20 @@ Cell["Related Guides", "GuideMoreAboutSection",
  CellChangeTimes->{{3.8430423939366693`*^9, 3.843042395176153*^9}},
  CellID->626955811,ExpressionUUID->"0a959d92-39a4-4656-a9ff-cc69506da958"],
 
-Cell["XXXX", "GuideMoreAbout",
- CellID->1691543295,ExpressionUUID->"9bee2754-95e6-499c-8c3f-57e4d264b39d"],
+Cell[TextData[ButtonBox["Tensor Operations",
+ BaseStyle->"Link",
+ ButtonData->"paclet:guide/TensorOperations"]], "GuideMoreAbout",
+ CellID->400000001,ExpressionUUID->"862f9c22-b4b8-4fba-83f6-bcee1e5a27df"],
 
-Cell["XXXX", "GuideMoreAbout",
- CellID->1379640079,ExpressionUUID->"1fe5df7a-afe9-42cc-b700-8f10c2bf9b20"]
+Cell[TextData[ButtonBox["Structured Arrays",
+ BaseStyle->"Link",
+ ButtonData->"paclet:guide/StructuredArrays"]], "GuideMoreAbout",
+ CellID->400000002,ExpressionUUID->"8901f274-9c72-483b-8ea0-44ab9e3e0729"],
+
+Cell[TextData[ButtonBox["Graphs and Networks",
+ BaseStyle->"Link",
+ ButtonData->"paclet:guide/GraphsAndNetworks"]], "GuideMoreAbout",
+ CellID->400000003,ExpressionUUID->"76e1e38f-84b2-4b28-a0e5-b92fbbd32c20"]
 }, Open  ]],
 
 Cell["Related Links", "GuideRelatedLinksSection",
@@ -532,16 +1277,413 @@ Cell[CellGroupData[{
 Cell["Keywords", "KeywordsSection",
  CellID->27573008,ExpressionUUID->"856683ab-baba-4def-9c4b-242ada500eab"],
 
-Cell["XXXX", "Keywords",
- CellID->1710561351,ExpressionUUID->"3c5d3006-13e3-473a-9445-e05d47e3e516"]
+Cell["tensor network", "Keywords",
+ CellID->500000001,ExpressionUUID->"4779ec5f-8f04-483c-bc3c-8171398dc609"],
+
+Cell["hyperedge", "Keywords",
+ CellID->500000002,ExpressionUUID->"6597a820-20d4-49e2-aa14-290aed45cb96"],
+
+Cell["contraction path", "Keywords",
+ CellID->500000003,ExpressionUUID->"af820840-28f0-402f-8af3-08abd75f9033"],
+
+Cell["einsum", "Keywords",
+ CellID->500000004,ExpressionUUID->"6582dcda-18c5-4192-803d-3f4b03a71122"],
+
+Cell["Einstein summation", "Keywords",
+ CellID->500000005,ExpressionUUID->"63993f56-7812-4bee-b1d6-fa13f71bbea2"],
+
+Cell["MPS", "Keywords",
+ CellID->500000006,ExpressionUUID->"fdbf1429-da76-4768-9e6c-3897e7dcbf64"],
+
+Cell["MPO", "Keywords",
+ CellID->500000007,ExpressionUUID->"d493c1c0-8065-410c-83c2-f32c1e3cb726"],
+
+Cell["PEPS", "Keywords",
+ CellID->500000008,ExpressionUUID->"9569223c-ed5b-43c7-81c1-cf454df2c062"],
+
+Cell["MERA", "Keywords",
+ CellID->500000009,ExpressionUUID->"edd77d1f-cc39-4982-bf6c-899baa4c80f1"],
+
+Cell["tensor train", "Keywords",
+ CellID->500000010,ExpressionUUID->"34a96c81-4fcc-476f-8372-3a093d0146e9"],
+
+Cell["Schmidt decomposition", "Keywords",
+ CellID->500000011,ExpressionUUID->"25fb3252-bef8-4588-9bde-3a35dd156d21"],
+
+Cell["entanglement entropy", "Keywords",
+ CellID->500000012,ExpressionUUID->"096d795e-8c23-4f70-b052-43af2e47f39c"],
+
+Cell["canonical form", "Keywords",
+ CellID->500000013,ExpressionUUID->"db9b0564-26f5-448c-8de3-9bf874a801c7"],
+
+Cell["bond dimension", "Keywords",
+ CellID->500000014,ExpressionUUID->"6f7dcb96-4284-441c-9b2c-16867a3d5ae4"],
+
+Cell["metric tensor", "Keywords",
+ CellID->500000015,ExpressionUUID->"4d39dcdb-41fe-4087-948c-4d335a0d63bd"],
+
+Cell["index variance", "Keywords",
+ CellID->500000016,ExpressionUUID->"8a3472c4-2829-4a61-bccb-63d8de5e8161"],
+
+Cell["covariant", "Keywords",
+ CellID->500000017,ExpressionUUID->"2b9e31e9-0475-4d2e-bb06-3387b9983090"],
+
+Cell["contravariant", "Keywords",
+ CellID->500000018,ExpressionUUID->"078302f5-950b-443f-a8b8-0b661caf0d7e"],
+
+Cell["Young tableau", "Keywords",
+ CellID->500000019,ExpressionUUID->"2a860def-e9e5-4a9e-984d-c156cebd1e40"],
+
+Cell["hook length formula", "Keywords",
+ CellID->500000020,ExpressionUUID->"1b191634-6809-41ae-a6f9-900949704f29"],
+
+Cell["opt einsum", "Keywords",
+ CellID->500000021,ExpressionUUID->"7eb60ae3-f11d-40c6-920e-eeff7ac5d0fb"],
+
+Cell["cotengra", "Keywords",
+ CellID->500000022,ExpressionUUID->"e02bd57f-473e-40b3-97ee-1a36c1a6ff63"]
 }, Closed]]
 }, Open  ]]
 },
-WindowSize->{700, 770},
-WindowMargins->{{219, Automatic}, {Automatic, 52}},
+WindowSize->{1920, 931},
+WindowMargins->{{Automatic, 1728}, {Automatic, -13}},
 TaggingRules-><|"Paclet" -> "Wolfram/TensorNetworks"|>,
-FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (November 18, 2025)",
+Magnification:>1.5 Inherited,
+FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (February 17, 2026)",
 StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "GuidePageStylesExt.nb", 
   CharacterEncoding -> "UTF-8"],
 ExpressionUUID->"f5066d0a-6bac-49a4-b40a-021237337b90"
 ]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 111, 1, 130, "GuideTitle",ExpressionUUID->"24d01a88-09c1-4a92-96f2-a645ce1597f3",
+ CellID->215046386],
+Cell[690, 25, 1010, 14, 250, "GuideAbstract",ExpressionUUID->"536a2795-a02b-441e-9dd6-dcbf9484a91d",
+ CellID->69631601]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1737, 44, 109, 1, 107, "GuideFunctionsSection",ExpressionUUID->"1f31158c-64eb-4299-ba5f-c8698f9e29c6",
+ CellID->2067214039],
+Cell[1849, 47, 445, 10, 36, "GuideText",ExpressionUUID->"d4399560-9842-4ea7-a697-a161a8c9465c",
+ CellID->100000001],
+Cell[2297, 59, 485, 11, 61, "GuideText",ExpressionUUID->"c3405e55-c8cb-4feb-a3fc-246ecb6cd876",
+ CellID->100000002],
+Cell[2785, 72, 476, 11, 61, "GuideText",ExpressionUUID->"adb05094-4af5-439f-9d08-c683424f2e77",
+ CellID->100000003],
+Cell[3264, 85, 469, 11, 61, "GuideText",ExpressionUUID->"f3731cd3-dd19-435f-8bc8-906819a839c7",
+ CellID->100000004],
+Cell[CellGroupData[{
+Cell[3758, 100, 103, 1, 39, "GuideDelimiter",ExpressionUUID->"a528bb6d-4363-483a-bf7d-dd2c946c2aac",
+ CellID->200000001],
+Cell[3864, 103, 434, 10, 36, "GuideText",ExpressionUUID->"55f33360-31a0-4062-9b61-ac414313f368",
+ CellID->100000005],
+Cell[4301, 115, 493, 11, 61, "GuideText",ExpressionUUID->"f7cf8067-271b-4283-ba1f-5fe4953deb1c",
+ CellID->100000006],
+Cell[4797, 128, 509, 12, 61, "GuideText",ExpressionUUID->"4e49f591-5212-4863-a89d-82afe52bdee7",
+ CellID->100000007],
+Cell[5309, 142, 476, 11, 61, "GuideText",ExpressionUUID->"8568ddd9-e511-4360-9b14-4958be451629",
+ CellID->100000008],
+Cell[5788, 155, 440, 10, 36, "GuideText",ExpressionUUID->"b2bfba03-370a-43e0-8203-5de0846750b5",
+ CellID->100000009],
+Cell[6231, 167, 464, 10, 36, "GuideText",ExpressionUUID->"fdea6fba-f686-43c4-a801-ef3a1c44a8fd",
+ CellID->100000010],
+Cell[6698, 179, 481, 11, 61, "GuideText",ExpressionUUID->"17e7b665-591c-485b-8fe1-9d48d05b4113",
+ CellID->100000011],
+Cell[7182, 192, 457, 10, 36, "GuideText",ExpressionUUID->"e734c4c6-e5f2-4b4a-81ee-e120cd921737",
+ CellID->100000012],
+Cell[7642, 204, 451, 10, 36, "GuideText",ExpressionUUID->"d7fd6c8f-3d71-4fbd-9564-a3ebad5a7185",
+ CellID->100000013]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8130, 219, 103, 1, 39, "GuideDelimiter",ExpressionUUID->"d4c127f3-5ab4-4220-81b4-4ad7aef030d1",
+ CellID->200000002],
+Cell[8236, 222, 484, 11, 61, "GuideText",ExpressionUUID->"979d0bfa-d1ed-4b5c-a05a-a0a95c35dc44",
+ CellID->100000014],
+Cell[8723, 235, 448, 10, 36, "GuideText",ExpressionUUID->"cee9ba28-5d1c-400c-8e2b-1644c4eb1824",
+ CellID->100000015],
+Cell[9174, 247, 470, 11, 61, "GuideText",ExpressionUUID->"4bf79387-896a-4373-a27b-1b55a8a204ba",
+ CellID->100000016],
+Cell[9647, 260, 452, 10, 36, "GuideText",ExpressionUUID->"a92088ac-d687-43fa-a5de-93fe0d4cf47c",
+ CellID->100000017],
+Cell[10102, 272, 440, 10, 36, "GuideText",ExpressionUUID->"7b0e8575-ee3a-42ea-a3fd-187a0eaf9679",
+ CellID->100000018],
+Cell[10545, 284, 470, 11, 36, "GuideText",ExpressionUUID->"385640f2-5992-4ce1-a15b-f535548f20ce",
+ CellID->100000019],
+Cell[11018, 297, 472, 11, 36, "GuideText",ExpressionUUID->"55ed1e59-95e5-4c3e-82d6-710c8df0a136",
+ CellID->100000020],
+Cell[11493, 310, 471, 11, 36, "GuideText",ExpressionUUID->"9bdd8fa3-dcbb-4463-96a6-7b7f13957050",
+ CellID->100000021]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12001, 326, 103, 1, 39, "GuideDelimiter",ExpressionUUID->"a4e44841-3ede-42ee-abcc-2d93a74c79c5",
+ CellID->200000003],
+Cell[12107, 329, 514, 11, 61, "GuideText",ExpressionUUID->"717bd13b-66f8-43ce-b607-bf382ce45417",
+ CellID->100000022],
+Cell[12624, 342, 480, 11, 61, "GuideText",ExpressionUUID->"a4a18755-b0e3-4430-8e16-d64ff2d1204a",
+ CellID->100000023],
+Cell[13107, 355, 507, 12, 61, "GuideText",ExpressionUUID->"f8b74923-ac18-4eda-b113-5fa5b45e789d",
+ CellID->100000024]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13651, 372, 103, 1, 39, "GuideDelimiter",ExpressionUUID->"9a08bb61-881d-47c6-af00-9f41cf646ff9",
+ CellID->200000004],
+Cell[13757, 375, 477, 11, 61, "GuideText",ExpressionUUID->"7c5d61d0-5a16-4d84-a1b8-b263aa58bd7b",
+ CellID->100000025],
+Cell[14237, 388, 487, 11, 61, "GuideText",ExpressionUUID->"8340d6e5-f5e4-4ecd-bc7c-64cfd95b120e",
+ CellID->100000026],
+Cell[14727, 401, 491, 11, 61, "GuideText",ExpressionUUID->"4c9a5a5a-52bf-49a9-b9d6-35b7d8a298ee",
+ CellID->100000027],
+Cell[15221, 414, 527, 12, 61, "GuideText",ExpressionUUID->"77da365e-27b3-4c3c-af79-56f4a1d43428",
+ CellID->100000028]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15785, 431, 103, 1, 39, "GuideDelimiter",ExpressionUUID->"00243f0a-0d32-42fa-bb7a-6191389adcc6",
+ CellID->200000005],
+Cell[15891, 434, 447, 10, 36, "GuideText",ExpressionUUID->"8bafbbea-eb5f-40ff-ac7a-a89c82c0f6b5",
+ CellID->100000029],
+Cell[16341, 446, 460, 11, 36, "GuideText",ExpressionUUID->"2ed56caf-6be6-4e69-b4b1-ab65b4963e6c",
+ CellID->100000030],
+Cell[16804, 459, 457, 10, 36, "GuideText",ExpressionUUID->"dbcbb2fb-dfe3-4485-a6bb-9f3552aa2406",
+ CellID->100000031],
+Cell[17264, 471, 441, 11, 36, "GuideText",ExpressionUUID->"50451840-ac68-4c62-b2a2-ae7c53ff1117",
+ CellID->100000032],
+Cell[17708, 484, 438, 10, 36, "GuideText",ExpressionUUID->"984123e6-901c-48d0-9509-ce5702876db8",
+ CellID->100000033],
+Cell[18149, 496, 430, 10, 36, "GuideText",ExpressionUUID->"bcd1ce73-ecc2-4266-b588-919985268a27",
+ CellID->100000034],
+Cell[18582, 508, 461, 11, 36, "GuideText",ExpressionUUID->"796600b9-68fa-4433-a42b-92de590c8769",
+ CellID->100000035],
+Cell[19046, 521, 461, 11, 36, "GuideText",ExpressionUUID->"732d53cd-fad1-44db-bde6-55e5910cc7cc",
+ CellID->100000036]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[19544, 537, 103, 1, 39, "GuideDelimiter",ExpressionUUID->"e76a4107-d576-4f0f-93ea-d4564332eb4a",
+ CellID->200000006],
+Cell[19650, 540, 486, 11, 61, "GuideText",ExpressionUUID->"c2607bc9-c0a4-41b6-9ed0-bd74e6b7e177",
+ CellID->100000037],
+Cell[20139, 553, 685, 17, 36, "GuideText",ExpressionUUID->"df17b601-4112-4fd1-9ea8-bdc477efb2a1",
+ CellID->100000038],
+Cell[20827, 572, 465, 10, 61, "GuideText",ExpressionUUID->"c7d22188-1409-41ce-b929-bfb665d5ddbb",
+ CellID->100000039],
+Cell[21295, 584, 444, 10, 36, "GuideText",ExpressionUUID->"99e7d08a-8694-4ead-96c4-9d3cb0fab068",
+ CellID->100000040],
+Cell[21742, 596, 465, 11, 36, "GuideText",ExpressionUUID->"1407b76b-aa1e-43e9-94b2-f0217190f153",
+ CellID->100000041],
+Cell[22210, 609, 422, 10, 36, "GuideText",ExpressionUUID->"f1b50f03-8ef0-4f48-86a9-7c128a40c26e",
+ CellID->100000042],
+Cell[22635, 621, 459, 11, 36, "GuideText",ExpressionUUID->"26399571-8d07-4862-9b3d-e2ddaa4035af",
+ CellID->100000043],
+Cell[23097, 634, 444, 10, 36, "GuideText",ExpressionUUID->"438637aa-ac5f-42aa-935c-3add19549e6c",
+ CellID->100000044]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[23578, 649, 103, 1, 39, "GuideDelimiter",ExpressionUUID->"83a9b4c9-895f-4af1-859a-c6e0ff2245c7",
+ CellID->200000007],
+Cell[23684, 652, 473, 11, 61, "GuideText",ExpressionUUID->"b0f07a44-a649-4c07-b35f-7d4c272ea471",
+ CellID->100000045],
+Cell[24160, 665, 482, 11, 61, "GuideText",ExpressionUUID->"94b22510-ecf4-4d08-a52a-df8e8cad53b2",
+ CellID->100000046],
+Cell[24645, 678, 483, 11, 61, "GuideText",ExpressionUUID->"36f8ae26-6052-4c4b-88e0-5271513989d9",
+ CellID->100000047],
+Cell[25131, 691, 485, 11, 61, "GuideText",ExpressionUUID->"ce1efbba-a5b5-46ff-be49-9ae4790cf2b2",
+ CellID->100000048]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[25665, 708, 134, 1, 107, "GuideFunctionsSection",ExpressionUUID->"2a32238a-94e2-4b18-b8aa-3a5f9d3edb01",
+ CellID->2067214040],
+Cell[25802, 711, 472, 11, 61, "GuideText",ExpressionUUID->"939f84d3-68bc-4666-aaca-98ecd0e330c6",
+ CellID->100000049],
+Cell[26277, 724, 466, 11, 36, "GuideText",ExpressionUUID->"fce8a9bc-8f1c-4dc4-b43c-9e53f7b56315",
+ CellID->100000050],
+Cell[26746, 737, 500, 11, 61, "GuideText",ExpressionUUID->"c1143b9e-5f4f-4aa0-836c-01980b01c3b5",
+ CellID->100000051],
+Cell[CellGroupData[{
+Cell[27271, 752, 103, 1, 39, "GuideDelimiter",ExpressionUUID->"5675d916-d904-495b-b74b-bc73ede015de",
+ CellID->200000008],
+Cell[27377, 755, 451, 11, 36, "GuideText",ExpressionUUID->"445c4f0d-851a-40e6-b2ab-e78d9cc42cff",
+ CellID->100000052],
+Cell[27831, 768, 449, 11, 36, "GuideText",ExpressionUUID->"6be0064c-60a7-48a7-9b20-f03d1a178f14",
+ CellID->100000053],
+Cell[28283, 781, 422, 10, 36, "GuideText",ExpressionUUID->"8be3be48-d3d4-4b86-976c-6ef1d0550730",
+ CellID->100000054],
+Cell[28708, 793, 403, 10, 36, "GuideText",ExpressionUUID->"3d2923ee-840d-4a46-938d-0de7dce1b046",
+ CellID->100000055],
+Cell[29114, 805, 418, 10, 36, "GuideText",ExpressionUUID->"57e16430-6381-4464-8e2b-0e14046699ad",
+ CellID->100000056],
+Cell[29535, 817, 421, 10, 36, "GuideText",ExpressionUUID->"0d5e608c-743f-4fac-a9fd-8945faf8b63c",
+ CellID->100000057],
+Cell[29959, 829, 424, 10, 36, "GuideText",ExpressionUUID->"022cb908-a9f5-4904-a728-2cfa3c502bfa",
+ CellID->100000058],
+Cell[30386, 841, 466, 11, 36, "GuideText",ExpressionUUID->"7eea6cf7-9389-4309-86c8-d34abbdb4632",
+ CellID->100000059],
+Cell[30855, 854, 485, 11, 61, "GuideText",ExpressionUUID->"2fb1dae6-4d92-492d-9334-c0f9612cecca",
+ CellID->100000060],
+Cell[31343, 867, 453, 11, 36, "GuideText",ExpressionUUID->"afe761e9-c0a6-4437-8b84-17ee8edc7954",
+ CellID->100000061]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[31833, 883, 103, 1, 39, "GuideDelimiter",ExpressionUUID->"2a39b522-55ab-4f5c-a15e-57df7fdc5d71",
+ CellID->200000009],
+Cell[31939, 886, 487, 11, 61, "GuideText",ExpressionUUID->"fc5c6b8e-9a98-4c36-a73a-8dbf1abdfb90",
+ CellID->100000062],
+Cell[32429, 899, 416, 10, 36, "GuideText",ExpressionUUID->"1cdc4198-c596-41bd-906d-9b1333bf549b",
+ CellID->100000063],
+Cell[32848, 911, 464, 11, 36, "GuideText",ExpressionUUID->"c0918dcb-7ede-4a35-af9d-282c79739485",
+ CellID->100000064],
+Cell[33315, 924, 451, 11, 36, "GuideText",ExpressionUUID->"0f53cb27-9934-4ccd-95f5-484e1eefdda4",
+ CellID->100000065],
+Cell[33769, 937, 456, 11, 36, "GuideText",ExpressionUUID->"847b99f7-0b4a-462a-a9f7-4f4bbc26e8a5",
+ CellID->100000066],
+Cell[34228, 950, 445, 10, 36, "GuideText",ExpressionUUID->"5da8cd01-48cd-4014-bde2-dd5490713de3",
+ CellID->100000067],
+Cell[34676, 962, 469, 11, 36, "GuideText",ExpressionUUID->"3ca77ba7-2320-4cb1-b5c1-df88a8c4f079",
+ CellID->100000068],
+Cell[35148, 975, 480, 11, 61, "GuideText",ExpressionUUID->"0881d92a-5c3a-4e94-a214-06ac27a848e3",
+ CellID->100000069],
+Cell[35631, 988, 432, 10, 36, "GuideText",ExpressionUUID->"6372d1dd-6dc1-46e2-8695-a798d5fdcf93",
+ CellID->100000070]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[36112, 1004, 126, 1, 107, "GuideFunctionsSection",ExpressionUUID->"3b43349b-a5f3-4c29-9bcb-4b6fae4eec12",
+ CellID->2067214041],
+Cell[36241, 1007, 460, 11, 36, "GuideText",ExpressionUUID->"f0a61566-7ae4-4a0e-884f-4e00fd519fe8",
+ CellID->100000071],
+Cell[36704, 1020, 643, 17, 61, "GuideText",ExpressionUUID->"d70a021a-4225-4146-b1cb-f6dca19f2916",
+ CellID->100000072],
+Cell[37350, 1039, 619, 15, 61, "GuideText",ExpressionUUID->"0d621da5-5bc9-41a1-a95d-f646f4dda8ee",
+ CellID->100000073],
+Cell[CellGroupData[{
+Cell[37994, 1058, 103, 1, 39, "GuideDelimiter",ExpressionUUID->"438c278c-5a48-4fc2-8019-841b297c136b",
+ CellID->200000010],
+Cell[38100, 1061, 425, 10, 36, "GuideText",ExpressionUUID->"0e14499f-7b92-4264-abcd-864cb710e24a",
+ CellID->100000074],
+Cell[38528, 1073, 462, 11, 36, "GuideText",ExpressionUUID->"5d69945d-ee76-41d9-95ec-95c039000dfb",
+ CellID->100000075],
+Cell[38993, 1086, 460, 11, 36, "GuideText",ExpressionUUID->"f93d7a15-315b-4529-914c-7722e5e06a60",
+ CellID->100000076],
+Cell[39456, 1099, 455, 10, 36, "GuideText",ExpressionUUID->"56b3107f-0ede-4d5c-8896-9ecd875a59ce",
+ CellID->100000077],
+Cell[39914, 1111, 436, 10, 36, "GuideText",ExpressionUUID->"88841c62-a535-4f11-bd90-7630b41ff109",
+ CellID->100000078],
+Cell[40353, 1123, 436, 10, 36, "GuideText",ExpressionUUID->"b52ede96-6034-40e4-8f77-cac2bbb0ff4b",
+ CellID->100000079],
+Cell[40792, 1135, 429, 10, 36, "GuideText",ExpressionUUID->"8e4e9eac-551f-407d-b2ef-43c21982cb66",
+ CellID->100000080],
+Cell[41224, 1147, 459, 11, 36, "GuideText",ExpressionUUID->"6c44bed5-e812-42cc-91ac-5f5fb7de492a",
+ CellID->100000081],
+Cell[41686, 1160, 466, 11, 36, "GuideText",ExpressionUUID->"04da75b3-c9e9-4525-9d68-196e3fe007ec",
+ CellID->100000082]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[42201, 1177, 119, 1, 110, "GuideTutorialsSection",ExpressionUUID->"f70d92fe-947d-41c9-9d10-2ab278471e3a",
+ CellID->1498261206],
+Cell[42323, 1180, 248, 5, 35, "GuideTutorial",ExpressionUUID->"89a239d6-4b11-484d-aeba-9903870a1f11",
+ CellID->300000001],
+Cell[42574, 1187, 248, 5, 35, "GuideTutorial",ExpressionUUID->"ee062903-bef4-47ad-87c2-f4b0cfbe36a4",
+ CellID->300000002],
+Cell[42825, 1194, 261, 5, 35, "GuideTutorial",ExpressionUUID->"f2cf0bea-a5a0-49a5-bc1f-5fccce8526fd",
+ CellID->300000003],
+Cell[43089, 1201, 234, 4, 35, "GuideTutorial",ExpressionUUID->"7243c445-2878-4d07-ab32-72e77f4bbef7",
+ CellID->300000004],
+Cell[43326, 1207, 247, 5, 35, "GuideTutorial",ExpressionUUID->"eb530d3c-9f43-4bbc-a82c-42cc6d878218",
+ CellID->300000005],
+Cell[43576, 1214, 253, 5, 35, "GuideTutorial",ExpressionUUID->"4001a779-3757-4a3b-8c39-f831fb9b53bc",
+ CellID->300000006]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[43866, 1224, 190, 2, 110, "GuideMoreAboutSection",ExpressionUUID->"0a959d92-39a4-4656-a9ff-cc69506da958",
+ CellID->626955811],
+Cell[44059, 1228, 205, 3, 35, "GuideMoreAbout",ExpressionUUID->"862f9c22-b4b8-4fba-83f6-bcee1e5a27df",
+ CellID->400000001],
+Cell[44267, 1233, 205, 3, 35, "GuideMoreAbout",ExpressionUUID->"8901f274-9c72-483b-8ea0-44ab9e3e0729",
+ CellID->400000002],
+Cell[44475, 1238, 208, 3, 35, "GuideMoreAbout",ExpressionUUID->"76e1e38f-84b2-4b28-a0e5-b92fbbd32c20",
+ CellID->400000003]
+}, Open  ]],
+Cell[44698, 1244, 125, 1, 110, "GuideRelatedLinksSection",ExpressionUUID->"50719289-008a-4fce-ad16-5379d446bd30",
+ CellID->1229871094],
+Cell[CellGroupData[{
+Cell[44848, 1249, 110, 1, 106, "MetadataSection",ExpressionUUID->"9800537f-a7b8-4785-b3e4-3bec496eaafc",
+ CellID->913374483],
+Cell[44961, 1252, 476, 12, 38, "History",ExpressionUUID->"72ca2b5e-891d-415d-baac-54c6574850b1",
+ CellID->871827025],
+Cell[CellGroupData[{
+Cell[45462, 1268, 122, 1, 30, "CategorizationSection",ExpressionUUID->"16c6dd54-3ce4-45dd-b06e-abfa4a871266",
+ CellID->515885694],
+Cell[45587, 1271, 134, 2, 105, "Categorization",ExpressionUUID->"023c8a6c-2934-4836-8735-4170783abf4f",
+ CellID->1099376119],
+Cell[45724, 1275, 150, 2, 105, "Categorization",ExpressionUUID->"ad951ecc-7b7a-4f33-b106-a6cd47ba7eb0",
+ CellID->265133245],
+Cell[45877, 1279, 146, 2, 105, "Categorization",ExpressionUUID->"a8434d27-b314-4d8f-b027-935f7f2e0730",
+ CellID->65881190],
+Cell[46026, 1283, 164, 2, 105, "Categorization",ExpressionUUID->"ca03a885-1806-471a-91ae-76615981e5b7",
+ CellID->1311082125]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[46227, 1290, 109, 1, 29, "KeywordsSection",ExpressionUUID->"856683ab-baba-4def-9c4b-242ada500eab",
+ CellID->27573008],
+Cell[46339, 1293, 109, 1, 105, "Keywords",ExpressionUUID->"4779ec5f-8f04-483c-bc3c-8171398dc609",
+ CellID->500000001],
+Cell[46451, 1296, 104, 1, 105, "Keywords",ExpressionUUID->"6597a820-20d4-49e2-aa14-290aed45cb96",
+ CellID->500000002],
+Cell[46558, 1299, 111, 1, 105, "Keywords",ExpressionUUID->"af820840-28f0-402f-8af3-08abd75f9033",
+ CellID->500000003],
+Cell[46672, 1302, 101, 1, 105, "Keywords",ExpressionUUID->"6582dcda-18c5-4192-803d-3f4b03a71122",
+ CellID->500000004],
+Cell[46776, 1305, 113, 1, 105, "Keywords",ExpressionUUID->"63993f56-7812-4bee-b1d6-fa13f71bbea2",
+ CellID->500000005],
+Cell[46892, 1308, 98, 1, 105, "Keywords",ExpressionUUID->"fdbf1429-da76-4768-9e6c-3897e7dcbf64",
+ CellID->500000006],
+Cell[46993, 1311, 98, 1, 105, "Keywords",ExpressionUUID->"d493c1c0-8065-410c-83c2-f32c1e3cb726",
+ CellID->500000007],
+Cell[47094, 1314, 99, 1, 105, "Keywords",ExpressionUUID->"9569223c-ed5b-43c7-81c1-cf454df2c062",
+ CellID->500000008],
+Cell[47196, 1317, 99, 1, 105, "Keywords",ExpressionUUID->"edd77d1f-cc39-4982-bf6c-899baa4c80f1",
+ CellID->500000009],
+Cell[47298, 1320, 107, 1, 105, "Keywords",ExpressionUUID->"34a96c81-4fcc-476f-8372-3a093d0146e9",
+ CellID->500000010],
+Cell[47408, 1323, 116, 1, 105, "Keywords",ExpressionUUID->"25fb3252-bef8-4588-9bde-3a35dd156d21",
+ CellID->500000011],
+Cell[47527, 1326, 115, 1, 105, "Keywords",ExpressionUUID->"096d795e-8c23-4f70-b052-43af2e47f39c",
+ CellID->500000012],
+Cell[47645, 1329, 109, 1, 105, "Keywords",ExpressionUUID->"db9b0564-26f5-448c-8de3-9bf874a801c7",
+ CellID->500000013],
+Cell[47757, 1332, 109, 1, 105, "Keywords",ExpressionUUID->"6f7dcb96-4284-441c-9b2c-16867a3d5ae4",
+ CellID->500000014],
+Cell[47869, 1335, 108, 1, 105, "Keywords",ExpressionUUID->"4d39dcdb-41fe-4087-948c-4d335a0d63bd",
+ CellID->500000015],
+Cell[47980, 1338, 109, 1, 105, "Keywords",ExpressionUUID->"8a3472c4-2829-4a61-bccb-63d8de5e8161",
+ CellID->500000016],
+Cell[48092, 1341, 104, 1, 105, "Keywords",ExpressionUUID->"2b9e31e9-0475-4d2e-bb06-3387b9983090",
+ CellID->500000017],
+Cell[48199, 1344, 108, 1, 105, "Keywords",ExpressionUUID->"078302f5-950b-443f-a8b8-0b661caf0d7e",
+ CellID->500000018],
+Cell[48310, 1347, 108, 1, 105, "Keywords",ExpressionUUID->"2a860def-e9e5-4a9e-984d-c156cebd1e40",
+ CellID->500000019],
+Cell[48421, 1350, 114, 1, 105, "Keywords",ExpressionUUID->"1b191634-6809-41ae-a6f9-900949704f29",
+ CellID->500000020],
+Cell[48538, 1353, 105, 1, 105, "Keywords",ExpressionUUID->"7eb60ae3-f11d-40c6-920e-eeff7ac5d0fb",
+ CellID->500000021],
+Cell[48646, 1356, 103, 1, 105, "Keywords",ExpressionUUID->"e02bd57f-473e-40b3-97ee-1a36c1a6ff63",
+ CellID->500000022]
+}, Closed]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+

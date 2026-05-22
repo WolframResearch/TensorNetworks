@@ -1,9 +1,32 @@
-(* Tests/test_setup.wl *)
+(* Tests/test_setup.wl
 
-(* Ensure we are in a valid directory context *)
-root = DirectoryName @ DirectoryName @ $InputFileName;
-If[root === "", root = Directory[]];
+   Loader shared by test_*.wl files. Resolves the paclet root by walking up
+   from the current directory (or $InputFileName when it points at a valid
+   file inside Tests/), looking for the PacletInfo.wl marker. This makes the
+   test files robust whether they're run by:
+     - wolframscript -file Tests/test_xyz.wl directly
+     - TestReport["Tests/test_xyz.wl"] from a different cwd
+     - The legacy run_tests.wl runner
+*)
 
-(* Load the TensorNetworks paclet from source *)
-PacletDirectoryLoad[FileNameJoin[{root, "TensorNetworks"}]];
-Needs["Wolfram`TensorNetworks`"];
+Module[{candidates, root},
+    candidates = DeleteDuplicates @ Join[
+        If[StringQ[$InputFileName] && FileExistsQ[$InputFileName],
+            NestList[ParentDirectory, DirectoryName[$InputFileName], 6],
+            {}
+        ],
+        NestList[ParentDirectory, Directory[], 6]
+    ];
+    root = SelectFirst[
+        candidates,
+        DirectoryQ[#] && FileExistsQ[FileNameJoin[{#, "TensorNetworks", "PacletInfo.wl"}]] &,
+        $Failed
+    ];
+    If[root === $Failed,
+        Print["[test_setup] ERROR: cannot locate TensorNetworks paclet root from ",
+            $InputFileName, " or cwd ", Directory[]];
+        Abort[]
+    ];
+    PacletDirectoryLoad[FileNameJoin[{root, "TensorNetworks"}]];
+    Needs["Wolfram`TensorNetworks`"];
+];

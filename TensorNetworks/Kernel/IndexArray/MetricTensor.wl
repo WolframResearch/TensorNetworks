@@ -412,6 +412,16 @@ Prop[mt_, "MatrixRepresentation"] :=
 
 Prop[mt_, "CoordinateOneForms"] := DifferentialD /@ mt["Coordinates"]
 
+Prop[mt_, "Determinant"] := Det[mt["Matrix"]]
+
+Prop[mt_, "Eigenvalues"] := Eigenvalues[mt["Matrix"]]
+
+Prop[mt_, "Trace"] := Tr[mt["Matrix"]]
+
+Prop[mt_, "VolumeForm"] := Sqrt[Abs[Det[mt["Matrix"]]]] * (Wedge @@ mt["CoordinateOneForms"])
+
+Prop[mt_, "LineElement"] := Total[Flatten[mt["Matrix"] * Outer[Times, mt["CoordinateOneForms"], mt["CoordinateOneForms"]]]]
+
 Prop[mt_, "SignatureVector"] := Block[{
     eigenvalues = Re[Eigenvalues[mt["MatrixRepresentation"]]],
     assumptions = mt["Assumptions"],
