@@ -408,3 +408,87 @@ WithCapability[{"YoungSymmetrize", "YoungTableau"}, "paclet-symmetry-J2-error-ra
         TestID -> "paclet-symmetry-J2-error-rank-mismatch"
     ]
 ];
+
+
+(* ============================================================ *)
+(* K. TableauRows & TableauColumns accessors                    *)
+(* ============================================================ *)
+
+WithCapability[{"TableauRows", "YoungTableau"}, "paclet-symmetry-K1-rows-explicit", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Symmetry/README.md",
+    VerificationTest[
+        TableauRows[YoungTableau[{{1, 2, 3}, {4, 5}, {6}}]],
+        {{1, 2, 3}, {4, 5}, {6}},
+        TestID -> "paclet-symmetry-K1-rows-explicit"
+    ]
+];
+
+WithCapability[{"TableauRows", "YoungTableau"}, "paclet-symmetry-K2-rows-roundtrip-partition-form", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Symmetry/README.md",
+    VerificationTest[
+        (* Partition-form constructor lowers to row-major standard tableau,
+           and TableauRows must return that canonical layout. *)
+        AllTrue[
+            {{3, 2}, {4, 2, 1}, {1, 1, 1, 1}, {5}, {3, 3, 2}},
+            (TableauRows[YoungTableau[#]] === TakeList[Range[Total[#]], #]) &
+        ],
+        True,
+        TestID -> "paclet-symmetry-K2-rows-roundtrip-partition-form"
+    ]
+];
+
+WithCapability[{"TableauColumns", "YoungTableau"}, "paclet-symmetry-K3-columns-standard", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Symmetry/README.md",
+    VerificationTest[
+        TableauColumns[YoungTableau[{{1, 2, 3}, {4, 5}, {6}}]],
+        {{1, 4, 6}, {2, 5}, {3}},
+        TestID -> "paclet-symmetry-K3-columns-standard"
+    ]
+];
+
+WithCapability[{"TableauColumns", "YoungTableau"}, "paclet-symmetry-K4-columns-ragged-nonstandard", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Symmetry/README.md",
+    VerificationTest[
+        TableauColumns[YoungTableau[{{5, 6, 7}, {3, 4}, {1, 2}}]],
+        {{5, 3, 1}, {6, 4, 2}, {7}},
+        TestID -> "paclet-symmetry-K4-columns-ragged-nonstandard"
+    ]
+];
+
+WithCapability[{"TableauRows"}, "paclet-symmetry-K5-error-rows-noyt", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Symmetry/README.md",
+    VerificationTest[
+        TableauRows[{{1, 2}, {3}}],                             (* bare list, not wrapped *)
+        $Failed,
+        {TableauRows::noyt},
+        TestID -> "paclet-symmetry-K5-error-rows-noyt"
+    ]
+];
+
+WithCapability[{"TableauColumns"}, "paclet-symmetry-K6-error-columns-noyt", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Symmetry/README.md",
+    VerificationTest[
+        TableauColumns[{{1, 2}, {3}}],
+        $Failed,
+        {TableauColumns::noyt},
+        TestID -> "paclet-symmetry-K6-error-columns-noyt"
+    ]
+];
+
+WithCapability[{"TableauRows", "TableauColumns", "YoungSymmetrize"},
+    "paclet-symmetry-K7-accessors-feed-symmetrize",
+    "TableauRows and TableauColumns let users feed the kernel's Symmetrize directly",
+    VerificationTest[
+        (* The accessors close the loop between YoungTableau and WL's
+           Symmetrize: scaling Symmetrize by the stabilizer orders
+           reproduces YoungSymmetrize bit-for-bit. *)
+        Module[{T = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
+                yt = YoungTableau[{{1, 2}}],
+                rows, cols},
+            rows = TableauRows[yt]; cols = TableauColumns[yt];
+            YoungSymmetrize[T, yt] ===
+                (Times @@ (Factorial /@ Length /@ cols))
+                  Normal @ Symmetrize[
+                      (Times @@ (Factorial /@ Length /@ rows))
+                          Normal @ Symmetrize[T, Symmetric /@ rows],
+                      Antisymmetric /@ cols
+                  ]
+        ],
+        True,
+        TestID -> "paclet-symmetry-K7-accessors-feed-symmetrize"
+    ]
+];

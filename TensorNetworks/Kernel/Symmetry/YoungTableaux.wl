@@ -10,6 +10,8 @@ PackageExport[PartitionQ]
 PackageExport[TransposePartition]
 PackageExport[TableauShape]
 PackageExport[TableauSize]
+PackageExport[TableauRows]
+PackageExport[TableauColumns]
 PackageExport[HookLength]
 PackageExport[HookLengths]
 PackageExport[HookFactor]
@@ -79,6 +81,23 @@ TableauSize::noyt = "TableauSize accepts only YoungTableau as input, got `1`.";
 
 TableauSize[expr_] := (Message[TableauSize::noyt, expr]; $Failed)
 
+(* TableauRows exposes the inner row list — YoungTableau is atomic, so
+   First and Part do not unpack it. *)
+TableauRows[YoungTableau[rows_List] ? YoungTableauQ] := rows
+
+TableauRows::noyt = "TableauRows accepts only YoungTableau as input, got `1`.";
+
+TableauRows[expr_] := (Message[TableauRows::noyt, expr]; $Failed)
+
+(* TableauColumns derives the column slot lists from the row layout.
+   Column j collects the slot at position j of every row reaching position j;
+   handles ragged shapes. *)
+TableauColumns[YoungTableau[rows_List] ? YoungTableauQ] := getColumns[rows]
+
+TableauColumns::noyt = "TableauColumns accepts only YoungTableau as input, got `1`.";
+
+TableauColumns[expr_] := (Message[TableauColumns::noyt, expr]; $Failed)
+
 
 (* ============================================ *)
 (* Partition Utilities                          *)
@@ -95,8 +114,8 @@ PartitionQ[_] := False
 (* Transpose (conjugate) of a partition - O(n) where n = max element
    Example: {4,2,1} -> {3,2,1,1} (swap rows and columns of Young diagram) *)
 TransposePartition[{}] := {}
-TransposePartition[par_List] /; PartitionQ[par] :=
-    Table[Count[par, x_ /; x >= j], {j, par[[1]]}]
+TransposePartition[par_ ? PartitionQ] :=
+    Table[LengthWhile[par, # >= j &], {j, First[par]}]
 
 TransposePartition::notpar = "TransposePartition expects a valid partition, got `1`.";
 TransposePartition[expr_] := (Message[TransposePartition::notpar, expr]; $Failed)
@@ -133,9 +152,8 @@ HookLength[expr_, _] := (Message[HookLength::noyt, expr]; $Failed)
 (* Compute all hook lengths for a partition efficiently - O(n) where n = total boxes *)
 (* Returns a nested list matching the tableau shape *)
 
-HookLengths[partition_List] /; PartitionQ[partition] :=
-    Module[{transposed},
-        transposed = TransposePartition[partition];
+HookLengths[partition_ ? PartitionQ] :=
+    With[{transposed = TransposePartition[partition]},
         Table[
             (* hook(i,j) = partition[i] - j + transposed[j] - i + 1 *)
             partition[[i]] - j + transposed[[j]] - i + 1,
@@ -168,12 +186,9 @@ HookLengths[expr_] := (Message[HookLengths::notpar, expr]; $Failed)
 frobeniusDet[{_Integer}] := 1
 frobeniusDet[list_List] := Times @@ (Subtract @@@ Subsets[list, {2}])
 
-HookFactor[partition_List] /; PartitionQ[partition] :=
-    Module[{r, shifted},
-        r = Length[partition];
-        (* Shift: par[i] - i + r *)
-        shifted = partition - Range[r] + r;
-        (* Frobenius formula *)
+HookFactor[partition_ ? PartitionQ] :=
+    With[{shifted = partition + Range[Length[partition] - 1, 0, -1]},
+        (* shifted[i] = partition[i] + (r - i); strictly decreasing. *)
         frobeniusDet[shifted] / Times @@ (Factorial /@ shifted)
     ]
 
@@ -223,82 +238,34 @@ TableauDimension[expr_] := (Message[TableauDimension::noyt, expr]; $Failed)
 *)
 
 YoungSymmetrize[tensor_ ? ArrayQ, yt : YoungTableau[rows_List] ? YoungTableauQ] :=
-    Module[{n, cols, rowSymResult, result},
-        n = TableauSize[yt];
-
+    Block[{n = TableauSize[yt], cols, rowScale, colScale, withRows},
         (* Check tensor rank matches tableau size *)
         If[ArrayDepth[tensor] != n,
             Message[YoungSymmetrize::rank, ArrayDepth[tensor], n];
             Return[$Failed]
         ];
 
-        (* Get columns from rows - need to handle ragged arrays *)
         cols = getColumns[rows];
 
-        (* Step 1: Symmetrize over rows FIRST (b_T) *)
-        rowSymResult = tensor;
-        Do[
-            rowSymResult = symmetrizeOverIndices[rowSymResult, rows[[i]]],
-            {i, Length[rows]}
-        ];
+        (* Symmetrize averages over the group, but b_T and a_T are unnormalized
+           sums. Multiply by the row/column stabilizer orders to recover them.
+           Rows and columns of a Young tableau use pairwise-disjoint slot sets,
+           so Symmetric /@ rows and Antisymmetric /@ cols are direct-product
+           symmetry specifications. *)
+        rowScale = Times @@ (Factorial /@ Length /@ rows);
+        colScale = Times @@ (Factorial /@ Length /@ cols);
 
-        (* Step 2: Antisymmetrize over columns SECOND (a_T) *)
-        result = rowSymResult;
-        Do[
-            result = antisymmetrizeOverIndices[result, cols[[j]]],
-            {j, Length[cols]}
-        ];
-
-        result
+        withRows = rowScale Normal @ Symmetrize[tensor, Symmetric /@ rows];
+        colScale Normal @ Symmetrize[withRows, Antisymmetric /@ cols]
     ]
 
 YoungSymmetrize::rank = "Tensor rank `` does not match tableau size ``.";
 
 
-(* Helper: Get columns from a Young tableau (handles ragged rows) *)
-getColumns[rows_List] := Module[{maxCols, cols},
-    maxCols = Length[rows[[1]]];  (* First row is longest *)
-    cols = Table[
-        Select[Table[If[Length[rows[[r]]] >= c, rows[[r, c]], Nothing], {r, Length[rows]}], IntegerQ],
-        {c, maxCols}
-    ];
-    cols
-]
-
-
-(* Helper: Symmetrize tensor over a set of indices *)
-(* Sum over all permutations of the given indices *)
-symmetrizeOverIndices[tensor_, indices_List] := Module[{perms},
-    If[Length[indices] <= 1, Return[tensor]];
-    perms = Permutations[indices];
-    Total[applyIndexPermutation[tensor, indices, #] & /@ perms]
-]
-
-
-(* Helper: Antisymmetrize tensor over a set of indices *)
-(* Sum over all permutations with signature *)
-antisymmetrizeOverIndices[tensor_, indices_List] := Module[{perms},
-    If[Length[indices] <= 1, Return[tensor]];
-    perms = Permutations[indices];
-    Total[(Signature[#] * applyIndexPermutation[tensor, indices, #]) & /@ perms]
-]
-
-
-(* Helper: Apply a permutation to specific indices of a tensor *)
-(* indices: the tensor index positions to permute (e.g., {1,2,3})
-   perm: the permuted ordering (e.g., {2,3,1} gives T[[j,k,i]] from T[[i,j,k]]) *)
-applyIndexPermutation[tensor_, indices_List, perm_List] := Module[{n, fullPerm, rules},
-    n = ArrayDepth[tensor];
-    (* Build the full permutation: identity on non-permuted indices *)
-    fullPerm = Range[n];
-    (* Replace only the indices we're permuting *)
-    rules = Thread[indices -> perm];
-    fullPerm = fullPerm /. rules;
-
-    (* Transpose[T, {2,3,1}][[i,j,k]] = T[[j,k,i]] *)
-    (* The perm directly specifies the transpose operation *)
-    Transpose[tensor, fullPerm]
-]
+(* Helper: Get columns from a Young tableau (handles ragged rows).
+   Missing[] is the padding sentinel; the validator forbids it as a slot. *)
+getColumns[rows_List] :=
+    DeleteCases[#, _Missing] & /@ Transpose[PadRight[rows, Automatic, Missing[]]]
 
 
 (* ============================================ *)
@@ -309,12 +276,11 @@ applyIndexPermutation[tensor_, indices_List, perm_List] := Module[{n, fullPerm, 
 (* Normalization factor is d/n! where d is the tableau dimension *)
 
 YoungProject[tensor_ ? ArrayQ, yt : YoungTableau[rows_List] ? YoungTableauQ] :=
-    Module[{n, d, symmetrized},
-        n = TableauSize[yt];
-        d = TableauDimension[yt];
-        symmetrized = YoungSymmetrize[tensor, yt];
-        If[symmetrized === $Failed, Return[$Failed]];
-        (d / n!) * symmetrized
+    Block[{symmetrized = YoungSymmetrize[tensor, yt]},
+        If[symmetrized === $Failed,
+            $Failed,
+            TableauDimension[yt] / TableauSize[yt]! symmetrized
+        ]
     ]
 
 
@@ -325,14 +291,8 @@ YoungProject[tensor_ ? ArrayQ, yt : YoungTableau[rows_List] ? YoungTableauQ] :=
 (* Create standard tableau from partition *)
 (* E.g., {3,2} -> YoungTableau[{{1,2,3},{4,5}}] *)
 
-YoungTableau[partition_List] /; Length[partition] > 0 && AllTrue[partition, IntegerQ[#] && # > 0 &] && OrderedQ[partition, GreaterEqual] :=
-    Module[{rows, idx = 1},
-        rows = Table[
-            Table[idx++, {partition[[i]]}],
-            {i, Length[partition]}
-        ];
-        YoungTableau[rows]
-    ]
+YoungTableau[partition_ ? PartitionQ] :=
+    YoungTableau[TakeList[Range[Total[partition]], partition]]
 
 
 (* ============================================ *)

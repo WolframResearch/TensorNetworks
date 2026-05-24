@@ -1,0 +1,4203 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 15.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[    165700,       4195]
+NotebookOptionsPosition[    150440,       3966]
+NotebookOutlinePosition[    150891,       3984]
+CellTagsIndexPosition[    150848,       3981]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Symmetry for Tensor Network Operations", "Title",ExpressionUUID->"1f877b35-ad02-4079-9223-cad285346b79"],
+
+Cell[TextData[{
+ "The TensorNetworks paclet's ",
+ Cell[BoxData[
+ "Symmetry"], "InlineFormula",ExpressionUUID->
+  "efd0ccf0-6e21-4360-8592-965b65f0296a"],
+ " subcontext (",
+ Cell[BoxData[
+ "Wolfram"], "InlineFormula",ExpressionUUID->
+  "a292ff79-f06b-439d-8c64-e752847a07e5"],
+ "TensorNetworks",
+ Cell[BoxData[
+ "Symmetry"], "InlineFormula",ExpressionUUID->
+  "8d0b1e4f-8b03-413e-a2f0-11bbe6b01794"],
+ "`) exports 12 functions around Young tableaux, the hook-length formula, and \
+the Young symmetrizer / projector. Standalone they are pure representation \
+theory. Plugged into a tensor network they do three things you cannot do with \
+built-in WL alone:"
+}], "Text",ExpressionUUID->"3572cd48-db15-404e-9445-27864c0887e2"],
+
+Cell["\<\
+Predict bond multiplicities in closed form, before any tensor is allocated.\
+\>", "ItemNumbered",ExpressionUUID->"f5686bfc-a07f-4904-a5c6-5d4b0b87e9b1"],
+
+Cell["\<\
+Block-diagonalise permutation-symmetric operators along Young irreps.\
+\>", "ItemNumbered",ExpressionUUID->"7042c427-0be4-4072-8b0b-a7c5c9a6db95"],
+
+Cell[TextData[{
+ "Enforce multi-term symmetry constraints (e.g. the first Bianchi identity), \
+which ",
+ Cell[BoxData[
+ "TensorReduce"], "InlineFormula",ExpressionUUID->
+  "a56f42ec-1c8f-4482-aa51-da801d39f1b0"],
+ " cannot prove from slot-permutation generators."
+}], "ItemNumbered",ExpressionUUID->"50db51eb-975c-4ab1-90be-f03d30729939"],
+
+Cell[TextData[{
+ "Four runnable examples follow, ordered by how heavily each one leans on the \
+Symmetry subcontext. Tier 1 examples sweep over partitions and use ",
+ Cell[BoxData[
+ "TableauDimension"], "InlineFormula",ExpressionUUID->
+  "61ec1af4-00a4-4bf8-b263-5ac5eeeeccc8"],
+ ", ",
+ Cell[BoxData[
+ "HookLengths"], "InlineFormula",ExpressionUUID->
+  "8ba04c0a-af6c-440b-936b-5d4a052855ef"],
+ ", ",
+ Cell[BoxData[
+ "YoungTableau"], "InlineFormula",ExpressionUUID->
+  "f4e84494-5cc2-4c97-a405-a800ea389129"],
+ ", and ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "2419a086-51c5-490b-8e35-fed9e14d6260"],
+ " together. Tier 2 examples make a single, surgical ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "d1a6ef4e-0af1-4ca2-9530-a3b8e3dbadb4"],
+ " call that cannot be replaced by any built-in canonicalisation."
+}], "Text",ExpressionUUID->"2befdfc9-4644-47a0-8db6-ea615881379b"],
+
+Cell[TextData[{
+ "Every assertion below is verified by ",
+ ButtonBox["symmetry_for_tn.wl",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["symmetry_for_tn.wl"], None}],
+ " (",
+ Cell[BoxData[
+  RowBox[{"wolframscript", " ", "-", "file"}]], "InlineFormula",
+  ExpressionUUID->"8336a652-1e01-44ad-8545-92cb0b8ee868"],
+ ", all green) and reproduced cell-by-cell in ",
+ ButtonBox["SymmetryForTN.nb",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["SymmetryForTN.nb"], None}],
+ "."
+}], "Text",ExpressionUUID->"21f66245-1ef3-41e8-b817-7ee7a0e0f922"],
+
+Cell[BoxData[GridBox[{
+   {Cell["Tier", "TableText",
+     FontWeight->Bold,ExpressionUUID->"fb97bd9e-2d3b-4156-9840-02930158052a"],
+     Cell["Example", "TableText",
+     FontWeight->Bold,ExpressionUUID->"bfacf837-99e4-430b-ad61-ca5ad64e06ba"],
+     Cell["Symmetry-subcontext functions used", "TableText",
+     FontWeight->Bold,ExpressionUUID->"edf53d9b-e909-46a4-ba5d-51985c38ae4f"],
+     Cell["Pays off for", "TableText",
+     FontWeight->Bold,ExpressionUUID->"d0f9f03c-61a2-45a8-9df0-ffeb8ec340f2"]},
+   {Cell[TextData[StyleBox["1",
+     FontWeight->"Bold"]], "TableText",ExpressionUUID->
+     "1aa68255-9864-487a-9c86-aefb696a935f"], Cell[BoxData[
+     PaneBox[
+      RowBox[{
+       RowBox[{"A", ".", " ", "On"}], "-", 
+       RowBox[{
+       "site", " ", "irreps", " ", "and", " ", "MPS", " ", "bond", " ", 
+        "multiplicity"}]}],
+      ImageSize->220,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "baa2621f-215b-47ba-a59f-2f5c327104e9"], Cell[BoxData[
+     PaneBox[Cell[TextData[{
+       Cell[BoxData[
+       "YoungTableau"], "InlineFormula",ExpressionUUID->
+        "f5f25426-c4d2-443b-ae4c-ab6367fdc5db"],
+       ", ",
+       Cell[BoxData[
+       "YoungProject"], "InlineFormula",ExpressionUUID->
+        "e99f1e67-f3c9-423f-9840-5722911dda94"],
+       ", ",
+       Cell[BoxData[
+       "TableauDimension"], "InlineFormula",ExpressionUUID->
+        "a3eaf03a-b0d3-4f37-af6d-c6e5b84cefbc"],
+       ", ",
+       Cell[BoxData[
+       "HookLengths"], "InlineFormula",ExpressionUUID->
+        "3eaa31cd-ca31-4eab-9e48-24ba4b6f2e28"],
+       " (via ",
+       Cell[BoxData[
+       "schurDim"], "InlineFormula",ExpressionUUID->
+        "59f57a4b-d0ed-4637-bbf7-18315eb33e5f"],
+       ")"
+      }], "TableText",ExpressionUUID->"c8ef6df2-be4c-4659-90fd-4daa34e85a85"],
+      
+      ImageSize->230,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "715f637e-55fa-4587-9410-345bda19b5b7"], Cell[BoxData[
+     PaneBox[
+      RowBox[{"Symmetry", "-", 
+       RowBox[{"resolved", " ", 
+        RowBox[{"DMRG", " ", "/", " ", 
+         RowBox[{"TDVP", ":", " ", 
+          RowBox[{"exact", " ", "block", " ", "sizes", " ", "before", " ", 
+           RowBox[{"allocation", "."}]}]}]}]}]}],
+      ImageSize->260,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "5b23dc80-80b8-400b-ad9c-e4d48afd9f1a"]},
+   {Cell[TextData[StyleBox["1",
+     FontWeight->"Bold"]], "TableText",ExpressionUUID->
+     "ee6f54ad-7878-49a4-ac6a-7423757c2946"], Cell[BoxData[
+     PaneBox[Cell[TextData[{
+       "B. ",
+       Cell[BoxData[
+        FormBox[
+         SuperscriptBox[
+          StyleBox["V", "TI"], 
+          RowBox[{"\[CircleTimes]", "3"}]], TraditionalForm]], 
+        "InlineFormula",ExpressionUUID->
+        "bb2202f2-a7fd-46d6-a999-d8adf4ec8ddc"],
+       " block-diagonalisation under sum-of-pair-swaps"
+      }], "TableText",ExpressionUUID->"57929bbf-1738-46fc-969b-aec75705d277"],
+      
+      ImageSize->220,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "fa8375bc-4f61-4d1b-bb76-d18e2a23f2eb"], Cell[BoxData[
+     PaneBox[Cell[TextData[{
+       Cell[BoxData[
+       "YoungTableau"], "InlineFormula",ExpressionUUID->
+        "1cac9b52-ec43-46a6-957d-e34b5a14c5c2"],
+       ", ",
+       Cell[BoxData[
+       "YoungProject"], "InlineFormula",ExpressionUUID->
+        "a19894ea-1b5a-4de3-94c7-9f7d378aa36d"],
+       ", ",
+       Cell[BoxData[
+       "TableauDimension"], "InlineFormula",ExpressionUUID->
+        "230f8699-7447-4dc7-b535-9f9b7a781710"],
+       ", ",
+       Cell[BoxData[
+       "HookLengths"], "InlineFormula",ExpressionUUID->
+        "3ec444fd-d58a-47a2-ae7a-558339afe4e2"]
+      }], "TableText",ExpressionUUID->"787b41cf-49b0-4743-97ae-0cbf7d19b686"],
+      
+      ImageSize->230,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "71cdfb47-9e28-4aed-85a6-8a6c84304047"], Cell[BoxData[
+     PaneBox[
+      RowBox[{
+       RowBox[{"Diagonalising", " ", "permutation"}], "-", 
+       RowBox[{
+       "symmetric", " ", "Hamiltonians", " ", "one", " ", "block", " ", "at", 
+        " ", "a", " ", 
+        RowBox[{"time", "."}]}]}],
+      ImageSize->260,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "b1392dba-e2ae-427f-ae6d-4bb470e928b4"]},
+   {Cell[TextData[StyleBox["2",
+     FontWeight->"Bold"]], "TableText",ExpressionUUID->
+     "3354c2f2-3613-41bb-a751-7038ce8723d5"], Cell[BoxData[
+     PaneBox[
+      RowBox[{
+       RowBox[{"C", ".", " ", "Riemann"}], " ", "tensor", " ", "as", " ", "a",
+        " ", "TN", " ", "node"}],
+      ImageSize->220,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "4f53356b-f939-4160-9861-2006b85788de"], Cell[BoxData[
+     PaneBox[Cell[TextData[{
+       Cell[BoxData[
+       "YoungTableau"], "InlineFormula",ExpressionUUID->
+        "809b5543-f843-44d7-94cc-868158e9d6fa"],
+       ", ",
+       Cell[BoxData[
+       "YoungProject"], "InlineFormula",ExpressionUUID->
+        "7dce878e-8480-4dc5-bfd8-15f00b3e3a5d"]
+      }], "TableText",ExpressionUUID->"919365a2-b3cc-4ef6-a632-d74aeda11d88"],
+      
+      ImageSize->230,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "55097b99-3ed6-4981-9a0f-0d9999f6cdf3"], Cell[BoxData[
+     PaneBox[Cell[TextData[{
+       "Curvature-scalar networks, Weyl contractions, rank-4 nodes with ",
+       Cell[BoxData[
+        FormBox[
+         RowBox[{"(", 
+          RowBox[{"2", ",", "2"}], ")"}], TraditionalForm]], "InlineFormula",
+        ExpressionUUID->"6bb4d1ba-2fe6-43f6-9165-6d630ee33438"],
+       " symmetry."
+      }], "TableText",ExpressionUUID->"bc9dc653-166a-4b28-9ba5-d14964f7567f"],
+      
+      ImageSize->260,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "a4b7333a-b720-4646-ab04-a507f40efc16"]},
+   {Cell[TextData[StyleBox["2",
+     FontWeight->"Bold"]], "TableText",ExpressionUUID->
+     "8277ffca-89d4-417a-9c8d-3c1a6c505ab7"], Cell[BoxData[
+     PaneBox[Cell[TextData[{
+       "D. ",
+       Cell[BoxData[
+        FormBox[
+         RowBox[{
+          StyleBox["V", "TI"], "\[CircleTimes]", 
+          StyleBox["V", "TI"]}], TraditionalForm]], "InlineFormula",
+        ExpressionUUID->"eb556d08-e11a-4ab2-b03c-cd94d8337a2b"],
+       " Schur-Weyl on a single bond"
+      }], "TableText",ExpressionUUID->"c12ce4b6-5952-4ca7-b6c4-6b38223b1ade"],
+      
+      ImageSize->220,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "837ece12-4836-4f8e-af3b-663d19eb2162"], Cell[BoxData[
+     PaneBox[Cell[TextData[{
+       Cell[BoxData[
+       "YoungTableau"], "InlineFormula",ExpressionUUID->
+        "1bbb8f4a-fe57-4890-937e-14d06586c37c"],
+       ", ",
+       Cell[BoxData[
+       "YoungProject"], "InlineFormula",ExpressionUUID->
+        "2c9f7d0b-d930-415f-9aeb-93d0315438c5"]
+      }], "TableText",ExpressionUUID->"e06c8595-2952-4e43-aa39-9d2ba13d4374"],
+      
+      ImageSize->230,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "7864e220-e23a-476d-a53e-94e8ba77cf3b"], Cell[BoxData[
+     PaneBox[
+      RowBox[{
+       RowBox[{
+        RowBox[{"Symmetric", " ", "/", " ", "antisymmetric"}], " ", "bonds", " ",
+         "without", " ", "storing", " ", "the", " ", "wrong"}], "-", 
+       RowBox[{"parity", " ", 
+        RowBox[{"sector", "."}]}]}],
+      ImageSize->260,
+      ImageSizeAction->"ShrinkToFit"]], "TableText",ExpressionUUID->
+     "a7b3fa2c-7c08-4803-b112-f014dd3c5672"]}
+  },
+  GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Top}}},
+  GridBoxDividers->{"Columns" -> {{None}}, "Rows" -> {{True}}},
+  GridBoxItemSize->{"Columns" -> {4, 24, 26, 30}, "Rows" -> {{Automatic}}},
+  GridBoxSpacings->{"Columns" -> {{1.2}}, "Rows" -> {{0.9}}}]], "TableNotes",
+ PageWidth->WindowWidth,
+ CellMargins->{{60, 60}, {Inherited, Inherited}},
+ CellFrameMargins->{{10, 10}, {8, 8}},
+ TextAlignment->Center,ExpressionUUID->"17e9ae69-e053-4b6b-b0a8-14748472c797"],
+
+Cell[CellGroupData[{
+
+Cell["Setup", "Section",ExpressionUUID->"488a8146-5d6f-46c5-80e8-bb180b8a0952"],
+
+Cell[TextData[{
+ "Load the paclet and the Symmetry subcontext. The Symmetry subcontext \
+exports ",
+ Cell[BoxData[
+ "YoungTableau"], "InlineFormula",ExpressionUUID->
+  "df2422d0-6554-4f5d-89a9-6b4d2d8c39b4"],
+ ", ",
+ Cell[BoxData[
+ "YoungTableauQ"], "InlineFormula",ExpressionUUID->
+  "a80dba30-f604-4d5c-8928-a2f52cf86141"],
+ ", ",
+ Cell[BoxData[
+ "PartitionQ"], "InlineFormula",ExpressionUUID->
+  "5876d51a-b1c5-464f-9dd1-e38196321796"],
+ ", ",
+ Cell[BoxData[
+ "TransposePartition"], "InlineFormula",ExpressionUUID->
+  "dd9afd28-b93a-4203-8f8b-546d397356d1"],
+ ", ",
+ Cell[BoxData[
+ "TableauShape"], "InlineFormula",ExpressionUUID->
+  "71ed9299-f7e0-4186-b5f9-da79731f08e8"],
+ ", ",
+ Cell[BoxData[
+ "TableauSize"], "InlineFormula",ExpressionUUID->
+  "b0996e56-2756-4310-bdf3-6d38cf3503f0"],
+ ", ",
+ Cell[BoxData[
+ "HookLength"], "InlineFormula",ExpressionUUID->
+  "e03b06ac-dfff-4c7e-8091-2b19b6a486a2"],
+ ", ",
+ Cell[BoxData[
+ "HookLengths"], "InlineFormula",ExpressionUUID->
+  "29285196-f64e-430d-a36b-004024d29b5f"],
+ ", ",
+ Cell[BoxData[
+ "HookFactor"], "InlineFormula",ExpressionUUID->
+  "4d86ff7b-ce67-4a35-9cea-8b7efae3397f"],
+ ", ",
+ Cell[BoxData[
+ "TableauDimension"], "InlineFormula",ExpressionUUID->
+  "26d933c1-9303-48d0-a8bb-093f0a353b4c"],
+ ", ",
+ Cell[BoxData[
+ "YoungSymmetrize"], "InlineFormula",ExpressionUUID->
+  "f93f78be-5377-4109-b352-8fd26a61a642"],
+ ", and ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "2a830239-9cb5-42d9-983a-1397d8de1fc5"],
+ "."
+}], "Text",ExpressionUUID->"8248ce2f-91fc-40e4-8061-03655c1e3345"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "PacletDirectoryLoad", 
+   "[", "\"\</Users/mohammadb/Documents/GitHub/TensorNetworks\>\"", "]"}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Needs", "[", "\"\<Wolfram`TensorNetworks`\>\"", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Needs", "[", "\"\<Wolfram`TensorNetworks`Symmetry`\>\"", "]"}], 
+  ";"}]}], "Input",
+ CellLabel->"In[1]:= ",ExpressionUUID->"ac275bd0-291b-4ca5-a468-b417ded903c2"],
+
+Cell[TextData[{
+ "A few helpers used throughout. ",
+ Cell[BoxData[
+  RowBox[{"schurDim", "[", 
+   RowBox[{"par", ",", " ", "d"}], "]"}]], "InlineFormula",ExpressionUUID->
+  "95ad7308-dd14-4202-ae9e-1ed84ffd4e77"],
+ " is the Weyl dimension of the ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["GL",
+     FontSlant->"Plain"], "(", 
+    StyleBox["d", "TI"], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"12dded44-8a23-4559-a653-95e384ff4465"],
+ " irrep ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox[
+     StyleBox["S", "TI"], "\[Lambda]"], "(", 
+    SuperscriptBox[
+     StyleBox["C",
+      FontSlant->"Plain"], 
+     StyleBox["d", "TI"]], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"9d544424-d5d7-45f6-9339-86b920a2df97"],
+ " via the Weyl formula"
+}], "Text",ExpressionUUID->"7865705d-1894-414c-830e-6e515677625b"],
+
+Cell[TextData[{
+ "$",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{"dim", 
+     SuperscriptBox[
+      StyleBox["S", "TI"], "\[Lambda]"], 
+     RowBox[{"(", 
+      SuperscriptBox[
+       StyleBox["C",
+        FontSlant->"Plain"], 
+       StyleBox["d", "TI"]], ")"}]}], " ", "\[LongEqual]", " ", 
+    RowBox[{
+     UnderscriptBox["\[Product]", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         StyleBox["i", "TI"], ",", 
+         StyleBox["j", "TI"]}], ")"}], " ", "\[Element]", " ", "\[Lambda]"}],
+      LimitsPositioning->True], 
+     FractionBox[
+      RowBox[{
+       StyleBox["d", "TI"], "+", 
+       StyleBox["j", "TI"], "-", 
+       StyleBox["i", "TI"]}], 
+      RowBox[{
+       StyleBox["h", "TI"], "(", 
+       RowBox[{
+        StyleBox["i", "TI"], ",", 
+        StyleBox["j", "TI"]}], ")"}]]}]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"bf29ce88-2809-4b3d-bf72-8a81a539c97a"],
+ "$"
+}], "Text",ExpressionUUID->"18f2359e-e763-4cd6-b1e8-e55b36462b00"],
+
+Cell[TextData[{
+ "where ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["h", "TI"], "(", 
+    RowBox[{
+     StyleBox["i", "TI"], ",", 
+     StyleBox["j", "TI"]}], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"c6f694fa-209e-48ef-8d4d-2de689d5b13e"],
+ " is the hook length at cell ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{
+     StyleBox["i", "TI"], ",", 
+     StyleBox["j", "TI"]}], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"15ad50a1-ed20-4969-b91f-4fe323559d0f"],
+ ". ",
+ Cell[BoxData[
+  RowBox[{"contentSum", "[", "par", "]"}]], "InlineFormula",ExpressionUUID->
+  "3cb0866e-5ec2-438d-b6af-85d9c07ad3cb"],
+ " is the eigenvalue of ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    UnderscriptBox["\[Sum]", 
+     RowBox[{
+      StyleBox["i", "TI"], "<", 
+      StyleBox["j", "TI"]}],
+     LimitsPositioning->True], 
+    SubscriptBox[
+     StyleBox["P", "TI"], 
+     StyleBox[
+      RowBox[{"i", "j"}], "TI"]]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"2d89e59d-6e74-4f3e-9263-f4bfde400c38"],
+ " on the irrep ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["V", "TI"], "\[Lambda]"], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"8e8cc32b-298d-4cb8-b8da-6b21bfed6de5"],
+ ", namely"
+}], "Text",ExpressionUUID->"b8cbef23-2db0-45d6-9a5d-05a084897552"],
+
+Cell[TextData[{
+ "$",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{
+     StyleBox["c", "TI"], 
+     RowBox[{"(", "\[Lambda]", ")"}]}], " ", "\[LongEqual]", " ", 
+    RowBox[{
+     UnderscriptBox["\[Sum]", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         StyleBox["i", "TI"], ",", 
+         StyleBox["j", "TI"]}], ")"}], " ", "\[Element]", " ", "\[Lambda]"}],
+      LimitsPositioning->True], 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{
+        StyleBox["j", "TI"], "-", 
+        StyleBox["i", "TI"]}], ")"}], "."}]}]}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"244ed371-6c3b-4e56-aa35-b38dd099701d"],
+ "$"
+}], "Text",ExpressionUUID->"fe54b160-1a45-473a-946a-5f0b5273614c"],
+
+Cell[TextData[{
+ Cell[BoxData[
+ "flattenProjector"], "InlineFormula",ExpressionUUID->
+  "51f9ece2-23f3-47bb-8898-01ec10f994d2"],
+ " materializes a Young projector (or a sum of them over the standard \
+tableaux of one shape) as a ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox[
+     StyleBox["d", "TI"], 
+     StyleBox["n", "TI"]], "\[Cross]", 
+    SuperscriptBox[
+     StyleBox["d", "TI"], 
+     StyleBox["n", "TI"]]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"f3a62c71-6434-46b4-91b5-3abdff03bd7e"],
+ " matrix on ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox[
+    StyleBox["V", "TI"], 
+    RowBox[{"\[CircleTimes]", 
+     StyleBox["n", "TI"]}]], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"2d53bd00-5f2f-4466-bdfa-ff2b4750940c"],
+ ". ",
+ Cell[BoxData[
+ "irrepRank"], "InlineFormula",ExpressionUUID->
+  "f2898f01-0210-427c-b8ff-d9e4d5e5f008"],
+ " reports its rank, i.e. the block dimension. ",
+ Cell[BoxData[
+ "standardTableaux"], "InlineFormula",ExpressionUUID->
+  "476ee0b2-c8f0-4542-8843-bd8605969a30"],
+ " enumerates standard Young tableaux of a given shape (no built-in \
+equivalent in plain WL)."
+}], "Text",ExpressionUUID->"f012dd7f-74c0-4f3d-92a6-50d0745e70d6"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"tol", " ", "=", " ", 
+    RowBox[{"10", "^", 
+     RowBox[{"-", "10"}]}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"schurDim", "[", 
+     RowBox[{"par_List", ",", " ", "d_Integer"}], "]"}], " ", ":=", " ", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "hooks", "}"}], ",", "\n", "    ", 
+      RowBox[{
+       RowBox[{"hooks", " ", "=", " ", 
+        RowBox[{"HookLengths", "[", "par", "]"}]}], ";", "\n", "    ", 
+       RowBox[{"Product", "[", "\n", "        ", 
+        RowBox[{
+         RowBox[{"Product", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{"d", " ", "+", " ", "j", " ", "-", " ", "i"}], ")"}], "/", 
+            RowBox[{"hooks", "[", 
+             RowBox[{"[", 
+              RowBox[{"i", ",", " ", "j"}], "]"}], "]"}]}], ",", " ", 
+           RowBox[{"{", 
+            RowBox[{"j", ",", " ", 
+             RowBox[{"par", "[", 
+              RowBox[{"[", "i", "]"}], "]"}]}], "}"}]}], "]"}], ",", "\n", 
+         "        ", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", " ", 
+           RowBox[{"Length", "[", "par", "]"}]}], "}"}]}], "\n", "    ", 
+        "]"}]}]}], "\n", "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"contentSum", "[", "par_List", "]"}], " ", ":=", "\n", "    ", 
+    RowBox[{"Total", " ", "@", " ", 
+     RowBox[{"Flatten", " ", "@", " ", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"j", " ", "-", " ", "i"}], ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", " ", 
+          RowBox[{"Length", "[", "par", "]"}]}], "}"}], ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"j", ",", " ", 
+          RowBox[{"par", "[", 
+           RowBox[{"[", "i", "]"}], "]"}]}], "}"}]}], "]"}]}]}]}], ";"}], 
+  "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"flattenProjector", "[", 
+     RowBox[{"tableaux_List", ",", " ", "d_Integer", ",", " ", "n_Integer"}], 
+     "]"}], " ", ":=", " ", 
+    RowBox[{"Module", "[", "\n", "    ", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "dims", ",", " ", "idxList", ",", " ", "basisTensors", ",", " ", 
+        "projected"}], "}"}], ",", "\n", "    ", 
+      RowBox[{
+       RowBox[{"dims", " ", "=", " ", 
+        RowBox[{"ConstantArray", "[", 
+         RowBox[{"d", ",", " ", "n"}], "]"}]}], ";", "\n", "    ", 
+       RowBox[{"idxList", " ", "=", " ", 
+        RowBox[{"Tuples", "[", 
+         RowBox[{
+          RowBox[{"Range", "[", "d", "]"}], ",", " ", "n"}], "]"}]}], ";", 
+       "\n", "    ", 
+       RowBox[{"basisTensors", " ", "=", " ", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Normal", " ", "@", " ", 
+            RowBox[{"SparseArray", "[", 
+             RowBox[{
+              RowBox[{"#", " ", "->", " ", "1"}], ",", " ", "dims"}], "]"}]}],
+            " ", "&"}], ",", " ", "idxList"}], "]"}]}], ";", "\n", "    ", 
+       RowBox[{"projected", " ", "=", " ", 
+        RowBox[{"Map", "[", "\n", "        ", 
+         RowBox[{
+          RowBox[{"Function", "[", 
+           RowBox[{"T", ",", "\n", "            ", 
+            RowBox[{"Flatten", " ", "@", " ", 
+             RowBox[{"Total", "[", "\n", "                ", 
+              RowBox[{
+               RowBox[{"Function", "[", 
+                RowBox[{"t", ",", " ", 
+                 RowBox[{"YoungProject", "[", 
+                  RowBox[{"T", ",", " ", 
+                   RowBox[{"YoungTableau", "[", "t", "]"}]}], "]"}]}], "]"}], 
+               " ", "/@", " ", "tableaux"}], "\n", "            ", "]"}]}]}], 
+           "\n", "        ", "]"}], ",", "\n", "        ", "basisTensors"}], 
+         "\n", "    ", "]"}]}], ";", "\n", "    ", 
+       RowBox[{"Transpose", " ", "@", " ", "projected"}]}]}], "\n", "]"}]}], 
+   ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"irrepRank", "[", 
+     RowBox[{"tableaux_List", ",", " ", "d_Integer", ",", " ", "n_Integer"}], 
+     "]"}], " ", ":=", "\n", "    ", 
+    RowBox[{"MatrixRank", " ", "@", " ", 
+     RowBox[{"flattenProjector", "[", 
+      RowBox[{"tableaux", ",", " ", "d", ",", " ", "n"}], "]"}]}]}], ";"}], 
+  "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"removableCorners", "[", "par_List", "]"}], " ", ":=", " ", 
+    RowBox[{"Select", "[", "\n", "    ", 
+     RowBox[{
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"i", ",", " ", 
+          RowBox[{"par", "[", 
+           RowBox[{"[", "i", "]"}], "]"}]}], "}"}], ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", " ", 
+          RowBox[{"Length", "[", "par", "]"}]}], "}"}]}], "]"}], ",", "\n", 
+      "    ", 
+      RowBox[{"Function", "[", 
+       RowBox[{"c", ",", " ", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"c", "[", 
+           RowBox[{"[", "1", "]"}], "]"}], " ", "==", " ", 
+          RowBox[{"Length", "[", "par", "]"}]}], " ", "||", " ", 
+         RowBox[{
+          RowBox[{"par", "[", 
+           RowBox[{"[", 
+            RowBox[{
+             RowBox[{"c", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], " ", "+", " ", "1"}], "]"}], 
+           "]"}], " ", "<", " ", 
+          RowBox[{"c", "[", 
+           RowBox[{"[", "2", "]"}], "]"}]}]}]}], "]"}]}], "\n", "]"}]}], 
+   ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"shrinkAt", "[", 
+     RowBox[{"par_List", ",", " ", 
+      RowBox[{"{", 
+       RowBox[{"i_", ",", " ", "_"}], "}"}]}], "]"}], " ", ":=", " ", 
+    RowBox[{"DeleteCases", "[", 
+     RowBox[{
+      RowBox[{"MapAt", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"#", " ", "-", " ", "1"}], " ", "&"}], ",", " ", "par", ",", 
+        " ", "i"}], "]"}], ",", " ", "0"}], "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"standardTableaux", "[", 
+    RowBox[{"{", "}"}], "]"}], " ", "=", " ", 
+   RowBox[{"{", 
+    RowBox[{"{", "}"}], "}"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"standardTableaux", "[", "par_List", "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"standardTableaux", "[", "par", "]"}], " ", "=", " ", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"n", " ", "=", " ", 
+        RowBox[{"Total", "[", "par", "]"}]}], "}"}], ",", "\n", "    ", 
+      RowBox[{"Join", " ", "@@", " ", 
+       RowBox[{"Map", "[", "\n", "        ", 
+        RowBox[{
+         RowBox[{"Function", "[", 
+          RowBox[{"c", ",", "\n", "            ", 
+           RowBox[{"Map", "[", "\n", "                ", 
+            RowBox[{
+             RowBox[{"Function", "[", 
+              RowBox[{"T", ",", "\n", "                    ", 
+               RowBox[{"Module", "[", 
+                RowBox[{
+                 RowBox[{"{", 
+                  RowBox[{"rows", " ", "=", " ", "T"}], "}"}], ",", "\n", 
+                 "                        ", 
+                 RowBox[{
+                  RowBox[{"While", "[", 
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"Length", "[", "rows", "]"}], " ", "<", " ", 
+                    RowBox[{"c", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}]}], ",", " ", 
+                    RowBox[{"AppendTo", "[", 
+                    RowBox[{"rows", ",", " ", 
+                    RowBox[{"{", "}"}]}], "]"}]}], "]"}], ";", "\n", 
+                  "                        ", 
+                  RowBox[{"ReplacePart", "[", 
+                   RowBox[{"rows", ",", " ", 
+                    RowBox[{
+                    RowBox[{"c", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}], " ", "->", " ", 
+                    RowBox[{"Append", "[", 
+                    RowBox[{
+                    RowBox[{"rows", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"c", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}], "]"}], "]"}], ",", " ", 
+                    "n"}], "]"}]}]}], "]"}]}]}], "\n", "                    ",
+                 "]"}]}], "\n", "                ", "]"}], ",", "\n", 
+             "                ", 
+             RowBox[{"standardTableaux", "[", 
+              RowBox[{"shrinkAt", "[", 
+               RowBox[{"par", ",", " ", "c"}], "]"}], "]"}]}], "\n", 
+            "            ", "]"}]}], "\n", "        ", "]"}], ",", "\n", 
+         "        ", 
+         RowBox[{"removableCorners", "[", "par", "]"}]}], "\n", "    ", 
+        "]"}]}]}], "\n", "]"}]}]}], ";"}]}], "Input",
+ CellLabel->"In[2]:= ",ExpressionUUID->"535d92e9-01e0-4556-a121-11ecdb706934"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Tier 1: heavy Symmetry-subcontext usage", "Title",ExpressionUUID->"0dcca763-8d12-4dbf-88d0-5ce495a311f3"],
+
+Cell[TextData[{
+ "These two examples sweep over multiple partitions and dimensions, calling \
+",
+ Cell[BoxData[
+ "TableauDimension"], "InlineFormula",ExpressionUUID->
+  "2806cf51-2280-425e-b59f-87364303d490"],
+ ", ",
+ Cell[BoxData[
+ "HookLengths"], "InlineFormula",ExpressionUUID->
+  "6d50dc1e-499e-446e-a2ce-0946277a5eac"],
+ ", ",
+ Cell[BoxData[
+ "YoungTableau"], "InlineFormula",ExpressionUUID->
+  "eaac244b-25b0-435a-ba21-ef46f19419c6"],
+ ", and ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "a6e0b037-0285-4acb-8df5-bdeb447bec87"],
+ " many times per run. Each is also the most operationally TN-actionable: the \
+formulas they validate are exactly what you need to size and populate \
+symmetry-resolved MPS / MPO blocks."
+}], "Text",ExpressionUUID->"e53f13bb-ed50-4b32-a572-aafdf036bc29"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Example A. On-site irreps predict MPS / MPO bond multiplicity\
+\>", "Section",ExpressionUUID->"f56edda0-090f-4346-b417-afe0443b628a"],
+
+Cell[CellGroupData[{
+
+Cell["Symmetry-subcontext functions used", "Subsection",ExpressionUUID->"18c1e313-cc19-4f11-b032-d3d2e195ca55"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"TableauDimension", "[", "par", "]"}]], "InlineFormula",
+  ExpressionUUID->"d0f2bf33-8e43-44e2-b023-c5be00338a4a"],
+ " \[LongDash] computes ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"dim", 
+    SubscriptBox[
+     StyleBox["V", "TI"], "\[Lambda]"]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"4d82e7af-fc98-47ab-8ea9-16a718e7b076"],
+ " via the hook-length formula ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["n", "TI"], "!", "/", "\[Product]", 
+    StyleBox["h", "TI"], 
+    RowBox[{"(", 
+     RowBox[{
+      StyleBox["i", "TI"], ",", 
+      StyleBox["j", "TI"]}], ")"}]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"8e8f7cd5-b0e5-4327-bb9f-7152a9f94629"],
+ ". This is the ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["S", "TI"], 
+    StyleBox["n", "TI"]], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "b569fae4-9818-4738-b24e-269c65da0335"],
+ "-irrep factor."
+}], "Item",ExpressionUUID->"8d9b2332-43cf-44c1-9c7a-deefef749786"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"HookLengths", "[", "par", "]"}]], "InlineFormula",ExpressionUUID->
+  "e0ea8077-c3d6-4088-8536-7cd63047a900"],
+ " \[LongDash] the per-cell hook lengths used inside ",
+ Cell[BoxData[
+ "schurDim"], "InlineFormula",ExpressionUUID->
+  "56ddd861-485a-49ba-9bc2-6ca1d0f7d487"],
+ " to evaluate ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"dim", 
+    SuperscriptBox[
+     StyleBox["S", "TI"], "\[Lambda]"], 
+    RowBox[{"(", 
+     SuperscriptBox[
+      StyleBox["C",
+       FontSlant->"Plain"], 
+      StyleBox["d", "TI"]], ")"}]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"8c2670b9-6f07-4b82-9bd0-d6d16452362d"],
+ " via the Weyl formula."
+}], "Item",ExpressionUUID->"c5814db2-65ee-4b70-8290-b003c8c02a43"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"YoungTableau", "[", "t", "]"}]], "InlineFormula",ExpressionUUID->
+  "f1382183-e993-4c86-8e24-f61c80a7b50a"],
+ " \[LongDash] wraps each standard tableau into the structural type that ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "b832f976-0e19-42cd-ad89-f45178dcbd3a"],
+ " understands."
+}], "Item",ExpressionUUID->"75d7be81-0c99-4fb6-a00d-82a2fb54e1ff"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"YoungProject", "[", 
+   RowBox[{"T", ",", " ", 
+    RowBox[{"YoungTableau", "[", "t", "]"}]}], "]"}]], "InlineFormula",
+  ExpressionUUID->"457ad3d6-3de2-4ccd-9c5c-ccd0543e8ba4"],
+ " \[LongDash] projects basis tensors onto the irrep subspace (inside ",
+ Cell[BoxData[
+ "flattenProjector"], "InlineFormula",ExpressionUUID->
+  "701038f6-fdd8-4350-8ef1-92ce8ba4350f"],
+ " / ",
+ Cell[BoxData[
+ "irrepRank"], "InlineFormula",ExpressionUUID->
+  "cecc8dc0-fa75-4b71-9d58-a0ab3db24b62"],
+ "), giving the ",
+ StyleBox["measured", "TI"],
+ " block dimension as a verification of the closed-form prediction."
+}], "Item",ExpressionUUID->"ddf333a1-484e-47b4-8aaa-875021d93352"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Why Symmetry matters here, and how it helps", "Subsection",ExpressionUUID->"3c0432b0-1161-446f-8406-b3af7c66616d"],
+
+Cell[TextData[{
+ "On a permutation-symmetric chain of ",
+ Cell[BoxData[
+  FormBox[
+   StyleBox["d", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "8d648c9e-f1fc-4f86-a99f-0e9e3219a151"],
+ "-dim sites, the MPS bond carries a representation of ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["S", "TI"], 
+     StyleBox["n", "TI"]], "\[Cross]", 
+    StyleBox["GL",
+     FontSlant->"Plain"], 
+    RowBox[{"(", 
+     StyleBox["d", "TI"], ")"}]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"17a3467e-09e3-4d0e-a15e-75693457ea89"],
+ ". Schur-Weyl decomposes it as"
+}], "Text",ExpressionUUID->"7378f1a6-a95a-4979-8e4d-aae252ebdc13"],
+
+Cell[TextData[{
+ "$",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox[
+     StyleBox["V", "TI"], 
+     RowBox[{"\[CircleTimes]", 
+      StyleBox["n", "TI"]}]], " ", 
+    RowBox[{"\[LongEqual]", " "}], 
+    SubscriptBox["\[CirclePlus]", 
+     RowBox[{
+      RowBox[{"\[Lambda]", " "}], 
+      RowBox[{"\[RightTee]", " "}], 
+      StyleBox["n", "TI"]}]], 
+    SubscriptBox[
+     StyleBox["V", "TI"], "\[Lambda]"], " ", 
+    RowBox[{"\[CircleTimes]", " "}], 
+    SuperscriptBox[
+     StyleBox["S", "TI"], "\[Lambda]"], 
+    RowBox[{"(", 
+     SuperscriptBox[
+      StyleBox["C",
+       FontSlant->"Plain"], 
+      StyleBox["d", "TI"]], ")"}], "."}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"a5ddc4f8-6f00-42c3-ab54-54e19dd87372"],
+ "$"
+}], "Text",ExpressionUUID->"97fb7e93-cb2c-45af-b029-33e7b314a1fd"],
+
+Cell[TextData[{
+ "The size of the ",
+ Cell[BoxData[
+  FormBox["\[Lambda]", TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "0ff5938a-fc07-415b-a332-7b6d1194d1d6"],
+ "-isotypic block is the multiplicity"
+}], "Text",ExpressionUUID->"34262b9e-0411-44f7-9277-b1d46eaefc8b"],
+
+Cell[TextData[{
+ "$",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["m", "TI"], "\[Lambda]"], " ", 
+    RowBox[{"\[LongEqual]", " "}], "dim", 
+    SubscriptBox[
+     StyleBox["V", "TI"], "\[Lambda]"], " ", 
+    RowBox[{"\[CenterDot]", " "}], "dim", 
+    SuperscriptBox[
+     StyleBox["S", "TI"], "\[Lambda]"], 
+    RowBox[{"(", 
+     SuperscriptBox[
+      StyleBox["C",
+       FontSlant->"Plain"], 
+      StyleBox["d", "TI"]], ")"}], "."}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"4835217f-b399-498e-9afd-229d5a5e1e12"],
+ "$"
+}], "Text",ExpressionUUID->"1ccf08f4-afcb-4e97-b7d3-c93ac1c70da0"],
+
+Cell[TextData[{
+ "Both factors come from the Symmetry subcontext in closed form, without ever \
+materialising the projector: ",
+ Cell[BoxData[
+  RowBox[{"TableauDimension", "[", "par", "]"}]], "InlineFormula",
+  ExpressionUUID->"f0ef2144-b1b7-4c03-bcdd-5b67da8193b8"],
+ " gives ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"dim", 
+    SubscriptBox[
+     StyleBox["V", "TI"], "\[Lambda]"]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"68eb28da-c7eb-4192-b1bf-822a98df3b5f"],
+ " via the hook-length formula; ",
+ Cell[BoxData[
+  RowBox[{"HookLengths", "[", "par", "]"}]], "InlineFormula",ExpressionUUID->
+  "78728849-1487-4e88-82ce-c88be60e96ce"],
+ " feeds the Weyl formula for ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"dim", 
+    SuperscriptBox[
+     StyleBox["S", "TI"], "\[Lambda]"], 
+    RowBox[{"(", 
+     SuperscriptBox[
+      StyleBox["C",
+       FontSlant->"Plain"], 
+      StyleBox["d", "TI"]], ")"}]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"d5b7a41c-95fa-4c51-8b77-55bc505bd219"],
+ ". Computing ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["m", "TI"], "\[Lambda]"], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"8c2c227d-df81-40ff-b19e-818217770891"],
+ " is O(r\.b2) in the number of rows of ",
+ Cell[BoxData[
+  FormBox["\[Lambda]", TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "5f510206-4a1a-43d6-8823-411cf095e41b"],
+ ", regardless of ",
+ Cell[BoxData[
+  FormBox[
+   StyleBox["d", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "66453179-4fd6-4c29-b684-25d81c979149"],
+ " or ",
+ Cell[BoxData[
+  FormBox[
+   StyleBox["n", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "7eaeeb4b-13be-4872-b18d-64bd38aa53c8"],
+ "."
+}], "Text",ExpressionUUID->"f76eb773-5f7f-4571-a70e-3da4a9ba4575"],
+
+Cell[TextData[{
+ "The payoff: a symmetry-resolved MPS sizes each sector exactly. Sectors with \
+",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["m", "TI"], "\[Lambda]"], "\[LongEqual]", "0"}], 
+   TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "3f2db3c1-64c9-4a23-bc22-92d292a98d20"],
+ " (e.g. ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", 
+    RowBox[{"2", ",", "1", ",", "1"}], "}"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"376a800e-0062-4df3-ae60-f86304246f04"],
+ " and ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "1", ",", "1"}], "}"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"b08ff635-eb7f-4b9e-ba0b-9e2106ca761c"],
+ " at ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["d", "TI"], "\[LongEqual]", "2"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"0677d957-81c5-4d68-a2c0-c8adceb5d1b8"],
+ ") are skipped by formula. No truncation inside any sector; no slots wasted \
+on empty ones."
+}], "Text",ExpressionUUID->"81dd7b26-32d8-4f38-b063-e010ed2b7c76"],
+
+Cell[TextData[{
+ "The verification below also calls ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "57083e74-8e78-42ff-b456-9094e47faaab"],
+ " (inside ",
+ Cell[BoxData[
+ "flattenProjector"], "InlineFormula",ExpressionUUID->
+  "b62180c8-9655-425e-9d0b-44fd5acbfc07"],
+ " / ",
+ Cell[BoxData[
+ "irrepRank"], "InlineFormula",ExpressionUUID->
+  "5fe507db-598e-4597-b44a-132e9e99182d"],
+ ") to ",
+ StyleBox["measure", "TI"],
+ " each block rank by projecting basis tensors. That confirms the closed-form \
+prediction; in production only the closed form is needed."
+}], "Text",ExpressionUUID->"66ceb0d4-3010-49ad-adb7-05b519f15a77"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Code", "Subsection",ExpressionUUID->"7eb0c603-1b52-4d3a-a43c-52a283da3240"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"cases", " ", "=", " ", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"<|", 
+       RowBox[{
+        RowBox[{"\"\<n\>\"", " ", "->", " ", "2"}], ",", " ", 
+        RowBox[{"\"\<d\>\"", " ", "->", " ", "2"}]}], "|>"}], ",", "\n", 
+      "         ", 
+      RowBox[{"<|", 
+       RowBox[{
+        RowBox[{"\"\<n\>\"", " ", "->", " ", "3"}], ",", " ", 
+        RowBox[{"\"\<d\>\"", " ", "->", " ", "2"}]}], "|>"}], ",", "\n", 
+      "         ", 
+      RowBox[{"<|", 
+       RowBox[{
+        RowBox[{"\"\<n\>\"", " ", "->", " ", "3"}], ",", " ", 
+        RowBox[{"\"\<d\>\"", " ", "->", " ", "3"}]}], "|>"}], ",", "\n", 
+      "         ", 
+      RowBox[{"<|", 
+       RowBox[{
+        RowBox[{"\"\<n\>\"", " ", "->", " ", "4"}], ",", " ", 
+        RowBox[{"\"\<d\>\"", " ", "->", " ", "2"}]}], "|>"}]}], "}"}]}], 
+   ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{"results", " ", "=", " ", 
+   RowBox[{"Map", "[", "\n", "    ", 
+    RowBox[{
+     RowBox[{"Function", "[", 
+      RowBox[{"case", ",", "\n", "        ", 
+       RowBox[{"Module", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"n", ",", " ", "d", ",", " ", "perShape"}], "}"}], ",", 
+         "\n", "            ", 
+         RowBox[{
+          RowBox[{"n", " ", "=", " ", 
+           RowBox[{"case", "[", "\"\<n\>\"", "]"}]}], ";", " ", 
+          RowBox[{"d", " ", "=", " ", 
+           RowBox[{"case", "[", "\"\<d\>\"", "]"}]}], ";", "\n", 
+          "            ", 
+          RowBox[{"perShape", " ", "=", " ", 
+           RowBox[{"Map", "[", "\n", "                ", 
+            RowBox[{
+             RowBox[{"Function", "[", 
+              RowBox[{"par", ",", "\n", "                    ", 
+               RowBox[{"<|", "\n", "                        ", 
+                RowBox[{
+                 RowBox[{"\"\<partition\>\"", "    ", "->", " ", "par"}], ",",
+                  "\n", "                        ", 
+                 RowBox[{"\"\<schurWeylDim\>\"", " ", "->", " ", 
+                  RowBox[{
+                   RowBox[{"TableauDimension", "[", "par", "]"}], " ", "*", 
+                   " ", 
+                   RowBox[{"schurDim", "[", 
+                    RowBox[{"par", ",", " ", "d"}], "]"}]}]}], ",", "\n", 
+                 "                        ", 
+                 RowBox[{"\"\<irrepRank\>\"", "    ", "->", " ", 
+                  RowBox[{"irrepRank", "[", 
+                   RowBox[{
+                    RowBox[{"standardTableaux", "[", "par", "]"}], ",", " ", 
+                    "d", ",", " ", "n"}], "]"}]}]}], "\n", 
+                "                    ", "|>"}]}], "\n", "                ", 
+              "]"}], ",", "\n", "                ", 
+             RowBox[{"IntegerPartitions", "[", "n", "]"}]}], "\n", 
+            "            ", "]"}]}], ";", "\n", "            ", 
+          RowBox[{"<|", "\n", "                ", 
+           RowBox[{
+            RowBox[{"\"\<n\>\"", "           ", "->", " ", "n"}], ",", "\n", 
+            "                ", 
+            RowBox[{"\"\<d\>\"", "           ", "->", " ", "d"}], ",", "\n", 
+            "                ", 
+            RowBox[{"\"\<totalDim\>\"", "    ", "->", " ", 
+             RowBox[{"d", "^", "n"}]}], ",", "\n", "                ", 
+            RowBox[{"\"\<sumOfBlocks\>\"", " ", "->", " ", 
+             RowBox[{"Total", "[", 
+              RowBox[{
+               RowBox[{"#schurWeylDim", " ", "&"}], " ", "/@", " ", 
+               "perShape"}], "]"}]}], ",", "\n", "                ", 
+            RowBox[{"\"\<perShape\>\"", "    ", "->", " ", "perShape"}]}], 
+           "\n", "            ", "|>"}]}]}], "\n", "        ", "]"}]}], "\n", 
+      "    ", "]"}], ",", "\n", "    ", "cases"}], "\n", "]"}]}], 
+  ";"}]}], "Input",
+ CellLabel->"In[3]:= ",ExpressionUUID->"6077a81d-0d51-46b8-93d9-e29fc8a91278"],
+
+Cell[TextData[{
+ "Top-line summary: every Schur-Weyl block-dimension sum equals ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox[
+    StyleBox["d", "TI"], 
+    StyleBox["n", "TI"]], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "e2afa1be-d48e-4cc0-a7a0-724e3f14ba06"],
+ "."
+}], "Text",ExpressionUUID->"9faa715b-76ff-4709-b836-9b23173f2aab"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Dataset", "[", 
+  RowBox[{"results", " ", "/.", " ", 
+   RowBox[{"assoc_Association", " ", ":>", " ", 
+    RowBox[{"KeyDrop", "[", 
+     RowBox[{"assoc", ",", " ", "\"\<perShape\>\""}], "]"}]}]}], 
+  "]"}]], "Input",
+ CellLabel->"In[4]:= ",ExpressionUUID->"593fe710-a40c-469f-aacd-710d6d5d4407"],
+
+Cell[BoxData[
+ TagBox[
+  TagBox[
+   DynamicModuleBox[{TypeSystem`NestedGrid`PackagePrivate`$state$$ = <|
+    "InitialData" -> {<|
+       "n" -> 2, "d" -> 2, "totalDim" -> 4, "sumOfBlocks" -> 4|>, <|
+       "n" -> 3, "d" -> 2, "totalDim" -> 8, "sumOfBlocks" -> 8|>, <|
+       "n" -> 3, "d" -> 3, "totalDim" -> 27, "sumOfBlocks" -> 27|>, <|
+       "n" -> 4, "d" -> 2, "totalDim" -> 16, "sumOfBlocks" -> 16|>}, 
+     "AllowEmbedding" -> True, "InitialShape" -> 
+     TypeSystem`PackageScope`HeaderShape[<|{All, "n"} -> 1, {All, "d"} -> 
+        1, {All, "totalDim"} -> 1, {All, "sumOfBlocks"} -> 1|>, 
+       TypeSystem`PackageScope`Limited[
+        TypeSystem`PackageScope`ColumnShape[
+         TypeSystem`PackageScope`Limited[
+          
+          TypeSystem`PackageScope`RowShape[<|
+           "n" -> TypeSystem`PackageScope`AtomShape[34], "d" -> 
+            TypeSystem`PackageScope`AtomShape[34], "totalDim" -> 
+            TypeSystem`PackageScope`AtomShape[34], "sumOfBlocks" -> 
+            TypeSystem`PackageScope`AtomShape[34]|>], Infinity, 4, {All}]], 4,
+         Infinity, {}]], "InitialType" -> TypeSystem`Vector[
+       TypeSystem`Struct[{"n", "d", "totalDim", "sumOfBlocks"}, {
+         TypeSystem`Atom[Integer], 
+         TypeSystem`Atom[Integer], 
+         TypeSystem`Atom[Integer], 
+         TypeSystem`Atom[Integer]}], 4], "Meta" -> <||>, "RowTarget" -> 20, 
+     "ColumnTarget" -> 10, "Shape" -> 
+     TypeSystem`PackageScope`HeaderShape[<|{All, "n"} -> 1, {All, "d"} -> 
+        1, {All, "totalDim"} -> 1, {All, "sumOfBlocks"} -> 1|>, 
+       TypeSystem`PackageScope`Limited[
+        TypeSystem`PackageScope`ColumnShape[
+         TypeSystem`PackageScope`Limited[
+          
+          TypeSystem`PackageScope`RowShape[<|
+           "n" -> TypeSystem`PackageScope`AtomShape[34], "d" -> 
+            TypeSystem`PackageScope`AtomShape[34], "totalDim" -> 
+            TypeSystem`PackageScope`AtomShape[34], "sumOfBlocks" -> 
+            TypeSystem`PackageScope`AtomShape[34]|>], Infinity, 4, {All}]], 4,
+         Infinity, {}]], "Type" -> TypeSystem`Vector[
+       TypeSystem`Struct[{"n", "d", "totalDim", "sumOfBlocks"}, {
+         TypeSystem`Atom[Integer], 
+         TypeSystem`Atom[Integer], 
+         TypeSystem`Atom[Integer], 
+         TypeSystem`Atom[Integer]}], 4], "Path" -> {}, "DisplayedRowCount" -> 
+     4, "DisplayedColumnCount" -> 4, "DataRowCount" -> 4, "DataColumnCount" -> 
+     4, "SortPaths" -> {}, "SortDirections" -> {}, "HiddenItemsMap" -> Null, 
+     "UpdateType" -> 1|>, TypeSystem`NestedGrid`PackagePrivate`$outputID$$, 
+    TypeSystem`NestedGrid`PackagePrivate`$path$$ = {}, 
+    TypeSystem`NestedGrid`PackagePrivate`$vPos$$ = 1, 
+    TypeSystem`NestedGrid`PackagePrivate`$hPos$$ = 1, 
+    TypeSystem`NestedGrid`PackagePrivate`$grid$$ = 
+    DynamicModule[{
+     TypeSystem`NestedGrid`PackagePrivate`renderedGrid = Deploy[
+        Style[
+         Grid[{{
+            Item[
+             Pane[
+              Annotation[
+               EventHandler[
+                MouseAppearance[
+                 Mouseover["n", 
+                  Style[
+                  "n", FontColor -> 
+                   RGBColor[
+                    0.2749633796890805, 0.536987306253161, 
+                    0.791992189065661]]], "LinkHand"], {"MouseClicked", 1} :> 
+                If[
+                  TypeSystem`NestedGrid`PackagePrivate`checkInteractivity[
+                  TypeSystem`NestedGrid`PackagePrivate`$state$$], 
+                  TypeSystem`NestedGrid`PackagePrivate`updateState[
+                  TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`$outputID$$]]][{
+                   All, "n"}, 1]]], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{All, "n"},
+                 "ColumnHeader", True], "Mouse"], 
+              ImageSize -> {{1, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], Background -> 
+             RGBColor[
+              0.9500473017990948, 0.9500473017990948, 0.9500473017990948], 
+             Alignment -> {Left, Baseline}], 
+            Item[
+             Pane[
+              Annotation[
+               EventHandler[
+                MouseAppearance[
+                 Mouseover["d", 
+                  Style[
+                  "d", FontColor -> 
+                   RGBColor[
+                    0.2749633796890805, 0.536987306253161, 
+                    0.791992189065661]]], "LinkHand"], {"MouseClicked", 1} :> 
+                If[
+                  TypeSystem`NestedGrid`PackagePrivate`checkInteractivity[
+                  TypeSystem`NestedGrid`PackagePrivate`$state$$], 
+                  TypeSystem`NestedGrid`PackagePrivate`updateState[
+                  TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`$outputID$$]]][{
+                   All, "d"}, 1]]], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{All, "d"},
+                 "ColumnHeader", True], "Mouse"], 
+              ImageSize -> {{1, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], Background -> 
+             RGBColor[
+              0.9500473017990948, 0.9500473017990948, 0.9500473017990948], 
+             Alignment -> {Left, Baseline}], 
+            Item[
+             Pane[
+              Annotation[
+               EventHandler[
+                MouseAppearance[
+                 Mouseover["totalDim", 
+                  Style[
+                  "totalDim", FontColor -> 
+                   RGBColor[
+                    0.2749633796890805, 0.536987306253161, 
+                    0.791992189065661]]], "LinkHand"], {"MouseClicked", 1} :> 
+                If[
+                  TypeSystem`NestedGrid`PackagePrivate`checkInteractivity[
+                  TypeSystem`NestedGrid`PackagePrivate`$state$$], 
+                  TypeSystem`NestedGrid`PackagePrivate`updateState[
+                  TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`$outputID$$]]][{
+                   All, "totalDim"}, 1]]], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{
+                All, "totalDim"}, "ColumnHeader", True], "Mouse"], 
+              ImageSize -> {{1, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], Background -> 
+             RGBColor[
+              0.9500473017990948, 0.9500473017990948, 0.9500473017990948], 
+             Alignment -> {Left, Baseline}], 
+            Item[
+             Pane[
+              Annotation[
+               EventHandler[
+                MouseAppearance[
+                 Mouseover["sumOfBlocks", 
+                  Style[
+                  "sumOfBlocks", FontColor -> 
+                   RGBColor[
+                    0.2749633796890805, 0.536987306253161, 
+                    0.791992189065661]]], "LinkHand"], {"MouseClicked", 1} :> 
+                If[
+                  TypeSystem`NestedGrid`PackagePrivate`checkInteractivity[
+                  TypeSystem`NestedGrid`PackagePrivate`$state$$], 
+                  TypeSystem`NestedGrid`PackagePrivate`updateState[
+                  TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+                   TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`$outputID$$]]][{
+                   All, "sumOfBlocks"}, 1]]], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{
+                All, "sumOfBlocks"}, "ColumnHeader", True], "Mouse"], 
+              ImageSize -> {{1, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], Background -> 
+             RGBColor[
+              0.9500473017990948, 0.9500473017990948, 0.9500473017990948], 
+             Alignment -> {Left, Baseline}]}, {
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["2"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{1, 
+                 Key["n"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["2"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{1, 
+                 Key["d"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["4"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{1, 
+                 Key["totalDim"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["4"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{1, 
+                 Key["sumOfBlocks"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}]}, {
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["3"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{2, 
+                 Key["n"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["2"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{2, 
+                 Key["d"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["8"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{2, 
+                 Key["totalDim"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["8"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{2, 
+                 Key["sumOfBlocks"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}]}, {
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["3"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{3, 
+                 Key["n"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["3"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{3, 
+                 Key["d"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["27"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{3, 
+                 Key["totalDim"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["27"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{3, 
+                 Key["sumOfBlocks"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}]}, {
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["4"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{4, 
+                 Key["n"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["2"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{4, 
+                 Key["d"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["16"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{4, 
+                 Key["totalDim"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}], 
+            Item[
+             Pane[
+              Annotation[
+               RawBoxes["16"], 
+               TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][{4, 
+                 Key["sumOfBlocks"]}, "Item", False], "Mouse"], 
+              ImageSize -> {{34, Full}, Automatic}, 
+              ImageMargins -> {{5, 3}, {4, 5}}], 
+             ItemSize -> {Full, Automatic}]}}, 
+          BaseStyle -> {
+           ContextMenu -> 
+            Dynamic[TypeSystem`NestedGrid`PackagePrivate`$contextMenuTrigger; 
+              Which[TypeSystem`NestedGrid`PackagePrivate`$lastOutputID =!= 
+                TypeSystem`NestedGrid`PackagePrivate`localHold[
+                 TypeSystem`NestedGrid`PackagePrivate`$outputID$$], {}, 
+                TypeSystem`NestedGrid`PackagePrivate`$contextMenuTrigger === 
+                TypeSystem`NestedGrid`PackagePrivate`$lastContextMenuTrigger, 
+                TypeSystem`NestedGrid`PackagePrivate`$lastContextMenu, True, 
+                TypeSystem`NestedGrid`PackagePrivate`$lastContextMenuTrigger = 
+                 TypeSystem`NestedGrid`PackagePrivate`$contextMenuTrigger; 
+                TypeSystem`NestedGrid`PackagePrivate`$lastContextMenu = 
+                 Block[{TypeSystem`NestedGrid`PackagePrivate`$globalScrollPos = \
+{TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$hPos$$}}, 
+                   
+                   With[{TypeSystem`NestedGrid`PackagePrivate`lastPath$ = 
+                    TypeSystem`NestedGrid`PackagePrivate`$lastPath, 
+                    TypeSystem`NestedGrid`PackagePrivate`lastPathType$ = 
+                    TypeSystem`NestedGrid`PackagePrivate`$lastPathType, 
+                    TypeSystem`NestedGrid`PackagePrivate`isLeafHeader$ = 
+                    TypeSystem`NestedGrid`PackagePrivate`$\
+lastPathIsLeafHeader, TypeSystem`NestedGrid`PackagePrivate`headerHidden$ = And[
+                    MatchQ[TypeSystem`NestedGrid`PackagePrivate`$lastPathType, 
+                    Alternatives["RowHeader", "ColumnHeader"]], 
+                    TypeSystem`NestedGrid`PackagePrivate`headerHiddenQ[
+                    TypeSystem`NestedGrid`PackagePrivate`$lastPath, 
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$]], 
+                    TypeSystem`NestedGrid`PackagePrivate`allHidden$ = 
+                    TypeSystem`NestedGrid`PackagePrivate`allHiddenQ[
+                    TypeSystem`NestedGrid`PackagePrivate`$lastPath, 
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$], 
+                    TypeSystem`NestedGrid`PackagePrivate`anyHidden$ = 
+                    TypeSystem`NestedGrid`PackagePrivate`anyHiddenQ[
+                    TypeSystem`NestedGrid`PackagePrivate`$lastPath, 
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$], 
+                    TypeSystem`NestedGrid`PackagePrivate`sortDirection$ = 
+                    TypeSystem`NestedGrid`PackagePrivate`columnSortDirection[
+                    TypeSystem`NestedGrid`PackagePrivate`$lastPath, 
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$[
+                    "SortPaths"], 
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$[
+                    "SortDirections"]], 
+                    TypeSystem`NestedGrid`PackagePrivate`haveData$ = Not[
+                    FailureQ[
+                    TypeSystem`NestedGrid`PackagePrivate`datasetInitialData[
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$]]], 
+                    TypeSystem`NestedGrid`PackagePrivate`isKeyDummy$ = Not[
+                    FreeQ[
+                    TypeSystem`NestedGrid`PackagePrivate`$lastPath, Keys]]}, 
+                    Join[{
+                    If[
+                    Or[
+                    Not[TypeSystem`NestedGrid`PackagePrivate`haveData$], 
+                    Not[TypeSystem`NestedGrid`PackagePrivate`anyHidden$], 
+                    TypeSystem`NestedGrid`PackagePrivate`isKeyDummy$], 
+                    Nothing, 
+                    MenuItem[
+                    "Show " <> 
+                    Which[TypeSystem`NestedGrid`PackagePrivate`lastPathType$ == 
+                    "Item", "", 
+                    TypeSystem`NestedGrid`PackagePrivate`lastPathType$ == 
+                    "RowHeader", "Row", 
+                    TypeSystem`NestedGrid`PackagePrivate`lastPathType$ == 
+                    "ColumnHeader", "Column", True, ""], 
+                    KernelExecute[
+                    TypeSystem`NestedGrid`PackagePrivate`updateHiddenItems[
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`$outputID$$]]][
+                    TypeSystem`NestedGrid`PackagePrivate`lastPath$, 
+                    "remove"]], MenuEvaluator -> Automatic]], 
+                    If[
+                    Or[
+                    Not[TypeSystem`NestedGrid`PackagePrivate`haveData$], 
+                    TypeSystem`NestedGrid`PackagePrivate`pathEmptyQ[
+                    TypeSystem`NestedGrid`PackagePrivate`$lastPath, 
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$], 
+                    TypeSystem`NestedGrid`PackagePrivate`isKeyDummy$, 
+                    And[
+                    TypeSystem`NestedGrid`PackagePrivate`allHidden$, 
+                    TypeSystem`NestedGrid`PackagePrivate`headerHidden$]], 
+                    Nothing, 
+                    MenuItem[
+                    "Hide " <> 
+                    Which[TypeSystem`NestedGrid`PackagePrivate`lastPathType$ == 
+                    "Item", "", 
+                    TypeSystem`NestedGrid`PackagePrivate`lastPathType$ == 
+                    "RowHeader", "Row", 
+                    TypeSystem`NestedGrid`PackagePrivate`lastPathType$ == 
+                    "ColumnHeader", "Column", True, ""], 
+                    KernelExecute[
+                    TypeSystem`NestedGrid`PackagePrivate`updateHiddenItems[
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`$outputID$$]]][
+                    TypeSystem`NestedGrid`PackagePrivate`lastPath$, "add"]], 
+                    MenuEvaluator -> Automatic]], Delimiter}, 
+                    If[
+                    And[TypeSystem`NestedGrid`PackagePrivate`haveData$, 
+                    MatchQ[TypeSystem`NestedGrid`PackagePrivate`lastPathType$, 
+                    Alternatives["ColumnHeader", "KeyDummy"]], 
+                    TypeSystem`NestedGrid`PackagePrivate`isLeafHeader$, 
+                    Not[TypeSystem`NestedGrid`PackagePrivate`allHidden$]], {
+                    If[
+                    TypeSystem`NestedGrid`PackagePrivate`sortDirection$ =!= 
+                    "Ascending", 
+                    MenuItem["Sort", 
+                    KernelExecute[
+                    TypeSystem`NestedGrid`PackagePrivate`updateSort[
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][
+                    TypeSystem`NestedGrid`PackagePrivate`lastPath$, 
+                    "Ascending"]], MenuEvaluator -> Automatic], Nothing], 
+                    If[
+                    TypeSystem`NestedGrid`PackagePrivate`sortDirection$ =!= 
+                    "Descending", 
+                    MenuItem["Reverse Sort", 
+                    KernelExecute[
+                    TypeSystem`NestedGrid`PackagePrivate`updateSort[
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][
+                    TypeSystem`NestedGrid`PackagePrivate`lastPath$, 
+                    "Descending"]], MenuEvaluator -> Automatic], Nothing], 
+                    If[
+                    TypeSystem`NestedGrid`PackagePrivate`sortDirection$ =!= 
+                    None, 
+                    MenuItem["Unsort", 
+                    KernelExecute[
+                    TypeSystem`NestedGrid`PackagePrivate`updateSort[
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`localHold[
+                    TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][
+                    TypeSystem`NestedGrid`PackagePrivate`lastPath$, None]], 
+                    MenuEvaluator -> Automatic], Nothing], Delimiter}, {}], {
+                    MenuItem["Copy Position to Clipboard", 
+                    KernelExecute[
+                    TypeSystem`NestedGrid`PackagePrivate`toCurrentPosition[
+                    TypeSystem`NestedGrid`PackagePrivate`copyClip]], 
+                    MenuEvaluator -> Automatic], 
+                    If[TypeSystem`NestedGrid`PackagePrivate`haveData$, 
+                    MenuItem["Copy Data to Clipboard", 
+                    KernelExecute[
+                    TypeSystem`NestedGrid`PackagePrivate`toCurrentData[
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`copyClip]], 
+                    MenuEvaluator -> Automatic], Nothing], Delimiter, 
+                    MenuItem["Paste Position in New Cell", 
+                    KernelExecute[
+                    TypeSystem`NestedGrid`PackagePrivate`toCurrentPosition[
+                    TypeSystem`NestedGrid`PackagePrivate`cellPaste]], 
+                    MenuEvaluator -> Automatic], 
+                    If[TypeSystem`NestedGrid`PackagePrivate`haveData$, 
+                    MenuItem["Paste Data in New Cell", 
+                    KernelExecute[
+                    TypeSystem`NestedGrid`PackagePrivate`toCurrentData[
+                    TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+                    TypeSystem`NestedGrid`PackagePrivate`cellPaste]], 
+                    MenuEvaluator -> Automatic], Nothing]}]]]]], FontFamily -> 
+            "Source Sans Pro", FontSize -> 14, FontWeight -> Plain}, Dividers -> 
+          All, FrameStyle -> 
+          RGBColor[0.749003690406716, 0.749003690406716, 0.749003690406716], 
+          Spacings -> {0, 0}, Alignment -> Left, 
+          BaseStyle -> {
+           FontFamily -> "Source Sans Pro", FontSize -> 14, FontWeight -> 
+            Plain}], LineBreakWithin -> False, ContextMenu -> {}, NumberMarks -> 
+         False, ShowAutoStyles -> False]], 
+      TypeSystem`NestedGrid`PackagePrivate`initialQ = True}, 
+     Dynamic[
+      TypeSystem`NestedGrid`PackagePrivate`setupViewPath[
+      TypeSystem`NestedGrid`PackagePrivate`$path$$, If[
+         Not[TypeSystem`NestedGrid`PackagePrivate`initialQ], 
+         Module[{
+          TypeSystem`NestedGrid`PackagePrivate`tmpGrid$ = $Failed, 
+           TypeSystem`NestedGrid`PackagePrivate`tmpData$ = 
+           TypeSystem`NestedGrid`PackagePrivate`datasetData[
+            TypeSystem`NestedGrid`PackagePrivate`$state$$]}, 
+          TypeSystem`NestedGrid`PackagePrivate`tmpGrid$ = If[
+             FailureQ[TypeSystem`NestedGrid`PackagePrivate`tmpData$], 
+             TypeSystem`NestedGrid`PackagePrivate`renderedGrid, 
+             TypeSystem`NestedGrid`PackagePrivate`renderGrid[
+             TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+              TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+              TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+              TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+              TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+              TypeSystem`NestedGrid`PackagePrivate`localHold[
+              TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][
+             TypeSystem`NestedGrid`PackagePrivate`tmpData$]]; If[
+            Not[
+             FailureQ[TypeSystem`NestedGrid`PackagePrivate`tmpGrid$]], 
+            TypeSystem`NestedGrid`PackagePrivate`renderedGrid = 
+            TypeSystem`NestedGrid`PackagePrivate`tmpGrid$]; Null]]; 
+       TypeSystem`NestedGrid`PackagePrivate`initialQ = False; 
+       TypeSystem`NestedGrid`PackagePrivate`$vPos$$; 
+       TypeSystem`NestedGrid`PackagePrivate`$hPos$$; If[
+         FailureQ[TypeSystem`NestedGrid`PackagePrivate`renderedGrid], 
+         TypeSystem`SparseGrid[
+          TypeSystem`H["(data no longer present)"]], 
+         TypeSystem`NestedGrid`PackagePrivate`renderedGrid]], 
+      TrackedSymbols :> {
+       TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+        TypeSystem`NestedGrid`PackagePrivate`$hPos$$}], 
+     DynamicModuleValues :> {}], 
+    TypeSystem`NestedGrid`PackagePrivate`$topBar$$ = Dynamic[
+     TypeSystem`NestedGrid`PackagePrivate`makeFramedBar[
+      TypeSystem`PackageScope`SubViewPathbar[
+      TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+       TypeSystem`NestedGrid`PackagePrivate`updateState[
+       TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+        TypeSystem`NestedGrid`PackagePrivate`$path$$, 
+        TypeSystem`NestedGrid`PackagePrivate`$vPos$$, 
+        TypeSystem`NestedGrid`PackagePrivate`$hPos$$, 
+        TypeSystem`NestedGrid`PackagePrivate`$grid$$, 
+        TypeSystem`NestedGrid`PackagePrivate`localHold[
+        TypeSystem`NestedGrid`PackagePrivate`$outputID$$]]]], 
+     TrackedSymbols :> {TypeSystem`NestedGrid`PackagePrivate`$path$$}], 
+    TypeSystem`NestedGrid`PackagePrivate`$bottomBar$$ = Dynamic[
+     Replace[
+      Replace[
+      TypeSystem`NestedGrid`PackagePrivate`mouseAnnotation$$, {
+       TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+          TypeSystem`NestedGrid`PackagePrivate`localHold[
+          TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][Null, 
+          Blank[]] -> "", TypeSystem`NestedGrid`PackagePrivate`$SliceMarker[
+          TypeSystem`NestedGrid`PackagePrivate`localHold[
+          TypeSystem`NestedGrid`PackagePrivate`$outputID$$]][
+          Pattern[TypeSystem`NestedGrid`PackagePrivate`path$, 
+           Blank[]], 
+          Pattern[TypeSystem`NestedGrid`PackagePrivate`pathType$, 
+           Blank[]], 
+          Pattern[TypeSystem`NestedGrid`PackagePrivate`isLeafHeader$, 
+           Blank[]]] :> (
+         Increment[TypeSystem`NestedGrid`PackagePrivate`$contextMenuTrigger]; 
+         TypeSystem`NestedGrid`PackagePrivate`$lastPath = 
+          TypeSystem`NestedGrid`PackagePrivate`path$; 
+         TypeSystem`NestedGrid`PackagePrivate`$lastPathType = 
+          TypeSystem`NestedGrid`PackagePrivate`pathType$; 
+         TypeSystem`NestedGrid`PackagePrivate`$lastPathIsLeafHeader = 
+          TypeSystem`NestedGrid`PackagePrivate`isLeafHeader$; 
+         TypeSystem`NestedGrid`PackagePrivate`$lastOutputID = 
+          TypeSystem`NestedGrid`PackagePrivate`localHold[
+           TypeSystem`NestedGrid`PackagePrivate`$outputID$$]; 
+         TypeSystem`NestedGrid`PackagePrivate`makePathTrail[
+          TypeSystem`NestedGrid`PackagePrivate`path$, 
+           TypeSystem`NestedGrid`PackagePrivate`makePathElements]), Null :> 
+        Spacer[10], Blank[] :> Spacer[10]}], 
+      Pattern[TypeSystem`NestedGrid`PackagePrivate`bar, 
+        Except[
+         Alternatives[
+          Blank[Spacer], ""]]] :> 
+      TypeSystem`NestedGrid`PackagePrivate`makeFramedPathbar[
+       TypeSystem`NestedGrid`PackagePrivate`bar]], 
+     TrackedSymbols :> {
+      TypeSystem`NestedGrid`PackagePrivate`mouseAnnotation$$}], 
+    TypeSystem`NestedGrid`PackagePrivate`mouseAnnotation$$ = Null}, 
+    DynamicWrapperBox[
+     DynamicBox[ToBoxes[
+       Dataset`DatasetContent[
+       2, "Path" -> Hold[TypeSystem`NestedGrid`PackagePrivate`$path$$], 
+        "Grid" -> Hold[TypeSystem`NestedGrid`PackagePrivate`$grid$$], "State" -> 
+        Hold[TypeSystem`NestedGrid`PackagePrivate`$state$$], "VPos" -> 
+        Hold[TypeSystem`NestedGrid`PackagePrivate`$vPos$$], "HPos" -> 
+        Hold[TypeSystem`NestedGrid`PackagePrivate`$hPos$$], "TopBar" -> 
+        Hold[TypeSystem`NestedGrid`PackagePrivate`$topBar$$], "BottomBar" -> 
+        Hold[TypeSystem`NestedGrid`PackagePrivate`$bottomBar$$], "OutputID" -> 
+        Hold[
+          TypeSystem`NestedGrid`PackagePrivate`localHold[
+          TypeSystem`NestedGrid`PackagePrivate`$outputID$$]]], StandardForm],
+      ImageSizeCache->{229.38, {64.12863159179688, 69.86056518554688}},
+      TrackedSymbols:>{
+       TypeSystem`NestedGrid`PackagePrivate`$state$$, 
+        TypeSystem`NestedGrid`PackagePrivate`$grid$$}], 
+     TypeSystem`NestedGrid`PackagePrivate`mouseAnnotation$$ = 
+     MouseAnnotation[],
+     ImageSizeCache->{229.38, {64.12863159179688, 69.86056518554688}}],
+    BaseStyle->{
+     LineBreakWithin -> False, 
+      LightDarkAutoColorRules -> <|"MarkedColors" -> True|>},
+    DynamicModuleValues:>{},
+    Initialization:>(TypeSystem`NestedGrid`PackagePrivate`$outputID$$ = 
+     CreateUUID[]),
+    UnsavedVariables:>{TypeSystem`NestedGrid`PackagePrivate`$outputID$$}],
+   Deploy,
+   DefaultBaseStyle->"Deploy"],
+  Dataset`InterpretDataset[1],
+  Editable->False,
+  SelectWithContents->True,
+  Selectable->False]], "Output",
+ CellLabel->"Out[4]= ",ExpressionUUID->"577f662b-b1c3-4980-b2e1-79b7ec0e9877"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Per-shape breakdown. Every row has ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"dim", 
+    SubscriptBox[
+     StyleBox["V", "TI"], "\[Lambda]"], "\[CenterDot]", "dim", 
+    SuperscriptBox[
+     StyleBox["S", "TI"], "\[Lambda]"], 
+    RowBox[{"(", 
+     SuperscriptBox[
+      StyleBox["C",
+       FontSlant->"Plain"], 
+      StyleBox["d", "TI"]], ")"}], "\[LongEqual]", 
+    StyleBox["irrepRank",
+     FontSlant->"Plain"]}], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "3d005172-e55b-45d4-bfd6-90d1ed614b41"],
+ ":"
+}], "Text",ExpressionUUID->"21342cf1-8dc5-47fc-aa83-e5689d67383f"],
+
+Cell[BoxData[GridBox[{
+   {Cell[TextData[Cell[BoxData[
+     FormBox[
+      StyleBox["n", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+     "3caa5df5-6f59-42a8-bd48-66c2aa2cfe76"]], "TableText",
+     FontWeight->Bold,ExpressionUUID->"1569c334-18ac-455d-8b8e-ccdae55fa137"],
+     Cell[TextData[Cell[BoxData[
+     FormBox[
+      StyleBox["d", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+     "79ac043e-9f9d-44f5-b786-247b9ee0c353"]], "TableText",
+     FontWeight->Bold,ExpressionUUID->"ef6d6d5e-ce52-4a02-b38c-a4bdb5c95463"],
+     Cell[TextData[{
+     "partition ",
+     Cell[BoxData[
+      FormBox["\[Lambda]", TraditionalForm]], "InlineFormula",ExpressionUUID->
+      "16f089d6-d0a6-473d-8ee1-4af294a4416b"]
+    }], "TableText",
+     FontWeight->Bold,ExpressionUUID->"3d828e14-39f6-48a6-a6e1-aa87c8fdf035"],
+     Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"dim", 
+       SubscriptBox[
+        StyleBox["V", "TI"], "\[Lambda]"], "\[CenterDot]", "dim", 
+       SuperscriptBox[
+        StyleBox["S", "TI"], "\[Lambda]"], 
+       RowBox[{"(", 
+        SuperscriptBox[
+         StyleBox["C",
+          FontSlant->"Plain"], 
+         StyleBox["d", "TI"]], ")"}]}], TraditionalForm]], "InlineFormula",
+     ExpressionUUID->"6a8c4318-7db0-47e7-a078-b22a7f364107"]], "TableText",
+     FontWeight->Bold,ExpressionUUID->"ca99616f-2f78-4bbe-87f9-6b297563c04a"],
+     Cell[TextData[Cell[BoxData[
+    "irrepRank"], "InlineFormula",ExpressionUUID->
+     "a7d7de23-f775-4255-953f-3f0543153665"]], "TableText",
+     FontWeight->Bold,ExpressionUUID->"20b52f6e-6c0a-4f95-819a-46d7352cd373"]},
+   {Cell["2", "TableText",ExpressionUUID->
+     "22b1345a-9345-4afe-8a21-f52bccfd5562"], Cell[
+    "2", "TableText",ExpressionUUID->"e5ac2d2d-387b-4606-9a12-ebbb2a55420c"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", "2", "}"}], TraditionalForm]], "InlineFormula",
+     ExpressionUUID->"222c6b28-aa96-43b4-b821-61e46ac1da5d"]], "TableText",
+     ExpressionUUID->"29d186bc-59f4-4ca4-b033-0002f6ed1a04"], Cell[
+    "3", "TableText",ExpressionUUID->"af5a86ee-ff52-45fb-b8e0-a98fd259f74f"], 
+    Cell["3", "TableText",ExpressionUUID->
+     "cb4bf45c-cd85-4f3c-b026-6e6ce0cae037"]},
+   {Cell["2", "TableText",ExpressionUUID->
+     "97d1f22b-ee9a-4222-a427-06944e9b3bd7"], Cell[
+    "2", "TableText",ExpressionUUID->"bebe2a75-795c-4f64-bfc8-e9f266ac0077"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", 
+       RowBox[{"1", ",", "1"}], "}"}], TraditionalForm]], "InlineFormula",
+     ExpressionUUID->"2e6e258f-87e3-4b44-ae7c-9d55bda0d3e6"]], "TableText",
+     ExpressionUUID->"b67c5b61-b77c-4433-894a-c93c766c777e"], Cell[
+    "1", "TableText",ExpressionUUID->"88231007-d0c4-41d1-8b72-e7b2170da4a8"], 
+    Cell["1", "TableText",ExpressionUUID->
+     "d70ea93a-ca2c-4f8f-ba2f-cf23c1ec48fa"]},
+   {Cell["3", "TableText",ExpressionUUID->
+     "91348069-fa79-4e2a-a87d-0208e71477d0"], Cell[
+    "2", "TableText",ExpressionUUID->"f48fbd78-7e6e-419a-9563-147fdcf89bdf"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", "3", "}"}], TraditionalForm]], "InlineFormula",
+     ExpressionUUID->"f3f30dd6-41db-4bac-a8bf-8b9e39e18527"]], "TableText",
+     ExpressionUUID->"483f527b-490f-4131-a092-472b7d0a6c79"], Cell[
+    "4", "TableText",ExpressionUUID->"3297d0cf-9e7a-46f0-a394-6ee8e271a776"], 
+    Cell["4", "TableText",ExpressionUUID->
+     "d21a2a4f-efcd-4444-85d9-098f28957bbc"]},
+   {Cell["3", "TableText",ExpressionUUID->
+     "94395b6c-79c2-4b08-a62a-6dabe7b10601"], Cell[
+    "2", "TableText",ExpressionUUID->"a794ee59-b52c-4861-942f-8c8c31380e29"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", 
+       RowBox[{"2", ",", "1"}], "}"}], TraditionalForm]], "InlineFormula",
+     ExpressionUUID->"61219953-56d0-4b6b-bcb5-3a0d91bccd7c"]], "TableText",
+     ExpressionUUID->"e89796d7-64a7-4d95-b6f4-41652f3c4165"], Cell[
+    "4", "TableText",ExpressionUUID->"9af95c99-f012-421b-b989-cca3482e87cb"], 
+    Cell["4", "TableText",ExpressionUUID->
+     "8a43f6d1-06c7-4795-a5ce-ec8e5d681d6b"]},
+   {Cell["3", "TableText",ExpressionUUID->
+     "876b0378-d588-4938-b587-3c05d25cfa1f"], Cell[
+    "2", "TableText",ExpressionUUID->"66a963a4-f3ed-4e85-86e0-ceb8f85f0963"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", 
+       RowBox[{"1", ",", "1", ",", "1"}], "}"}], TraditionalForm]], 
+     "InlineFormula",ExpressionUUID->"d7efaedf-83bd-4f3e-b3b1-0d779fc4e55c"]],
+      "TableText",ExpressionUUID->"8e01e046-2893-4ae5-bfa7-5e7d96429735"], 
+    Cell["0", "TableText",ExpressionUUID->
+     "a724cbb3-2733-4cc3-b33a-21acc0e9831c"], Cell[
+    "0", "TableText",ExpressionUUID->
+     "21fdb8f0-f98d-433b-aa8f-a5def907f681"]},
+   {Cell["3", "TableText",ExpressionUUID->
+     "a2a38b8d-797c-4b93-97ae-d86caf55a1d8"], Cell[
+    "3", "TableText",ExpressionUUID->"75cb998c-d697-48c1-bd00-09de10b6175c"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", "3", "}"}], TraditionalForm]], "InlineFormula",
+     ExpressionUUID->"4698b508-e350-4260-9e95-8f960894b2fd"]], "TableText",
+     ExpressionUUID->"d699edee-83c0-4822-82a4-7f1811f996eb"], Cell[
+    "10", "TableText",ExpressionUUID->"2308160b-3e05-4f52-ab70-ba1e8ad150c4"],
+     Cell["10", "TableText",ExpressionUUID->
+     "cd8a325e-c88f-49d0-8f7f-654655f71fad"]},
+   {Cell["3", "TableText",ExpressionUUID->
+     "2b8bc8fa-1d6e-4000-b580-81f99baee45d"], Cell[
+    "3", "TableText",ExpressionUUID->"031f81e0-e17a-4d75-a832-e61dc65b372c"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", 
+       RowBox[{"2", ",", "1"}], "}"}], TraditionalForm]], "InlineFormula",
+     ExpressionUUID->"9b2aad50-27fc-407c-bbde-22a2886de950"]], "TableText",
+     ExpressionUUID->"d1840ae5-ef06-41d2-af0f-0fbe6e7d84c1"], Cell[
+    "16", "TableText",ExpressionUUID->"bf6e2416-f05d-406c-a02c-afa13f8393a0"],
+     Cell["16", "TableText",ExpressionUUID->
+     "61457bb8-f807-4ef5-b281-de07c49bc4d1"]},
+   {Cell["3", "TableText",ExpressionUUID->
+     "53c68bba-b37c-464a-8189-d3736e259a06"], Cell[
+    "3", "TableText",ExpressionUUID->"9e6ba8b4-adbc-4117-8e44-6760f4675407"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", 
+       RowBox[{"1", ",", "1", ",", "1"}], "}"}], TraditionalForm]], 
+     "InlineFormula",ExpressionUUID->"9618656e-fb50-412f-bbdb-962e2ee36ff6"]],
+      "TableText",ExpressionUUID->"6b3979f4-b81a-43ac-82fe-64c81e786668"], 
+    Cell["1", "TableText",ExpressionUUID->
+     "81ca3ef4-0aea-4739-b738-f26dc6d4e8ed"], Cell[
+    "1", "TableText",ExpressionUUID->
+     "ca0fb0e1-c7c6-423b-847a-592b44740d7a"]},
+   {Cell["4", "TableText",ExpressionUUID->
+     "bbb14c7a-f640-434f-8c80-fabbb9a5b966"], Cell[
+    "2", "TableText",ExpressionUUID->"962405ca-c49c-4508-9154-6cefbb8f4bf0"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", "4", "}"}], TraditionalForm]], "InlineFormula",
+     ExpressionUUID->"55241631-df85-40a5-a8d3-45dedf2e16e8"]], "TableText",
+     ExpressionUUID->"5ecd7106-b5c2-4a12-affe-9f18ee0b8836"], Cell[
+    "5", "TableText",ExpressionUUID->"0b052620-4c81-4452-84da-a265d295d3e2"], 
+    Cell["5", "TableText",ExpressionUUID->
+     "34b56d1d-4e76-4214-8fa9-9f46234a441d"]},
+   {Cell["4", "TableText",ExpressionUUID->
+     "a081d55d-7ce9-413c-b82a-2ce9715640c4"], Cell[
+    "2", "TableText",ExpressionUUID->"0e7735cc-1f26-4f53-ba72-3eba091584a3"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", 
+       RowBox[{"3", ",", "1"}], "}"}], TraditionalForm]], "InlineFormula",
+     ExpressionUUID->"0d6ad2b4-e756-48c6-b38f-4feeea3d6a24"]], "TableText",
+     ExpressionUUID->"b013c7d0-5c93-47c3-bd98-790235b12b98"], Cell[
+    "9", "TableText",ExpressionUUID->"bc7ff670-2058-4700-9655-4fe71425fd63"], 
+    Cell["9", "TableText",ExpressionUUID->
+     "73a467f5-c6ca-4c57-850b-60e04bc9c8eb"]},
+   {Cell["4", "TableText",ExpressionUUID->
+     "6234b70a-f869-4a74-b309-64e20999f44e"], Cell[
+    "2", "TableText",ExpressionUUID->"2bc2346f-5e7c-4aef-85d4-7f9484981b77"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", 
+       RowBox[{"2", ",", "2"}], "}"}], TraditionalForm]], "InlineFormula",
+     ExpressionUUID->"9ac5d2e0-3697-4a57-aaf2-c6efd8c6e2bc"]], "TableText",
+     ExpressionUUID->"46838831-9b2b-466b-b089-a3d57dbea7c9"], Cell[
+    "2", "TableText",ExpressionUUID->"4b60c720-fe20-44df-a35a-31ffd0763318"], 
+    Cell["2", "TableText",ExpressionUUID->
+     "087a51d1-1dc3-4dbe-85fb-d76d23aa54fb"]},
+   {Cell["4", "TableText",ExpressionUUID->
+     "eef4ef8f-bbe6-4250-b7d3-93e55e05a055"], Cell[
+    "2", "TableText",ExpressionUUID->"0c8316bf-2cf6-46b7-9e55-bd1c468d1b4e"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", 
+       RowBox[{"2", ",", "1", ",", "1"}], "}"}], TraditionalForm]], 
+     "InlineFormula",ExpressionUUID->"50d87180-b7a5-4e43-8428-53cc66efd134"]],
+      "TableText",ExpressionUUID->"ec16301b-e28f-4196-bba2-1109f34a903e"], 
+    Cell["0", "TableText",ExpressionUUID->
+     "3aaa36c7-76d6-4249-a480-5e78d7e26a95"], Cell[
+    "0", "TableText",ExpressionUUID->
+     "793d9719-3a6c-4f78-86cc-9a56c19ee78e"]},
+   {Cell["4", "TableText",ExpressionUUID->
+     "9f179c14-1c53-4c79-9171-de3c43666fba"], Cell[
+    "2", "TableText",ExpressionUUID->"7cadc3a5-ae3b-4701-82c4-e83204295ced"], 
+    Cell[TextData[Cell[BoxData[
+     FormBox[
+      RowBox[{"{", 
+       RowBox[{"1", ",", "1", ",", "1", ",", "1"}], "}"}], TraditionalForm]], 
+     "InlineFormula",ExpressionUUID->"3bcd0284-c373-473e-8b10-cf4f171168fc"]],
+      "TableText",ExpressionUUID->"b18f48fd-dec7-4ddb-800f-438a518385e5"], 
+    Cell["0", "TableText",ExpressionUUID->
+     "fa841a66-57fe-436d-ba2e-efd22a9977b9"], Cell[
+    "0", "TableText",ExpressionUUID->"cd310858-1895-45c3-a1e6-adc96037e41a"]}
+  },
+  GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+  GridBoxDividers->{"Columns" -> {{None}}, "Rows" -> {{True}}}]], "TableNotes",\
+ExpressionUUID->"0f993b68-f06e-4e30-b910-aec411fc28a3"],
+
+Cell["\<\
+The closed-form prediction and the explicit projector rank agree on every \
+row, including the rows where the block is identically zero (so no allocation \
+is wasted on those sectors).\
+\>", "Text",ExpressionUUID->"b9007527-2b04-4708-9288-75b7d448ce37"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Example B. $V^{\\otimes 3}$ block-diagonalisation under sum-of-pair-swaps\
+\>", "Section",ExpressionUUID->"9abab35d-eb1f-4718-93be-1f5dccbee577"],
+
+Cell[CellGroupData[{
+
+Cell["Symmetry-subcontext functions used", "Subsection",ExpressionUUID->"b3c3bf1c-c12d-48e8-b66f-34dc4ceb0b4e"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"YoungTableau", "[", "t", "]"}]], "InlineFormula",ExpressionUUID->
+  "33d7314a-dbea-424c-a211-a3bb8d69dc0b"],
+ " \[LongDash] one per standard tableau, four times in this example (one for ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", "3", "}"}], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "76eddd43-479b-41a2-a728-292d7482d8a1"],
+ ", two for ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", 
+    RowBox[{"2", ",", "1"}], "}"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"91a50c4b-35fe-483a-ac88-134229612453"],
+ ", one for ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "1"}], "}"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"9a2e1402-9d68-4ef7-a09e-4d74902e0d14"],
+ ")."
+}], "Item",ExpressionUUID->"1ff17db1-67fb-4081-bf3c-4997fe4c70bb"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"YoungProject", "[", 
+   RowBox[{"T", ",", " ", 
+    RowBox[{"YoungTableau", "[", "t", "]"}]}], "]"}]], "InlineFormula",
+  ExpressionUUID->"50a98ad1-c9c6-4744-a2f2-1262d3c437a1"],
+ " \[LongDash] projects ",
+ Cell[BoxData[
+  FormBox[
+   StyleBox["T", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "d468cd66-4612-4e50-bda1-8caaf9798e26"],
+ " onto each tableau; for the mixed-symmetry irrep we sum two ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "8592197e-8763-4a3c-ab35-586e44e1c3bd"],
+ " calls to form the isotypic projector ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["E", "TI"], 
+    RowBox[{"{", 
+     RowBox[{"2", ",", "1"}], "}"}]], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"8f78fd1f-7635-4549-8f6e-898839d8edf9"],
+ "."
+}], "Item",ExpressionUUID->"fc279a76-0a44-4cc8-b547-1155ddea824a"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"TableauDimension", "[", "par", "]"}]], "InlineFormula",
+  ExpressionUUID->"f79a6bde-ab88-4de4-8284-09f52c77f54f"],
+ " \[LongDash] gives the ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["S", "TI"], 
+    StyleBox["n", "TI"]], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "bff40f36-2389-45ce-86a6-d9b098d496c3"],
+ "-irrep dimension that equals the number of standard tableaux of shape ",
+ Cell[BoxData[
+  FormBox["\[Lambda]", TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "f572cccc-4338-49f7-ab11-ff2ab621d2e0"],
+ "."
+}], "Item",ExpressionUUID->"ec3ab726-52ce-4a8d-9a75-6fb6d25008b6"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"HookLengths", "[", "par", "]"}]], "InlineFormula",ExpressionUUID->
+  "c2accb71-f498-4643-a6ec-3b169aafa1f0"],
+ " (via ",
+ Cell[BoxData[
+ "schurDim"], "InlineFormula",ExpressionUUID->
+  "b75ba6ed-6da2-499b-8b38-3d77619c8b62"],
+ ") \[LongDash] used to evaluate the GL(d) factor in the Schur-Weyl \
+multiplicity."
+}], "Item",ExpressionUUID->"15952ac9-21b9-4317-abeb-afb43079ef1f"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Why Symmetry matters here, and how it helps", "Subsection",ExpressionUUID->"3756d265-fccc-486f-907a-c69ce411c59a"],
+
+Cell[TextData[{
+ "The sum of pair-swaps ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["H", "TI"], "\[LongEqual]", 
+    UnderscriptBox["\[Sum]", 
+     RowBox[{
+      StyleBox["i", "TI"], "<", 
+      StyleBox["j", "TI"]}],
+     LimitsPositioning->True], 
+    SubscriptBox[
+     StyleBox["P", "TI"], 
+     StyleBox[
+      RowBox[{"i", "j"}], "TI"]]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"7c95b5c4-dd33-4d9b-927a-5e31db32a465"],
+ " is a class function of ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["S", "TI"], 
+    StyleBox["n", "TI"]], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "f0ee6849-6cfe-4bae-bd41-3fd2c106e377"],
+ ". By Schur-Weyl it commutes with every isotypic projector and acts as a \
+scalar on each block. For ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["n", "TI"], "\[LongEqual]", "3"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"87190b01-7bcc-44bb-b72f-13cefa509457"],
+ " that means ",
+ Cell[BoxData[
+  FormBox[
+   StyleBox["H", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "273029f8-6eb6-4b95-9023-f63dc1cda4b6"],
+ " has at most three distinct eigenvalues, one per partition of ",
+ Cell[BoxData[
+  FormBox["3", TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "743e2e7e-4286-44b7-ba89-5a85e7d84f6a"],
+ ", with multiplicity ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["m", "TI"], "\[Lambda]"], "\[LongEqual]", "dim", 
+    SubscriptBox[
+     StyleBox["V", "TI"], "\[Lambda]"], "\[CenterDot]", "dim", 
+    SuperscriptBox[
+     StyleBox["S", "TI"], "\[Lambda]"], 
+    RowBox[{"(", 
+     SuperscriptBox[
+      StyleBox["C",
+       FontSlant->"Plain"], 
+      StyleBox["d", "TI"]], ")"}]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"adccc511-c5e9-4406-923a-90caccaf597d"],
+ "."
+}], "Text",ExpressionUUID->"334938d6-abb5-47b1-bf44-454c771f1ce7"],
+
+Cell[TextData[{
+ "The eigenvalue on ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["V", "TI"], "\[Lambda]"], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"6713628c-8e7a-48f7-a50e-a910df2f4159"],
+ " is the content sum ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["c", "TI"], 
+    RowBox[{"(", "\[Lambda]", ")"}], "\[LongEqual]", 
+    UnderscriptBox["\[Sum]", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{
+        StyleBox["i", "TI"], ",", 
+        StyleBox["j", "TI"]}], ")"}], "\[Element]", "\[Lambda]"}],
+     LimitsPositioning->True], 
+    RowBox[{"(", 
+     RowBox[{
+      StyleBox["j", "TI"], "-", 
+      StyleBox["i", "TI"]}], ")"}]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"cc4c8e5b-396b-418a-9d9e-7a891ae23fc2"],
+ ": a one-line formula that needs no diagonalisation. For ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["n", "TI"], "\[LongEqual]", "3"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"b8a2ccbc-54eb-40b4-bef5-1f58dd63bb99"],
+ ": ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["c", "TI"], 
+    RowBox[{"(", 
+     RowBox[{"{", "3", "}"}], ")"}], "\[LongEqual]", 
+    RowBox[{"+", "3"}]}], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "8b5d40aa-85bf-4ec0-9dd2-ba39569efc30"],
+ ", ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["c", "TI"], 
+    RowBox[{"(", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "1"}], "}"}], ")"}], "\[LongEqual]", "0"}], 
+   TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "d8c2541f-e7f5-40b3-ab2b-f9531300ee70"],
+ ", ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["c", "TI"], 
+    RowBox[{"(", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1", ",", "1"}], "}"}], ")"}], "\[LongEqual]", 
+    RowBox[{"-", "3"}]}], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "6e16ba6e-bb2a-4b64-91d5-bd2cbfbcf2aa"],
+ ". (The same formula gives the eigenvalue of any class-function Hamiltonian \
+made from transpositions on any number of sites.)"
+}], "Text",ExpressionUUID->"794c3624-0a5d-418c-bdc9-0efb4c10dac4"],
+
+Cell["The Symmetry subcontext provides the three pieces:", "Text",ExpressionUUID->"7533ee8d-b3aa-4ba3-8ead-44c0a9230d9f"],
+
+Cell[TextData[{
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "dff8b509-d4f9-43d6-838f-09f004c168f9"],
+ " on each standard tableau of ",
+ Cell[BoxData[
+  FormBox["\[Lambda]", TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "3dfcbf79-2e6a-4b62-b28f-65663da9bfaa"],
+ ". Each call is a ",
+ StyleBox["minimal", "TI"],
+ " idempotent; summing over all standard tableaux of a shape (two of them for \
+",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", 
+    RowBox[{"2", ",", "1"}], "}"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"1e3a0e91-4419-446f-823b-7f702f8d9fa5"],
+ ") gives the isotypic projector ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["E", "TI"], "\[Lambda]"], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"ae86460f-201f-42e2-87b7-97f03e3738b4"],
+ "."
+}], "Item",ExpressionUUID->"463597da-6b41-4bab-a8db-725f512aea14"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"TableauDimension", "[", "par", "]"}]], "InlineFormula",
+  ExpressionUUID->"d717ca5c-57cc-4ea6-895b-c91063106589"],
+ " returns ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"dim", 
+    SubscriptBox[
+     StyleBox["V", "TI"], "\[Lambda]"]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"4b96381a-6c84-46ee-8e7e-da62138dda92"],
+ ", which by the RSK correspondence equals the number of standard tableaux of \
+shape ",
+ Cell[BoxData[
+  FormBox["\[Lambda]", TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "99b6dbb7-e672-460b-a00e-828df4a26029"],
+ ". Both meanings are used here: as a factor in ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["m", "TI"], "\[Lambda]"], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"f56894fb-ac90-4541-8b6b-6c3be09281e0"],
+ ", and as the count of ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "5fccf03a-b373-44f4-90fe-265075bdecfc"],
+ " calls summed inside ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["E", "TI"], "\[Lambda]"], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"81f75708-c6fc-452c-8df4-0941b47ffa08"],
+ "."
+}], "Item",ExpressionUUID->"cb683442-ea40-4347-9de0-47fe6bdd8d1d"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"HookLengths", "[", "par", "]"}]], "InlineFormula",ExpressionUUID->
+  "e11e64e6-8c7e-4432-ace6-97d190d597bc"],
+ " feeds ",
+ Cell[BoxData[
+ "schurDim"], "InlineFormula",ExpressionUUID->
+  "7d6f9877-e7f1-4fd4-978b-48478fbe8bdf"],
+ " for the ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["GL",
+     FontSlant->"Plain"], "(", 
+    StyleBox["d", "TI"], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"642475d1-436d-4dcc-a8f7-2ccb781ef303"],
+ " factor."
+}], "Item",ExpressionUUID->"a9de0571-a744-4e26-9bce-745a142095bf"],
+
+Cell[TextData[{
+ "The payoff: per-block diagonalisation costs ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    UnderscriptBox["\[Sum]", "\[Lambda]",
+     LimitsPositioning->True], 
+    SubsuperscriptBox[
+     StyleBox["m", "TI"], "\[Lambda]", "3"]}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"7e202efe-ad0f-4513-a967-cc63fd818327"],
+ " instead of ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["O", "TI"], "(", 
+    SuperscriptBox[
+     StyleBox["d", "TI"], 
+     RowBox[{"3", 
+      StyleBox["n", "TI"]}]], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"95b42e5c-1695-4ca0-b90e-307ac156ffdf"],
+ ". For class-function Hamiltonians the eigenvalues themselves come from the \
+partitions, not from any numerical diagonalisation."
+}], "Text",ExpressionUUID->"e269a089-0a83-4dd1-801c-8382e2bfb0ee"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Code", "Subsection",ExpressionUUID->"2205774c-3ddc-4dfc-a15f-6750b7c2a832"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"d", " ", "=", " ", "2"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "7", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"T", " ", "=", " ", 
+    RowBox[{"RandomReal", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+      RowBox[{"{", 
+       RowBox[{"d", ",", " ", "d", ",", " ", "d"}], "}"}]}], "]"}]}], ";"}], 
+  "\n"}], "\n", 
+ RowBox[{
+  RowBox[{"e3", "   ", "=", " ", 
+   RowBox[{"YoungProject", "[", 
+    RowBox[{"T", ",", " ", 
+     RowBox[{"YoungTableau", "[", 
+      RowBox[{"{", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", " ", "2", ",", " ", "3"}], "}"}], "}"}], "]"}]}], 
+    "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"e21", "  ", "=", " ", 
+   RowBox[{
+    RowBox[{"YoungProject", "[", 
+     RowBox[{"T", ",", " ", 
+      RowBox[{"YoungTableau", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"1", ",", " ", "2"}], "}"}], ",", " ", 
+         RowBox[{"{", "3", "}"}]}], "}"}], "]"}]}], "]"}], " ", "+", "\n", 
+    "       ", 
+    RowBox[{"YoungProject", "[", 
+     RowBox[{"T", ",", " ", 
+      RowBox[{"YoungTableau", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"1", ",", " ", "3"}], "}"}], ",", " ", 
+         RowBox[{"{", "2", "}"}]}], "}"}], "]"}]}], "]"}]}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"e111", " ", "=", " ", 
+   RowBox[{"YoungProject", "[", 
+    RowBox[{"T", ",", " ", 
+     RowBox[{"YoungTableau", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", "1", "}"}], ",", " ", 
+        RowBox[{"{", "2", "}"}], ",", " ", 
+        RowBox[{"{", "3", "}"}]}], "}"}], "]"}]}], "]"}]}], ";"}]}], "Input",
+ CellLabel->"In[5]:= ",ExpressionUUID->"60e2b867-e916-455b-90e4-db74d6f929c5"],
+
+Cell[TextData[{
+ "Completeness (",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["E", "TI"], 
+     RowBox[{"{", "3", "}"}]], "+", 
+    SubscriptBox[
+     StyleBox["E", "TI"], 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "1"}], "}"}]], "+", 
+    SubscriptBox[
+     StyleBox["E", "TI"], 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1", ",", "1"}], "}"}]], "\[LongEqual]", 
+    StyleBox["id",
+     FontSlant->"Plain"]}], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "b2e2892f-5f21-461b-b688-30ce74f28397"],
+ " on ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox[
+    StyleBox["V", "TI"], 
+    RowBox[{"\[CircleTimes]", "3"}]], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"1903eb50-b3c1-4f87-b53a-c7618a1fa280"],
+ "):"
+}], "Text",ExpressionUUID->"39b88ee1-12f7-4eb2-83bd-19b4e6bf9e3a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Flatten", "[", 
+     RowBox[{
+     "e3", " ", "+", " ", "e21", " ", "+", " ", "e111", " ", "-", " ", "T"}], 
+     "]"}], "]"}], "]"}], " ", "<", " ", "tol"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", "True", " ", "*)"}]}]}], "Input",
+ CellLabel->"In[6]:= ",ExpressionUUID->"73190d2f-f9c6-40da-bc20-09d500d5f2ff"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[6]= ",ExpressionUUID->"daf91f23-3de2-4258-badf-0491888a6192"]
+}, Open  ]],
+
+Cell[TextData[{
+ "For ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["d", "TI"], "\[LongEqual]", "2"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"a663eb52-9c7f-4718-bddd-69aef46fbf94"],
+ " the antisymmetric piece vanishes identically (cannot antisymmetrize three \
+slots in two values):"
+}], "Text",ExpressionUUID->"377144b4-3774-4b19-bfb4-6bac9fbd9c19"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Flatten", "[", "e111", "]"}], "]"}], "]"}], " ", "<", " ", 
+  "tol"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", "True", " ", "*)"}]}]}], "Input",
+ CellLabel->"In[7]:= ",ExpressionUUID->"41f75a99-65db-43e7-ac1a-7ea5e15b98fb"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->"Out[7]= ",ExpressionUUID->"7af9c623-c0f2-4d17-9986-d6d71189aee8"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Predicted block dimensions ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["m", "TI"], "\[Lambda]"], "\[LongEqual]", "dim", 
+    SubscriptBox[
+     StyleBox["V", "TI"], "\[Lambda]"], "\[CenterDot]", "dim", 
+    SuperscriptBox[
+     StyleBox["S", "TI"], "\[Lambda]"], 
+    RowBox[{"(", 
+     SuperscriptBox[
+      StyleBox["C",
+       FontSlant->"Plain"], 
+      StyleBox["d", "TI"]], ")"}]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"75b01aee-509d-431a-9695-750b4fd6a7f3"],
+ ", then measured projector ranks:"
+}], "Text",ExpressionUUID->"6ca42935-8b15-4d79-8920-3723c57acaa0"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"{", "\n", "    ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"TableauDimension", "[", 
+      RowBox[{"{", "3", "}"}], "]"}], "       ", "*", " ", 
+     RowBox[{"schurDim", "[", 
+      RowBox[{
+       RowBox[{"{", "3", "}"}], ",", " ", "d"}], "]"}]}], ",", "         ", 
+    RowBox[{"(*", " ", "4", " ", "*)"}], "\n", "    ", 
+    RowBox[{
+     RowBox[{"TableauDimension", "[", 
+      RowBox[{"{", 
+       RowBox[{"2", ",", " ", "1"}], "}"}], "]"}], "    ", "*", " ", 
+     RowBox[{"schurDim", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"2", ",", " ", "1"}], "}"}], ",", " ", "d"}], "]"}]}], ",", 
+    "      ", 
+    RowBox[{"(*", " ", "4", " ", "*)"}], "\n", "    ", 
+    RowBox[{
+     RowBox[{"TableauDimension", "[", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", " ", "1", ",", " ", "1"}], "}"}], "]"}], " ", "*", 
+     " ", 
+     RowBox[{"schurDim", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"1", ",", " ", "1", ",", " ", "1"}], "}"}], ",", " ", "d"}], 
+      "]"}]}]}], "    ", 
+   RowBox[{"(*", " ", "0", " ", "*)"}], "\n", "}"}], "\n"}], "\n", 
+ RowBox[{"{", "\n", "    ", 
+  RowBox[{
+   RowBox[{"irrepRank", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"{", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", " ", "2", ",", " ", "3"}], "}"}], "}"}], "}"}], ",",
+      " ", "d", ",", " ", "3"}], "]"}], ",", "                         ", 
+   RowBox[{"(*", " ", "4", " ", "*)"}], "\n", "    ", 
+   RowBox[{"irrepRank", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"1", ",", " ", "2"}], "}"}], ",", " ", 
+         RowBox[{"{", "3", "}"}]}], "}"}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"1", ",", " ", "3"}], "}"}], ",", " ", 
+         RowBox[{"{", "2", "}"}]}], "}"}]}], "}"}], ",", " ", "d", ",", " ", 
+     "3"}], "]"}], ",", "        ", 
+   RowBox[{"(*", " ", "4", " ", "*)"}], "\n", "    ", 
+   RowBox[{"irrepRank", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", "1", "}"}], ",", " ", 
+        RowBox[{"{", "2", "}"}], ",", " ", 
+        RowBox[{"{", "3", "}"}]}], "}"}], "}"}], ",", " ", "d", ",", " ", 
+     "3"}], "]"}]}], "                      ", 
+  RowBox[{"(*", " ", "0", " ", "*)"}], "\n", "}"}]}], "Input",
+ CellLabel->"In[8]:= ",ExpressionUUID->"ea6c9bf0-915c-4fca-b5a5-549640c863ab"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"4", ",", "4", ",", "0"}], "}"}]], "Output",
+ CellLabel->"Out[8]= ",ExpressionUUID->"56bcb58f-05d6-451f-acaf-7799e10df43f"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Build the operator ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["H", "TI"], "\[LongEqual]", 
+    SubscriptBox[
+     StyleBox["P", "TI"], "12"], "+", 
+    SubscriptBox[
+     StyleBox["P", "TI"], "13"], "+", 
+    SubscriptBox[
+     StyleBox["P", "TI"], "23"]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"b28eb891-2cbc-4255-9e10-5b1c922ae8cd"],
+ " as a ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox[
+     StyleBox["d", "TI"], "3"], "\[Cross]", 
+    SuperscriptBox[
+     StyleBox["d", "TI"], "3"]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"1c8d24c3-386f-4524-bbdc-6c69e0aa8e1a"],
+ " matrix and diagonalise:"
+}], "Text",ExpressionUUID->"f967cc84-1381-4cc7-84af-b37a2e485ac8"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"applySwap", "[", 
+     RowBox[{"a_", ",", " ", "b_"}], "]"}], " ", ":=", " ", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"perm", " ", "=", " ", 
+        RowBox[{"Range", "[", "3", "]"}]}], "}"}], ",", "\n", "    ", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"perm", "[", 
+         RowBox[{"[", 
+          RowBox[{"{", 
+           RowBox[{"a", ",", " ", "b"}], "}"}], "]"}], "]"}], " ", "=", " ", 
+        RowBox[{"perm", "[", 
+         RowBox[{"[", 
+          RowBox[{"{", 
+           RowBox[{"b", ",", " ", "a"}], "}"}], "]"}], "]"}]}], ";", "\n", 
+       "    ", 
+       RowBox[{"ArrayReshape", "[", "\n", "        ", 
+        RowBox[{
+         RowBox[{"Transpose", "[", "\n", "            ", 
+          RowBox[{
+           RowBox[{"Normal", " ", "@", " ", 
+            RowBox[{"SparseArray", "[", "\n", "                ", 
+             RowBox[{
+              RowBox[{"Flatten", "[", 
+               RowBox[{
+                RowBox[{"Table", "[", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"{", 
+                    RowBox[{
+                    "i", ",", " ", "j", ",", " ", "k", ",", " ", "i", ",", 
+                    " ", "j", ",", " ", "k"}], "}"}], " ", "->", " ", "1"}], ",",
+                   "\n", "                    ", 
+                  RowBox[{"{", 
+                   RowBox[{"i", ",", " ", "d"}], "}"}], ",", " ", 
+                  RowBox[{"{", 
+                   RowBox[{"j", ",", " ", "d"}], "}"}], ",", " ", 
+                  RowBox[{"{", 
+                   RowBox[{"k", ",", " ", "d"}], "}"}]}], "]"}], ",", " ", 
+                "2"}], "]"}], ",", "\n", "                ", 
+              RowBox[{"{", 
+               RowBox[{
+               "d", ",", " ", "d", ",", " ", "d", ",", " ", "d", ",", " ", 
+                "d", ",", " ", "d"}], "}"}]}], "\n", "            ", "]"}]}], 
+           ",", "\n", "            ", 
+           RowBox[{"Join", "[", 
+            RowBox[{"perm", ",", " ", 
+             RowBox[{"{", 
+              RowBox[{"4", ",", " ", "5", ",", " ", "6"}], "}"}]}], "]"}]}], 
+          "\n", "        ", "]"}], ",", "\n", "        ", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"d", "^", "3"}], ",", " ", 
+           RowBox[{"d", "^", "3"}]}], "}"}]}], "\n", "    ", "]"}]}]}], "\n", 
+     "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Hmat", " ", "=", " ", 
+    RowBox[{
+     RowBox[{"applySwap", "[", 
+      RowBox[{"1", ",", " ", "2"}], "]"}], " ", "+", " ", 
+     RowBox[{"applySwap", "[", 
+      RowBox[{"1", ",", " ", "3"}], "]"}], " ", "+", " ", 
+     RowBox[{"applySwap", "[", 
+      RowBox[{"2", ",", " ", "3"}], "]"}]}]}], ";"}], "\n"}], "\n", 
+ RowBox[{"Sort", "[", 
+  RowBox[{
+   RowBox[{"Eigenvalues", "[", "Hmat", "]"}], ",", " ", "Greater"}], "]"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"{", 
+    RowBox[{
+    "3", ",", " ", "3", ",", " ", "3", ",", " ", "3", ",", " ", "0", ",", " ",
+      "0", ",", " ", "0", ",", " ", "0"}], "}"}], " ", "*)"}]}]}], "Input",
+ CellLabel->"In[9]:= ",ExpressionUUID->"b08c9a04-e5ee-43cb-9d7b-20a41b312727"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "3", ",", "3", ",", "3", ",", "3", ",", "0", ",", "0", ",", "0", ",", "0"}],
+   "}"}]], "Output",
+ CellLabel->"Out[9]= ",ExpressionUUID->"91e8dfc4-ba26-4eeb-861d-c0108e6c585b"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Predicted spectrum from content sums: each irrep contributes ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["m", "TI"], "\[Lambda]"], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"904b1910-3aaa-44c4-a608-ae3e8420cedd"],
+ " copies at eigenvalue ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["c", "TI"], "(", "\[Lambda]", ")"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"773b747a-905b-411e-8fa1-82bb0c958897"],
+ "."
+}], "Text",ExpressionUUID->"307d1f44-0883-4775-b483-103faa45b358"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Sort", "[", "\n", "    ", 
+  RowBox[{
+   RowBox[{"Flatten", " ", "@", " ", 
+    RowBox[{"{", "\n", "        ", 
+     RowBox[{
+      RowBox[{"ConstantArray", "[", 
+       RowBox[{
+        RowBox[{"contentSum", "[", 
+         RowBox[{"{", "3", "}"}], "]"}], ",", "       ", 
+        RowBox[{
+         RowBox[{"TableauDimension", "[", 
+          RowBox[{"{", "3", "}"}], "]"}], "       ", "*", " ", 
+         RowBox[{"schurDim", "[", 
+          RowBox[{
+           RowBox[{"{", "3", "}"}], ",", " ", "d"}], "]"}]}]}], "]"}], ",", 
+      "\n", "        ", 
+      RowBox[{"ConstantArray", "[", 
+       RowBox[{
+        RowBox[{"contentSum", "[", 
+         RowBox[{"{", 
+          RowBox[{"2", ",", " ", "1"}], "}"}], "]"}], ",", "    ", 
+        RowBox[{
+         RowBox[{"TableauDimension", "[", 
+          RowBox[{"{", 
+           RowBox[{"2", ",", " ", "1"}], "}"}], "]"}], "    ", "*", " ", 
+         RowBox[{"schurDim", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"2", ",", " ", "1"}], "}"}], ",", " ", "d"}], "]"}]}]}], 
+       "]"}], ",", "\n", "        ", 
+      RowBox[{"ConstantArray", "[", 
+       RowBox[{
+        RowBox[{"contentSum", "[", 
+         RowBox[{"{", 
+          RowBox[{"1", ",", " ", "1", ",", " ", "1"}], "}"}], "]"}], ",", " ", 
+        RowBox[{
+         RowBox[{"TableauDimension", "[", 
+          RowBox[{"{", 
+           RowBox[{"1", ",", " ", "1", ",", " ", "1"}], "}"}], "]"}], " ", "*",
+          " ", 
+         RowBox[{"schurDim", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"1", ",", " ", "1", ",", " ", "1"}], "}"}], ",", " ", 
+           "d"}], "]"}]}]}], "]"}]}], "\n", "    ", "}"}]}], ",", "\n", 
+   "    ", "Greater"}], "\n", "]"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"{", 
+    RowBox[{
+    "3", ",", " ", "3", ",", " ", "3", ",", " ", "3", ",", " ", "0", ",", " ",
+      "0", ",", " ", "0", ",", " ", "0"}], "}"}], " ", "*)"}]}]}], "Input",
+ CellLabel->
+  "In[10]:= ",ExpressionUUID->"02ce7e7d-5f39-4de6-96db-b1ea2a830df9"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "3", ",", "3", ",", "3", ",", "3", ",", "0", ",", "0", ",", "0", ",", "0"}],
+   "}"}]], "Output",
+ CellLabel->
+  "Out[10]= ",ExpressionUUID->"91c923f4-8f9e-4b7a-b75b-2971805d467b"]
+}, Open  ]],
+
+Cell[TextData[{
+ "The numerical spectrum from ",
+ Cell[BoxData[
+  RowBox[{"Eigenvalues", "[", "Hmat", "]"}]], "InlineFormula",ExpressionUUID->
+  "75ab0d0c-c7d1-4e17-a2e0-77d4334ac384"],
+ " and the closed-form prediction from Symmetry primitives agree exactly. The \
+\"diagonalisation\" of ",
+ Cell[BoxData[
+  FormBox[
+   StyleBox["H", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "c0744359-9375-456a-adff-6f2af0a70a2e"],
+ " never actually needed ",
+ Cell[BoxData[
+ "Eigenvalues"], "InlineFormula",ExpressionUUID->
+  "aa61f81b-0735-429f-91fc-aa2789bec7c2"],
+ ": it needed ",
+ Cell[BoxData[
+ "TableauDimension"], "InlineFormula",ExpressionUUID->
+  "67237f30-ebae-4223-941c-bfa983b7c9e7"],
+ ", ",
+ Cell[BoxData[
+ "schurDim"], "InlineFormula",ExpressionUUID->
+  "d14311c1-b8aa-41d6-aa3a-45459370bb32"],
+ ", and ",
+ Cell[BoxData[
+ "contentSum"], "InlineFormula",ExpressionUUID->
+  "1327572f-1f6a-4109-a436-c8928a6b570a"],
+ "."
+}], "Text",ExpressionUUID->"f1214353-5d71-45a9-a861-f503379e3422"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Tier 2: foundational Symmetry-subcontext usage", "Title",ExpressionUUID->"35c8473b-63ae-4bd4-a92e-d71c96c79714"],
+
+Cell[TextData[{
+ "These two examples make a single, surgical use of ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "467b2573-7a5e-45b5-924f-e7712f7765e6"],
+ " (and the ",
+ Cell[BoxData[
+ "YoungTableau"], "InlineFormula",ExpressionUUID->
+  "fb3277fd-68dc-452c-aba8-29ec9693351d"],
+ " that names the target irrep). The Symmetry-symbol count is lower, but the \
+use is ",
+ StyleBox["irreplaceable", "TI"],
+ ": built-in WL canonicalisation cannot do the same job. For multi-term \
+symmetry constraints (Example C) and for imposing exact parity on a bond \
+(Example D), ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "99281592-f85e-4e55-ac45-6dfddbfb20b6"],
+ " is the only WL primitive that does the right thing."
+}], "Text",ExpressionUUID->"8782f81c-5f35-40e9-8c73-ac6fed3f4a45"],
+
+Cell[CellGroupData[{
+
+Cell["Example C. Riemann tensor as a TN node", "Section",ExpressionUUID->"bc846eb9-c326-48e3-b321-836e3ed1b48b"],
+
+Cell[CellGroupData[{
+
+Cell["Symmetry-subcontext functions used", "Subsection",ExpressionUUID->"9dbb97f4-a8b5-4d6a-bb3f-cb0e4e565115"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"YoungTableau", "[", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1", ",", "3"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "4"}], "}"}]}], "}"}], "]"}]], "InlineFormula",
+  ExpressionUUID->"1897a932-da20-4295-80c2-5d4fdcceb984"],
+ " \[LongDash] encodes the ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{"2", ",", "2"}], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"5e240257-c5fd-4d63-afd9-403ca2feb8f8"],
+ " Young diagram with the slot labelling that defines Riemann symmetry."
+}], "Item",ExpressionUUID->"b8d99456-96db-4225-af99-b5ed61b7573c"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"YoungProject", "[", 
+   RowBox[{"T", ",", " ", "..."}], "]"}]], "InlineFormula",ExpressionUUID->
+  "a422c992-d87c-4e0b-95f1-c99480b47728"],
+ " \[LongDash] projects a generic rank-4 tensor onto the (2,2) irrep \
+subspace, in one call."
+}], "Item",ExpressionUUID->"693753da-5f6f-4163-8ebb-bad1e2c2d970"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Why Symmetry matters here, and how it helps", "Subsection",ExpressionUUID->"744dfc08-9aa3-40eb-810c-1ad33a567b43"],
+
+Cell[TextData[{
+ "The Riemann curvature tensor ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["R", "TI"], 
+    StyleBox[
+     RowBox[{"a", "b", "c", "d"}], "TI"]], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"bd5fd577-d7a4-406c-9a0e-e366e218c7c9"],
+ " satisfies four constraints:"
+}], "Text",ExpressionUUID->"43781696-2ba7-4445-ba53-5fd58732c378"],
+
+Cell[TextData[{
+ "antisymmetry in ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{
+     StyleBox["a", "TI"], ",", 
+     StyleBox["b", "TI"]}], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"09eab47d-c9f8-4703-b305-53532024dd9b"],
+ ": ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{" ", 
+    RowBox[{
+     SubscriptBox[
+      StyleBox["R", "TI"], 
+      StyleBox[
+       RowBox[{"a", "b", "c", "d"}], "TI"]], "\[LongEqual]", 
+     RowBox[{"-", 
+      SubscriptBox[
+       StyleBox["R", "TI"], 
+       StyleBox[
+        RowBox[{"b", "a", "c", "d"}], "TI"]]}]}]}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"5dd57935-d5c2-41e8-9b01-007376fb5126"],
+ ","
+}], "ItemNumbered",ExpressionUUID->"977f511a-62f1-42e1-8edf-953d5fd639e7"],
+
+Cell[TextData[{
+ "antisymmetry in ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{
+     StyleBox["c", "TI"], ",", 
+     StyleBox["d", "TI"]}], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"885dce5e-fcde-4d6c-a5a9-c3ef85e04733"],
+ ": ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{" ", 
+    RowBox[{
+     SubscriptBox[
+      StyleBox["R", "TI"], 
+      StyleBox[
+       RowBox[{"a", "b", "c", "d"}], "TI"]], "\[LongEqual]", 
+     RowBox[{"-", 
+      SubscriptBox[
+       StyleBox["R", "TI"], 
+       StyleBox[
+        RowBox[{"a", "b", "d", "c"}], "TI"]]}]}]}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"7f87c6e3-1760-42ee-b942-79ea7e45d5e7"],
+ ","
+}], "ItemNumbered",ExpressionUUID->"72ba8146-f22f-4c3f-b4a6-cb5c590ded4c"],
+
+Cell[TextData[{
+ "pair-swap symmetry: ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{" ", 
+    RowBox[{
+     SubscriptBox[
+      StyleBox["R", "TI"], 
+      StyleBox[
+       RowBox[{"a", "b", "c", "d"}], "TI"]], "\[LongEqual]", 
+     SubscriptBox[
+      StyleBox["R", "TI"], 
+      StyleBox[
+       RowBox[{"c", "d", "a", "b"}], "TI"]]}]}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"32a28cf0-8145-425b-a69d-2db51909df99"],
+ ","
+}], "ItemNumbered",ExpressionUUID->"892f6c92-e627-402e-8405-fa35e9b1eb1f"],
+
+Cell["first Bianchi identity:", "ItemNumbered",ExpressionUUID->"7d907506-27aa-43f1-bf34-d5bacef84b19"],
+
+Cell[TextData[{
+ "$",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["R", "TI"], 
+     StyleBox[
+      RowBox[{"a", "b", "c", "d"}], "TI"]], "+", 
+    SubscriptBox[
+     StyleBox["R", "TI"], 
+     StyleBox[
+      RowBox[{"a", "c", "d", "b"}], "TI"]], "+", 
+    SubscriptBox[
+     StyleBox["R", "TI"], 
+     StyleBox[
+      RowBox[{"a", "d", "b", "c"}], "TI"]], " ", 
+    RowBox[{"\[LongEqual]", " "}], "0."}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"76a7438f-4640-4f3d-92f5-0f8dbad3a090"],
+ "$"
+}], "Text",ExpressionUUID->"d6067f40-c904-436f-8a49-e71580426268"],
+
+Cell[TextData[{
+ "The first three are ",
+ StyleBox["single-term", "TI"],
+ " slot symmetries: each has the form ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox[
+     StyleBox["T", "TI"], "\[Sigma]"], "\[LongEqual]", "\[Phi]", 
+    StyleBox["T", "TI"]}], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "f05944ee-d87c-4247-8ef5-bed3b9a66c57"],
+ " for one permutation ",
+ Cell[BoxData[
+  FormBox["\[Sigma]", TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "7d9d55b8-c8e0-4c6c-b0ae-af36683c4c6c"],
+ " and sign ",
+ Cell[BoxData[
+  FormBox["\[Phi]", TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "f490c8ca-4420-474c-95fc-1cf3cb40f5e4"],
+ ". Built-in WL canonicalisation (",
+ Cell[BoxData[
+ "TensorReduce"], "InlineFormula",ExpressionUUID->
+  "720461c4-452f-43fe-9f24-80f1202a832e"],
+ " + ",
+ Cell[BoxData[
+  RowBox[{"Arrays", "[", 
+   RowBox[{"...", ",", " ", "sym"}], "]"}]], "InlineFormula",ExpressionUUID->
+  "a2941191-ba53-43a7-b256-4ce2e59bbb40"],
+ ") covers exactly this kind. The first Bianchi identity is ",
+ StyleBox["multi-term",
+  FontWeight->"Bold"],
+ ": it asserts ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["R", "TI"], "+", 
+    SuperscriptBox[
+     StyleBox["R", "TI"], 
+     SubscriptBox["\[Sigma]", "1"]], "+", 
+    SuperscriptBox[
+     StyleBox["R", "TI"], 
+     SubscriptBox["\[Sigma]", "2"]], "\[LongEqual]", "0"}], TraditionalForm]],
+   "InlineFormula",ExpressionUUID->"0294dc03-dd01-41e6-a6c5-740a4966a9dc"],
+ ", where no single ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{"\[Sigma]", ",", "\[Phi]"}], ")"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"9d574a27-afd6-4c10-b280-d77b62bb186a"],
+ " pair reproduces ",
+ Cell[BoxData[
+  FormBox[
+   StyleBox["R", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "cfe91479-b7d7-4444-9a5e-dc77d7e42e3e"],
+ ". No slot-permutation canonicalizer can prove a multi-term identity from \
+single-term generators."
+}], "Text",ExpressionUUID->"1a0e527c-58c7-4e43-90c5-3c301b0889bb"],
+
+Cell[TextData[{
+ "Riemann symmetry is in fact the full content of ",
+ StyleBox["one", "TI"],
+ " ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["S", "TI"], "4"], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"8abd089d-dc8f-4f20-b1f0-975a37f9efeb"],
+ " irrep, the one labelled by the Young diagram ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{"2", ",", "2"}], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"cd2da1a2-793c-45f0-92bf-eec5da922ade"],
+ ". All four constraints follow from membership in that single irrep. ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "b4a94100-a2a8-47dd-91e3-ba848ffebead"],
+ " is the only WL primitive that projects onto an ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["S", "TI"], 
+    StyleBox["n", "TI"]], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "626bc3dc-5f92-4db1-b180-700731cb9a32"],
+ " irrep, and one call enforces every Riemann constraint at once."
+}], "Text",ExpressionUUID->"1abeb8e4-d189-4eae-8d78-646620d8403d"],
+
+Cell[TextData[{
+ "After projection, downstream TN operations (",
+ Cell[BoxData[
+ "TensorContract"], "InlineFormula",ExpressionUUID->
+  "a9eb686d-5008-414d-8438-ba996ea5b29c"],
+ ", traces, index raising) preserve the irrep structure automatically. The \
+Euclidean Ricci contraction ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["R", "TI"], 
+     StyleBox[
+      RowBox[{"b", "d"}], "TI"]], "\[LongEqual]", 
+    SuperscriptBox["\[Delta]", 
+     StyleBox[
+      RowBox[{"a", "c"}], "TI"]], 
+    SubscriptBox[
+     StyleBox["R", "TI"], 
+     StyleBox[
+      RowBox[{"a", "b", "c", "d"}], "TI"]]}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"1808dbc0-5c49-42a2-8ec7-370486b52fbe"],
+ " comes out symmetric because the source lived in the right subspace, not by \
+a separate re-symmetrisation step."
+}], "Text",ExpressionUUID->"e3c0e5ca-dd26-4b91-9d72-3f914a667274"],
+
+Cell[TextData[{
+ "The structural gap opens at ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["n", "TI"], "\[LongEqual]", "4"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"2dd4c7cf-6bf6-4fb5-89c3-ea7afc42c34f"],
+ ". The true number of independent Riemann components is ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox[
+     StyleBox["n", "TI"], "2"], 
+    RowBox[{"(", 
+     RowBox[{
+      SuperscriptBox[
+       StyleBox["n", "TI"], "2"], "-", "1"}], ")"}], "/", "12"}], 
+   TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "04fc4a2e-7177-4071-a43b-a30e1d36faf7"],
+ ". ",
+ Cell[BoxData[
+  RowBox[{"Arrays", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"n", ",", "n", ",", "n", ",", "n"}], "}"}], ",", " ", "sym"}], 
+   "]"}]], "InlineFormula",ExpressionUUID->
+  "bf9bc928-abd6-4514-ad06-38d3f15de659"],
+ " over-counts this by the Bianchi degrees of freedom: 1 extra component at \
+",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["n", "TI"], "\[LongEqual]", "4"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"5438267d-c399-4c65-a1b1-99d7aebd49b2"],
+ " (orbit 21 vs. true 20), 5 extra at ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["n", "TI"], "\[LongEqual]", "5"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"6067f272-5c62-4802-8c28-860f201678f2"],
+ " (orbit 55 vs. true 50), growing. For curvature-scalar networks, \
+Weyl-tensor contractions, or any rank-4 TN node with Riemann symmetry, ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "ad43f2c7-5f18-470f-932f-a14a030ecd3d"],
+ " is the only tool that produces the correct subspace."
+}], "Text",ExpressionUUID->"363ec86f-cba4-4728-a2e3-567b9b9b2367"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Code", "Subsection",ExpressionUUID->"605ff9aa-f44a-41f3-8422-af19cd038bea"],
+
+Cell[TextData[{
+ "Start with a generic rank-4 tensor and project onto the ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{"2", ",", "2"}], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"274ece0d-066d-4f72-9ce2-916165776c3f"],
+ " Riemann irrep:"
+}], "Text",ExpressionUUID->"6443057d-3bff-4014-a7e6-6de18f439cd7"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "42", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"T0", " ", "=", " ", 
+   RowBox[{"RandomReal", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"4", ",", " ", "4", ",", " ", "4", ",", " ", "4"}], "}"}]}], 
+    "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"R", " ", "=", " ", 
+   RowBox[{"YoungProject", "[", 
+    RowBox[{"T0", ",", " ", 
+     RowBox[{"YoungTableau", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", " ", "3"}], "}"}], ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"2", ",", " ", "4"}], "}"}]}], "}"}], "]"}]}], "]"}]}], 
+  ";"}]}], "Input",
+ CellLabel->
+  "In[11]:= ",ExpressionUUID->"48382965-abe4-4ea9-a3d5-d0cf25dfe238"],
+
+Cell[TextData[{
+ "Antisymmetry in slots ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{"1", ",", "2"}], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"3c67e9ac-ceb5-432e-85a2-c8e74e4629f9"],
+ ":"
+}], "Text",ExpressionUUID->"0eb3ace2-8ff4-43b2-8cde-d5000ea5eb5e"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Flatten", "[", 
+     RowBox[{"R", " ", "+", " ", 
+      RowBox[{"Transpose", "[", 
+       RowBox[{"R", ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"2", ",", " ", "1", ",", " ", "3", ",", " ", "4"}], "}"}]}], 
+       "]"}]}], "]"}], "]"}], "]"}], " ", "<", " ", "tol"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", "True", " ", "*)"}]}]}], "Input",
+ CellLabel->
+  "In[12]:= ",ExpressionUUID->"8b5e228a-fe2f-4e19-9b6e-aa0e010df48c"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->
+  "Out[12]= ",ExpressionUUID->"b2a03f51-24be-4f9d-a237-9139def217c2"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Antisymmetry in slots ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{"3", ",", "4"}], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"7b00004f-f601-48f9-ac50-8748f3e06b2d"],
+ ":"
+}], "Text",ExpressionUUID->"a9bff8a1-42fa-4532-a77b-31cbe49dd5ea"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Flatten", "[", 
+     RowBox[{"R", " ", "+", " ", 
+      RowBox[{"Transpose", "[", 
+       RowBox[{"R", ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"1", ",", " ", "2", ",", " ", "4", ",", " ", "3"}], "}"}]}], 
+       "]"}]}], "]"}], "]"}], "]"}], " ", "<", " ", "tol"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", "True", " ", "*)"}]}]}], "Input",
+ CellLabel->
+  "In[13]:= ",ExpressionUUID->"d0f9b3e7-75f7-4acf-bfa0-67533800b95b"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->
+  "Out[13]= ",ExpressionUUID->"fead27ee-a824-49ca-8838-8b6745438671"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Pair-swap symmetry ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"1", ",", "2"}], ")"}], "\[LeftRightArrow]", 
+    RowBox[{"(", 
+     RowBox[{"3", ",", "4"}], ")"}]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"a4b53456-ce99-4623-a3b1-e1c422132035"],
+ ":"
+}], "Text",ExpressionUUID->"5915e1fb-6983-4e99-b166-0c222b454537"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Flatten", "[", 
+     RowBox[{"R", " ", "-", " ", 
+      RowBox[{"Transpose", "[", 
+       RowBox[{"R", ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"3", ",", " ", "4", ",", " ", "1", ",", " ", "2"}], "}"}]}], 
+       "]"}]}], "]"}], "]"}], "]"}], " ", "<", " ", "tol"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", "True", " ", "*)"}]}]}], "Input",
+ CellLabel->
+  "In[14]:= ",ExpressionUUID->"b204cb0c-e951-47dd-b8d3-7e9ab27865fa"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->
+  "Out[14]= ",ExpressionUUID->"8adbb8d5-f51a-4645-991e-4ee3f7a2fcc3"]
+}, Open  ]],
+
+Cell[TextData[{
+ "First Bianchi: ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["R", "TI"], "+", 
+    StyleBox["cyc",
+     FontSlant->"Plain"], "\[LongEqual]", "0"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"ebdb9abb-7c4d-40a5-aa6d-82a2e4cb3865"],
+ " over the last three slots. ",
+ StyleBox["This is the constraint `TensorReduce` cannot prove.",
+  FontWeight->"Bold"]
+}], "Text",ExpressionUUID->"bbf73ee3-5ca6-4f6f-af2f-873412a847dd"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Flatten", "[", "\n", "    ", 
+     RowBox[{"R", " ", "+", " ", 
+      RowBox[{"Transpose", "[", 
+       RowBox[{"R", ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"1", ",", " ", "3", ",", " ", "4", ",", " ", "2"}], "}"}]}], 
+       "]"}], " ", "+", " ", 
+      RowBox[{"Transpose", "[", 
+       RowBox[{"R", ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"1", ",", " ", "4", ",", " ", "2", ",", " ", "3"}], "}"}]}], 
+       "]"}]}], "\n", "]"}], "]"}], "]"}], " ", "<", " ", "tol"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", "True", " ", "*)"}]}]}], "Input",
+ CellLabel->
+  "In[15]:= ",ExpressionUUID->"d11e4c19-0a59-4355-8be8-af5601232bab"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->
+  "Out[15]= ",ExpressionUUID->"36ae8789-2814-4d41-83e2-9a7ee20e2535"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Wire ",
+ Cell[BoxData[
+  FormBox[
+   StyleBox["R", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "77627ffe-20c2-4e26-8295-1174d4e52763"],
+ " into a TN: contract slots ",
+ Cell[BoxData[
+  FormBox["1", TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "cb215b62-c7e9-4e82-8f98-e3f20446510e"],
+ " and ",
+ Cell[BoxData[
+  FormBox["3", TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "62e92e3e-fa8d-42c4-ab70-50e95ce9fec0"],
+ ", i.e. the Euclidean Ricci contraction ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["R", "TI"], 
+     StyleBox[
+      RowBox[{"b", "d"}], "TI"]], "\[LongEqual]", 
+    SuperscriptBox["\[Delta]", 
+     StyleBox[
+      RowBox[{"a", "c"}], "TI"]], 
+    SubscriptBox[
+     StyleBox["R", "TI"], 
+     StyleBox[
+      RowBox[{"a", "b", "c", "d"}], "TI"]]}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"3ecbd79d-b403-40ef-8e10-54a950bac147"],
+ ". Because ",
+ Cell[BoxData[
+  FormBox[
+   StyleBox["R", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "6b01a7c3-651c-4223-8cc5-3a0b3e080729"],
+ " lives in the ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{"2", ",", "2"}], ")"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"5ddcbf32-4862-4eef-bfd0-c0ebee244d36"],
+ " irrep, the Ricci tensor is automatically symmetric:"
+}], "Text",ExpressionUUID->"eda99133-4c2c-404d-9165-8d1334c53df1"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Ric", " ", "=", " ", 
+   RowBox[{"TensorContract", "[", 
+    RowBox[{"R", ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", " ", "3"}], "}"}], "}"}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Flatten", "[", 
+     RowBox[{"Ric", " ", "-", " ", 
+      RowBox[{"Transpose", "[", "Ric", "]"}]}], "]"}], "]"}], "]"}], " ", "<",
+   " ", "tol"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", "True", " ", "*)"}]}]}], "Input",
+ CellLabel->
+  "In[16]:= ",ExpressionUUID->"94bc6b86-d4c0-4930-8044-86e79085b8ee"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->
+  "Out[16]= ",ExpressionUUID->"9fb33231-4db1-4b71-948e-c824d50bfb85"]
+}, Open  ]],
+
+Cell[TextData[{
+ "The scalar curvature is the trace of ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    StyleBox["R", "TI"], 
+    StyleBox[
+     RowBox[{"b", "d"}], "TI"]], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"56a58de3-bfef-4e47-a780-6a87954641db"],
+ " (Euclidean signature):"
+}], "Text",ExpressionUUID->"140cd670-e44e-48f3-ad0f-44b74e204fa8"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Tr", "[", "Ric", "]"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", "1.1865504865364562", " ", "*)"}]}]}], "Input",
+ CellLabel->
+  "In[17]:= ",ExpressionUUID->"0ceb9014-e741-4e17-b6b6-7e89b777647b"],
+
+Cell[BoxData["1.1865504865364562`"], "Output",
+ CellLabel->
+  "Out[17]= ",ExpressionUUID->"1fbe28b4-2e23-4d0d-9396-cb13c86f2e3b"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Two ",
+ Cell[BoxData[
+ "YoungTableau"], "InlineFormula",ExpressionUUID->
+  "4737c3ac-8a74-4cdd-a5da-0a72eaa9af40"],
+ " / ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "75ec9dd4-d3b6-4a47-8c8e-48ffd6aa1d87"],
+ " calls in total, but each one does work that no slot-permutation \
+canonicalizer can do. Once ",
+ Cell[BoxData[
+  FormBox[
+   StyleBox["R", "TI"], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "40548bff-fae9-4500-8e6a-2ebca5cd7566"],
+ " is projected, the rest of the TN proceeds with no further intervention."
+}], "Text",ExpressionUUID->"dabddc41-cc60-404b-9605-9583a822c630"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Example D. $V \\otimes V$ Schur-Weyl on a single bond", "Section",ExpressionUUID->"c5970670-56cf-4d57-bb7b-8b7534d33ac0"],
+
+Cell[CellGroupData[{
+
+Cell["Symmetry-subcontext functions used", "Subsection",ExpressionUUID->"165c26f2-c1b7-4748-ab10-07773db4b969"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"YoungTableau", "[", 
+   RowBox[{"{", 
+    RowBox[{"{", 
+     RowBox[{"1", ",", "2"}], "}"}], "}"}], "]"}]], "InlineFormula",
+  ExpressionUUID->"33b30683-1294-475d-b17c-3927a23c7abe"],
+ " \[LongDash] the ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", "2", "}"}], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "cde17f05-c40f-4cf4-a3f5-46d2861d957d"],
+ " partition (symmetric)."
+}], "Item",ExpressionUUID->"84917bac-0142-4fd9-ab86-58900d3a3d16"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"YoungTableau", "[", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", "1", "}"}], ",", 
+     RowBox[{"{", "2", "}"}]}], "}"}], "]"}]], "InlineFormula",ExpressionUUID->
+  "7e160632-cd25-4a34-a63f-e6721a47b8e6"],
+ " \[LongDash] the ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1"}], "}"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"bd6231f7-819e-4ed2-b5de-ef6b43fe7504"],
+ " partition (antisymmetric)."
+}], "Item",ExpressionUUID->"60e4fb12-899f-4ed5-aef1-425572898129"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"YoungProject", "[", 
+   RowBox[{"T", ",", " ", "..."}], "]"}]], "InlineFormula",ExpressionUUID->
+  "5dcbefe9-8df5-400c-b694-c42425423d45"],
+ " \[LongDash] the normalised idempotent projector for each."
+}], "Item",ExpressionUUID->"f300568e-91d8-4977-8828-556a8c73fd3e"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Why Symmetry matters here, and how it helps", "Subsection",ExpressionUUID->"6d72fdd9-4459-4d7c-97f4-2b69c7567f0c"],
+
+Cell[TextData[{
+ "A single bond between two TN nodes is a rank-2 tensor in ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["V", "TI"], "\[CircleTimes]", 
+    StyleBox["V", "TI"]}], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "2f1d9b9f-7dae-491e-b176-64dbb80f635e"],
+ ". Schur-Weyl gives"
+}], "Text",ExpressionUUID->"5a622303-07ba-4d32-947c-aa639d05c34e"],
+
+Cell[TextData[{
+ "$",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["V", "TI"], "\[CircleTimes]", 
+    StyleBox["V", "TI"], " ", 
+    RowBox[{"\[LongEqual]", " "}], 
+    SuperscriptBox[
+     StyleBox["Sym",
+      FontSlant->"Plain"], "2"], 
+    RowBox[{"(", 
+     StyleBox["V", "TI"], ")"}], " ", 
+    RowBox[{"\[CirclePlus]", " "}], 
+    SuperscriptBox[
+     StyleBox["Anti",
+      FontSlant->"Plain"], "2"], 
+    RowBox[{"(", 
+     StyleBox["V", "TI"], ")"}], ","}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"def8cedf-d5db-4a29-9f22-66d1136c84a3"],
+ "$"
+}], "Text",ExpressionUUID->"ebf73b94-b6a5-41e1-9de9-7841c597dc99"],
+
+Cell[TextData[{
+ "with dimensions ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["d", "TI"], 
+    RowBox[{"(", 
+     RowBox[{
+      StyleBox["d", "TI"], "+", "1"}], ")"}], "/", "2"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"ee8cb651-b548-4fd1-a399-a93ef114121a"],
+ " and ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["d", "TI"], 
+    RowBox[{"(", 
+     RowBox[{
+      StyleBox["d", "TI"], "-", "1"}], ")"}], "/", "2"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"df9c5f6c-cca2-45d0-8329-4af76febbc31"],
+ ". If the bond carries only one parity (an antisymmetric fermionic two-body \
+bond; a symmetric permutation-invariant kernel), projecting onto the correct \
+sector before SVD or contraction saves the whole orthogonal sector's worth of \
+bond dimension."
+}], "Text",ExpressionUUID->"489ae64f-df6e-40ee-9007-5706f9aa4deb"],
+
+Cell[TextData[{
+ "For rank-2 this is the textbook formula ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["P", "TI"], 
+     StyleBox["sym",
+      FontSlant->"Plain"]], 
+    RowBox[{"(", 
+     StyleBox["T", "TI"], ")"}], "\[LongEqual]", 
+    RowBox[{"(", 
+     RowBox[{
+      StyleBox["T", "TI"], "+", 
+      StyleBox["T", "TI"]}], ")"}], "/", "2"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"742c99ef-107f-48ca-ab2d-d9aea2529dd8"],
+ ", ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["P", "TI"], 
+     StyleBox["anti",
+      FontSlant->"Plain"]], 
+    RowBox[{"(", 
+     StyleBox["T", "TI"], ")"}], "\[LongEqual]", 
+    RowBox[{"(", 
+     RowBox[{
+      StyleBox["T", "TI"], "-", 
+      StyleBox["T", "TI"]}], ")"}], "/", "2"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"14d2bd4c-28cf-4865-8303-3700635fb045"],
+ ", which is easy to code by hand. Two reasons ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "03a53f7e-7417-45ac-bf7b-0017ab33c3c4"],
+ " is still the right tool:"
+}], "Text",ExpressionUUID->"3590585d-8a9a-4755-a79c-b6d64efebdf4"],
+
+Cell[TextData[{
+ StyleBox["Rank generalisation.",
+  FontWeight->"Bold"],
+ " Beyond rank 2 the hand-coded symmetriser is a sum of up to ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["n", "TI"], "!"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"f1c9d966-4e53-480f-8043-6375c43e4e7b"],
+ " signed permutations, and mixed-symmetry diagrams require sequential \
+row-symmetrise + column-antisymmetrise. ",
+ Cell[BoxData[
+  RowBox[{"YoungProject", "[", 
+   RowBox[{"T", ",", " ", 
+    RowBox[{"YoungTableau", "[", "t", "]"}]}], "]"}]], "InlineFormula",
+  ExpressionUUID->"fcefe7a0-5a54-4646-a763-c022f47cb4ca"],
+ " is the same one-line call for any rank and any Young diagram."
+}], "ItemNumbered",ExpressionUUID->"6a2644f0-c4eb-46c0-9cba-76273f3deab4"],
+
+Cell[TextData[{
+ StyleBox["Built-in normalisation.",
+  FontWeight->"Bold"],
+ " ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "459eb800-8a58-4047-80df-bab9c7ad15ec"],
+ " carries the ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox[
+     StyleBox["d", "TI"], "\[Lambda]"], "/", 
+    StyleBox["n", "TI"], "!"}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"030bcb15-b143-45b3-b760-8b1b823103d0"],
+ " prefactor that makes it idempotent (",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox[
+     StyleBox["P", "TI"], "2"], "\[LongEqual]", 
+    StyleBox["P", "TI"]}], TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "3778366c-3a3e-4b8b-b4f5-d22b21475f27"],
+ "). The unnormalised Young symmetrizer (also exported, as ",
+ Cell[BoxData[
+ "YoungSymmetrize"], "InlineFormula",ExpressionUUID->
+  "067fc284-5f4c-457e-ade3-6317e7fd1701"],
+ ") satisfies ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubsuperscriptBox[
+     StyleBox["e", "TI"], 
+     StyleBox["T", "TI"], "2"], "\[LongEqual]", 
+    RowBox[{"(", 
+     RowBox[{
+      StyleBox["n", "TI"], "!", "/", 
+      SubscriptBox[
+       StyleBox["d", "TI"], "\[Lambda]"]}], ")"}], " ", 
+    SubscriptBox[
+     StyleBox["e", "TI"], 
+     StyleBox["T", "TI"]]}], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"add084a2-32d3-4230-b472-8d2816d3d5e3"],
+ " instead; hand-rolled symmetrisers typically forget the prefactor. The \
+idempotent form is what iterative TN algorithms (DMRG, TDVP) need when a \
+projector is applied repeatedly."
+}], "ItemNumbered",ExpressionUUID->"7840ebcf-57f4-454f-bdfd-8c29ef1d0378"],
+
+Cell[TextData[{
+ "This is the warm-up case: the mechanism on the simplest possible bond \
+before Tier 1 scales it to general ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox[
+    StyleBox["V", "TI"], 
+    RowBox[{"\[CircleTimes]", 
+     StyleBox["n", "TI"]}]], TraditionalForm]], "InlineFormula",
+  ExpressionUUID->"73dafec1-831a-4a97-8fe1-82865fdb8d69"],
+ "."
+}], "Text",ExpressionUUID->"4cccde56-b288-41d6-b3f4-066951378218"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Code", "Subsection",ExpressionUUID->"8cc6f99b-3b0f-4f2c-b61c-cf6de539c0c5"],
+
+Cell[TextData[{
+ "A generic rank-2 tensor with ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["d", "TI"], "\[LongEqual]", "3"}], TraditionalForm]], 
+  "InlineFormula",ExpressionUUID->"3ec48f73-e333-4384-9c7c-be378e3d3552"],
+ ":"
+}], "Text",ExpressionUUID->"43bbd12e-fe9a-4e8c-8414-8c6c1ca210e6"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"d", " ", "=", " ", "3"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"SeedRandom", "[", "2026", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"T", " ", "=", " ", 
+    RowBox[{"RandomReal", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "1"}], ",", " ", "1"}], "}"}], ",", " ", 
+      RowBox[{"{", 
+       RowBox[{"d", ",", " ", "d"}], "}"}]}], "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{"Psym", " ", "=", " ", 
+   RowBox[{"YoungProject", "[", 
+    RowBox[{"T", ",", " ", 
+     RowBox[{"YoungTableau", "[", 
+      RowBox[{"{", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", " ", "2"}], "}"}], "}"}], "]"}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Pant", " ", "=", " ", 
+   RowBox[{"YoungProject", "[", 
+    RowBox[{"T", ",", " ", 
+     RowBox[{"YoungTableau", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", "1", "}"}], ",", " ", 
+        RowBox[{"{", "2", "}"}]}], "}"}], "]"}]}], "]"}]}], ";"}]}], "Input",
+ CellLabel->
+  "In[18]:= ",ExpressionUUID->"f059d083-bade-48cd-9f78-ea96429af0ef"],
+
+Cell["The two projectors recover the original tensor:", "Text",ExpressionUUID->"c9ef9e3e-623e-42e6-b712-cbffe866355b"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Flatten", "[", 
+     RowBox[{"Psym", " ", "+", " ", "Pant", " ", "-", " ", "T"}], "]"}], 
+    "]"}], "]"}], " ", "<", " ", "tol"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", "True", " ", "*)"}]}]}], "Input",
+ CellLabel->
+  "In[19]:= ",ExpressionUUID->"a4d797a6-6e18-4e15-b7b1-f93a242312eb"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->
+  "Out[19]= ",ExpressionUUID->"c1e22c85-d2b9-4986-b869-9b31591f4a0d"]
+}, Open  ]],
+
+Cell["The antisymmetric piece has zero diagonal:", "Text",ExpressionUUID->"ef95216e-771c-4549-a32f-325c59dc8f13"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Diagonal", "[", "Pant", "]"}], "]"}], "]"}], " ", "<", " ", 
+  "tol"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", " ", "True", " ", "*)"}]}]}], "Input",
+ CellLabel->
+  "In[20]:= ",ExpressionUUID->"026f781a-2289-41e1-bf61-04bff5dc7b29"],
+
+Cell[BoxData["True"], "Output",
+ CellLabel->
+  "Out[20]= ",ExpressionUUID->"6170512c-014e-46d3-ab15-615236c5cf3d"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Block dimensions match the closed-form predictions ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["d", "TI"], 
+    RowBox[{"(", 
+     RowBox[{
+      StyleBox["d", "TI"], "+", "1"}], ")"}], "/", "2", "\[LongEqual]", "6"}],
+    TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "2a605317-f121-4542-a06a-b18d24f50eb2"],
+ " and ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    StyleBox["d", "TI"], 
+    RowBox[{"(", 
+     RowBox[{
+      StyleBox["d", "TI"], "-", "1"}], ")"}], "/", "2", "\[LongEqual]", "3"}],
+    TraditionalForm]], "InlineFormula",ExpressionUUID->
+  "f7f1dd50-688b-4bd5-8a69-e3ab1b4659a0"],
+ ":"
+}], "Text",ExpressionUUID->"4e3a73d2-e630-4fd5-b9a3-fb0e8579057c"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"irrepRank", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"{", 
+        RowBox[{"{", 
+         RowBox[{"1", ",", " ", "2"}], "}"}], "}"}], "}"}], ",", " ", "d", ",",
+       " ", "2"}], "]"}], ",", " ", 
+    RowBox[{"d", " ", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"d", " ", "+", " ", "1"}], ")"}], "/", "2"}]}]}], "}"}], 
+  "     ", 
+  RowBox[{"(*", " ", 
+   RowBox[{"{", 
+    RowBox[{"6", ",", " ", "6"}], "}"}], " ", "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"irrepRank", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", "1", "}"}], ",", " ", 
+         RowBox[{"{", "2", "}"}]}], "}"}], "}"}], ",", " ", "d", ",", " ", 
+      "2"}], "]"}], ",", " ", 
+    RowBox[{"d", " ", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"d", " ", "-", " ", "1"}], ")"}], "/", "2"}]}]}], "}"}], "   ", 
+  RowBox[{"(*", " ", 
+   RowBox[{"{", 
+    RowBox[{"3", ",", " ", "3"}], "}"}], " ", "*)"}]}]}], "Input",
+ CellLabel->
+  "In[21]:= ",ExpressionUUID->"aae97c4b-8fcd-49fe-8a91-8f72708a268d"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"3", ",", "3"}], "}"}]], "Output",
+ CellLabel->
+  "Out[21]= ",ExpressionUUID->"fd847d5d-3f1e-4cfc-ad4d-958eccdbc3f8"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Recap", "Section",ExpressionUUID->"9c40de55-d192-41cf-a60e-f820c32f0c48"],
+
+Cell["\<\
+The tiers map to the operational ladder of a symmetry-resolved TN workflow:\
+\>", "Text",ExpressionUUID->"3bcecb2f-fa43-4211-939e-e042a9a3eaed"],
+
+Cell[TextData[{
+ StyleBox["Tier 1: sizing and block-diagonalisation.",
+  FontWeight->"Bold"],
+ " Examples A and B give (a) the size of each isotypic block on a bond, and \
+(b) the full eigenstructure of any class-function Hamiltonian on that bond, \
+both in closed form. ",
+ Cell[BoxData[
+ "TableauDimension"], "InlineFormula",ExpressionUUID->
+  "fe653ae3-af94-4323-aea8-a8601d772380"],
+ " and ",
+ Cell[BoxData[
+ "HookLengths"], "InlineFormula",ExpressionUUID->
+  "60d91c1b-0e34-4da8-a255-50e68aa16f97"],
+ " carry the math; ",
+ Cell[BoxData[
+ "YoungProject"], "InlineFormula",ExpressionUUID->
+  "4a37e710-59ef-4e0c-bef9-b6deb32290b9"],
+ " only appears in the verification step."
+}], "ItemNumbered",ExpressionUUID->"db67e6a0-fe76-4fc5-a978-39195d97602f"],
+
+Cell[TextData[{
+ StyleBox["Tier 2: multi-term constraint enforcement.",
+  FontWeight->"Bold"],
+ " Example C is the case built-in WL canonicalisation cannot reach: the first \
+Bianchi identity. Example D is the rank-2 warm-up of the same mechanism."
+}], "ItemNumbered",ExpressionUUID->"b1cee6e0-e316-4ffe-8048-9ff92f7ea521"],
+
+Cell[TextData[{
+ "Every assertion above is verified by ",
+ ButtonBox["symmetry_for_tn.wl",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["symmetry_for_tn.wl"], None}],
+ " (green under ",
+ Cell[BoxData[
+  RowBox[{"wolframscript", " ", "-", "file"}]], "InlineFormula",
+  ExpressionUUID->"2b31938a-b268-484c-9738-87bc7e23a7ee"],
+ "). ",
+ ButtonBox["SymmetryForTN.nb",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["SymmetryForTN.nb"], None}],
+ " reproduces the same content with rendered TraditionalForm math."
+}], "Text",ExpressionUUID->"08aaa47c-c08c-45a9-82a1-bf4756e830b4"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1920, 931},
+WindowMargins->{{Automatic, 1728}, {Automatic, -13}},
+CreateCellID->True,
+Magnification:>1.5 Inherited,
+FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (February 17, 2026)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"c6677377-1615-4c62-8400-2a1bdfde3f7c"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 110, 0, 144, "Title",ExpressionUUID->"1f877b35-ad02-4079-9223-cad285346b79"],
+Cell[689, 24, 723, 17, 86, "Text",ExpressionUUID->"3572cd48-db15-404e-9445-27864c0887e2"],
+Cell[1415, 43, 162, 2, 46, "ItemNumbered",ExpressionUUID->"f5686bfc-a07f-4904-a5c6-5d4b0b87e9b1"],
+Cell[1580, 47, 156, 2, 46, "ItemNumbered",ExpressionUUID->"7042c427-0be4-4072-8b0b-a7c5c9a6db95"],
+Cell[1739, 51, 338, 7, 49, "ItemNumbered",ExpressionUUID->"50db51eb-975c-4ab1-90be-f03d30729939"],
+Cell[2080, 60, 928, 23, 122, "Text",ExpressionUUID->"2befdfc9-4644-47a0-8db6-ea615881379b"],
+Cell[3011, 85, 548, 16, 53, "Text",ExpressionUUID->"21f66245-1ef3-41e8-b817-7ee7a0e0f922"],
+Cell[3562, 103, 7952, 190, 419, "TableNotes",ExpressionUUID->"17e9ae69-e053-4b6b-b0a8-14748472c797"],
+Cell[CellGroupData[{
+Cell[11539, 297, 79, 0, 99, "Section",ExpressionUUID->"488a8146-5d6f-46c5-80e8-bb180b8a0952"],
+Cell[11621, 299, 1566, 51, 89, "Text",ExpressionUUID->"8248ce2f-91fc-40e4-8061-03655c1e3345"],
+Cell[13190, 352, 428, 11, 105, "Input",ExpressionUUID->"ac275bd0-291b-4ca5-a468-b417ded903c2"],
+Cell[13621, 365, 868, 26, 54, "Text",ExpressionUUID->"7865705d-1894-414c-830e-6e515677625b"],
+Cell[14492, 393, 989, 33, 61, "Text",ExpressionUUID->"18f2359e-e763-4cd6-b1e8-e55b36462b00"],
+Cell[15484, 428, 1332, 43, 54, "Text",ExpressionUUID->"b8cbef23-2db0-45d6-9a5d-05a084897552"],
+Cell[16819, 473, 711, 23, 54, "Text",ExpressionUUID->"fe54b160-1a45-473a-946a-5f0b5273614c"],
+Cell[17533, 498, 1208, 34, 89, "Text",ExpressionUUID->"f012dd7f-74c0-4f3d-92a6-50d0745e70d6"],
+Cell[18744, 534, 8539, 220, 1729, "Input",ExpressionUUID->"535d92e9-01e0-4556-a121-11ecdb706934"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[27332, 760, 111, 0, 144, "Title",ExpressionUUID->"0dcca763-8d12-4dbf-88d0-5ce495a311f3"],
+Cell[27446, 762, 816, 21, 86, "Text",ExpressionUUID->"e53f13bb-ed50-4b32-a572-aafdf036bc29"],
+Cell[CellGroupData[{
+Cell[28287, 787, 143, 2, 99, "Section",ExpressionUUID->"f56edda0-090f-4346-b417-afe0443b628a"],
+Cell[CellGroupData[{
+Cell[28455, 793, 111, 0, 79, "Subsection",ExpressionUUID->"18c1e313-cc19-4f11-b032-d3d2e195ca55"],
+Cell[28569, 795, 1023, 30, 49, "Item",ExpressionUUID->"8d9b2332-43cf-44c1-9c7a-deefef749786"],
+Cell[29595, 827, 749, 21, 50, "Item",ExpressionUUID->"c5814db2-65ee-4b70-8290-b003c8c02a43"],
+Cell[30347, 850, 419, 9, 49, "Item",ExpressionUUID->"75d7be81-0c99-4fb6-a00d-82a2fb54e1ff"],
+Cell[30769, 861, 704, 17, 78, "Item",ExpressionUUID->"ddf333a1-484e-47b4-8aaa-875021d93352"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[31510, 883, 120, 0, 79, "Subsection",ExpressionUUID->"3c0432b0-1161-446f-8406-b3af7c66616d"],
+Cell[31633, 885, 676, 19, 53, "Text",ExpressionUUID->"7378f1a6-a95a-4979-8e4d-aae252ebdc13"],
+Cell[32312, 906, 822, 27, 54, "Text",ExpressionUUID->"97fb7e93-cb2c-45af-b029-33e7b314a1fd"],
+Cell[33137, 935, 275, 6, 53, "Text",ExpressionUUID->"34262b9e-0411-44f7-9277-b1d46eaefc8b"],
+Cell[33415, 943, 631, 20, 54, "Text",ExpressionUUID->"1ccf08f4-afcb-4e97-b7d3-c93ac1c70da0"],
+Cell[34049, 965, 1772, 50, 90, "Text",ExpressionUUID->"f76eb773-5f7f-4571-a70e-3da4a9ba4575"],
+Cell[35824, 1017, 1068, 30, 86, "Text",ExpressionUUID->"81dd7b26-32d8-4f38-b063-e010ed2b7c76"],
+Cell[36895, 1049, 648, 17, 86, "Text",ExpressionUUID->"66ceb0d4-3010-49ad-adb7-05b519f15a77"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[37580, 1071, 81, 0, 79, "Subsection",ExpressionUUID->"7eb0c603-1b52-4d3a-a43c-52a283da3240"],
+Cell[37664, 1073, 3846, 85, 932, "Input",ExpressionUUID->"6077a81d-0d51-46b8-93d9-e29fc8a91278"],
+Cell[41513, 1160, 346, 9, 53, "Text",ExpressionUUID->"9faa715b-76ff-4709-b836-9b23173f2aab"],
+Cell[CellGroupData[{
+Cell[41884, 1173, 319, 7, 44, "Input",ExpressionUUID->"593fe710-a40c-469f-aacd-710d6d5d4407"],
+Cell[42206, 1182, 36179, 677, 226, "Output",ExpressionUUID->"577f662b-b1c3-4980-b2e1-79b7ec0e9877"]
+}, Open  ]],
+Cell[78400, 1862, 604, 18, 54, "Text",ExpressionUUID->"21342cf1-8dc5-47fc-aa83-e5689d67383f"],
+Cell[79007, 1882, 9948, 194, 487, "TableNotes",ExpressionUUID->"0f993b68-f06e-4e30-b910-aec411fc28a3"],
+Cell[88958, 2078, 263, 4, 50, "Text",ExpressionUUID->"b9007527-2b04-4708-9288-75b7d448ce37"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[89270, 2088, 155, 2, 99, "Section",ExpressionUUID->"9abab35d-eb1f-4718-93be-1f5dccbee577"],
+Cell[CellGroupData[{
+Cell[89450, 2094, 111, 0, 79, "Subsection",ExpressionUUID->"b3c3bf1c-c12d-48e8-b66f-34dc4ceb0b4e"],
+Cell[89564, 2096, 840, 22, 49, "Item",ExpressionUUID->"1ff17db1-67fb-4081-bf3c-4997fe4c70bb"],
+Cell[90407, 2120, 901, 24, 50, "Item",ExpressionUUID->"fc279a76-0a44-4cc8-b547-1155ddea824a"],
+Cell[91311, 2146, 654, 16, 49, "Item",ExpressionUUID->"ec3ab726-52ce-4a8d-9a75-6fb6d25008b6"],
+Cell[91968, 2164, 419, 10, 49, "Item",ExpressionUUID->"15952ac9-21b9-4317-abeb-afb43079ef1f"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[92424, 2179, 120, 0, 79, "Subsection",ExpressionUUID->"3756d265-fccc-486f-907a-c69ce411c59a"],
+Cell[92547, 2181, 1890, 56, 54, "Text",ExpressionUUID->"334938d6-abb5-47b1-bf44-454c771f1ce7"],
+Cell[94440, 2239, 2049, 62, 87, "Text",ExpressionUUID->"794c3624-0a5d-418c-bdc9-0efb4c10dac4"],
+Cell[96492, 2303, 121, 0, 50, "Text",ExpressionUUID->"7533ee8d-b3aa-4ba3-8ead-44c0a9230d9f"],
+Cell[96616, 2305, 883, 24, 49, "Item",ExpressionUUID->"463597da-6b41-4bab-a8db-725f512aea14"],
+Cell[97502, 2331, 1231, 33, 49, "Item",ExpressionUUID->"cb683442-ea40-4347-9de0-47fe6bdd8d1d"],
+Cell[98736, 2366, 577, 17, 49, "Item",ExpressionUUID->"a9de0571-a744-4e26-9bce-745a142095bf"],
+Cell[99316, 2385, 824, 22, 54, "Text",ExpressionUUID->"e269a089-0a83-4dd1-801c-8382e2bfb0ee"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[100177, 2412, 81, 0, 79, "Subsection",ExpressionUUID->"2205774c-3ddc-4dfc-a15f-6750b7c2a832"],
+Cell[100261, 2414, 1820, 55, 258, "Input",ExpressionUUID->"60e2b867-e916-455b-90e4-db74d6f929c5"],
+Cell[102084, 2471, 821, 27, 54, "Text",ExpressionUUID->"39b88ee1-12f7-4eb2-83bd-19b4e6bf9e3a"],
+Cell[CellGroupData[{
+Cell[102930, 2502, 394, 10, 74, "Input",ExpressionUUID->"73190d2f-f9c6-40da-bc20-09d500d5f2ff"],
+Cell[103327, 2514, 110, 1, 50, "Output",ExpressionUUID->"daf91f23-3de2-4258-badf-0491888a6192"]
+}, Open  ]],
+Cell[103452, 2518, 374, 9, 53, "Text",ExpressionUUID->"377144b4-3774-4b19-bfb4-6bac9fbd9c19"],
+Cell[CellGroupData[{
+Cell[103851, 2531, 306, 8, 74, "Input",ExpressionUUID->"41f75a99-65db-43e7-ac1a-7ea5e15b98fb"],
+Cell[104160, 2541, 110, 1, 50, "Output",ExpressionUUID->"7af9c623-c0f2-4d17-9986-d6d71189aee8"]
+}, Open  ]],
+Cell[104285, 2545, 633, 18, 54, "Text",ExpressionUUID->"6ca42935-8b15-4d79-8920-3723c57acaa0"],
+Cell[CellGroupData[{
+Cell[104943, 2567, 2455, 68, 350, "Input",ExpressionUUID->"ea6c9bf0-915c-4fca-b5a5-549640c863ab"],
+Cell[107401, 2637, 162, 3, 50, "Output",ExpressionUUID->"56bcb58f-05d6-451f-acaf-7799e10df43f"]
+}, Open  ]],
+Cell[107578, 2643, 739, 23, 53, "Text",ExpressionUUID->"f967cc84-1381-4cc7-84af-b37a2e485ac8"],
+Cell[CellGroupData[{
+Cell[108342, 2670, 3193, 80, 595, "Input",ExpressionUUID->"b08c9a04-e5ee-43cb-9d7b-20a41b312727"],
+Cell[111538, 2752, 218, 5, 50, "Output",ExpressionUUID->"91e8dfc4-ba26-4eeb-861d-c0108e6c585b"]
+}, Open  ]],
+Cell[111771, 2760, 540, 14, 53, "Text",ExpressionUUID->"307d1f44-0883-4775-b483-103faa45b358"],
+Cell[CellGroupData[{
+Cell[112336, 2778, 2053, 54, 289, "Input",ExpressionUUID->"02ce7e7d-5f39-4de6-96db-b1ea2a830df9"],
+Cell[114392, 2834, 222, 6, 50, "Output",ExpressionUUID->"91c923f4-8f9e-4b7a-b75b-2971805d467b"]
+}, Open  ]],
+Cell[114629, 2843, 1004, 28, 53, "Text",ExpressionUUID->"f1214353-5d71-45a9-a861-f503379e3422"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[115694, 2878, 118, 0, 144, "Title",ExpressionUUID->"35c8473b-63ae-4bd4-a92e-d71c96c79714"],
+Cell[115815, 2880, 823, 19, 89, "Text",ExpressionUUID->"8782f81c-5f35-40e9-8c73-ac6fed3f4a45"],
+Cell[CellGroupData[{
+Cell[116663, 2903, 112, 0, 99, "Section",ExpressionUUID->"bc846eb9-c326-48e3-b321-836e3ed1b48b"],
+Cell[CellGroupData[{
+Cell[116800, 2907, 111, 0, 79, "Subsection",ExpressionUUID->"9dbb97f4-a8b5-4d6a-bb3f-cb0e4e565115"],
+Cell[116914, 2909, 649, 17, 49, "Item",ExpressionUUID->"b8d99456-96db-4225-af99-b5ed61b7573c"],
+Cell[117566, 2928, 343, 7, 49, "Item",ExpressionUUID->"693753da-5f6f-4163-8ebb-bad1e2c2d970"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[117946, 2940, 120, 0, 79, "Subsection",ExpressionUUID->"744dfc08-9aa3-40eb-810c-1ad33a567b43"],
+Cell[118069, 2942, 369, 10, 53, "Text",ExpressionUUID->"43781696-2ba7-4445-ba53-5fd58732c378"],
+Cell[118441, 2954, 754, 25, 49, "ItemNumbered",ExpressionUUID->"977f511a-62f1-42e1-8edf-953d5fd639e7"],
+Cell[119198, 2981, 754, 25, 49, "ItemNumbered",ExpressionUUID->"72ba8146-f22f-4c3f-b4a6-cb5c590ded4c"],
+Cell[119955, 3008, 508, 16, 49, "ItemNumbered",ExpressionUUID->"892f6c92-e627-402e-8405-fa35e9b1eb1f"],
+Cell[120466, 3026, 102, 0, 46, "ItemNumbered",ExpressionUUID->"7d907506-27aa-43f1-bf34-d5bacef84b19"],
+Cell[120571, 3028, 599, 20, 53, "Text",ExpressionUUID->"d6067f40-c904-436f-8a49-e71580426268"],
+Cell[121173, 3050, 2012, 56, 89, "Text",ExpressionUUID->"1a0e527c-58c7-4e43-90c5-3c301b0889bb"],
+Cell[123188, 3108, 1051, 27, 86, "Text",ExpressionUUID->"1abeb8e4-d189-4eae-8d78-646620d8403d"],
+Cell[124242, 3137, 898, 24, 86, "Text",ExpressionUUID->"e3c0e5ca-dd26-4b91-9d72-3f914a667274"],
+Cell[125143, 3163, 1701, 46, 90, "Text",ExpressionUUID->"363ec86f-cba4-4728-a2e3-567b9b9b2367"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[126881, 3214, 81, 0, 79, "Subsection",ExpressionUUID->"605ff9aa-f44a-41f3-8422-af19cd038bea"],
+Cell[126965, 3216, 336, 8, 53, "Text",ExpressionUUID->"6443057d-3bff-4014-a7e6-6de18f439cd7"],
+Cell[127304, 3226, 836, 26, 105, "Input",ExpressionUUID->"48382965-abe4-4ea9-a3d5-d0cf25dfe238"],
+Cell[128143, 3254, 288, 8, 53, "Text",ExpressionUUID->"0eb3ace2-8ff4-43b2-8cde-d5000ea5eb5e"],
+Cell[CellGroupData[{
+Cell[128456, 3266, 515, 14, 74, "Input",ExpressionUUID->"8b5e228a-fe2f-4e19-9b6e-aa0e010df48c"],
+Cell[128974, 3282, 114, 2, 50, "Output",ExpressionUUID->"b2a03f51-24be-4f9d-a237-9139def217c2"]
+}, Open  ]],
+Cell[129103, 3287, 288, 8, 53, "Text",ExpressionUUID->"a9bff8a1-42fa-4532-a77b-31cbe49dd5ea"],
+Cell[CellGroupData[{
+Cell[129416, 3299, 515, 14, 74, "Input",ExpressionUUID->"d0f9b3e7-75f7-4acf-bfa0-67533800b95b"],
+Cell[129934, 3315, 114, 2, 50, "Output",ExpressionUUID->"fead27ee-a824-49ca-8838-8b6745438671"]
+}, Open  ]],
+Cell[130063, 3320, 378, 11, 53, "Text",ExpressionUUID->"5915e1fb-6983-4e99-b166-0c222b454537"],
+Cell[CellGroupData[{
+Cell[130466, 3335, 515, 14, 74, "Input",ExpressionUUID->"b204cb0c-e951-47dd-b8d3-7e9ab27865fa"],
+Cell[130984, 3351, 114, 2, 50, "Output",ExpressionUUID->"8adbb8d5-f51a-4645-991e-4ee3f7a2fcc3"]
+}, Open  ]],
+Cell[131113, 3356, 455, 12, 53, "Text",ExpressionUUID->"bbf73ee3-5ca6-4f6f-af2f-873412a847dd"],
+Cell[CellGroupData[{
+Cell[131593, 3372, 730, 19, 135, "Input",ExpressionUUID->"d11e4c19-0a59-4355-8be8-af5601232bab"],
+Cell[132326, 3393, 114, 2, 50, "Output",ExpressionUUID->"36ae8789-2814-4d41-83e2-9a7ee20e2535"]
+}, Open  ]],
+Cell[132455, 3398, 1414, 42, 53, "Text",ExpressionUUID->"eda99133-4c2c-404d-9165-8d1334c53df1"],
+Cell[CellGroupData[{
+Cell[133894, 3444, 608, 18, 105, "Input",ExpressionUUID->"94bc6b86-d4c0-4930-8044-86e79085b8ee"],
+Cell[134505, 3464, 114, 2, 50, "Output",ExpressionUUID->"9fb33231-4db1-4b71-948e-c824d50bfb85"]
+}, Open  ]],
+Cell[134634, 3469, 362, 10, 53, "Text",ExpressionUUID->"140cd670-e44e-48f3-ad0f-44b74e204fa8"],
+Cell[CellGroupData[{
+Cell[135021, 3483, 217, 5, 74, "Input",ExpressionUUID->"0ceb9014-e741-4e17-b6b6-7e89b777647b"],
+Cell[135241, 3490, 129, 2, 50, "Output",ExpressionUUID->"1fbe28b4-2e23-4d0d-9396-cb13c86f2e3b"]
+}, Open  ]],
+Cell[135385, 3495, 637, 16, 53, "Text",ExpressionUUID->"dabddc41-cc60-404b-9605-9583a822c630"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[136071, 3517, 127, 0, 99, "Section",ExpressionUUID->"c5970670-56cf-4d57-bb7b-8b7534d33ac0"],
+Cell[CellGroupData[{
+Cell[136223, 3521, 111, 0, 79, "Subsection",ExpressionUUID->"165c26f2-c1b7-4748-ab10-07773db4b969"],
+Cell[136337, 3523, 490, 13, 49, "Item",ExpressionUUID->"84917bac-0142-4fd9-ab86-58900d3a3d16"],
+Cell[136830, 3538, 545, 15, 49, "Item",ExpressionUUID->"60e4fb12-899f-4ed5-aef1-425572898129"],
+Cell[137378, 3555, 310, 6, 49, "Item",ExpressionUUID->"f300568e-91d8-4977-8828-556a8c73fd3e"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[137725, 3566, 120, 0, 79, "Subsection",ExpressionUUID->"6d72fdd9-4459-4d7c-97f4-2b69c7567f0c"],
+Cell[137848, 3568, 370, 9, 53, "Text",ExpressionUUID->"5a622303-07ba-4d32-947c-aa639d05c34e"],
+Cell[138221, 3579, 640, 21, 53, "Text",ExpressionUUID->"ebf73b94-b6a5-41e1-9de9-7841c597dc99"],
+Cell[138864, 3602, 866, 23, 86, "Text",ExpressionUUID->"489ae64f-df6e-40ee-9007-5706f9aa4deb"],
+Cell[139733, 3627, 1141, 36, 55, "Text",ExpressionUUID->"3590585d-8a9a-4755-a79c-b6d64efebdf4"],
+Cell[140877, 3665, 764, 17, 78, "ItemNumbered",ExpressionUUID->"6a2644f0-c4eb-46c0-9cba-76273f3deab4"],
+Cell[141644, 3684, 1611, 46, 78, "ItemNumbered",ExpressionUUID->"7840ebcf-57f4-454f-bdfd-8c29ef1d0378"],
+Cell[143258, 3732, 425, 11, 53, "Text",ExpressionUUID->"4cccde56-b288-41d6-b3f4-066951378218"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[143720, 3748, 81, 0, 79, "Subsection",ExpressionUUID->"8cc6f99b-3b0f-4f2c-b61c-cf6de539c0c5"],
+Cell[143804, 3750, 302, 8, 53, "Text",ExpressionUUID->"43bbd12e-fe9a-4e8c-8414-8c6c1ca210e6"],
+Cell[144109, 3760, 1084, 33, 197, "Input",ExpressionUUID->"f059d083-bade-48cd-9f78-ea96429af0ef"],
+Cell[145196, 3795, 118, 0, 50, "Text",ExpressionUUID->"c9ef9e3e-623e-42e6-b712-cbffe866355b"],
+Cell[CellGroupData[{
+Cell[145339, 3799, 371, 10, 74, "Input",ExpressionUUID->"a4d797a6-6e18-4e15-b7b1-f93a242312eb"],
+Cell[145713, 3811, 114, 2, 50, "Output",ExpressionUUID->"c1e22c85-d2b9-4986-b869-9b31591f4a0d"]
+}, Open  ]],
+Cell[145842, 3816, 113, 0, 50, "Text",ExpressionUUID->"ef95216e-771c-4549-a32f-325c59dc8f13"],
+Cell[CellGroupData[{
+Cell[145980, 3820, 311, 9, 74, "Input",ExpressionUUID->"026f781a-2289-41e1-bf61-04bff5dc7b29"],
+Cell[146294, 3831, 114, 2, 50, "Output",ExpressionUUID->"6170512c-014e-46d3-ab15-615236c5cf3d"]
+}, Open  ]],
+Cell[146423, 3836, 701, 22, 53, "Text",ExpressionUUID->"4e3a73d2-e630-4fd5-b9a3-fb0e8579057c"],
+Cell[CellGroupData[{
+Cell[147149, 3862, 1140, 38, 74, "Input",ExpressionUUID->"aae97c4b-8fcd-49fe-8a91-8f72708a268d"],
+Cell[148292, 3902, 156, 4, 50, "Output",ExpressionUUID->"fd847d5d-3f1e-4cfc-ad4d-958eccdbc3f8"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[148509, 3913, 79, 0, 99, "Section",ExpressionUUID->"9c40de55-d192-41cf-a60e-f820c32f0c48"],
+Cell[148591, 3915, 154, 2, 50, "Text",ExpressionUUID->"3bcecb2f-fa43-4211-939e-e042a9a3eaed"],
+Cell[148748, 3919, 753, 18, 81, "ItemNumbered",ExpressionUUID->"db67e6a0-fe76-4fc5-a978-39195d97602f"],
+Cell[149504, 3939, 323, 5, 46, "ItemNumbered",ExpressionUUID->"b1cee6e0-e316-4ffe-8048-9ff92f7ea521"],
+Cell[149830, 3946, 582, 16, 53, "Text",ExpressionUUID->"08aaa47c-c08c-45a9-82a1-bf4756e830b4"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+

@@ -54,7 +54,9 @@ testGroups = {
         "tensor_algebra_edge.wl",
         "contraction_paths_exact.wl",
         (* Layer-1 Symmetry: hook-length formula + Young projector identities *)
-        "symmetry_basic.wl"
+        "symmetry_basic.wl",
+        (* Textbook reference + Riemann motif + random presentation sweep *)
+        "symmetry_textbook_reference.wl"
     },
     "baselines" -> {
         "decomposition.wl",

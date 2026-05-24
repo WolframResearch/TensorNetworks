@@ -24,6 +24,14 @@ TableauShape::usage = "TableauShape[tableau] returns the shape (partition) of a 
 
 TableauSize::usage = "TableauSize[tableau] returns the total number of boxes in a Young tableau, i.e. the sum of its row lengths."
 
+TableauRows::usage = "TableauRows[tableau] returns the inner row list of a Young tableau as a list of lists of slot indices.
+\[Bullet] Explicit accessor since YoungTableau objects are atomic and do not unpack with First or Part.
+\[Bullet] Pair with TableauColumns to traverse the column structure."
+
+TableauColumns::usage = "TableauColumns[tableau] returns the column slot lists of a Young tableau as a list of lists.
+\[Bullet] Column j collects the slot at position j of every row that reaches position j; handles ragged shapes.
+\[Bullet] TableauColumns[YoungTableau[{{1,2,3},{4,5},{6}}]] returns {{1,4,6},{2,5},{3}}."
+
 HookLength::usage = "HookLength[tableau, {row, col}] computes the hook length at position {row, col} in a Young tableau. It is  Used internally in the hook-length formula for computing irrep dimensions.
 \[Bullet] The hook length is the number of cells to the right plus cells below plus 1 (for the cell itself)."
 
