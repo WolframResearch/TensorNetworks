@@ -1,12 +1,12 @@
 # A Working Tour of the Symmetry Functions
 
-This tutorial walks through every function in `` Wolfram`TensorNetworks`Symmetry` ``, in the order a tensor-network practitioner actually meets them. The goal is operational: after working through the document you should be able to (i) decide whether a partition or a tableau is the right object for a problem, (ii) predict the size of every block of a symmetry-resolved tensor in closed form, and (iii) project a real TN tensor onto the irreducible representation subspace it physically belongs to. Every claim below is paired with a small Wolfram Language cell that you can rerun and modify; nothing is asserted without being computed.
+This tutorial walks through every function in `` Wolfram`TensorNetworks`Symmetry` `` in the order a tensor-network practitioner meets them. After it you can (i) decide whether a partition or a tableau is the right object for a problem, (ii) predict the size of every block of a symmetry-resolved tensor in closed form, and (iii) project a TN tensor onto the irreducible-representation subspace it physically belongs to. Every claim is paired with a Wolfram Language cell; nothing is asserted without being computed.
 
-We start where the physics starts: two indistinguishable particles. From there we walk up the ladder of rank, picking up one Symmetry function per pedagogical step. By the end we will have used all sixteen exported functions, every one of them at least once on a tensor that has a tensor-network reason to exist.
+The arc starts at two indistinguishable particles and walks up the rank, picking up one Symmetry function per step. By the end all sixteen exported functions appear at least once on a tensor with a tensor-network reason to exist.
 
 ## Inventory
 
-The Symmetry layer exports sixteen symbols. Six are about the *combinatorics* of Young diagrams (a counting layer that decides "how much room is there?"). Two are typed *accessors* for reading the row and column structure out of a tableau. Six are about *dimensions* of the irreducible-representation blocks, split between the $S_n$ side (dim $V_\lambda$) and the $GL(d)$ side (dim $W_\lambda(d)$). Two are about the *action on tensors* (the operational layer that produces a tensor in the right symmetry class).
+The Symmetry layer exports sixteen symbols. Six handle the *combinatorics* of Young diagrams. Two are typed *accessors* for the row and column structure of a tableau. Six are *dimensions* of the irreducible-representation blocks, split between the $S_n$ side ($\dim V_\lambda$) and the $GL(d)$ side ($\dim W_\lambda(d)$). Two are *tensor actions* that produce a tensor in a chosen symmetry class.
 
 | Symbol | Layer | One-line role |
 |---|---|---|
@@ -55,7 +55,7 @@ This is everything you need to declare "this tensor is symmetric in slots 1, 2",
 
 The Symmetry functions in `` Wolfram`TensorNetworks`Symmetry` `` fill exactly this gap. Its `YoungProject` produces tensors that lie in *one $S_n$ irreducible representation*, a condition that always implies extra multi-term identities. The Riemann curvature tensor is the canonical example: living in the $\{2,2\}$ irreducible representation simultaneously satisfies pair-antisymmetry $R_{abcd} = -R_{bacd}$, pair-antisymmetry $R_{abcd} = -R_{abdc}$, pair-swap $R_{abcd} = R_{cdab}$, *and* the algebraic first Bianchi identity $R_{abcd} + R_{acdb} + R_{adbc} = 0$. The three pair conditions are mono-term and reachable by built-in `Symmetrize`; the Bianchi identity is multi-term and is not.
 
-We make this concrete in the Riemann-tensor example later in the tutorial (with a numerical demonstration that built-in `Symmetrize` with the three Riemann pair generators *fails* to enforce Bianchi, while `YoungProject` *succeeds*). For now, the takeaway map:
+The Riemann-tensor example later in the tutorial makes this concrete: built-in `Symmetrize` with the three Riemann pair generators leaves a finite Bianchi residual, while `YoungProject` zeroes it. The map between the two layers:
 
 | Operation | Built-in WL | Symmetry functions |
 |---|---|---|
@@ -66,13 +66,13 @@ We make this concrete in the Riemann-tensor example later in the tutorial (with 
 | Irreducible representation dimension $\dim V_\lambda$ via hook formula | (not supported) | `TableauDimension[par]` |
 | Hook lengths for $S_n$ representation theory | (not supported) | `HookLength`, `HookLengths`, `HookFactor` |
 
-The two layers compose. The Symmetry functions' `YoungSymmetrize` is implemented as two calls to built-in `Symmetrize` (one with `Symmetric /@ rows`, one with `Antisymmetric /@ columns`) plus the row- and column-stabiliser normalisation factors. So the multi-term machinery sits as a direct extension of the mono-term machinery, not as a competitor.
+The two layers compose. `YoungSymmetrize` is two `Symmetrize` calls (`Symmetric /@ rows`, then `Antisymmetric /@ columns`) plus the row- and column-stabiliser normalisation factors. The multi-term machinery extends the mono-term machinery, not competes with it.
 
 ---
 
 ## Setup
 
-Load the paclet and pull the Symmetry functions into scope. From this point every code cell in the tutorial assumes these two `Needs` have been run.
+Load the paclet and pull the Symmetry functions into scope; both `Needs` are assumed in every subsequent cell. The `tol` constant sets the numerical tolerance for "is this tensor identity satisfied?" checks throughout.
 
 ```wolfram
 PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks"];
@@ -82,11 +82,9 @@ Needs["Wolfram`TensorNetworks`Symmetry`"];
 tol = 10^-10;
 ```
 
-`tol` will be our numerical tolerance for "is this tensor identity satisfied?" checks.
-
 ## Picturing a tensor as a diagram
 
-*A rank-$n$ tensor is a node with $n$ labelled legs, one per slot: the visual vocabulary every tensor-network argument leans on whenever an indexed sum reads more naturally as a diagram.*
+*A rank-$n$ tensor is a node with $n$ labelled legs, one per slot. This is the visual vocabulary every tensor-network argument uses when an indexed sum reads more naturally as a diagram.*
 
 Render a generic rank-$7$ tensor as a hypergraph.
 
@@ -94,54 +92,54 @@ Render a generic rank-$7$ tensor as a hypergraph.
 TensorNetwork[{Range[7]}]["Hypergraph"]
 ```
 
-The central blob is the tensor; the seven labelled legs $1, 2, \ldots, 7$ are its slots. Shared legs become bonds between two such nodes, and a tensor network is just a collection of these stars glued at common legs.
+The central blob is the tensor; the seven labelled legs are its slots. Shared legs become bonds between two such nodes, and a tensor network is a collection of these stars glued at common legs.
 
-Two group actions live on this picture, and both will recur throughout the tutorial:
+Two group actions live on this picture, and both recur throughout the tutorial:
 
-- **$S_n$**, the *symmetric group* on $n$ letters, is the set of all $n!$ ways to reorder the slots. It acts on the diagram by **permuting which leg is which**. For our rank-$7$ tensor, $|S_7| = 5040$.
-- **$GL(d)$**, the *general linear group* of $d \times d$ invertible matrices, acts on a single leg of dimension $d$ by **basis change on that leg**, and on the full tensor by changing basis at every leg simultaneously. It is a continuous group of dimension $d^2$.
+- **$S_n$**, the *symmetric group* on $n$ letters, comprises the $n!$ permutations of the slots. It acts on the diagram by **permuting which leg is which**. For rank $7$, $|S_7| = 5040$.
+- **$GL(d)$**, the *general linear group* of $d \times d$ invertible matrices, acts on a single leg of dimension $d$ by **basis change**, and on the full tensor by changing basis at every leg simultaneously. It is a continuous group of dimension $d^2$.
 
-These two actions commute (permuting slots then changing basis, or changing basis then permuting, gives the same result), and Schur-Weyl duality turns the commuting pair into a direct-sum decomposition of $V^{\otimes n}$ into blocks indexed by Young diagrams of size $n$. The Symmetry functions handle the $S_n$ side of that decomposition (`YoungProject` lands a tensor in a chosen block); `SchurDimension` reports the $GL(d)$ side (the block's size at bond dimension $d$).
+The two actions commute, and Schur-Weyl duality turns that commuting pair into a direct-sum decomposition of $V^{\otimes n}$ into blocks indexed by Young diagrams of size $n$. The Symmetry functions handle the $S_n$ side (`YoungProject` lands a tensor in a chosen block); `SchurDimension` reports the $GL(d)$ side (the block size at bond dimension $d$).
 
 ---
 
 # Two indistinguishable particles on a bond
 
-Picture the simplest non-trivial tensor in a tensor network: a rank-2 node $T_{ij}$ on a bond between two physical sites, with each index ranging over a $d$-dimensional local Hilbert space $V$, so $T \in V \otimes V$. This rank-2 bond is the elementary building block of every MPS, MERA, and PEPS, and the symmetry rule we work out here generalises slot-by-slot to every higher-rank tensor in the rest of the tutorial.
+The simplest non-trivial tensor in a tensor network is a rank-2 node $T_{ij}$ on a bond between two physical sites, with each index ranging over a $d$-dimensional local Hilbert space $V$, so $T \in V \otimes V$. This rank-2 bond is the elementary building block of every MPS, MERA, and PEPS, and the symmetry rule worked out here generalises slot-by-slot to every higher-rank tensor in the rest of the tutorial.
 
 ## Identical particles and the exchange operator
 
-Identical quantum particles cannot be distinguished by any measurement. There is no "particle 1" and "particle 2" in nature: photons in a cavity, electrons in an atom, helium-4 atoms in a superfluid, the labels we put on them are bookkeeping, not physics. Quantum mechanics enforces this with a sharp rule on the two-particle wavefunction $\Psi(x_1, x_2)$:
+Identical quantum particles carry no intrinsic labels: photons in a cavity, electrons in an atom, helium-4 atoms in a superfluid, the indices we attach are bookkeeping, not physics. Quantum mechanics enforces this with a sharp rule on the two-particle wavefunction $\Psi(x_1, x_2)$:
 
 $$
 \Psi(x_2, x_1) \;=\; \pm\, \Psi(x_1, x_2).
 $$
 
-The plus sign is the *bosonic* case (integer spin: photons, mesons, He-4, Cooper pairs). The minus sign is the *fermionic* case (half-integer spin: electrons, protons, He-3). The minus sign is the Pauli exclusion principle in disguise: setting $x_1 = x_2$ in the fermionic equation forces $\Psi = 0$, i.e. two identical fermions cannot share a state.
+The plus sign is the *bosonic* case (integer spin: photons, mesons, He-4, Cooper pairs). The minus sign is the *fermionic* case (half-integer spin: electrons, protons, He-3); setting $x_1 = x_2$ forces $\Psi = 0$, the Pauli exclusion principle.
 
-In tensor language, write the wavefunction as $|\Psi\rangle = \sum_{ij} T_{ij} \,|i\rangle \otimes |j\rangle \in V \otimes V$. The *exchange operator* (the SWAP gate in quantum computing) $P_{12}$ acts by relabelling the two factors,
+Write the wavefunction in tensor form, $|\Psi\rangle = \sum_{ij} T_{ij} \,|i\rangle \otimes |j\rangle \in V \otimes V$. The *exchange operator* (the SWAP gate in quantum computing) $P_{12}$ acts by relabelling the two factors,
 
 $$
 P_{12} \,(|i\rangle \otimes |j\rangle) \;=\; |j\rangle \otimes |i\rangle,
 $$
 
-which on coefficients sends $T_{ij}$ to $T_{ji}$. **This is the ordinary transpose $T^T$ of the matrix $T$, not the adjoint (conjugate-transpose) $T^\dagger$.** No complex conjugation enters: the SWAP only relabels which slot is which. So even when $T$ is complex, the bosonic and fermionic conditions are
+sending coefficients $T_{ij} \mapsto T_{ji}$. **This is the ordinary transpose $T^T$, not the adjoint $T^\dagger$.** SWAP relabels slots; no complex conjugation enters. So even for complex $T$, the bosonic and fermionic conditions are
 
 $$
-\text{boson}: \; T \,=\, T^T, \qquad \text{fermion}: \; T \,=\, -\,T^T,
+\text{boson}: \; T \,=\, T^T, \qquad \text{fermion}: \; T \,=\, -\,T^T.
 $$
 
-with $T^T$ the entry-by-entry transpose. Hermiticity, the condition $T = T^\dagger = (T^*)^T$, is a separate and independent constraint; we will come back to it later in this section and show that the Symmetry functions are the wrong tool for it. Built-in WL recognises this distinction: `Matrices[{n,n}, Reals, Hermitian[{1,2}]]` automatically collapses to `Matrices[{n,n}, Reals, Symmetric[{1,2}]]` because the imaginary part of the conjugation drops out on real entries.
+Hermiticity, $T = T^\dagger = (T^*)^T$, is a separate constraint outside the symmetric-group story; built-in WL captures it via `Hermitian[{1,2}]`. On real entries the kernel collapses `Matrices[{n,n}, Reals, Hermitian[{1,2}]]` to `Matrices[{n,n}, Reals, Symmetric[{1,2}]]` because the conjugation has no imaginary part to act on.
 
 ## The symmetric / antisymmetric decomposition
 
-A generic complex matrix $T \in V \otimes V$ is neither symmetric nor antisymmetric. But it always splits cleanly into two pieces,
+A generic complex matrix $T \in V \otimes V$ is neither symmetric nor antisymmetric, but it splits cleanly:
 
 $$
 T \;=\; \tfrac{1}{2}(T + T^T) \;+\; \tfrac{1}{2}(T - T^T),
 $$
 
-with $T_{\text{sym}} = (T + T^T)/2 \in \mathrm{Sym}^2 V$ (dimension $d(d+1)/2$) and $T_{\text{anti}} = (T - T^T)/2 \in \Lambda^2 V$ (dimension $d(d-1)/2$). In quantum-information terms these are the $+1$ and $-1$ eigenspaces of the SWAP gate, and their dimensions add to $d^2$: every two-site tensor has a unique splitting. The Symmetry functions name the two pieces by their *symmetry class* (the partition $\{2\}$ for boson, $\{1,1\}$ for fermion) and compute them with one function call. We could write the splitting by hand, but the Symmetry functions let us name each piece by its symmetry class and apply the right operator without spelling out which transposition to take. That naming is what `YoungTableau` is for.
+with $T_{\text{sym}} \in \mathrm{Sym}^2 V$ (dimension $d(d+1)/2$) and $T_{\text{anti}} \in \Lambda^2 V$ (dimension $d(d-1)/2$). These are the $+1$ and $-1$ eigenspaces of SWAP, and their dimensions sum to $d^2$. The Symmetry functions name the two pieces by their symmetry class (the partition $\{2\}$ for boson, $\{1,1\}$ for fermion) and produce each with a single call. The naming object is the `YoungTableau`.
 
 ## `YoungTableau`: the named handle for a symmetry class
 
@@ -162,7 +160,7 @@ Build the antisymmetric two-box tableau.
 YoungTableau[{1, 1}]
 ```
 
-Each call returns a typed `YoungTableau[...]` object with a summary display. The constructor accepts two forms. We just used the *partition* form, in which the argument is a non-increasing list of row lengths and the slot labels $1,2,\ldots,n$ are filled in row by row. The other form takes the rows of slot labels explicitly; the symmetric two-tableau equivalent reads:
+Each call returns a typed `YoungTableau[...]` with a summary display. The constructor accepts two forms. The *partition* form just used takes a non-increasing list of row lengths and fills slot labels $1, 2, \ldots, n$ row by row. The *explicit-rows* form takes the rows of slot labels directly; the symmetric two-tableau equivalent reads:
 
 ```wolfram
 YoungTableau[{{1, 2}}]
@@ -174,9 +172,9 @@ The antisymmetric two-tableau equivalent reads:
 YoungTableau[{{1}, {2}}]
 ```
 
-The explicit form will matter once we move beyond rank 2, because it lets us choose *which* slot goes in which row and column. For example, `YoungTableau[{{1, 3}, {2}}]` is a $\{2,1\}$-shape tableau on rank 3 where slot 3 is paired with slot 1 in the column (and slot 2 sits alone), not the default `YoungTableau[{{1, 2}, {3}}]` that fills row by row.
+The explicit form matters beyond rank 2 because it picks *which* slot lives in which row and column. For example, `YoungTableau[{{1, 3}, {2}}]` is a $\{2, 1\}$-shape tableau on rank 3 with slot 3 paired with slot 1 in the column, distinct from the default `YoungTableau[{{1, 2}, {3}}]` that fills row by row.
 
-`YoungTableauQ` is the predicate that decides whether a given `YoungTableau[...]` is well-formed under the rules above. It rejects malformed input rather than letting downstream functions crash. Increasing row lengths violate the partition condition.
+`YoungTableauQ` decides whether a `YoungTableau[...]` is well-formed, rejecting malformed input before it reaches `YoungProject`. Increasing row lengths violate the partition condition.
 
 ```wolfram
 YoungTableauQ[YoungTableau[{{1}, {2, 3}}]]
@@ -208,9 +206,9 @@ YoungTableauQ["definitely not a tableau"]
 
 ## Familiar rank-2 tensors and their TN-bond payoffs
 
-This section does two things at once. First, it recognises the two rank-2 tableau classes in matrices the reader has surely met before: "$\{2\}$" and "$\{1,1\}$" are not exotic mathematical objects, they are *every symmetric matrix you have ever seen* and *every antisymmetric matrix you have ever seen*, respectively. Second, it shows three operational TN payoffs of the same projection machinery: the singlet/triplet decomposition, the SWAP-gate eigenspace, and a fermionic bond in a tensor-network contraction. Both sets of examples live in the same rank-2 world, so they share the same `symTab` and `antiTab` and the same `YoungProject` workflow.
+The two rank-2 tableau classes $\{2\}$ and $\{1,1\}$ are nothing exotic: they are every symmetric matrix and every antisymmetric matrix you have ever seen. The examples below confirm this on textbook tensors (metric, Pauli, EM, Levi-Civita, covariance) and then turn the same projection machinery on three operational TN constructs: singlet/triplet decomposition, the SWAP-gate eigenspace, and a fermionic bond inside a tensor-network contraction. All of them share the rank-2 tableaux `symTab` and `antiTab` and the same `YoungProject` workflow.
 
-The four basic single-qubit operators (the identity and the three Pauli matrices) are a clean illustration. Each is a $2 \times 2$ matrix that lies *entirely* in one of the two shapes:
+The four single-qubit operators (identity plus the three Pauli matrices) are a clean illustration. Each is a $2 \times 2$ matrix that lies entirely in one of the two shapes:
 
 ```wolfram
 {Id, sx, sy, sz} = Table[PauliMatrix[j], {j, 0, 3}];
@@ -364,7 +362,7 @@ TensorSymmetry[g]
 
 *The stress-energy tensor of a perfect fluid encodes energy and momentum flow, which is reciprocal, so $T^{\mu\nu} = T^{\nu\mu}$ for any $\rho, p, u^\mu$. `YoungProject` confirms this symbolically, letting a TN library halve the stored components on a stress-energy bond.*
 
-Build the stress-energy tensor of a perfect fluid, $T^{\mu\nu} = (\rho + p)\, u^\mu u^\nu + p\, g^{\mu\nu}$, from a generic 4-velocity and the Minkowski metric. Here $\rho$ is the *energy density* (rest-frame energy per unit volume of the fluid) and $p$ is the *isotropic pressure* (force per unit area the fluid exerts on a surface element, equal in all spatial directions because the fluid is "perfect", meaning no viscosity, no shear stress, and no heat conduction). The four-vector $u^\mu$ is the fluid's normalised 4-velocity, $u^\mu u_\mu = -1$ in the mostly-plus signature used throughout. In the fluid's rest frame $u^\mu = (1, 0, 0, 0)$ and the tensor reduces to $\mathrm{diag}(\rho, p, p, p)$, recovering the textbook "energy density on the time-time component, pressure on each spatial diagonal".
+Build the stress-energy tensor of a perfect fluid, $T^{\mu\nu} = (\rho + p)\, u^\mu u^\nu + p\, g^{\mu\nu}$, from a generic 4-velocity and the Minkowski metric. Here $\rho$ is the energy density, $p$ the isotropic pressure, and $u^\mu$ the fluid's 4-velocity (normalised $u^\mu u_\mu = -1$ in the mostly-plus signature). In the rest frame $u^\mu = (1, 0, 0, 0)$ and $T^{\mu\nu}$ reduces to $\mathrm{diag}(\rho, p, p, p)$. The tensor is manifestly symmetric in $(\mu, \nu)$ for any $\rho, p, u^\mu$.
 
 ```wolfram
 u = Array[uu, 4];
@@ -393,10 +391,10 @@ TensorSymmetry[TSE]
 
 *Mixed partials of a smooth potential commute, so the spring-constant matrix is symmetric. `YoungProject` recasts that textbook identity as a $\{2\}$-projection statement: the antisymmetric remainder is identically zero, checkable in one line.*
 
-The spring-constant matrix is the Hessian $K_{ij} = \partial_i \partial_j V$ of a scalar potential. For a purely quadratic $V(x, y) = \tfrac{1}{2}(3 x^2 + 2 y^2 + xy)$ the Hessian is a constant matrix with no $x, y$ dependence, so no equilibrium-point substitution is needed. We use the Wolfram Function Repository's [`HessianMatrix`](https://resources.wolframcloud.com/FunctionRepository/resources/HessianMatrix/) for the partial-derivative bookkeeping.
+The spring-constant matrix is the Hessian $K_{ij} = \partial_i \partial_j V$ of a scalar potential. For a purely quadratic $V(x, y) = \tfrac{1}{2}(3 x^2 + 2 y^2 + xy)$ the Hessian is a constant matrix with no $x, y$ dependence, so no equilibrium-point substitution is needed. The built-in second-order form `D[V, {{x, y}, 2}]` handles the partial-derivative bookkeeping.
 
 ```wolfram
-K = ResourceFunction["HessianMatrix"][(1/2)(3 x^2 + 2 y^2 + x y), {x, y}]
+K = D[(1/2) (3 x^2 + 2 y^2 + x y), {{x, y}, 2}]
 ```
 
 Project onto the symmetric shape and subtract.
@@ -552,9 +550,9 @@ The antisymmetric projection of the triplet vanishes.
 YoungProject[psiTriplet, antiTab]
 ```
 
-The same singlet bond and symmetric-pair composition is the structural recipe for the 1D AKLT spin-1 chain: a virtual $\{1, 1\}$ singlet on each edge, then a $\{2\}$ symmetric projection on each site combining its two virtual spin-$\tfrac12$ legs into one physical spin-$1$. The resulting bond-dimension-$2$ MPS matrices are $\sigma^\pm$ and $\sigma^z$ up to normalisation; see East, van de Wetering, Chancellor & Grushin ([arXiv:2012.01219](https://arxiv.org/abs/2012.01219)) for the full ZX-diagrammatic derivation. The next subsection takes the same $\{n\}$ symmetric projector but pushes it to $n = 5$ qubits, where it produces a different family of physically meaningful quantum states.
+The same singlet-plus-symmetric-pair composition is the structural recipe for the 1D AKLT spin-1 chain: a virtual $\{1, 1\}$ singlet on each edge, then a $\{2\}$ symmetric projection on each site combining the two virtual spin-$\tfrac12$ legs into a single physical spin-$1$. The resulting bond-dimension-$2$ MPS matrices are $\sigma^\pm$ and $\sigma^z$ up to normalisation; East, van de Wetering, Chancellor & Grushin ([arXiv:2012.01219](https://arxiv.org/abs/2012.01219)) give the ZX-diagrammatic derivation. The next subsection takes the same $\{n\}$ symmetric projector to $n = 5$ qubits, producing a different family of physically meaningful states.
 
-For an arbitrary two-spin coefficient matrix $\psi$, the *singlet amplitude* (the weight of the $S=0$ component in the total state) is the inner product of the normalised singlet with `YoungProject[psi, antiTab]`. This is the Schur-Weyl content of "is this state entangled along the singlet axis?" reduced to a single function call.
+For an arbitrary two-spin coefficient matrix $\psi$, the *singlet amplitude* (the weight of the $S = 0$ component) is the inner product of the normalised singlet with `YoungProject[psi, antiTab]`: "is this state entangled along the singlet axis?" reduced to one function call.
 
 ### SWAP gate as the symmetrise/antisymmetrise machine
 
@@ -602,7 +600,7 @@ Simplify[
 ]
 ```
 
-Both hold identically (not just numerically), so `YoungProject` and SWAP-eigenspace projection are literally the same linear map on rank-2 tensors. The eigenspace dimensions are the ranks of the two SWAP projectors.
+Both hold identically (not just numerically), so `YoungProject` and SWAP-eigenspace projection are the same linear map on rank-2 tensors. The eigenspace dimensions are the ranks of the two SWAP projectors.
 
 ```wolfram
 {MatrixRank[swapPlus], MatrixRank[swapMinus]}
@@ -614,13 +612,13 @@ Three and one, matching $d(d+1)/2$ and $d(d-1)/2$ at $d = 2$: the symmetric bloc
 
 *A fermionic bond carries a tensor that must be antisymmetric under particle exchange (the Pauli principle on a single edge of a TN). One `YoungProject` onto $\{1, 1\}$ enforces this before any contraction; downstream `Dot`, `TensorContract`, and SVD preserve the sector automatically, halving the stored entries from $d^2$ to $d(d-1)/2$.*
 
-Here the projection actually saves memory. Take a one-bond TN with two nodes $A, B$ describing identical fermions, joined by a bond tensor $T$:
+Here the projection saves storage. A one-bond TN with two nodes $A, B$ describing identical fermions and bond tensor $T$ contracts to
 
 $$
 \text{value} \;=\; \sum_{i,j} A_i \, T_{ij} \, B_j.
 $$
 
-The physics demands $T \in \Lambda^2 V$. Storing both halves of $T$ wastes $d(d+1)/2$ slots on a sector that the Pauli principle forbids. One `YoungProject` before any contraction enforces the right sector. Start with a generic random bond tensor at $d = 4$.
+The physics demands $T \in \Lambda^2 V$. Storing both halves of $T$ wastes $d(d+1)/2$ slots on a sector the Pauli principle forbids; one `YoungProject` zeroes it. Start with a generic random bond tensor at $d = 4$.
 
 ```wolfram
 SeedRandom[3];
@@ -677,7 +675,7 @@ Abs[(A . T . B) - (A . TFermi . B)] > tol
 
 After the projection, every downstream TN operation that respects index types (`TensorContract`, `Dot`, SVD on the paired index, partial trace) preserves the antisymmetric class. The orthogonal sector is gone for good, halving the bond's worth of stored numbers in the asymptotic limit. If memory matters more than evaluation speed, you can also store the projected bond as a `SymmetrizedArray[..., Antisymmetric[{1,2}]]`; built-in WL handles tensor-arithmetic on it without ever materialising the dense form.
 
-The same project-first-then-contract pattern carries to higher-rank fermionic networks, to bosonic permutation-invariant Hamiltonians, and (with a different Young diagram) to objects like the Riemann curvature tensor that we will meet in the next section.
+The same project-first-then-contract pattern carries to higher-rank fermionic networks, to bosonic permutation-invariant Hamiltonians, and (with a different Young diagram) to the Riemann curvature tensor in the next section.
 
 ### Magnetization sectors on $n = 5$ qubits from a single $\{n\}$ Young projector
 
@@ -734,12 +732,12 @@ Chop[s2tot . Flatten[wState] - 35/4 Flatten[wState]]
 The W-state is one of $n + 1 = 6$ Dicke states. Building any other one is the same construction with a different bit-string seed; the symmetric Young projector pulls the symmetric component out and normalisation finishes the job.
 
 ```wolfram
-dickeState[k_] := Module[{raw, seed},
-    seed = Normal @ SparseArray[
-        Join[ConstantArray[2, k], ConstantArray[1, n - k]] -> 1,
-        ConstantArray[2, n]
-    ];
-    raw = YoungProject[seed, nTab];
+dickeState[k_] := With[
+    {raw = YoungProject[
+        Normal @ SparseArray[
+            Join[ConstantArray[2, k], ConstantArray[1, n - k]] -> 1,
+            ConstantArray[2, n]],
+        nTab]},
     raw / Norm[Flatten[raw]]
 ];
 dicke = dickeState /@ Range[0, n];
@@ -763,27 +761,27 @@ Table[
 
 Read the rightmost column: at $n = 10$ the symmetric subspace is 11-dimensional inside a 1024-dimensional Hilbert space, a 93-fold compression. Every TN algorithm that promises to stay in the symmetric sector (Dicke-state preparation, Lipkin-Meshkov-Glick spin models, permutation-invariant Ansätze) only needs to allocate and contract $O(n)$ amplitudes per bond, not $O(2^n)$. The `YoungProject` on $\{n\}$ produces the state, the `SchurDimension[{n}, 2]` produces the bond size, and built-in `TensorContract` / `Dot` see and preserve the symmetry sector automatically.
 
-Time the W-state construction across a sweep of $n$ to see how far the same recipe runs. Define a small builder that applies the $\{n\}$ Young projector to the single-excitation seed and normalises, then time it for $n = 4, 6, 8, 10, 12$.
+Time the W-state construction across a sweep of $n$. The builder below applies the $\{n\}$ Young projector to the single-excitation seed and normalises; the table reports $n = 4, 6, 8, 10, 12$.
 
 ```wolfram
-buildW[nn_] := Module[{seed, raw},
-    seed = Normal @ SparseArray[
-        Prepend[ConstantArray[1, nn - 1], 2] -> 1,
-        ConstantArray[2, nn]
-    ];
-    raw = YoungProject[seed, YoungTableau[{nn}]];
+buildW[nn_] := With[
+    {raw = YoungProject[
+        Normal @ SparseArray[
+            Prepend[ConstantArray[1, nn - 1], 2] -> 1,
+            ConstantArray[2, nn]],
+        YoungTableau[{nn}]]},
     raw / Norm[Flatten[raw]]
 ];
 Table[{nn, First @ AbsoluteTiming[buildW[nn]]}, {nn, {4, 6, 8, 10, 12}}]
 ```
 
-The construction stays sub-second up to $n = 12$ on a typical machine. At $n = 13$ and above the internal `SymmetrizedArray` representation that backs `Symmetrize` runs out of memory enumerating orbits of the size-13 (and larger) symmetric group, so this exact recipe stops. The output tensor itself would still fit ($2^{20} = 1$ M doubles $\approx 8$ MB even at $n = 20$); the wall is the symmetriser construction, not the storage. For $n \geq 13$ one bypasses `YoungProject` and builds Dicke states directly in the $(n + 1)$-dimensional symmetric basis with one closed-form binomial amplitude per state; the basis structure and bond dimensions are already determined by `SchurDimension[{n}, 2] = n + 1` regardless of which route produces the state.
+The construction stays sub-second up to $n = 12$. At $n = 13$ and above the internal `SymmetrizedArray` that backs `Symmetrize` runs out of memory enumerating $S_n$ orbits, and the recipe stops. The output tensor would still fit ($2^{20} = 1$ M doubles $\approx 8$ MB even at $n = 20$); the wall is the symmetriser construction, not the storage. For $n \geq 13$, bypass `YoungProject` and build Dicke states directly in the $(n + 1)$-dimensional symmetric basis from one closed-form binomial amplitude per state. The bond size is `SchurDimension[{n}, 2] = n + 1` regardless of which route produces the state.
 
 ### Block-sparse trace: cross-shape contractions vanish identically
 
 *Contracting two bond tensors block-diagonalises along symmetry classes: a symmetric tensor cannot 'see' an antisymmetric one. Projecting onto $\{2\}$ and $\{1, 1\}$ makes this explicit, and Schur orthogonality lets a contraction-path optimiser skip cross-shape products before any multiplication runs.*
 
-The Frobenius trace $\operatorname{tr}(A \cdot B) = \sum_{ij} A_{ij} B_{ji}$ is the basic two-tensor contraction over a rank-2 bond. With the Symmetry functions, this contraction admits a *block-sparse* decomposition: the trace splits into contributions indexed by pairs of symmetry classes, and the two cross-shape pairs vanish identically. A contraction-path optimiser that knows the symmetry can skip them before any multiplication.
+The Frobenius trace $\operatorname{tr}(A \cdot B) = \sum_{ij} A_{ij} B_{ji}$ is the basic two-tensor contraction over a rank-2 bond. It admits a block-sparse decomposition along symmetry classes: the trace splits into pairs $(\lambda, \mu)$ and the two cross-shape pairs vanish identically. A symmetry-aware contraction-path optimiser skips them before any multiplication.
 
 Build two random rank-2 tensors at $d = 6$.
 
@@ -842,15 +840,13 @@ The full trace equals the sum of only the two same-shape block traces.
 Chop[fullTrace - (Tr[Ms1 . Ms2] + Tr[Ma1 . Ma2])]
 ```
 
-For arbitrary symmetric $S$ and antisymmetric $A$, the identity $\operatorname{tr}(S \cdot A) = 0$ follows in one line: $S_{ij} A_{ji} = S_{ji} A_{ji} = -S_{ji} A_{ij}$, then relabel $i \leftrightarrow j$ to get $\operatorname{tr}(S \cdot A) = -\operatorname{tr}(S \cdot A)$. The Symmetry functions turn this textbook lemma into a contraction-path skipping rule: any time a bond connects a tensor declared to lie in $\{2\}$ to one declared to lie in $\{1,1\}$, the contribution is zero by construction. For a single rank-2 trace this skips 50% of the block multiplications; the savings grow with rank, as the rank-3 Schur-Weyl example next shows (the $\{1,1,1\}$ block at $d = 2$ is *entirely empty*, so its block contraction is skipped before any data is touched).
+The textbook identity $\operatorname{tr}(S \cdot A) = 0$ for $S$ symmetric and $A$ antisymmetric is the same Schur-orthogonality statement, in one line: $S_{ij} A_{ji} = S_{ji} A_{ji} = -S_{ji} A_{ij}$, then relabel $i \leftrightarrow j$ to get $\operatorname{tr}(S \cdot A) = -\operatorname{tr}(S \cdot A)$. The Symmetry functions turn this into a contraction-path skipping rule: whenever a bond connects a $\{2\}$-typed tensor to a $\{1, 1\}$-typed one, the contribution is zero by construction. At rank 2 this skips 50% of the block multiplications; the savings grow with rank, as the rank-3 example next shows (at $d = 2$ the $\{1, 1, 1\}$ block is empty, so its contraction is skipped before any data is touched).
 
 ---
 
 # Beyond rank 2: three higher-rank payoffs
 
-The rank-2 examples above had exactly two symmetry classes to choose between, $\{2\}$ and $\{1, 1\}$, and no other Young diagram of size 2 exists. That is the simplest possible setting and it concealed how much of the Symmetry-functions toolbox is dormant when there are only two choices: `IntegerPartitions[2]`, `HookLengths`, `HookFactor`, `TableauDimension`, and `SchurDimension` all return trivially small answers.
-
-At rank 3 and above the toolbox switches on. Partitions of $n$ proliferate (three at $n = 3$, five at $n = 4$, seven at $n = 5$), each carrying a different physical interpretation (bosonic, parastatistical, fermionic, curvature-like) and a different bond-dimension growth in $d$. Enumerating the diagrams, sizing each block, and projecting onto a chosen one now requires the combinatorial functions in earnest, and the three sections below exercise them on three orthogonal axes, each chosen because it isolates a *qualitative* capability the rank-2 examples could not show:
+Rank 2 admits only two Young diagrams ($\{2\}$ and $\{1, 1\}$), so `IntegerPartitions[2]`, `HookLengths`, `HookFactor`, `TableauDimension`, and `SchurDimension` all return trivially small answers. At rank 3 and above the toolbox switches on: partitions of $n$ proliferate (three at $n = 3$, five at $n = 4$, seven at $n = 5$), each with its own physical interpretation (bosonic, parastatistical, fermionic, curvature-like) and bond-dimension growth in $d$. Enumeration, sizing, and projection now require the combinatorial layer in earnest. The three sections below exercise it on three orthogonal axes, each isolating a qualitative capability that the rank-2 examples could not show:
 
 - The **Schur-Weyl decomposition on three sites** uses the full partition arithmetic at rank 3: how a generic $d=2$ three-qubit bond splits into bosonic, parastatistical, and fermionic blocks, and how `TableauDimension[par] * SchurDimension[par, d]` reads off block sizes before any contraction.
 - The **Riemann curvature tensor** is the canonical rank-4 example where built-in `Symmetrize` falls short: the algebraic first Bianchi identity is a multi-term relation that no `{Cycles[...], phase}` generator list can express, and it is the explicit content of the $\{2,2\}$ Young projector. We derive the Bianchi identity from the projector itself rather than verifying it post-hoc.
@@ -886,7 +882,7 @@ Validate each one is a legal Young-diagram shape (non-increasing, positive integ
 PartitionQ /@ parts
 ```
 
-For a bond of dimension $d$, only diagrams with at most $d$ rows contribute (the others give zero-dimensional Weyl modules, as we will see in a moment). The two-argument form `IntegerPartitions[n, d]` enumerates exactly those, pre-filtering the irreducible representations that *can* fit in the bond. At $n = 3$, $d = 2$ the fermionic $\{1, 1, 1\}$ drops out.
+For a bond of dimension $d$, only diagrams with at most $d$ rows contribute; the rest give zero-dimensional Weyl modules. The two-argument form `IntegerPartitions[n, d]` pre-filters to the irreducible representations that fit in the bond. At $n = 3$, $d = 2$ the fermionic $\{1, 1, 1\}$ drops out.
 
 ```wolfram
 IntegerPartitions[3, 2]
@@ -955,7 +951,7 @@ Table[
 
 Read row by row: the $\{3\}$ block has size $1 \cdot 4 = 4$ (a four-dimensional bosonic sector). The $\{2,1\}$ mixed block has size $2 \cdot 2 = 4$. The $\{1,1,1\}$ fermionic block has size $1 \cdot 0 = 0$, *exactly zero*, because you cannot antisymmetrise three slots over a two-dimensional space (the Pauli principle for three spin-$\tfrac12$ particles forbids it). The sum is $4 + 4 + 0 = 8 = d^n$. The decomposition exhausts the tensor space and tells you, without ever forming a projector, that any operation involving the $\{1,1,1\}$ sector can be skipped.
 
-For practitioners who already have a `YoungTableau` object in hand, the tableau-keyed surface `TableauWeylDimension[tab, d]` returns the same GL($d$) dimension by delegating to `SchurDimension[TableauShape[tab], d]`. Pair it with `TableauDimension[tab]` to read both Schur-Weyl factors off the same tableau without re-extracting the partition.
+When the input is already a `YoungTableau`, `TableauWeylDimension[tab, d]` returns the same $\dim W_\lambda(d)$ by delegating to `SchurDimension[TableauShape[tab], d]`. Pair it with `TableauDimension[tab]` to read both Schur-Weyl factors off the same object.
 
 ```wolfram
 TableauWeylDimension[YoungTableau[#], 2] & /@ parts
@@ -963,7 +959,7 @@ TableauWeylDimension[YoungTableau[#], 2] & /@ parts
 
 The construction generalises to higher $n$ and is the foundation of symmetry-resolved DMRG / TDVP: every bond carries an exact decomposition by partition $\lambda$ and the block dimensions are read off in closed form.
 
-Now let us *measure* the decomposition explicitly, projector by projector. For each partition $\lambda \vdash 3$, the isotypic projector $E_\lambda$ on $V^{\otimes 3}$ is the sum of the Young projectors over the *standard tableaux* of shape $\lambda$. There is one standard tableau of shape $\{3\}$ (namely $\{\{1,2,3\}\}$), two of shape $\{2,1\}$ (namely $\{\{1,2\},\{3\}\}$ and $\{\{1,3\},\{2\}\}$, two equal to `TableauDimension[{2,1}]`), and one of shape $\{1,1,1\}$ (namely $\{\{1\},\{2\},\{3\}\}$).
+Measure the decomposition explicitly, projector by projector. For each $\lambda \vdash 3$, the isotypic projector $E_\lambda$ on $V^{\otimes 3}$ is the sum of single-tableau Young projectors over the standard tableaux of shape $\lambda$. There is one of shape $\{3\}$ (namely $\{\{1, 2, 3\}\}$), two of shape $\{2, 1\}$ ($\{\{1, 2\}, \{3\}\}$ and $\{\{1, 3\}, \{2\}\}$, matching `TableauDimension[{2, 1}] = 2`), and one of shape $\{1, 1, 1\}$ ($\{\{1\}, \{2\}, \{3\}\}$).
 
 Build a random rank-3 tensor in $d = 2$.
 
@@ -1003,14 +999,14 @@ And the predicted vanishing of the fermionic piece holds identically:
 Max[Abs[Flatten[e111]]] < tol
 ```
 
-The decomposition is exact, computed without any eigenvalue routine. The role of each Symmetry function here:
+The decomposition is exact, computed without any eigenvalue routine. Each Symmetry function plays a distinct role:
 
 - `YoungTableau` names each block by its shape.
-- `YoungProject` returns the projection of the input tensor onto that block.
-- `TableauDimension` says *how many* standard tableaux there are per shape, which is how many `YoungProject` calls to sum into the isotypic $E_\lambda$.
-- `HookLengths` feeds `SchurDimension` for the GL($d$) factor.
+- `YoungProject` projects the input tensor onto that block.
+- `TableauDimension` counts standard tableaux per shape: the number of `YoungProject` calls to sum into the isotypic $E_\lambda$.
+- `HookLengths` feeds `SchurDimension` for the $GL(d)$ factor.
 
-The projector works the same on complex tensors as on real ones: the exchange operator $P_{12}$ only relabels slots, so $T \mapsto T^T$ uses transpose (no complex conjugation). Build a random complex rank-3 tensor.
+The projector is insensitive to complex entries: $P_{12}$ relabels slots, so $T \mapsto T^T$ is transpose with no conjugation. Repeat on a random complex rank-3 tensor.
 
 ```wolfram
 SeedRandom[11];
@@ -1042,13 +1038,13 @@ The three complex pieces still sum to the original tensor.
 Max[Abs[Flatten[e3c + e21c + e111c - T3c]]] < tol
 ```
 
-Hermiticity is a separate algebraic condition involving `ConjugateTranspose` (i.e. transpose composed with complex conjugation). It lives in built-in WL's `Hermitian[{1,2}]` symmetry head, not in the symmetric-group representation theory the Symmetry functions implement. The two layers compose but do not collapse: a tensor can be Hermitian without being symmetric, and the Young projector touches the symmetric / antisymmetric layer only.
+Hermiticity is `ConjugateTranspose` (transpose composed with conjugation) and lives in built-in WL's `Hermitian[{1,2}]` symmetry head, not in the $S_n$ representation theory the Symmetry functions implement. The two layers compose without collapsing: a tensor can be Hermitian without being symmetric, and the Young projector touches only the symmetric / antisymmetric layer.
 
 ### Block-sparse Frobenius contraction on a rank-3 bond
 
 *Contracting two rank-3 tensors splits cleanly along symmetry sectors: only same-sector pieces talk. `YoungProject` decomposes each tensor into its bosonic, parastatistical, and fermionic blocks; the six cross-block Frobenius products vanish identically by Schur orthogonality, telling the contraction engine which products to skip.*
 
-The block decomposition above is not just a vector-space identity: it makes inner products *block-diagonal*. Concretely, the Frobenius (Hilbert-Schmidt) contraction $\langle T, S \rangle = \sum_{ijk} T_{ijk} S_{ijk}$ between two rank-3 tensors on the same bond splits into a sum of three within-block pieces, with every cross-block term vanishing identically. This is the rank-3 analogue of the rank-2 block-sparse trace we showed before, and it is the workhorse identity behind symmetry-resolved tensor-network contractions: a network of symmetric tensors decomposes into a direct sum of smaller networks, one per irreducible representation.
+The block decomposition is not just a vector-space identity: it makes inner products block-diagonal. The Frobenius (Hilbert-Schmidt) contraction $\langle T, S \rangle = \sum_{ijk} T_{ijk} S_{ijk}$ between two rank-3 tensors on the same bond splits into a sum of three within-block pieces, with every cross-block term zero. This is the rank-3 analogue of the rank-2 block-sparse trace, and it is the workhorse identity behind symmetry-resolved tensor-network contractions: a network of symmetric tensors decomposes into a direct sum of smaller networks, one per irreducible representation.
 
 Build a second random rank-3 tensor $S$ on the same $d{=}2$ bond.
 
@@ -1100,14 +1096,14 @@ Contract within the fully antisymmetric block.
 b111 = Total[Flatten[e111 * f111]]
 ```
 
-To see the same block-sparsity *inside* the paclet's TN flow, start from the **unprojected** two-node network over $T$ and $S$ with all three indices shared, contract it, and recover the full Frobenius product.
+The same block-sparsity holds inside the paclet's TN flow. Build the unprojected two-node network over $T$ and $S$ with all three indices shared, contract it, and recover the full Frobenius product.
 
 ```wolfram
 bareFro = TensorNetworkContract @
     TensorNetwork[{T3, S3}, {{"i", "j", "k"}, {"i", "j", "k"}}, {}]
 ```
 
-Now apply `YoungProject` to both nodes inside the same network, restricting them to a chosen irrep sector before the contraction runs. The helper below sums over the standard tableaux of a given shape, projects both `U` and `V` into that sector, and contracts the resulting two-node TN.
+Apply `YoungProject` to both nodes inside the network, restricting them to a chosen irrep sector before the contraction runs. The helper below sums over the standard tableaux of a given shape, projects both inputs into that sector, and contracts the resulting two-node TN.
 
 ```wolfram
 sectorContract[U_, V_, syt_List] :=
@@ -1171,19 +1167,19 @@ Chop[{Total[Flatten[e3 * f21]],   Total[Flatten[e3 * f111]],
       Total[Flatten[e111 * f3]],  Total[Flatten[e111 * f21]]}]
 ```
 
-A particularly physical instance: at bond dimension $d{=}2$ the fully antisymmetric block $\{1,1,1\}$ is identically zero, since one cannot fit three mutually orthogonal antisymmetric labels into a two-dimensional space (Pauli exclusion for three fermions on a two-level bond).
+At $d = 2$ the fully antisymmetric block $\{1, 1, 1\}$ is identically zero: three mutually orthogonal antisymmetric labels cannot fit in a two-dimensional space (Pauli exclusion for three fermions on a two-level bond).
 
 ```wolfram
 Chop[b111]
 ```
 
-That zero is exact, not numerical. It is the same Pauli-exclusion zero that killed the rank-2 antisymmetric singlet at $d{=}1$, now lifted by one slot. So at $d{=}2$ the full Frobenius product on a rank-3 bond is exhausted by only two within-block contractions, the $\{3\}$ and $\{2,1\}$ pieces.
+That zero is exact, not numerical: the same Pauli-exclusion zero that killed the rank-2 antisymmetric singlet at $d = 1$, lifted by one slot. At $d = 2$ the full Frobenius product on a rank-3 bond is exhausted by only two within-block contractions, the $\{3\}$ and $\{2, 1\}$ pieces.
 
 ```wolfram
 Chop[froFull - (b3 + b21)]
 ```
 
-For a tensor-network practitioner the payoff is concrete: if the bond carries an $S_n$ symmetry constraint, only the irreducible representations whose Young diagrams fit inside the local Hilbert-space dimension $d$ contribute. Diagrams with more than $d$ rows give the zero subspace and can be dropped from the bond enumeration before any contraction begins. The combinatorial functions `TableauDimension`, `HookFactor`, and the diagram itself are exactly the bookkeeping needed for this dimension-aware enumeration.
+The payoff for TN code is concrete: with an $S_n$ symmetry constraint on the bond, only irreducible representations whose diagrams fit in dimension $d$ contribute. Diagrams with more than $d$ rows give the zero subspace and drop out of the bond enumeration before any contraction begins. `TableauDimension`, `HookFactor`, and the diagram itself are exactly the bookkeeping for this dimension-aware enumeration.
 
 ## The Riemann tensor as a TN node
 
@@ -1198,7 +1194,7 @@ The Riemann curvature tensor $R_{abcd}$ is a rank-4 tensor with four classical s
 
 The first three are *single-term* slot symmetries (each says $T = \pm T^\sigma$ for one permutation $\sigma$). Standard WL canonicalisation via `TensorReduce[Arrays[..., sym]]` covers them. The fourth, the first Bianchi identity, is *multi-term*: a sum of three permutations is zero, and no single $(\sigma, \phi)$ pair tells you that. **This is the gap the Symmetry functions fill.**
 
-But all four constraints are the content of a single $S_4$ irreducible representation, the one labelled by the partition $\{2,2\}$. The Riemann tensor is *literally* the projection of a generic rank-4 tensor onto this irreducible representation. One `YoungProject` call enforces everything at once.
+All four constraints together are the content of a single $S_4$ irreducible representation, the one labelled by the partition $\{2, 2\}$. The Riemann tensor *is* the projection of a generic rank-4 tensor onto this irreducible representation, and one `YoungProject` call enforces every constraint at once.
 
 Before doing the projection, inspect the combinatorial data of the $\{2, 2\}$ diagram. First, confirm $\{2, 2\}$ is a valid partition.
 
@@ -1289,7 +1285,7 @@ Built-in `Symmetrize` produces a tensor with the three pair symmetries, but the 
 
 *The four classical Riemann symmetries are not separately *assumed* but *derived* from the $\{2, 2\}$ projector itself. Searching the right-annihilator of $R$ in the group algebra $\mathbb{C}[S_4]$ recovers the textbook first Bianchi identity as one specific kernel element, without naming it in advance.*
 
-The {2,2} Young projector is the *definition* of the Riemann irreducible representation: every tensor in its image satisfies a complete set of algebraic identities, mono-term and multi-term. The interesting question is not "does `YoungProject` reproduce the four classical Riemann symmetries?" (it does, by construction), but: **can we derive those identities from the projector itself**, without listing them in advance? The answer is yes, and the derivation is what makes the Symmetry functions *generative* rather than merely verifying.
+The $\{2,2\}$ Young projector *defines* the Riemann irreducible representation: every tensor in its image satisfies the four classical Riemann identities by construction. The more interesting move is the reverse direction, **deriving those identities from the projector**, without listing them in advance. The Symmetry functions make this constructive rather than verifying.
 
 Begin by fixing a slot labelling: build the rank-4 Young tableau whose two columns hold the two antisymmetric pairs and whose two rows hold the pair-swap-symmetric slots.
 
@@ -1304,7 +1300,7 @@ tab = YoungTableau[{{1, 3}, {2, 4}}];
 R = YoungProject[T0, tab];
 ```
 
-An element $\sum_k c_k\, \sigma_k$ of the group algebra $\mathbb{C}[S_4]$ acts on $R$ as $\sum_k c_k\, \sigma_k(R)$ via slot permutations, and is an *algebraic identity of $R$* precisely when that sum is zero. So the right-annihilator of $R$ in $\mathbb{C}[S_4]$ is exactly the space of identities the $\{2,2\}$ irreducible representation enforces, and we can *search* it. Precompute the 24 permuted copies of $R$ once and define the predicate as a single dot product against a coefficient vector.
+An element $\sum_k c_k\, \sigma_k \in \mathbb{C}[S_4]$ acts on $R$ as $\sum_k c_k\, \sigma_k(R)$, and is an algebraic identity of $R$ exactly when that sum is zero. The right-annihilator of $R$ in $\mathbb{C}[S_4]$ is the space of identities the $\{2, 2\}$ irreducible representation enforces, and it is searchable: precompute the 24 permuted copies of $R$ once and the relation predicate becomes a single dot product against a coefficient vector.
 
 ```wolfram
 perms = Permutations[Range[4]];
@@ -1353,9 +1349,9 @@ Two three-term annihilators. One of them is precisely the cyclic permutations of
 Position[threeTerm, {{1, 2, 3, 4}, {1, 3, 4, 2}, {1, 4, 2, 3}}]
 ```
 
-Bianchi appears at position 1; the second three-term identity is its image under the pair-swap-plus-(34)-antisym relations already discovered in the two-term sweep. The first Bianchi identity, the multi-term constraint that built-in `Symmetrize` could not reach, has been *generated* from the $\{2,2\}$ Young projector, not assumed, not looked up, not verified after the fact.
+Bianchi appears at position 1; the second three-term identity is its image under the pair-swap-plus-(34)-antisym relations already in the two-term sweep. The multi-term constraint that `Symmetrize` could not reach has been generated from the $\{2, 2\}$ Young projector itself, not assumed, not looked up.
 
-For completeness, point-check the four classical Riemann identities on $R$ directly (now redundant, since each is in the discovered list).
+For completeness, point-check the four classical Riemann identities on $R$ directly (redundant now, since each is in the discovered list).
 
 ```wolfram
 Max[Abs[Flatten[R + Transpose[R, {2, 1, 3, 4}]]]] < tol
@@ -1387,13 +1383,13 @@ After projection, the mono-term content of $R$ is detected by `TensorSymmetry`:
 TensorSymmetry[R]
 ```
 
-Built-in WL reports the three Riemann pair generators. It does *not* (and cannot) report Bianchi as a generator: Bianchi is not a `{perm, phase}` relation. But it is satisfied identically by the components of $R$, as the numerical check above confirms. The Symmetry functions' job is "produce a tensor in this irreducible representation"; the built-in `TensorSymmetry`'s job is "read off the mono-term subgroup of its slot symmetries". The two answers compose cleanly because `YoungProject` outputs a real array (or a `SymmetrizedArray`-compatible structure) that built-in WL handles directly.
+Built-in WL reports the three Riemann pair generators. Bianchi is not a `{perm, phase}` relation so it cannot be a generator here, even though it is satisfied identically by the components of $R$. The roles divide cleanly: the Symmetry functions produce a tensor in the irreducible representation, `TensorSymmetry` reads off the mono-term subgroup of its slot symmetries. `YoungProject` outputs a plain array (or a `SymmetrizedArray`-compatible structure) that built-in WL handles directly.
 
 ### The TN reward
 
 *Once $R$ sits in the $\{2, 2\}$ block, contracting one upper-lower pair via `TensorContract` produces the symmetric Ricci tensor with no separate re-symmetrisation step. Built-in tensor machinery sees and preserves the irreducible-representation structure automatically.*
 
-Once $R$ lives in the right irreducible representation, downstream contractions preserve the structure for free. The Euclidean Ricci tensor is the partial trace $R_{bd} = \delta^{ac} R_{abcd}$, which we write as `TensorContract[R, {{1,3}}]`. It comes out symmetric automatically:
+Once $R$ lives in the right irreducible representation, downstream contractions preserve the structure for free. The Euclidean Ricci tensor is the partial trace $R_{bd} = \delta^{ac} R_{abcd}$, written `TensorContract[R, {{1, 3}}]`. It comes out symmetric automatically:
 
 ```wolfram
 Ric = TensorContract[R, {{1, 3}}];
@@ -1435,7 +1431,7 @@ Twenty, as expected. The full $S_4 \otimes GL(d)$ block dimension is twice this,
 
 *A rank-4 TN tensor at bond dimension $d = 4$ splits into five irreducible-representation blocks of sizes $\{35, 135, 40, 45, 1\}$, summing to $4^4 = 256$. `IntegerPartitions[4]`, `TableauDimension`, and `SchurDimension` together produce this table in closed form, which a symmetry-resolved TN library consults to pre-allocate block storage before any contraction runs.*
 
-Putting all five partitions of 4 together, the rank-4 tensor space at bond dimension $d = 4$ decomposes block-by-block.
+All five partitions of 4 together decompose the rank-4 tensor space at $d = 4$ block-by-block.
 
 ```wolfram
 Table[
@@ -1451,15 +1447,15 @@ Read the totals column ($\dim V_\lambda \cdot \dim W_\lambda(4)$): $35 + 135 + 4
 Total[TableauDimension[#] * SchurDimension[#, 4] & /@ IntegerPartitions[4]]
 ```
 
-The total is $256 = 4^4$, confirming exhaustiveness. A TN library allocating a generic rank-4 tensor with one bond of dimension $4$ can carry the same data either as a $4^4 = 256$-dimensional flat array, or as five block-sparse pieces of dimensions $\{35, 135, 40, 45, 1\}$. If symmetry forbids transitions between certain $\lambda$ sectors (say, only $\{2,2\}$ is dynamical, as for a *curvature* tensor under a constraint that fixes the other irreducible representations to zero), the block-sparse form needs only $40$ numbers instead of $256$. That is a $6.4\times$ compression at $d = 4$, growing rapidly with $d$: at $d = 6$, the $\{2,2\}$ block holds $2 \cdot 105 = 210$ out of $6^4 = 1296$ numbers, a $6.2\times$ compression that translates directly into smaller bond contractions.
+The total is $256 = 4^4$: the five sectors exhaust the space. A TN library can carry the same data either as a flat $256$-vector or as five block-sparse pieces of sizes $\{35, 135, 40, 45, 1\}$. When symmetry forbids transitions between sectors (e.g. only $\{2, 2\}$ is dynamical, as for a curvature tensor), the block-sparse form needs $40$ numbers instead of $256$: a $6.4\times$ compression at $d = 4$, $6.2\times$ at $d = 6$ ($\{2, 2\}$ block holds $2 \cdot 105 = 210$ out of $6^4 = 1296$), and so on.
 
-The dimension-counting computation costs nothing beyond a few hook-length products. It is the cheapest pre-allocation step in a symmetry-resolved TN code.
+The dimension counting itself costs only a few hook-length products, the cheapest pre-allocation step in a symmetry-resolved TN code.
 
 ### Block-sparse contraction on a rank-4 bond
 
 *Contracting two rank-4 tensors at $d = 4$ splits into a $5 \times 5$ same-sector-only diagonal: 20 cross-sector products are zero by Schur orthogonality. When one tensor is symmetry-constrained (e.g. Riemann-like, $\{2, 2\}$-block only), the contraction collapses from 256 multiplications to 40, a $6.4\times$ FLOP saving per bond that compounds across a many-tensor network.*
 
-The enumeration above is not just bookkeeping. Every Frobenius contraction of two rank-4 tensors at $d = 4$ block-decomposes by Schur orthogonality: only same-sector pairs contribute, every cross-sector contribution vanishes identically. Build two generic random rank-4 tensors.
+The enumeration is more than bookkeeping. Every Frobenius contraction of two rank-4 tensors at $d = 4$ block-decomposes by Schur orthogonality: only same-sector pairs contribute, every cross-sector contribution is zero. Build two generic random rank-4 tensors.
 
 ```wolfram
 SeedRandom[42];
@@ -1515,20 +1511,20 @@ Chop @ Outer[
 ] // MatrixForm
 ```
 
-The TN payoff is now concrete: in block-sparse storage, the off-diagonal terms are *never computed*, because the kernel knows they are zero. For two generic rank-4 tensors the within-sector sums still total $256$ multiplications, so no savings. The savings appear the moment a tensor is *constrained* to a single sector. The clearest case is a Riemann-like tensor that lives only in the $\{2, 2\}$ block: its contraction with any other tensor only sees the $\{2, 2\}$-component of the partner, a $40$-multiplication operation instead of $256$.
+The TN payoff is concrete: in block-sparse storage the off-diagonal terms are never computed. For two generic tensors the within-sector sums still total $256$ multiplications, so no savings. The win appears when a tensor is constrained to a single sector. A Riemann-like tensor lives only in the $\{2, 2\}$ block, so its contraction with any partner only sees the partner's $\{2, 2\}$ component: a $40$-multiplication contraction instead of $256$.
 
 ```wolfram
 T2riemann = T2blk[{2, 2}];
 {Total[Flatten[T1 * T2riemann]], Total[Flatten[T1blk[{2, 2}] * T2riemann]]}
 ```
 
-Both contractions return the same scalar: only the $\{2, 2\}$ projection of $T_1$ contributes when its partner is Riemann-like. That is the **$6.4 \times$ FLOP saving** on this single bond contraction, with no approximation. In a many-tensor TN of symmetric or curvature-like tensors, these per-contraction savings compound multiplicatively, and the dimension table above is what tells the contraction-path optimiser which sector products to skip *before any multiplication runs*.
+Both contractions return the same scalar: only the $\{2, 2\}$ projection of $T_1$ contributes when its partner is Riemann-like. That is the $6.4 \times$ FLOP saving on this single bond contraction, with no approximation. In a many-tensor TN of symmetric or curvature-like tensors the per-bond savings compound multiplicatively, and the dimension table above tells the contraction-path optimiser which sector products to skip before any multiplication runs.
 
 ## A class-function Hamiltonian and content sums
 
 *A permutation-invariant Hamiltonian $H = \sum_{i<j} P_{ij}$ on $n$ identical sites commutes with every isotypic projector, so its spectrum is the list of content sums $c(\lambda)$ over partitions of $n$ with multiplicities $\dim V_\lambda \cdot \dim W_\lambda(d)$. `TableauDimension`, `HookLengths`, and `SchurDimension` deliver every spectral line and degeneracy in closed form, no eigenvalue routine needed.*
 
-Pure $\dim V_\lambda$ values are useful, but the Symmetry functions also pre-compute *eigenvalues* of certain Hamiltonians without any diagonalisation. The relevant Hamiltonians are *class functions* of $S_n$: operators built from permutations whose value depends only on cycle structure. The classic example is the sum-of-all-pair-swaps
+The dimensions alone are useful, but the Symmetry functions also pre-compute eigenvalues of Hamiltonians that are *class functions* of $S_n$: operators built from permutations whose value depends only on cycle structure. The classic example is the sum of all pair-swaps,
 
 $$
 H \;=\; \sum_{i < j} P_{ij}
@@ -1609,27 +1605,68 @@ Max[Abs[spectrum - predicted]] < tol
 
 The two lists agree exactly. The numerical diagonalisation was a courtesy; the spectrum was already determined by the combinatorics of `TableauDimension`, `SchurDimension` (powered by `HookLengths`), and `contentSum`.
 
-This pattern is what makes the Symmetry functions interesting for TN simulation of permutation-invariant systems. Hamiltonians that are class functions of the permutation group on the sites (e.g. all-to-all exchange interactions, certain $J_1$-$J_2$ symmetric models, collective spin models) have their entire spectrum determined by partitions of $n$ and block multiplicities. No exact diagonalisation, no Lanczos sweep, no SVD: just a sum over the rows of an $|\text{IntegerPartitions}[n]|$-entry table.
+That cross-check used an $8 \times 8$ matrix. The combinatorial path scales with the number of partitions $p(n)$, which grows slowly with $n$, while explicit diagonalisation scales with the matrix dimension $d^n$, which grows quickly. Generalise the helpers and time both paths on a larger system.
+
+```wolfram
+applySwapND[a_, b_, n_, d_] := Module[{perm = Range[n]},
+    perm[[{a, b}]] = perm[[{b, a}]];
+    ArrayReshape[
+        Transpose[
+            ArrayReshape[IdentityMatrix[d^n], ConstantArray[d, 2 n]],
+            Join[perm, Range[n + 1, 2 n]]
+        ],
+        {d^n, d^n}
+    ]
+];
+
+classFnH[n_, d_] :=
+    Total[applySwapND[#[[1]], #[[2]], n, d] & /@ Subsets[Range[n], {2}]];
+
+partitionSpectrum[n_, d_] := Sort[
+    Flatten @ Map[
+        ConstantArray[contentSum[#],
+            TableauDimension[#] * SchurDimension[#, d]] &,
+        IntegerPartitions[n]
+    ],
+    Greater
+];
+```
+
+At $n = 6$, $d = 2$ the Hilbert space is 64-dimensional and the explicit Hamiltonian is a dense $64 \times 64$ matrix. Clear the cache and time both paths.
+
+```wolfram
+ClearSystemCache[];
+{tCombi, sCombi} = AbsoluteTiming @ partitionSpectrum[6, 2];
+ClearSystemCache[];
+{tNaive, sNaive} = AbsoluteTiming @ Sort[Eigenvalues @ classFnH[6, 2], Greater];
+{tCombi, tNaive}
+```
+
+```wolfram
+Max[Abs[sCombi - sNaive]] < tol
+```
+
+The two spectra match to machine precision, and the combinatorial path finishes in sub-millisecond time while the dense diagonalisation takes orders of magnitude longer. The gap widens with $n$ and $d$, because the combinatorial cost is set by $p(n)$ partitions while the diagonalisation cost scales with $d^n$.
+
+This is the payoff for permutation-invariant systems. Hamiltonians that are class functions of $S_n$ on the sites (all-to-all exchange, certain $J_1$-$J_2$ symmetric models, collective spin models) have their full spectrum determined by partitions of $n$ and block multiplicities. No exact diagonalisation, no Lanczos sweep, no SVD: a single sum over an $|\text{IntegerPartitions}[n]|$-entry table delivers every eigenvalue with multiplicity.
 
 ---
 
 # Where this leaves us
 
-You have now used every Symmetry function in `` Wolfram`TensorNetworks`Symmetry` `` at least once on a tensor with a physical reason to exist.
+Every Symmetry function in `` Wolfram`TensorNetworks`Symmetry` `` has appeared at least once on a tensor with a physical reason to exist. Five operational capabilities follow:
 
-Five concrete things you can now do:
-
-- **Block-size prediction.** Given a rank-$n$ tensor and a partition $\lambda \vdash n$, read the size of the $\lambda$-isotypic block at any bond dimension $d$ from a single `TableauDimension[par] * SchurDimension[par, d]` call, and identify sectors that vanish identically (the rank-3 fermionic sector at $d = 2$, the rank-4 fully-antisymmetric sector at $d \leq 3$, and so on). Demonstrated in the rank-3 Schur-Weyl table and the rank-4 enumeration.
-- **Multi-term symmetry projection.** Enforce all classical Riemann symmetries (including the multi-term first Bianchi identity) with a single `YoungProject` call onto the $\{2, 2\}$ tableau, in cases where built-in `Symmetrize` reaches only the mono-term subset. Demonstrated in the Riemann section, where the same projector is also used to *derive* those identities from scratch by searching the right-annihilator in $\mathbb{C}[S_4]$.
-- **Statistics-sector projection that survives contraction.** Project a TN bond onto a chosen statistics sector (boson, fermion, or mixed) and have built-in `TensorContract` and `Dot` preserve the sector automatically downstream. Demonstrated for the fermionic bond (rank-2 antisymmetric) and the Ricci-from-Riemann partial trace (which lands symmetric without re-symmetrisation).
-- **Block-sparse contraction.** Replace a dense $d^n$-element bond contraction by the sum of within-sector contractions over the irreducible-representation blocks, with cross-sector products zero by Schur orthogonality. Demonstrated at rank 2 (block-sparse trace), rank 3 (block-sparse Frobenius), and rank 4 (the $5 \times 5$ same-sector-only diagonal; $6.4\times$ FLOP saving when one tensor is Riemann-like).
-- **Class-function Hamiltonian spectrum from combinatorics.** For a permutation-invariant Hamiltonian like $H = \sum_{i<j} P_{ij}$, read off every eigenvalue and its degeneracy from `TableauDimension`, `HookLengths`, `SchurDimension`, and a one-line `contentSum` helper (the content sum $c(\lambda) = \sum_{(i,j) \in \lambda} (j - i)$), with no numerical diagonalisation. Demonstrated in the class-function H section and cross-checked against `Eigenvalues` on the explicit $8 \times 8$ matrix.
+- **Block-size prediction.** For a rank-$n$ tensor and partition $\lambda \vdash n$, read the size of the $\lambda$-isotypic block at any bond dimension $d$ from `TableauDimension[par] * SchurDimension[par, d]`, and identify sectors that vanish identically (rank-3 fermionic at $d = 2$, rank-4 fully antisymmetric at $d \leq 3$, etc.). Demonstrated in the rank-3 Schur-Weyl table and the rank-4 enumeration.
+- **Multi-term symmetry projection.** Enforce all classical Riemann symmetries (the three pair relations plus the multi-term first Bianchi identity) with a single `YoungProject` onto the $\{2, 2\}$ tableau, where built-in `Symmetrize` reaches only the mono-term subset. Demonstrated in the Riemann section, which also derives those identities by searching the right-annihilator of $R$ in $\mathbb{C}[S_4]$.
+- **Statistics-sector projection that survives contraction.** Project a TN bond onto a chosen statistics sector (boson, fermion, or mixed); built-in `TensorContract` and `Dot` preserve the sector automatically downstream. Demonstrated on the fermionic bond and the Ricci partial trace.
+- **Block-sparse contraction.** Replace a dense $d^n$-element bond contraction by the sum of within-sector contractions over the irreducible-representation blocks; cross-sector products are zero by Schur orthogonality. Demonstrated at rank 2 (block-sparse trace), rank 3 (block-sparse Frobenius), and rank 4 (the $5 \times 5$ same-sector-only diagonal; $6.4\times$ FLOP saving with one Riemann-like tensor).
+- **Class-function Hamiltonian spectrum from combinatorics.** For $H = \sum_{i < j} P_{ij}$, every eigenvalue with multiplicity follows from `TableauDimension`, `HookLengths`, `SchurDimension`, and a one-line `contentSum` helper, with no diagonalisation. The class-function H section measures both paths, with the combinatorial path orders of magnitude faster at $n = 6, d = 2$.
 
 Three traps worth flagging:
 
-- `YoungSymmetrize` returns the *unnormalised* symmetriser $c_T$; if you want a projector ($P^2 = P$), call `YoungProject`. Iterative TN algorithms need the idempotent.
-- The Young symmetriser is applied as "rows first, columns second": row symmetry can be broken by the subsequent column antisymmetrisation. For non-trivial mixed-symmetry diagrams (anything other than fully-row or fully-column), the *first* symmetry imposed is not generally preserved.
-- The validator is strict: tableau slot labels must be a permutation of $1, 2, \ldots, n$. Older examples that used distinct positive integers outside this range (e.g. `{{3,5,7},{1,2}}`) are now rejected.
+- `YoungSymmetrize` returns the *unnormalised* symmetriser $c_T$; for a projector ($P^2 = P$) call `YoungProject`. Iterative TN algorithms need the idempotent.
+- The Young symmetriser is applied rows-first, columns-second: row symmetry can be broken by the subsequent column antisymmetrisation. For mixed-symmetry diagrams (anything other than fully-row or fully-column) the first symmetry imposed is not generally preserved.
+- The validator is strict: tableau slot labels must be a permutation of $1, 2, \ldots, n$. Distinct positive integers outside that range (e.g. `{{3, 5, 7}, {1, 2}}`) are rejected.
 
 ## Function-by-function quick reference
 
@@ -1653,3 +1690,4 @@ Three traps worth flagging:
 | `YoungProject[T, tab]` | tensor of rank $n$ + tableau of size $n$ | tensor | Rank-2 tensors (and Three TN payoffs) |
 
 The sections above sit on top of these sixteen calls. Anywhere a symmetry-resolved tensor network needs sizing, block enumeration, or constraint enforcement, the right call is one of them.
+
