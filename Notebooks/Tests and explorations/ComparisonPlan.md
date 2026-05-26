@@ -1,717 +1,414 @@
-# TensorNetworks Package Comparison & Enhancement Plan
+# Wolfram/TensorNetworks: Comparison & Enhancement Plan
 
-## Executive Summary
+**Paclet:** `Wolfram/TensorNetworks` v1.0.4 (PrimaryContext `Wolfram`TensorNetworks``).
+**Audit date:** 2026-05-25.
+**Scope:** every exported kernel symbol across `Kernel/*.wl`, `Kernel/IndexArray/*.wl`, and `Kernel/Symmetry/*.wl`, scored against the cataloged external corpora at `Tests/external_validation/` (503 numerical entries) and `TN courses/External symbolic tensor/` (150 symbolic entries).
 
-This plan outlines a comprehensive comparison between the Wolfram Mathematica TensorNetworks package and major competing tensor network libraries, identifying unique advantages and proposing enhancements to showcase Mathematica's strengths.
-
----
-
-## Part 1: Competing Libraries Overview
-
-### Primary Competitors
-
-| Library | Language | Focus | Status |
-|---------|----------|-------|--------|
-| **Cotengra** | Python | Contraction path optimization | Active (v0.7.5, June 2025) |
-| **Quimb** | Python | Quantum info & arbitrary geometry | Active, MPI/DASK/JAX support |
-| **ITensor** | Julia | DMRG & quantum number conservation | Active (v0.9, March 2025) |
-| **TeNPy** | Python | DMRG algorithms | Active, similar perf to ITensor |
-| **Google TensorNetwork** | Python | ML/TensorFlow integration | Stale (last update 2021) |
-| **cuTensorNet** | CUDA | GPU-accelerated contractions | Active, NVIDIA ecosystem |
+This document supersedes the earlier draft (which predated the IndexArray/MetricTensor subpackage, the Rust path optimizer, the Young-tableau module, the QuantumFramework downstream integration, and the external-validation suite). It is a planning document, not a tutorial; pair it with the existing tutorials under `TensorNetworks/Documentation/English/Tutorials/`.
 
 ---
 
-## Part 2: Feature Comparison Matrix
+## Part 1. Paclet surface area (audited)
 
-### 2.1 This Package's Core Functions
+Every symbol below is exported by the current kernel. Counts at the end of each subsection.
 
-| Category | Functions | Unique to Mathematica? |
-|----------|-----------|----------------------|
-| **Core** | `TensorNetwork`, `TensorNetworkContract` | Hyperedge-based representation |
-| **Path Optimization** | `GreedyContractionPath`, `OptimalContractionPath` | Rust-integrated, 6 cost methods |
-| **Contraction** | 5 methods: ArrayDot, ArrayDotTranspose, TensorContract, Dot, TableSum | **Yes** - TableSum for symbolic |
-| **MPS** | `MPSCanonicalForm`, `MPSEntanglementEntropy`, `MPSSchmidtValues`, `MPSTruncate` | Full canonical forms |
-| **Symmetry** | `YoungTableau`, `YoungSymmetrize`, `YoungProject` | **Yes** - No competitor has this |
-| **Index Algebra** | `IndexArray`, `IndexJuggling`, `IndexContract` | **Yes** - Covariant/contravariant |
-| **Einstein** | `EinsteinSummation`, `IndexedMultiply` | Both string and list notation |
-| **Networks** | `RandomTensorNetwork` (MPS, TT, MPO, PEPS, TTN, MERA) | All standard architectures |
-| **Graphs** | `ToTensorNetworkGraph`, `TensorNetworkIndexGraph` | Bidirectional conversion |
+### 1.1 Core data structure (`Kernel/TensorNetwork.wl`, 692 LOC)
 
-### 2.2 Comparison with Competitors
+`TensorNetwork`, `TensorNetworkQ`, `TensorNetworkData`, `TensorNetworkSize`, `TensorNetworkContractions`, `BinaryTensorNetwork`, `BinaryTensorNetworkQ`, `SparseTensorNetwork`, `RandomTensorNetwork`, `TensorNetworkAdd`, `TensorNetworkDelete`. (11 symbols.)
 
-| Feature | Mathematica | Cotengra | Quimb | ITensor | cuTensorNet |
-|---------|-------------|----------|-------|---------|-------------|
-| **Symbolic tensors** | **YES** | No | No | No | No |
-| **Young tableaux** | **YES** | No | No | No | No |
-| **Covariant/contravariant** | **YES** | No | No | No | No |
-| **Multiple contraction methods** | **5** | 1 | 1 | 1 | 1 |
-| **Path optimization** | Greedy+Optimal | HyperOptimizer | Via Cotengra | Basic | Sliced |
-| **MPS canonicalization** | Full | No | Yes | **Best** | No |
-| **DMRG ground state** | No | No | Yes | **Best** | No |
-| **GPU acceleration** | No | Via backend | JAX | Limited | **Best** |
-| **Visualization** | **Native** | Limited | Jupyter | CLI | No |
-| **Notebooks** | **Native** | Jupyter | Jupyter | No | No |
+Constructor forms: `TensorNetwork[tensors, hyperedges, output]`, `TensorNetwork[arrays, in -> out]`, `TensorNetwork[hypergraph -> out, dims]` (Association or List), `TensorNetwork[Inactive[TensorContract][TensorProduct[ts], cs]]`, `TensorNetwork[Transpose[expr, perm_Cycles]]`, and `TensorNetwork[graph]`.
 
----
+`RandomTensorNetwork` named topologies, with `"Boundary" -> "Open" | "Periodic"`: `"MPS"[L, χ, d]`, `"TT"[L, χ]`, `"MPO"[L, χ, d]`, `"PEPS"[{rows, cols}, χ, d]`, `"TTN"[depth, χ, branching]`, `"MERA"[width, χ, layers]`. Tensors come from `RandomReal` or `RandomComplex` via `Method -> "Complex"`.
 
-## Part 3: Unique Advantages of Mathematica Approach
+Property dispatch on a valid `TensorNetwork`: `"Tensors"`, `"Hyperedges"`, `"FreeIndices"`, `"Dimensions"`, `"Indices"`, `"Size"`, `"IndexDimensions"`, `"Ranks"`, `"Graph"`, `"GraphData"`, `"Data"`, `"Contractions"`, `"OutputDimensions"`, `"OutputDimension"`, `"Hypergraph"` (via `WolframInstitute/Hypergraph` paclet), `"BinaryQ"`, `"SparseQ"`, and `"Properties"`.
 
-### 3.1 Symbolic Computation (NO COMPETITOR HAS THIS)
+Validation uses `System`Private`HoldValidQ` caching with loud `TensorNetwork::length`, `::shape`, `::dim`, `::output` messages on the failure path; the silent path is preserved only for symbolic tensors with `TensorDimensions[t] === {}`.
 
-**What it enables:**
-- Exact algebraic results instead of floating-point approximations
-- Parametric tensor analysis with symbolic parameters
-- Lazy evaluation via `Inactive[TensorContract]`
-- Algebraic simplification of tensor expressions
+### 1.2 Contraction path optimization (`Kernel/Paths.wl` + `Kernel/TensorNetworks.wl`, 397 LOC)
 
-**Key files:** `Kernel/EinsteinSummation.wl`, `Kernel/Utilities.wl`
+Two Rust-backed optimizers, loaded via `ExtensionCargo`/`CargoLoad` from `Cotengra/` (see `PacletInfo.wl`):
 
-### 3.2 Young Tableaux Symmetries (ONLY THIS PACKAGE)
+| Function | Method | Options |
+|---|---|---|
+| `GreedyContractionPath` | thermal sampler | `"MemoryWeight"`, `"Temperature"`, `"MaxNeighbors"`, `"RandomSeed"`, `"PreSimplify"`, `"FixedIndexing"` |
+| `OptimalContractionPath` | dynamic programming | `Method -> "size" \| "flops" \| "max" \| "write" \| "combo" \| "limit"`, `"PruningThreshold"`, `"AllowOuterProducts"`, `"PreSimplify"`, `"FixedIndexing"` |
 
-**What it enables:**
-- `YoungSymmetrize[tensor, YoungTableau[{3,2}]]` - Apply arbitrary symmetry
-- `YoungProject[tensor, tableau]` - Normalized projectors for irreps
-- `TableauDimension` - Hook length formula for representation dimensions
-- Decompose tensors by symmetry type
+Both accept `{inputs, output, sizeDict}`, a `TensorNetwork`, a `Graph` satisfying `TensorNetworkGraphQ`, an `Association` matching `{"Dimensions", "Indices", "Contractions"}`, or an `Inactive[TensorContract[TensorProduct[...], ...]]`. The wrappers canonicalize the returned path unless `"FixedIndexing" -> True` (Rust SSA mode).
 
-**Key file:** `Kernel/Symmetry/YoungTableaux.wl`
+Path algebra: `PathQ`, `TreePathQ`, `CanonicalPathQ`, `TreePathToPath`, `PathToTreePath`, `CanonicalPath`, `PathIndexContractions`, `ContractIndices`. `TensorNetworkFindContractionPath` is retained as a deprecated alias.
 
-### 3.3 Covariant/Contravariant Index Algebra (ONLY THIS PACKAGE)
+### 1.3 Contraction execution (`Kernel/Contraction.wl`, 318 LOC)
 
-**What it enables:**
-- Proper differential geometry-style tensor calculus
-- `IndexJuggling` - Automatic index raising/lowering with metrics
-- `IndexContract` - Automatic metric tensor insertion
-- `Dimension` objects with sign, name, and dimension attributes
+`TensorNetworkContraction` (symbolic `Inactive[...]` expression), `TensorNetworkContract` (activated numeric form), `ContractionTree`, `$TensorNetworkContractionMethods`. (4 symbols.)
 
-**Key file:** `Kernel/IndexArray/IndexJuggling.wl`
+`$TensorNetworkContractionMethods = {"ArrayDotTranspose", "ArrayDot", "Dot", "TensorContract", "TableSum"}`. Each backend is implemented as a separate `einsum*` helper in `Contraction.wl:29-201`; the public surface routes through `contractTensorPair`. Path arguments may be either `_CanonicalPathQ` lists or `_TreePathQ` trees, or any of the symbolic strings `"Greedy"`, `"Optimal"`, `"flops"`, `"max"`, `"size"`, `"write"`, `"combo"`, `"limit"`.
 
-### 3.4 Multiple Contraction Methods (5 vs 1 in competitors)
+`ContractionTree` returns a `Tree` whose nodes carry either dimensions (`"Labels" -> "Dimensions"`) or full named `Inactive[ArrayDot]`/`Inactive[Dot]`/`Transpose`/`TensorContract`/`TensorProduct` expressions on `ArraySymbol`s.
 
-**Methods:**
-1. `"ArrayDot"` - Mathematica's optimized array operations
-2. `"ArrayDotTranspose"` - Pre-transposed for cache efficiency
-3. `"TensorContract"` - Standard tensor contraction
-4. `"Dot"` - Matrix multiplication with reshaping
-5. `"TableSum"` - Explicit summation for symbolic work
+### 1.4 Einstein summation (`Kernel/EinsteinSummation.wl`, 131 LOC)
 
-**Key file:** `Kernel/Contraction.wl`
+`EinsteinSummation`, `IndexedMultiply`, `ActivateTensors`. (3 symbols.)
 
-### 3.5 Integrated Environment
+Three call forms: list `EinsteinSummation[{i, j, k} -> out, {As}]`, list-auto `EinsteinSummation[{i, j, k}, {As}]`, string `EinsteinSummation["ij,jk->ik", {A, B}]`. The implementation handles scalar factors, repeated indices that need outer broadcasting (delegated to `IndexedMultiply`), multiplicity scaling via `GeneralizedPower[TensorProduct, ...]`, and full output permutation. `ActivateTensors` activates `TensorProduct`, `TensorContract`, and `Transpose` while normalizing `SymbolicIdentityArray` and `SymbolicDeltaProductArray` to dense form.
 
-- Native notebook interface with interactive graphics
-- `ToTensorNetworkGraph` produces Mathematica `Graph` objects
-- ContractionTree visualization with dimension annotations
-- Seamless export to PDF, LaTeX, images
+### 1.5 MPS algorithms (`Kernel/MPS.wl`, 630 LOC)
 
----
+`MPSCanonicalForm`, `MPSCanonicalQ`, `MPSOverlap`, `MPSNorm`, `MPSNormalize`, `MPSSchmidtValues`, `MPSEntanglementEntropy`, `MPSTruncate`. (8 symbols.)
 
-## Part 4: Implementation Plan (Phased)
+`MPSCanonicalForm[mps, "Left" | "Right" | {"Mixed", k}]` performs SVD-based gauging with `"MaxBond"` and `"Tolerance"` options. Boundary and bulk tensors are handled with explicit reshapes. `MPSCanonicalQ` runs Frobenius isometry checks with default tolerance `10^-10`. `MPSOverlap` uses transfer-matrix contractions through `EinsteinSummation`/`ActivateTensors`. `MPSEntanglementEntropy` is natural-log von Neumann entropy. `MPSTruncate[mps, maxBond, "Normalize" -> True]` re-canonicalizes and renormalizes.
 
-### Phase 1: Documentation & Comparison Materials
+### 1.6 Graph representation (`Kernel/ToTensorNetworkGraph.wl`, 532 LOC)
 
-#### Task 1.1: Create Comparison Notebook
-**File:** `Documentation/LibraryComparison.nb`
+`TensorNetworkGraphQ`, `ToTensorNetworkGraph`, `TensorNetworkIndexGraph`, `TensorNetworkIndices`, `TensorNetworkTensors`, `TensorNetworkGraphData`, `TensorNetworkIndexDimensions`, `TensorNetworkFreeIndices`, `TensorNetworkRemoveCycles`, `TensorNetworkToNetGraph`, `TensorNetworkReplaceIndices`, `InitializeTensorNetwork`, and graph-flavored `TensorNetworkAdd`/`TensorNetworkDelete`. (14 symbols.)
 
-**Sections:**
-1. Introduction - Why Mathematica for tensor networks
-2. Feature Matrix - Visual comparison table
-3. Symbolic Computation Demo - Show exact vs approximate results
-4. Young Tableaux Demo - Symmetry operations unavailable elsewhere
-5. Index Algebra Demo - Covariant/contravariant operations
-6. Performance Benchmarks - Where Mathematica excels
+`ToTensorNetworkGraph` accepts a `TensorNetwork`, a `DirectedGraph`, an undirected `Graph`, or the raw `(tensors, hyperedges)` pair. Hyperedges with arity > 2 are converted to spider vertices carrying `SymbolicDeltaProductArray`. Output vertices are annotated with `"Tensor"` and `"Index"` (lists of `Superscript`/`Subscript` labels). `TensorNetworkRemoveCycles` inserts cup/cap identity pairs to expose an acyclic skeleton.
 
-#### Task 1.2: Create "Mathematica Advantages" Tutorial
-**File:** `Documentation/MathematicaAdvantages.nb`
+`TensorNetworkToNetGraph` is the bridge to the Wolfram neural net layer: it compiles a contraction path into a `NetGraph` of `NetArrayLayer` + `TransposeLayer` + `ReshapeLayer` + `DotLayer` blocks. Symbolic tensors with free symbols are wrapped in `FunctionLayer` ports.
 
-**Content:**
-```mathematica
-(* 1. Symbolic parametric analysis *)
-T = Array[Subscript[t, ##] &, {n, n}];
-symbolicEigenvalues = Eigenvalues[T]  (* Exact formula! *)
+### 1.7 Index algebra (`Kernel/IndexArray/`, 1 651 LOC across 8 files)
 
-(* 2. Young tableaux - UNIQUE feature *)
-tensor = RandomReal[{-1,1}, {4,4,4}];
-symmetric = YoungProject[tensor, YoungTableau[{3}]];
-antisymmetric = YoungProject[tensor, YoungTableau[{1,1,1}]];
-mixedSymmetry = YoungProject[tensor, YoungTableau[{2,1}]];
+`Dimension`, `DimensionQ`, `Shape`, `ShapeQ`, `IndexArray`, `IndexArrayQ`, `IndexTensor`, `IndexTensorQ`, `MetricTensor`, `MetricTensorQ`, `IndexPart`, `IndexContract`, `IndexJuggling`, `ArrayDimensions`, `ArrayRank`, `ArraySymmetry`, `ArrayName`, `ArrayPart`, `ArrayTranspose`, `ArrayContract`, `SimplifyArray`, `ZeroArrayQ`. (22 symbols.)
 
-(* 3. Index juggling with metrics *)
-metric = IndexArray[DiagonalMatrix[{1,1,1,-1}], Shape[{-μ, -ν}]];
-vector = IndexArray[{E, px, py, pz}, Shape[{μ}]];
-covector = IndexJuggling[IndexTensor[vector, metric], {-μ}]
-```
+`Dimension[d, name, indices, position]` is a signed-integer-keyed index slot (sign encodes upper/lower variance). `Shape[d_1, ..., d_n]` is an ordered sequence of `Dimension`s with rich property dispatch (`"Indices"`, `"FreeIndices"`, `"Dimensions"`, `"SignedDimensions"`, `"Rank"`, `"Size"`, `"Variance"`, `"Names"`).
 
-#### Task 1.3: Create Migration Guide
-**File:** `Documentation/MigrationFromPython.nb`
+`IndexArray[tensor, shape, parameters, assumptions, name]` carries the named-index metadata; it overloads `Normal`, `Dimensions`, `SquareMatrixQ`, `Inverse`, `Transpose`, `D`, `Times`, `Plus`, `Equal`. Indexing syntax: `ia[[positions]]` triggers `IndexPart`, `ia[names...]` triggers `IndexJuggling`. `IndexContract` performs metric-aware contraction across a list of `IndexArray` or `IndexTensor` objects.
 
-**Translations:**
+`MetricTensor[name | name[params], coordinates, assumptions, name]` ships 20 named metrics:
+- Flat: `"Euclidean"[d]`, `"Minkowski"[d]`.
+- Black-hole vacuum: `"Schwarzschild"[M]`, `"IsotropicSchwarzschild"[M]`, three Eddington-Finkelstein variants, three Gullstrand-Painleve variants, `"KruskalSzekeres"[M]`.
+- Rotating/charged: `"Kerr"[M, J]`, `"KerrNewman"[M, Q, J]`, `"ReissnerNordstrom"[M, Q]`.
+- Cosmological: `"Godel"[ω]`, `"FLRW"[k, a]`.
+- Parametric stencils: `"Symmetric"[d, g]`, `"Asymmetric"[d, g]`, `"SymmetricField"[d, g]`, `"AsymmetricField"[d, g]`.
 
-| Python (Quimb/NumPy) | Mathematica |
-|---------------------|-------------|
-| `np.einsum('ij,jk->ik', A, B)` | `EinsteinSummation["ij,jk->ik", {A, B}]` |
-| `tn.contract(...)` | `TensorNetworkContract[tn]` |
-| `qtn.MPS_rand_state(L, bond)` | `RandomTensorNetwork["MPS"[L, bond, 2]]` |
+Properties: `"MatrixRepresentation"`, `"InverseMetricTensor"`, `"Determinant"`, `"LineElement"`, `"VolumeForm"`, `"Signature"`, `"RiemannianQ"`, `"LorentzianQ"`, `"PseudoRiemannianQ"`, `"Eigenvalues"`, `"Eigenvectors"`, `"CoordinateOneForms"`, `"CovariantQ"`, `"ContravariantQ"`, `"MixedQ"`, plus their `"Reduced..."` `FullSimplify`d variants. `IndexTensor` exposes `"ChristoffelSymbol"` via the `Prop[it, "ChristoffelSymbol"] := ChristoffelSymbols[it]` hook.
+
+### 1.8 Symmetry / Young tableaux (`Kernel/Symmetry/YoungTableaux.wl`, 331 LOC)
+
+`YoungTableau`, `YoungTableauQ`, `PartitionQ`, `TransposePartition`, `TableauShape`, `TableauSize`, `TableauRows`, `TableauColumns`, `HookLength`, `HookLengths`, `HookFactor`, `TableauDimension`, `YoungSymmetrize`, `YoungProject`. (14 symbols.)
+
+`TableauDimension` uses the Frobenius determinant form (`n! · HookFactor[par]`), which is O(r^3) in the number of rows and far faster than the naive hook-product on tall partitions. `YoungSymmetrize` applies row-stabilizer then column-stabilizer (unnormalized sums); `YoungProject` adds the `d/n!` normalization so `P^2 = P`.
+
+### 1.9 Infrastructure
+
+- **Rust backend.** `optimize_greedy` and `optimize_optimal` are loaded via `ExtensionCargo` (`CargoLoad`/`CargoBuild`) from the `Cotengra/` Cargo crate. Build is driven by `build.wl` / `ci_build.wl`.
+- **PacletExtensions.** Auto-installs `ExternalEvaluate >= 38.0.1` and `PacletExtensions >= 40.0.0` on first load.
+- **Hypergraph plotting.** Bridge to `WolframInstitute/Hypergraph` paclet via `PacletSymbol` for `Hypergraph` and `SimpleHypergraphPlot` (used in `"Hypergraph"` property and the summary box icon for binary networks).
+- **Documentation.** 80 reference pages under `TensorNetworks/Documentation/English/ReferencePages/Symbols/`, 6 tutorials (`TensorNetworksOverview`, `BuildingTensorNetworks`, `ContractionPathsAndExecution`, `MPSAlgorithms`, `IndexArrayAndMetrics`, `YoungSymmetries`), and the master `Guides/TensorNetworks.nb`.
+- **Tests.** `Tests/test_mps.wl`, `Tests/test_add_delete.wl`, `Tests/test_random_tensor_network.wl`, `Tests/test_setup.wl`, `Tests/run_doc_examples.wl`, `Tests/run_tests.wl`. `Tests/external_validation/` adds 156 passing oracle-fixture tests against quimb/cotengra/ITensor* under `paclet_primitives/`, `baselines/`, `paclet_fuzz/`, driven by `run_external_validation.wl`. Project-wide pass at audit time: **2256/2256** with 10 skip-missing entries for documented feature gaps.
+- **Downstream consumer.** `Wolfram/QuantumFramework` v1.6.5 auto-installs this paclet at exactly v1.0.4 and consumes `TensorNetwork`, `TensorNetworkQ`, `TensorNetworkGraphQ`, `TensorNetworkContract`, `TensorNetworkIndices`, `TensorNetworkFreeIndices`, `GraphTensorNetwork` as de facto public API. See `Audit/TensorNetworks-Capabilities-Audit-and-Quantum-Roadmap.md` §1.12.
+
+**Total exported kernel surface: 76 symbols.**
 
 ---
 
-### Phase 2: Benchmark Suite
+## Part 2. Competitor landscape
 
-#### Task 2.1: Create Benchmark Framework
-**File:** `Tests/benchmark_comparison.wl`
+### 2.1 Numerical packages
 
-**Benchmarks:**
-1. Path Optimization Speed - Compare with Cotengra
-2. Contraction Execution - Compare 5 methods
-3. MPS Operations - Compare with ITensor-style operations
-4. Symbolic vs Numerical - Unique to Mathematica
+Local clones live under `tn-external/numerical/` (see `reference_external_tn_packages` memory). Per-package catalogs in `Tests/external_validation/`:
 
-#### Task 2.2: Standard Test Networks
-```mathematica
-benchmarkNetworks = <|
-    "SmallMPS" -> RandomTensorNetwork["MPS"[10, 16, 2]],
-    "LargeMPS" -> RandomTensorNetwork["MPS"[50, 64, 2]],
-    "SmallPEPS" -> RandomTensorNetwork["PEPS"[{3,3}, 4, 2]],
-    "LargePEPS" -> RandomTensorNetwork["PEPS"[{5,5}, 8, 2]],
-    "SmallMERA" -> RandomTensorNetwork["MERA"[8, 4, 2]],
-    "LargeMERA" -> RandomTensorNetwork["MERA"[16, 8, 3]]
-|>;
-```
+| Package | Language | Strengths | Local catalog |
+|---|---|---|---|
+| quimb | Python | Arbitrary-geometry TN, MPS/PEPS/TTN, MPI/DASK/JAX, sampling | `quimb_examples.md` (142 entries) |
+| cotengra | Python | Path-search heuristics (HyperOptimizer), slicing, ChainRulesCore-style autodiff through trees | `cotengra_examples.md` (67) |
+| ITensors.jl | Julia | Tagged-index primitives, decomposition, gauge | `itensors_examples.md` (41) |
+| ITensorMPS.jl | Julia | DMRG / DMRG-X / TDVP / OpSum / AutoMPO, symmetry sectors | `itensormps_examples.md` (134) |
+| ITensorNetworks.jl | Julia | PEPS, general-graph TN, BP/cluster-update gauge | `itensornetworks_examples.md` (41) |
+| TeNPy | Python | DMRG, TEBD, model construction, correlation functions | `tenpy_examples.md` (78) |
+| Google TensorNetwork | Python | TF/JAX backends. **Archived 2021.** | n/a |
+| cuTensorNet (cuQuantum) | C++/CUDA | GPU contraction, slicing | n/a |
 
----
+### 2.2 Symbolic packages
 
-### Phase 3: Showcase Unique Capabilities
+Local clones live under `TN courses/External symbolic tensor/`; catalog in `EXAMPLES_CATALOG.md` and audit in `WL_PILLAR_AUDIT.md` (see `reference_external_symbolic_packages` memory):
 
-#### Task 3.1: Symbolic Tensor Networks Example
-**File:** `Documentation/SymbolicTensorNetworks.nb`
+| Package | Language | Focus | Cataloged entries |
+|---|---|---|---|
+| xAct (xCore/xPerm/xTensor/xCoba/xPert + xTras) | Wolfram Language | GR-grade symbolic tensor calculus, Butler-Portugal canonicalization | 24 |
+| Cadabra2 | C++ + Python | Multi-term canonicalization (`meld`), Bianchi, Fierz, γ-traces | 26 (46 substantive .cnb) |
+| DisCoPy | Python | String diagrams as morphisms in monoidal categories | 7 |
+| PyZX | Python | ZX-calculus rewriting catalog | 4 |
+| tensorgrad | Python | Penrose-diagram autodiff, Isserlis Gaussian | 7 |
+| SymbolicTensors.jl | Julia | SymPy backend, GR flavor (stalled) | 7 |
+| EinExprs.jl | Julia | Einsum-as-symbolic, contraction-path-as-tree | 7 |
+| Redberry | Java/Groovy | Tensor CAS (dormant since 2013) | 9 |
 
-**Demonstrations:**
-- Parametric entanglement entropy formulas
-- Exact MPS overlap calculations
-- Symbolic contraction path analysis
-- Algebraic tensor decompositions
+### 2.3 Downstream consumer (`Wolfram/QuantumFramework` v1.6.5)
 
-#### Task 3.2: Physics Applications
-**File:** `Documentation/PhysicsApplications.nb`
-
-**Use Cases:**
-1. **Quantum Chemistry** - Two-electron integrals with 8-fold symmetry
-2. **General Relativity** - Riemann tensor with Young tableaux symmetry
-3. **Particle Physics** - Lorentz covariant/contravariant indices
-
-#### Task 3.3: Index Algebra Tutorial
-**File:** `Documentation/IndexAlgebraAndMetrics.nb`
-
-**Content:**
-- Creating `IndexArray` with variance information
-- Metric tensor operations
-- Automatic index raising/lowering
-- Contraction with mixed index types
+Not a competitor; an integration partner that is already shipped:
+- `QuantumTensorNetwork[qco]`, `TensorNetworkQuantumCircuit[tn]` (round-trip).
+- `QuantumCircuitHypergraph[qc]`, `QuantumTensorNetworkGraph[qco]`.
+- `TensorNetworkCompile[qco]`, `TensorNetworkApply[qco, qs]` (default circuit execution method when `Method -> Automatic`).
+- `ZXTensorNetwork[qc]`, `ZXTensorNetworkQuantumCircuit[net]` (ZX bridge via pyzx).
+- First-class circuit properties: `qco["TensorNetwork"]`, `qco["TensorNetworkGraph"]`, `qco["Hypergraph"]`, `qco["ZXTensorNetwork"]`, `qco["TensorNetworkInfo"]`, `qco["TensorNetworkBasis"]`.
 
 ---
 
-### Phase 4: Feature Enhancements
+## Part 3. Where the paclet leads or lags
 
-#### Task 4.1: Add Symbolic MPS Operations
-Extend MPS functions to work with symbolic tensors:
-```mathematica
-(* Symbolic MPS *)
-symbolicMPS = Table[Array[Subscript[a, i, ##] &, {chi, d, chi}], {i, L}];
-MPSEntanglementEntropy[symbolicMPS, site]  (* Returns exact formula *)
-```
+Verdicts use the same legend as `WL_PILLAR_AUDIT.md`: 🟢 covered, 🟡 partial (substrate but no headline API), 🔴 gap, ⚪ out of scope.
 
-#### Task 4.2: Enhanced Visualization
-Add comparison visualizations:
-```mathematica
-ContractionPathComparison[network, {"Greedy", "Optimal"}]
-(* Side-by-side contraction tree comparison *)
-```
+### 3.1 Differentiators (🟢, no equivalent in any external package)
 
-#### Task 4.3: Export to Other Formats
-```mathematica
-ExportTensorNetwork[network, "ONNX"]  (* For ML frameworks *)
-ExportTensorNetwork[network, "Quimb"]  (* Python interop *)
-```
+| Capability | Paclet entry points | Why unique |
+|---|---|---|
+| Symbolic tensors propagate through contraction | `EinsteinSummation`, `Inactive[TensorContract]` + `ActivateTensors`, `TensorNetworkContraction`, `ArrayContract`, `SymbolicDeltaProductArray` | Every numerical competitor stores machine-precision arrays. Symbolic results then feed `Simplify`, `Series`, `Limit`, `Integrate`, `DSolve`, `Eigensystem`. |
+| 20 built-in spacetime metrics | `MetricTensor["Schwarzschild" \| "Kerr" \| ...]` with `"LineElement"`, `"VolumeForm"`, `"Signature"` properties | xAct ships metric-construction machinery; no other package ships 20 pre-built metrics with property dispatch in one expression. |
+| Covariant/contravariant index variance integrated with raise/lower | `Dimension`, `Shape`, `IndexArray`, `IndexTensor`, `IndexJuggling`, `IndexContract`, `MetricTensor`, signed index names | xAct does it; no other package. The paclet is the only WL implementation that pairs variance with a hyperedge-`TensorNetwork` object. |
+| Young-symmetrizer projector with hook-length irrep dimensions | `YoungTableau`, `YoungSymmetrize`, `YoungProject`, `TableauDimension`, `HookFactor` (Frobenius determinant) | xAct's `SymManipulator` and Cadabra's `young_project_*` cover the slot half; neither ships an idempotent projector with `P^2 = P` normalization on dense arrays. |
+| 5 swappable contraction backends | `$TensorNetworkContractionMethods` = `{"ArrayDotTranspose", "ArrayDot", "Dot", "TensorContract", "TableSum"}` | `"TableSum"` emits a literal `Table[Sum[Part[a,...] Part[b,...]]]`, which preserves symbolic structure other libraries collapse. |
+| Hyperedge-native TN object with `BinaryTensorNetwork` reduction | `TensorNetwork[tensors, {{i, j, k, ...}, ...}]`, `BinaryTensorNetwork` (spider insertion via `SymbolicDeltaProductArray`) | quimb and ITensorNetworks use multi-tensor delta tensors; the paclet keeps the hyperedge as the primary representation and treats binarization as an explicit, inspectable transform. |
+| Round-trip with the Wolfram neural net stack | `TensorNetworkToNetGraph` (compiles a path into `NetArrayLayer`/`TransposeLayer`/`ReshapeLayer`/`DotLayer`) | Quimb-on-JAX is close; no Python package compiles to the same kind of differentiable layer graph backed by Wolfram's `NetTrain`. |
+| Pinned downstream quantum stack | `Wolfram/QuantumFramework` v1.6.5 already routes `qco["TensorNetwork"]`, `QuantumTensorNetwork[qco]`, `ZXTensorNetwork[qc]` through this paclet | Stabilizer simulation, named QECCs, bosonic CV, multi-formalism execution, symbolic Schrödinger/Lindblad (`QuantumEvolve`) are all reachable from the same circuit object. Documented in `Audit/Wolfram-TN-Six-Wedges-Demos.md` (see §5.2 below). |
 
----
+### 3.2 Parity (🟢, externally matched but paclet-side present)
 
-### Phase 5: Future Roadmap (Optional)
+| Capability | Paclet | Closest competitor |
+|---|---|---|
+| Contraction path search | `OptimalContractionPath` (6 cost methods), `GreedyContractionPath` (temperature/seed) via Rust backend | cotengra `HyperOptimizer`, EinExprs.jl |
+| MPS canonical forms (left/right/mixed) with SVD truncation | `MPSCanonicalForm`, `MPSCanonicalQ` | ITensorMPS.jl, TeNPy |
+| MPS observables (overlap, norm, normalize, Schmidt, entropy, truncate) | `MPSOverlap`, `MPSNorm`, `MPSNormalize`, `MPSSchmidtValues`, `MPSEntanglementEntropy`, `MPSTruncate` | quimb, TeNPy, ITensorMPS.jl |
+| Random TN constructors (MPS, TT, MPO, PEPS, TTN, MERA) | `RandomTensorNetwork[...]` with open/periodic boundary | quimb `qtn.MPS_rand_state`, `qtn.PEPS_rand_state`, etc. |
+| Graph view of TN with index annotations | `ToTensorNetworkGraph`, `TensorNetworkIndexGraph`, `TensorNetworkGraphData`, `tn["Graph"]`, `tn["Hypergraph"]` | quimb `TensorNetwork.draw()`, ITensorNetworks.jl |
+| Path-tree algebra | `PathToTreePath`, `TreePathToPath`, `CanonicalPath`, `PathIndexContractions`, `ContractionTree` | EinExprs.jl path-as-tree |
 
-**Consider adding (based on competitor analysis):**
+### 3.3 Gaps (🟡 or 🔴, prioritized)
 
-| Feature | Priority | Rationale |
-|---------|----------|-----------|
-| DMRG Ground State | High | ITensor's main advantage |
-| GPU Backend | Medium | cuTensorNet integration |
-| HyperOptimizer | Low | Cotengra's advanced search |
-| Distributed | Low | Quimb's MPI/DASK support |
+Pulled from `Audit/TensorNetworks-Capabilities-Audit-and-Quantum-Roadmap.md` §3 and `WL_PILLAR_AUDIT.md`:
 
----
+| Gap | Verdict | Closest external | Where it would live |
+|---|---|---|---|
+| DMRG / variational MPS ground state | 🔴 | ITensorMPS.jl, TeNPy | New `Kernel/DMRG.wl` |
+| TEBD / TDVP (TN-native large-system dynamics) | 🔴 | quimb, TeNPy | New `Kernel/Dynamics.wl` |
+| MPO application & compression | 🟡 (structure exists; no `MPOApply`) | ITensorMPS.jl | Extend `Kernel/MPS.wl` |
+| Hamiltonian → MPO compiler (Çakır-Milbradt-Mendl 2025) | 🔴 | none externally | New `Kernel/HamiltonianMPO.wl` |
+| Multi-term canonicalization (`meld` outer loop, Bianchi) | 🟡 | Cadabra `meld` | Extend `Kernel/Symmetry/` |
+| Symbolic contraction-cost expressions in (d, χ, N) | 🟡 (engine present, surface not) | EinExprs.jl | Extend `Kernel/Paths.wl` |
+| Slicing as a symbolic operation | 🟡 | cotengra, EinExprs.jl | Extend `Kernel/Paths.wl` |
+| ZX rewrite catalog (spider fusion, π-copy, color change, bialgebra, etc.) | 🔴 | PyZX | New `Kernel/Diagrams/ZX.wl` (or extend QF bridge) |
+| Haar / Weingarten integration | 🔴 | tensorgrad Isserlis | New `Kernel/Haar.wl` |
+| iTEBD / infinite MPS | 🔴 | TeNPy, ITensorMPS.jl | New `Kernel/Infinite.wl` |
+| PEPS boundary-MPS / corner-transfer matrix | 🔴 | ITensorNetworks.jl, quimb | New `Kernel/PEPS.wl` |
+| Symmetry-preserving tensors (abelian / non-abelian QN) | 🔴 | ITensors.jl QN, TeNPy charges | Hook into `IndexArray`/`Shape` variance |
+| Fermion (Grassmann) parity tracking | 🔴 | ITensorMPS.jl, TeNPy | New `Kernel/Fermions.wl` (QF only has bosonic CV) |
 
-## Part 5: Key Messages for Marketing
+### 3.4 Known bugs and limitations carried over (from memory)
 
-### "Only in Mathematica" Features
-
-1. **Symbolic Computation** - "Get exact algebraic results, not floating-point approximations"
-2. **Young Tableaux** - "The only tensor network library with full group-theoretic symmetry support"
-3. **Index Algebra** - "Proper differential geometry with covariant/contravariant indices"
-4. **5 Contraction Methods** - "Choose the optimal method for your problem"
-5. **Integrated Environment** - "From theory to visualization in one system"
-
-### Recommended Positioning
-
-| Use Case | Recommendation |
-|----------|---------------|
-| Exact symbolic results | **Mathematica (only option)** |
-| Tensor symmetries | **Mathematica (only option)** |
-| Rapid prototyping | **Mathematica** |
-| Visualization | **Mathematica** |
-| DMRG ground states | ITensor/TeNPy |
-| GPU acceleration | cuTensorNet |
-| Production ML | Export to PyTorch |
+- `Netcon` C++ library hangs on hyperedge networks and on disconnected networks; `TimeConstrained` cannot interrupt LibraryLink. Avoid for those topologies; the Rust optimizers are safe.
+- `SymbolicDeltaProductArray` is not numerically evaluable directly by `ArrayDot`. Workaround: `Normal[s_SymbolicDeltaProductArray]`. The `numericBinaryNetwork` helper in `Tests/test_netcon_audit.wl` wraps this.
+- `OptimalContractionPath` defaults to `Method -> "size"`, not `"flops"`. Pass `Method -> "flops"` for FLOP-cost comparisons against Netcon and cotengra benchmarks.
+- `RandomTensorNetwork["PEPS"...]` and `RandomTensorNetwork["TTN"...]` use `AppendTo` in `Do` loops, costing time on large grids; refactor to `Reap`/`Sow` or `Table` if those constructors become hot.
 
 ---
 
-## Part 6: Files to Create/Modify
+## Part 4. Validation strategy
 
-### New Documentation Files
-1. `Documentation/LibraryComparison.nb`
-2. `Documentation/MathematicaAdvantages.nb`
-3. `Documentation/MigrationFromPython.nb`
-4. `Documentation/SymbolicTensorNetworks.nb`
-5. `Documentation/PhysicsApplications.nb`
-6. `Documentation/IndexAlgebraAndMetrics.nb`
-7. `Documentation/VisualizationGuide.nb` ← NEW
+### 4.1 Already in place
 
-### New Visualization Files
-1. `Kernel/Visualization/TensorDiagram.wl` - Penrose notation diagrams
-2. `Kernel/Visualization/MPSVisualization.wl` - MPS/MPO chain diagrams
-3. `Kernel/Visualization/ContractionPlots.wl` - Tree plots, cost analysis
-4. `Kernel/Visualization/PathComparison.wl` - Multi-path comparison
-5. `Kernel/Visualization/Interactive.wl` - Explorer, animator
-6. `Kernel/Visualization/OptimizerPlots.wl` - Optimization progress
-7. `Kernel/Visualization/Export.wl` - PDF, SVG, TikZ export
+`Tests/external_validation/` is a working, audit-clean suite:
 
-### New Test Files
-1. `Tests/benchmark_comparison.wl`
-2. `Tests/test_visualization.wl` ← NEW
+```
+Tests/external_validation/
+├── PLAN.md                          # live status, skip log
+├── SKIPPED_AND_MISSING.md           # 10 documented skip-missing entries
+├── EXAMPLES_CATALOG.md              # 503 numerical-package examples
+├── external_oracles/                # quimb / cotengra / ITensor* JSON fixtures
+│   ├── extract_quimb.py
+│   ├── extract_cotengra.py
+│   └── .venv/
+├── paclet_primitives/               # Tier-1 + Tier-2 paclet primitive checks
+├── baselines/                       # Cross-checks against oracle fixtures
+└── paclet_fuzz/                     # Property-based sweeps
+```
 
-### Key Existing Files (Reference)
-- `Kernel/TensorNetwork.wl` - Core object
-- `Kernel/Contraction.wl` - 5 methods
-- `Kernel/ToTensorNetworkGraph.wl` - Existing graph visualization
-- `Kernel/Symmetry/YoungTableaux.wl` - Unique symmetry
-- `Kernel/IndexArray/IndexJuggling.wl` - Unique index algebra
-- `Kernel/MPS.wl` - MPS algorithms
+Driver: `wolframscript -file Tests/external_validation/run_external_validation.wl`. Audit-time status: **156/156** with 10 documented skips.
+
+Project-wide test status at audit time (from `reference_external_validation_suite` memory):
+- Main suite: 36/36.
+- Doc examples: 2064/2064 across 81 pages (2 Netcon-hibernated pages skipped).
+- External validation: 156/156.
+- **Grand total: 2256/2256.**
+
+### 4.2 What the rewrite adds
+
+For each new feature in Part 5, add (in priority order):
+
+1. A unit test under `Tests/` exercising the public surface in isolation.
+2. A primitive-level oracle test under `Tests/external_validation/paclet_primitives/` matching results against the closest external (quimb / cotengra / ITensorMPS.jl / EinExprs.jl / Cadabra / PyZX).
+3. A doc-example pair (`Documentation/English/ReferencePages/Symbols/<Symbol>.nb` + entry in `Tests/run_doc_examples.wl`).
+4. An entry in `EXAMPLES_CATALOG.md` cross-referenced to the originating external example.
 
 ---
 
-## Verification Plan
+## Part 5. Phased enhancement plan
 
-1. **Documentation Review** - Ensure all notebooks render correctly
-2. **Benchmark Validation** - Run benchmarks on standard hardware
-3. **Code Examples** - Verify all example code executes correctly
-4. **Comparison Accuracy** - Cross-check feature claims against library docs
+### Phase 1. Surface polish (no new physics)
+
+| Task | Files | Effort |
+|---|---|---|
+| 1.1 Resurrect & dust off comparison notebook | `Notebooks/Tests and explorations/TN-vs-BuiltinWL-report.nb` already exists; add a sibling `LibraryComparison.nb` covering numerical and symbolic competitors | 1-2 days |
+| 1.2 Refactor `RandomTensorNetwork["PEPS"...]` and `["TTN"...]` to avoid `AppendTo`/`Do` (use `Reap`/`Sow` or `Table`) | `Kernel/TensorNetwork.wl:509-578` | 0.5 day |
+| 1.3 Re-export `numericBinaryNetwork` (or a renamed equivalent) so users do not have to keep the `Normal[s_SymbolicDeltaProductArray]` workaround in their notebooks | `Kernel/TensorNetwork.wl` | 0.5 day |
+| 1.4 Audit and (where useful) make `OptimalContractionPath` default `Method` discoverable from the summary box / docs warnings; default stays `"size"` for back-compat | docs only | 0.5 day |
+| 1.5 Tighten kernel `Quiet`/`Print` audit (per global CLAUDE.md rules) | grep `Quiet`/`Print` in `Kernel/` | 0.5 day |
+
+### Phase 2. Path algebra: symbolic surface
+
+Maps to `WL_PILLAR_AUDIT.md` Pillar 3 (🟡, "mostly an API-surfacing job"):
+
+| Task | Closest external | Surface |
+|---|---|---|
+| 2.1 Cost expressions: `ContractionCost[tn, path, "Symbolic" -> True]` returning a polynomial in dim variables | EinExprs.jl `flops(SizedEinExpr)` | New helper in `Kernel/Paths.wl` |
+| 2.2 Slicing: `SliceContraction[tn, indices]` symbolic sum over slice values | cotengra slicing | `Kernel/Paths.wl` |
+| 2.3 Tree mutations: rotation, reorder, subtree reconfiguration on `ContractionTree` | cotengra `ContractionTree.subtree_reconfigure` | `Kernel/Paths.wl` |
+| 2.4 `PathComparison[tn, {path1, path2, ...}]` returning cost-and-shape comparison `Dataset` | EinExprs.jl `Pluto` notebooks | New helper |
+
+Tests: cross-check 2.1 against EinExprs.jl symbolic costs for MPS norm O(d^N) vs O(N d χ³); 2.2 against cotengra slicing examples in `cotengra/examples/`.
+
+### Phase 3. MPS / MPO algorithm extensions
+
+Maps to `Audit/...Roadmap.md` §3.1 HIGH-priority entries.
+
+| Task | Maps to | Surface |
+|---|---|---|
+| 3.1 `MPOApply[mpo, mps]` with bond-dimension control | ITensorMPS.jl `applyMPO`, TeNPy `apply_mpo` | `Kernel/MPS.wl` |
+| 3.2 `ExpectationValue[mps, mpo]` (transfer-matrix path) | quimb `psi.H @ mpo @ psi`, ITensorMPS.jl `inner` | `Kernel/MPS.wl` |
+| 3.3 `RenyiEntropy[mps, site, α]` (general α, currently only α=1 in TN paclet; QF has it for `QuantumState`) | QF `QuantumEntanglementMonotone` | `Kernel/MPS.wl` |
+| 3.4 `MutualInformation[mps, regionA, regionB]` (currently in QF; lift to MPS-native efficient form) | QF `MutualInformationI` | `Kernel/MPS.wl` |
+| 3.5 Two-site DMRG sweep (`Method -> "DMRG"` on a future `GroundState` API) | ITensorMPS.jl `dmrg`, TeNPy `engine.run` | New `Kernel/DMRG.wl` |
+| 3.6 `TEBDStep[mps, gates, dt]` (Suzuki-Trotter, real and imaginary time) | quimb `tebd`, TeNPy `tebd_engine` | New `Kernel/Dynamics.wl` |
+
+### Phase 4. Symbolic-TN pillars (from `Symbolic_TN_feature_pillars.md`)
+
+| Pillar | Verdict | New surface |
+|---|---|---|
+| Pillar 1: Hamiltonian → optimal MPO/TTNO | 🟡 (centerpiece, zero external coverage) | `SymbolicHamiltonianMPO[H]`, 6 worked examples (TFIM, Heisenberg, AKLT parent, long-range XY, ΣZᵢ, TTNO chemistry) |
+| Pillar 2: Multi-term canonicalization | 🟡 | `MeldCanonicalize[expr, declarations]`, `CanonicalTensorNetwork[tn]`, `TensorNetworkEqualQ[tn1, tn2]`, 3 worked identities (First Bianchi, Riemann polynomial, Wick on small fermionic product) |
+| Pillar 3: Path algebra | 🟡 | Already covered in Phase 2 above |
+| Pillar 4: Diagram rewrite (ZX) | 🔴 | `ZXRewrite[net, "SpiderFusion" \| "PiCopy" \| "ColorChange" \| "Bialgebra" \| "Pivot" \| "LocalComplementation"]`. Surface choice: (a) extend QF's existing `ZXTensorNetwork` bridge, (b) ship a paclet-native ZX layer in `Kernel/Diagrams/ZX.wl`. Recommendation: (a) for v1.x, (b) for a v2.0 cut. |
+| Pillar 5: Haar / Weingarten | 🔴 | `HaarMoment[k, d]`, `Weingarten[π, d]`, `IsserlisContract[expr]`, 4 worked examples (random PEPS contraction average, OTOC bound, scrambling rate, decoupling). Substrate ready: `SymmetricGroupCharacters`, exact rationals, RTNI-Mathematica heritage. |
+
+### Phase 5. Visualization (do not over-build)
+
+Most of what the previous draft proposed already exists:
+
+| Function | Status |
+|---|---|
+| `ToTensorNetworkGraph`, `TensorNetworkIndexGraph` | ✅ shipped |
+| `tn["Graph"]`, `tn["Hypergraph"]` summary boxes | ✅ shipped |
+| `ContractionTree` (with dimension or operation labels) | ✅ shipped |
+| `TensorNetworkToNetGraph` (NetGraph render) | ✅ shipped |
+| `YoungTableau` icon | ✅ shipped |
+| `MetricTensor` icon (MatrixPlot, signature, line element) | ✅ shipped |
+| `IndexArray` icon (signed dimensions, view) | ✅ shipped |
+
+What is genuinely missing (and would land as a single `Kernel/Visualization/` subpackage if pursued):
+
+1. **Tree layouts** matching cotengra's `tent` / `ring` / `circuit` / `rubberband` / `flat`. `ContractionTree` already returns a `Tree`; the work is `TreeLayout` rules and a thin `ContractionTreePlot` wrapper.
+2. **Cost-profile plot** (peak memory, cumulative FLOPs, write size per step). Hook on `PathIndexContractions` + symbolic cost from Phase 2.
+3. **Optimizer trial scatter** (`HyperOptimizer.plot_trials` analog). Needs `GreedyContractionPath` / `OptimalContractionPath` to optionally return trial history; today they only return the chosen path.
+4. **Penrose / ZX diagram render** that goes beyond the hypergraph fallback. Wedded to Phase 4 Pillar 4.
+
+Defer (1) and (2) until at least one of Phase 3 (MPO algorithms) or Phase 4 (Pillar 1 H → MPO) ships, so the visualizations have non-toy networks to plot.
+
+### Phase 6. Export / interoperability
+
+| Task | Notes |
+|---|---|
+| 6.1 `ExportTensorNetwork[tn, "Quimb"]` | Round-trip through quimb's `qtn.Tensor`/`TensorNetwork` JSON serialization. |
+| 6.2 `ExportTensorNetwork[tn, "ITensor"]` | Tagged-index dump for ITensors.jl. |
+| 6.3 `ExportTensorNetwork[tn, "TikZ"]` / `"PGFPlots"` | LaTeX figure source from `ToTensorNetworkGraph`. |
+| 6.4 `ImportTensorNetwork["...", "Quimb" \| "ITensor"]` | The inverse direction. Useful for the oracle suite. |
 
 ---
 
-## Part 7: Comprehensive Visualization Plan
-
-### 7.1 Current Visualization Capabilities
-
-| Function | What It Does | Status |
-|----------|--------------|--------|
-| `ToTensorNetworkGraph` | Converts TensorNetwork to Graph object | ✅ Working |
-| `TensorNetworkIndexGraph` | Shows index connectivity between tensors | ✅ Working |
-| `TensorNetworkToNetGraph` | Converts to Neural NetGraph | ✅ Working |
-| `ContractionTree` | Tree structure of contraction hierarchy | ✅ Basic |
-| `TensorNetwork` MakeBoxes | Summary box with mini hypergraph | ✅ Working |
-| `tn["Graph"]` | Quick access to graph visualization | ✅ Working |
-| `tn["Hypergraph"]` | Hypergraph visualization (via external paclet) | ✅ Working |
-
-### 7.2 Visualization Comparison with Competitors
-
-| Visualization Type | Mathematica | Cotengra | Quimb | ITensor |
-|-------------------|-------------|----------|-------|---------|
-| **Network Graph** | ✅ Native Graph | ✅ HyperGraph.plot() | ✅ .draw() | ❌ ASCII only |
-| **Contraction Tree** | ✅ Basic Tree | ✅ Multiple layouts | ✅ Via Cotengra | ❌ None |
-| **Cost Analysis** | ❌ Missing | ✅ plot_contractions() | ✅ Via Cotengra | ❌ None |
-| **Optimizer Progress** | ❌ Missing | ✅ plot_trials() | ❌ None | ❌ None |
-| **MPS/MPO Diagrams** | ❌ Missing | ❌ None | ✅ .draw() | ❌ ASCII only |
-| **Interactive** | ⚠️ Limited | ❌ Static | ❌ Static | ❌ None |
-| **Publication Export** | ✅ PDF/SVG/LaTeX | ⚠️ matplotlib | ⚠️ matplotlib | ❌ None |
-| **Penrose Notation** | ❌ Missing | ❌ None | ❌ None | ❌ None |
-
-### 7.3 Cotengra Visualization Functions (Reference)
-
-Cotengra provides these visualization functions we should match or exceed:
-
-**1. HyperGraph.plot()** - Network geometry visualization
-- Shows hyperedges as zero-size vertices
-- 5 index types: standard inner, multi-indices, outer, hyper inner, hyper outer
-- Color-coded nodes and indices
-
-**2. ContractionTree.plot_flat()** - Complete tree for small networks
-- All indices at each intermediate step
-- Bottom-to-top contraction flow
-
-**3. ContractionTree.plot_tent()** - "Most general purpose" layout
-- Input network at bottom, intermediates above
-- Edge width/color = intermediate tensor widths
-- Node size/color = FLOPs per contraction
-
-**4. ContractionTree.plot_circuit()** - Operation order emphasis
-
-**5. ContractionTree.plot_ring()** - Ring layout for planar graphs
-- Good for inspecting contraction "spines"
-
-**6. ContractionTree.plot_rubberband()** - Hierarchical grouping
-
-**7. ContractionTree.plot_contractions()** - Cost analysis
-- Peak memory, write size, scalar operations per step
-
-**8. HyperOptimizer.plot_trials()** - Optimization progress
-- Score improvement across trials
-- Supports time-based x-axis
-
-**9. HyperOptimizer.plot_scatter()** - Cost vs width distribution
-
-**10. HyperOptimizer.plot_parameters_parallel()** - Parameter distributions
-
-### 7.4 Proposed New Visualization Functions
-
-#### Category A: Penrose/Diagrammatic Notation (UNIQUE TO MATHEMATICA)
-
-**A1. TensorNetworkDiagram** - Publication-quality Penrose notation
-```mathematica
-TensorNetworkDiagram[tn, opts]
-(* Options:
-   - "Style" -> "Penrose" | "Box" | "Circle"
-   - "IndexLabels" -> True | False | Automatic
-   - "IndexColors" -> Automatic | ColorFunction
-   - "TensorLabels" -> True | False
-   - "SymmetryIndicators" -> True  (* Show symmetrization bars *)
-*)
-```
-
-**A2. ContractionDiagram** - Step-by-step diagrammatic equations
-```mathematica
-ContractionDiagram[tn, path, step]
-(* Shows: before → contraction → after as diagram equation *)
-```
-
-**A3. IndexTypeDiagram** - Distinguish index types visually
-```mathematica
-(* Physical indices: solid lines
-   Bond indices: dashed lines
-   Contracted indices: connected
-   Free indices: dangling *)
-```
-
-#### Category B: Contraction Analysis (Match Cotengra)
-
-**B1. ContractionCostPlot** - Memory and FLOP analysis
-```mathematica
-ContractionCostPlot[tn, path]
-(* Shows:
-   - Peak memory at each step
-   - Cumulative FLOPs
-   - Write size per contraction
-   - Interactive: click step to highlight in tree *)
-```
-
-**B2. ContractionTreePlot** - Multiple layout options
-```mathematica
-ContractionTreePlot[tn, path,
-  "Layout" -> "Tent" | "Ring" | "Circuit" | "Rubberband" | "Flat"
-]
-(* Options:
-   - "EdgeWeights" -> "Dimensions" | "FLOPs" | "Memory"
-   - "NodeWeights" -> "FLOPs" | "Size"
-   - "ColorFunction" -> colorFunc
-   - "Labels" -> "Dimensions" | "Operations" | None
-*)
-```
-
-**B3. PathComparisonPlot** - Compare multiple contraction paths
-```mathematica
-PathComparisonPlot[tn, {path1, path2, ...}]
-(* Side-by-side or overlay comparison of:
-   - Total cost
-   - Memory profile
-   - Tree structure *)
-```
-
-#### Category C: Optimizer Visualization (Match Cotengra)
-
-**C1. OptimizationProgressPlot** - Trial progress
-```mathematica
-OptimizationProgressPlot[optimizerResults]
-(* Options:
-   - "Metric" -> "Score" | "FLOPs" | "Memory"
-   - "XAxis" -> "Trial" | "Time"
-   - "ShowBest" -> True *)
-```
-
-**C2. OptimizationScatterPlot** - Cost vs size distribution
-```mathematica
-OptimizationScatterPlot[optimizerResults]
-(* X: contraction width/size, Y: FLOPs *)
-```
-
-#### Category D: MPS/MPO Visualization (UNIQUE STRENGTH)
-
-**D1. MPSDiagram** - Chain visualization
-```mathematica
-MPSDiagram[mps]
-(* Options:
-   - "ShowBondDimensions" -> True
-   - "ShowPhysicalDimensions" -> True
-   - "CanonicalForm" -> "Left" | "Right" | "Mixed"[k]
-   - "HighlightSite" -> k
-   - "ColorByEntanglement" -> True *)
-```
-
-**D2. MPODiagram** - Operator chain visualization
-```mathematica
-MPODiagram[mpo]
-(* Shows upper and lower physical indices *)
-```
-
-**D3. EntanglementProfile** - Entanglement across bonds
-```mathematica
-EntanglementProfile[mps]
-(* Plot of entanglement entropy vs bond position *)
-```
-
-**D4. SchmidtSpectrumPlot** - Schmidt values at each bond
-```mathematica
-SchmidtSpectrumPlot[mps, bond]
-(* Bar chart or line plot of Schmidt coefficients *)
-```
-
-**D5. BondDimensionPlot** - Bond dimensions across chain
-```mathematica
-BondDimensionPlot[mps]
-(* Shows bond dimension profile *)
-```
-
-#### Category E: Interactive Visualization (MATHEMATICA ADVANTAGE)
-
-**E1. TensorNetworkExplorer** - Interactive manipulation
-```mathematica
-TensorNetworkExplorer[tn]
-(* Dynamic interface:
-   - Click tensor to inspect dimensions, values
-   - Drag to rearrange layout
-   - Hover for index information
-   - Click-to-contract simulation *)
-```
-
-**E2. ContractionAnimator** - Animated contraction sequence
-```mathematica
-ContractionAnimator[tn, path]
-(* Animate step-by-step contraction with:
-   - Cost accumulation
-   - Network shrinking
-   - Playback controls *)
-```
-
-**E3. PathSelector** - Interactive path building
-```mathematica
-PathSelector[tn]
-(* Click pairs of tensors to build contraction path
-   Real-time cost feedback *)
-```
-
-#### Category F: Network Analysis Visualization
-
-**F1. NetworkStructurePlot** - Structural analysis
-```mathematica
-NetworkStructurePlot[tn, "Analysis" -> type]
-(* Types:
-   - "DegreeDistribution"
-   - "Centrality"
-   - "Communities"
-   - "TreeWidth" *)
-```
-
-**F2. IndexConnectivityMatrix** - Heatmap of connections
-```mathematica
-IndexConnectivityMatrix[tn]
-(* Matrix showing which tensors share which indices *)
-```
-
-#### Category G: Export & Publication
-
-**G1. ExportDiagram** - Publication-quality export
-```mathematica
-ExportDiagram[diagram, "file.pdf"]
-ExportDiagram[diagram, "file.tikz"]  (* LaTeX TikZ *)
-ExportDiagram[diagram, "file.svg"]
-```
-
-**G2. DiagramToLaTeX** - Generate LaTeX/TikZ code
-```mathematica
-DiagramToLaTeX[TensorNetworkDiagram[tn]]
-(* Returns string of TikZ commands *)
-```
-
-### 7.5 Visualization Implementation Plan
-
-#### Phase V1: Core Diagram Functions (Priority: HIGH)
-
-**Task V1.1**: Implement `TensorNetworkDiagram`
-- Penrose-style notation with shapes for tensors
-- Index lines with proper styling
-- Support for symmetry indicators (zigzag for symmetric, bar for antisymmetric)
-- Leverages Mathematica's `Graphics` primitives
-
-**Task V1.2**: Implement `MPSDiagram` and `MPODiagram`
-- Linear chain layout
-- Bond dimension labels
-- Physical index visualization
-- Canonical form indicators
-
-**Task V1.3**: Implement `ContractionTreePlot` with multiple layouts
-- Port Cotengra's layout algorithms
-- "Tent", "Ring", "Circuit", "Flat" layouts
-- Cost-weighted edges and nodes
-
-#### Phase V2: Cost Analysis (Priority: HIGH)
-
-**Task V2.1**: Implement `ContractionCostPlot`
-- Memory profile line plot
-- FLOP accumulation
-- Peak memory markers
-
-**Task V2.2**: Implement `PathComparisonPlot`
-- Multi-path overlay
-- Cost comparison table
-
-#### Phase V3: MPS-Specific Visualization (Priority: MEDIUM)
-
-**Task V3.1**: Implement `EntanglementProfile`
-- Line plot of S(i) vs bond i
-- Area-under-curve shading
-
-**Task V3.2**: Implement `SchmidtSpectrumPlot`
-- Log-scale option for decay visualization
-- Truncation threshold indicator
-
-**Task V3.3**: Implement `BondDimensionPlot`
-- Profile visualization
-- Comparison between original and truncated
-
-#### Phase V4: Interactive Features (Priority: MEDIUM)
-
-**Task V4.1**: Implement `TensorNetworkExplorer`
-- Use `DynamicModule` and `ClickPane`
-- Tooltip information on hover
-- Expandable tensor details
-
-**Task V4.2**: Implement `ContractionAnimator`
-- `Manipulate` with slider for step
-- Animated transition option
-- Export to GIF/video
-
-#### Phase V5: Optimizer Visualization (Priority: LOW)
-
-**Task V5.1**: Implement `OptimizationProgressPlot`
-- Requires path optimizer to return trial history
-- May need to extend `GreedyContractionPath`/`OptimalContractionPath`
-
-**Task V5.2**: Implement `OptimizationScatterPlot`
-- Scatter plot with best path highlighted
-
-#### Phase V6: Export & Publication (Priority: MEDIUM)
-
-**Task V6.1**: Implement `ExportDiagram`
-- Leverage `Export` with vector formats
-- Custom TikZ backend for LaTeX users
-
-**Task V6.2**: Implement `DiagramToLaTeX`
-- Generate standalone TikZ code
-- Template system for different styles
-
-### 7.6 Visualization Files to Create
-
-| File | Functions | Priority |
-|------|-----------|----------|
-| `Kernel/Visualization/TensorDiagram.wl` | TensorNetworkDiagram, ContractionDiagram | High |
-| `Kernel/Visualization/MPSVisualization.wl` | MPSDiagram, MPODiagram, EntanglementProfile | High |
-| `Kernel/Visualization/ContractionPlots.wl` | ContractionTreePlot, ContractionCostPlot | High |
-| `Kernel/Visualization/PathComparison.wl` | PathComparisonPlot | Medium |
-| `Kernel/Visualization/Interactive.wl` | TensorNetworkExplorer, ContractionAnimator | Medium |
-| `Kernel/Visualization/OptimizerPlots.wl` | OptimizationProgressPlot, ScatterPlot | Low |
-| `Kernel/Visualization/Export.wl` | ExportDiagram, DiagramToLaTeX | Medium |
-| `Documentation/VisualizationGuide.nb` | Tutorial notebook | High |
-
-### 7.7 Mathematica Visualization Advantages
-
-**Why Mathematica can EXCEED Cotengra's visualization:**
-
-1. **Native Graphics System** - Full control over every visual element
-2. **Dynamic Interactivity** - `Manipulate`, `DynamicModule`, `ClickPane` for true interactivity
-3. **Vector Export** - Native PDF, SVG, EPS export at any resolution
-4. **Symbolic Integration** - Visualize symbolic tensor networks (impossible in Python)
-5. **Graph Theory Built-in** - `Graph`, `GraphLayout`, community detection, centrality
-6. **Animation** - `Animate`, `ListAnimate`, export to GIF/video
-7. **Notebook Integration** - Inline visualization with evaluation
-8. **3D Graphics** - Potential for 3D tensor network visualization (PEPS, TTN)
-9. **LaTeX Integration** - Direct TeXForm output for labels
-
-### 7.8 Example Visualization Code
-
-```mathematica
-(* Penrose-style tensor diagram *)
-TensorNetworkDiagram[
-  RandomTensorNetwork["MPS"[5, 4, 2]],
-  "Style" -> "Penrose",
-  "IndexLabels" -> True,
-  "ColorScheme" -> "Rainbow"
-]
-
-(* MPS with entanglement coloring *)
-mps = RandomTensorNetwork["MPS"[10, 16, 2]];
-MPSDiagram[mps,
-  "ColorByEntanglement" -> True,
-  "ShowBondDimensions" -> True
-]
-
-(* Contraction cost analysis *)
-path = GreedyContractionPath[network];
-ContractionCostPlot[network, path,
-  "ShowPeakMemory" -> True,
-  "ShowFLOPs" -> True
-]
-
-(* Interactive explorer *)
-TensorNetworkExplorer[network]
-(* Click any tensor to see:
-   - Dimensions
-   - Connected indices
-   - Numerical values (if available)
-   - Contraction cost if removed *)
-
-(* Export to LaTeX *)
-diagram = TensorNetworkDiagram[network];
-Export["figure.pdf", diagram];
-tikzCode = DiagramToLaTeX[diagram];
-```
+## Part 6. Documentation and notebook deliverables
+
+Existing notebooks under `TensorNetworks/Documentation/English/Tutorials/`:
+
+- `TensorNetworksOverview.nb`
+- `BuildingTensorNetworks.nb`
+- `ContractionPathsAndExecution.nb`
+- `MPSAlgorithms.nb`
+- `IndexArrayAndMetrics.nb`
+- `YoungSymmetries.nb`
+
+What this plan adds (mapped to phases):
+
+| Notebook | Phase | Purpose |
+|---|---|---|
+| `Notebooks/Tests and explorations/LibraryComparison.nb` | 1 | Side-by-side: same problem, paclet vs quimb, cotengra, ITensorMPS.jl, EinExprs.jl. Driven by `external_oracles` fixtures. |
+| `Documentation/English/Tutorials/SymbolicComputation.nb` | 1 | Closed-form Schmidt, transfer-matrix eigenvalues, parametric entropies. Source for §3.1 wedge 1. |
+| `Documentation/English/Tutorials/MPOAndDynamics.nb` | 3 | Once Phase 3 ships: `MPOApply`, `ExpectationValue`, `TEBDStep`. |
+| `Documentation/English/Tutorials/HamiltonianToMPO.nb` | 4 (Pillar 1) | The headline symbolic-TN deliverable. |
+| `Documentation/English/Tutorials/Canonicalization.nb` | 4 (Pillar 2) | First Bianchi, Riemann polynomial identity, Wick on small fermionic product. |
+| `Documentation/English/Tutorials/ZXRewrites.nb` | 4 (Pillar 4) | If we extend the QF bridge: AKLT, GHZ, cluster state. |
+| `Documentation/English/Tutorials/HaarIntegration.nb` | 4 (Pillar 5) | Isserlis, Weingarten, random-PEPS averages. |
+
+Do **not** create the `Documentation/MathematicaAdvantages.nb` / `MigrationFromPython.nb` / `PhysicsApplications.nb` notebooks the earlier draft proposed. Their content is better folded into the audit document `Audit/Wolfram-TN-Six-Wedges-Demos.md` and the existing tutorials.
 
 ---
 
-## Sources
+## Part 7. Positioning (one-screen summary)
 
-- [Cotengra Documentation](https://cotengra.readthedocs.io/)
-- [Cotengra Visualization](https://cotengra.readthedocs.io/en/latest/visualization.html)
-- [Cotengra GitHub](https://github.com/jcmgray/cotengra)
-- [Google TensorNetwork GitHub](https://github.com/google/TensorNetwork)
-- [ITensor Documentation](https://itensor.org/)
-- [Quimb GitHub](https://github.com/jcmgray/quimb)
-- [Tensor Network Software List](https://tensornetwork.org/software/)
-- [Tensor Network Diagrams](https://tensornetwork.org/diagrams/)
-- [Penrose Graphical Notation](https://en.wikipedia.org/wiki/Penrose_graphical_notation)
-- [Wolfram Symbolic Tensors](https://reference.wolfram.com/language/guide/SymbolicTensors.html)
-- [NVIDIA cuTensorNet](https://developer.nvidia.com/cuquantum-sdk)
+| Use case | Recommendation |
+|---|---|
+| Closed-form / parametric results | **`Wolfram/TensorNetworks` is the only option.** |
+| GR-style tensor algebra (covariance, metric, Christoffel) | `Wolfram/TensorNetworks` + xAct. Paclet wins on "20 metrics in one expression"; xAct wins on Butler-Portugal canonicalization. |
+| Young symmetrization / irrep projection | **`Wolfram/TensorNetworks`** (`YoungProject` is normalized; xAct/Cadabra ship the unnormalized symmetrizer). |
+| Hyperedge / symbolic-spider TN with `SymbolicDeltaProductArray` | **`Wolfram/TensorNetworks`** (quimb has hyperedges; only paclet keeps them inspectable). |
+| Quantum-circuit ↔ TN ↔ ZX round-trip in one kernel | **`Wolfram/QuantumFramework` + this paclet** (six wedges in `Audit/Wolfram-TN-Six-Wedges-Demos.md`). |
+| DMRG ground state, large iDMRG / iTEBD | ITensorMPS.jl or TeNPy until Phase 3.5/3.6 lands. |
+| Path search for 100+ tensor networks | quimb + cotengra, or this paclet's Rust `OptimalContractionPath` (parity, with the `Method -> "size"` caveat). |
+| GPU contraction | cuTensorNet (no equivalent here yet). |
+| Production ML pipelines | Export via Phase 6, then run in PyTorch / JAX. |
+
+---
+
+## Part 8. References
+
+Audit and source documents inside the repository:
+
+- `Audit/TensorNetworks-Capabilities-Audit-and-Quantum-Roadmap.md` (rev 2, 2026-04-26): definitive capability + roadmap with QF cross-check.
+- `Audit/Wolfram-vs-Numeric-TN-Assessment-2026-04-26.md`: six unique wedges, mapped to a real graduate TN syllabus.
+- `Audit/Wolfram-TN-Six-Wedges-Demos.md`: runnable demonstrations of those wedges.
+- `Audit/Decision-Diagram-Integration-Plan-2026-05-22.md`: DD integration plan.
+- `TN courses/A course on symbolic Tensor Networks/Symbolic_TN_feature_pillars.md`: the 5-pillar symbolic-TN framework.
+- `TN courses/External symbolic tensor/EXAMPLES_CATALOG.md`: 150 cataloged symbolic-tensor examples.
+- `TN courses/External symbolic tensor/WL_PILLAR_AUDIT.md`: per-pillar audit of this paclet vs the symbolic corpus.
+- `Tests/external_validation/EXAMPLES_CATALOG.md`: 503 numerical examples.
+- `Tests/external_validation/PLAN.md`: live test-suite status.
+- `TensorNetworks/PacletInfo.wl`: version, dependency, Cargo build wiring.
+
+External documentation (no in-repo copy):
+
+- Cotengra (`https://cotengra.readthedocs.io/`).
+- Quimb (`https://github.com/jcmgray/quimb`).
+- ITensor / ITensorMPS / ITensorNetworks (`https://itensor.org/`).
+- TeNPy (`https://github.com/tenpy/tenpy`).
+- EinExprs.jl (`https://github.com/bsc-quantic/EinExprs.jl`).
+- PyZX (`https://github.com/Quantomatic/pyzx`).
+- DisCoPy (`https://github.com/discopy/discopy`).
+- tensorgrad (`https://github.com/thomasahle/tensorgrad`).
+- xAct (`http://www.xact.es/`).
+- Cadabra2 (`https://github.com/kpeeters/cadabra2`).
+- NVIDIA cuQuantum / cuTensorNet (`https://developer.nvidia.com/cuquantum-sdk`).
+- Wolfram symbolic tensors guide (`https://reference.wolfram.com/language/guide/SymbolicTensors.html`).
+- Tensor network software list (`https://tensornetwork.org/software/`).
+
+---
+
+## Part 9. Verification checklist for this plan
+
+Before any phase ships:
+
+1. Every new public symbol has a `.nb` reference page under `Documentation/English/ReferencePages/Symbols/` and is exercised by `Tests/run_doc_examples.wl`.
+2. The pipe through `wolframscript -file Tests/run_tests.wl` stays green.
+3. `wolframscript -file Tests/external_validation/run_external_validation.wl` stays at 156+ passing (no regressions; new tests added for each new feature).
+4. `Wolfram/QuantumFramework` v1.6.5's `QuantumTensorNetwork[qco]`, `TensorNetworkApply[qco, qs]`, `ZXTensorNetwork[qc]` still work end-to-end. The QF-consumed symbols (§1.9) are renamed only with a signed-off deprecation cycle.
+5. `EXAMPLES_CATALOG.md` (numerical and symbolic) is updated when the new feature has an external counterpart.
+6. `Notebooks/Tests and explorations/LibraryComparison.nb` runs end-to-end on the host machine.
+
+---
+
+*This document is plan-only. Implementation lives in `Kernel/` and is tracked through `Tests/`. For day-to-day "what does this symbol do" questions, prefer the reference pages or the tutorials over this document.*

@@ -34,10 +34,20 @@ partition: a non-empty list of positive integers in non-increasing order."
 
 
 
-TableauColumns::usage = "TableauColumns[StyleBox[\"tableau\", \"TI\"]] returns the column slot lists \
-of StyleBox[\"tableau\", \"TI\"], with column \!\(\*StyleBox[\"j\", \"TI\"]\) \
-collecting the slot at position \!\(\*StyleBox[\"j\", \"TI\"]\) of every row \
-reaching position \!\(\*StyleBox[\"j\", \"TI\"]\)."
+SchurDimension::usage = "\!\(\*RowBox[{\"SchurDimension\", \"[\", RowBox[{StyleBox[\"partition\", \
+\"TI\"], \",\", \" \", StyleBox[\"d\", \"TI\"]}], \"]\"}]\) gives the \
+dimension of the \!\(\*RowBox[{\"GL\", \"(\", StyleBox[\"d\", \"TI\"], \
+\")\"}]\) Weyl module corresponding to the integer StyleBox[\"partition\", \" \
+TI\"] via the hook-content formula. \
+\[Bullet]\n\!\(\*RowBox[{\"SchurDimension\", \"[\", \
+RowBox[{StyleBox[\"tableau\", \"TI\"], \",\", \" \", StyleBox[\"d\", \
+\"TI\"]}], \"]\"}]\) does the same when the input is a Young \
+StyleBox[\"tableau\", \" TI\"]."
+
+
+
+TableauColumns::usage = "\!\(\*RowBox[{\"TableauColumns\", \"[\", StyleBox[\"tableau\", \"TI\"], \
+\"]\"}]\) returns the column slot lists of a Young tableau."
 
 
 
@@ -51,8 +61,9 @@ StyleBox[\"partition\", \"TI\"]."
 
 
 
-TableauRows::usage = "TableauRows[StyleBox[\"tableau\", \"TI\"]] returns the inner row list of \
-StyleBox[\"tableau\", \"TI\"] as a list of lists of slot indices."
+TableauRows::usage = "\!\(\*RowBox[{\"TableauRows\", \"[\", StyleBox[\"tableau\", \"TI\"], \
+\"]\"}]\) returns the inner row list of a Young tableau as a list of lists of \
+slot indices."
 
 
 
@@ -64,6 +75,14 @@ TableauShape::usage = "\!\(\*RowBox[{\"TableauShape\", \"[\", StyleBox[\"tableau
 TableauSize::usage = "\!\(\*RowBox[{\"TableauSize\", \"[\", StyleBox[\"tableau\", \"TI\"], \
 \"]\"}]\) returns the total number of boxes in a Young tableau, i.e. the sum \
 of its row lengths."
+
+
+
+TableauWeylDimension::usage = "\!\(\*RowBox[{\"TableauWeylDimension\", \"[\", RowBox[{StyleBox[\"tableau\", \
+\"TI\"], \",\", \" \", StyleBox[\"d\", \"TI\"]}], \"]\"}]\) gives the \
+\!\(\*RowBox[{\"GL\", \"(\", StyleBox[\"d\", \"TI\"], \")\"}]\) Weyl module \
+dimension for the partition underlying the Young StyleBox[\"tableau\", \" \
+TI\"]."
 
 
 
