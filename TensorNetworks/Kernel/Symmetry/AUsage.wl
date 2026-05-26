@@ -49,6 +49,17 @@ TableauDimension::usage = "TableauDimension[tableau] computes the dimension of t
 \[Bullet] TableauDimension[YoungTableau[{1,1,1}]] returns 1 (fully antisymmetric).
 \[Bullet] TableauDimension[YoungTableau[{2,1}]] returns 2 (mixed symmetry)."
 
+SchurDimension::usage = "SchurDimension[partition, d] returns the dimension of the GL(d) Weyl module corresponding to the partition, computed via the hook-content formula \[Product] (d + j - i) / h(i, j) over diagram cells (i, j).
+\[Bullet] Equivalent to the Schur polynomial \!\(\*SubscriptBox[\(s\), \(\[Lambda]\)]\) evaluated at the all-ones point of length d.
+\[Bullet] Numerically equals the rank of the single-tableau Young projector on (\!\(\*SuperscriptBox[\(\[DoubleStruckCapitalC]\), \(d\)]\))\^\[CircleTimes]n.
+\[Bullet] SchurDimension[YoungTableau[par], d] also accepts a tableau.
+\[Bullet] Accepts symbolic d: SchurDimension[{2, 2}, n] returns \!\(\*FractionBox[\(\*SuperscriptBox[\(n\), \(2\)] \((\*SuperscriptBox[\(n\), \(2\)] - 1)\)\), \(12\)]\)."
+
+TableauWeylDimension::usage = "TableauWeylDimension[tableau, d] returns the GL(d) Weyl module dimension for the underlying partition of tableau.
+\[Bullet] Tableau-keyed companion to TableauDimension; while TableauDimension[tab] returns the \!\(\*SubscriptBox[\(S\), \(n\)]\) irrep dimension dim \!\(\*SubscriptBox[\(V\), \(\[Lambda]\)]\) (independent of d), TableauWeylDimension[tab, d] returns the GL(d) Weyl module dimension dim \!\(\*SubscriptBox[\(W\), \(\[Lambda]\)]\)(d).
+\[Bullet] The product TableauDimension[tab] * TableauWeylDimension[tab, d] is the size of the \[Lambda]-isotypic block of (\!\(\*SuperscriptBox[\(\[DoubleStruckCapitalC]\), \(d\)]\))\^\[CircleTimes]n.
+\[Bullet] Equivalent to SchurDimension[TableauShape[tab], d]; accepts symbolic d."
+
 YoungSymmetrize::usage = "YoungSymmetrize[tensor, tableau] projects tensor onto the symmetry class defined by the Young tableau.
 \[Bullet] First symmetrizes over rows, then antisymmetrizes over columns.
 \[Bullet] The tensor rank must equal the number of boxes in the tableau.

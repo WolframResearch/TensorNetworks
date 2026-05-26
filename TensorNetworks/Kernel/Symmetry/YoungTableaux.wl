@@ -16,6 +16,8 @@ PackageExport[HookLength]
 PackageExport[HookLengths]
 PackageExport[HookFactor]
 PackageExport[TableauDimension]
+PackageExport[SchurDimension]
+PackageExport[TableauWeylDimension]
 PackageExport[YoungSymmetrize]
 PackageExport[YoungProject]
 
@@ -224,6 +226,47 @@ TableauDimension[expr_] := (Message[TableauDimension::noyt, expr]; $Failed)
 
 
 (* ============================================ *)
+(* Schur / Weyl Module Dimension                *)
+(* (hook-content formula for dim W_lambda(d))   *)
+(* ============================================ *)
+
+(* dim W_lambda(d) = Prod over cells (i, j) of (d + j - i) / hook(i, j).
+   This is the value of the Schur polynomial s_lambda at the all-ones point
+   of length d, and equals the rank of the single-tableau Young projector
+   on (C^d)^{otimes n}. Accepts both numeric and symbolic d; for symbolic d
+   the result is a polynomial in d (apply Simplify or Factor for closed form). *)
+
+SchurDimension[partition_List ? PartitionQ, d_] :=
+    With[{hooks = HookLengths[partition]},
+        Product[
+            (d + j - i) / hooks[[i, j]],
+            {i, Length[partition]}, {j, partition[[i]]}
+        ]
+    ]
+
+SchurDimension[yt_YoungTableau ? YoungTableauQ, d_] :=
+    SchurDimension[TableauShape[yt], d]
+
+SchurDimension::notpar = "SchurDimension expects a valid partition or YoungTableau, got `1`.";
+
+SchurDimension[expr_, _] := (Message[SchurDimension::notpar, expr]; $Failed)
+
+
+(* TableauWeylDimension is the tableau-keyed companion to TableauDimension.
+   TableauDimension[tab] returns the S_n irrep dimension dim V_lambda
+   (independent of d); TableauWeylDimension[tab, d] returns the GL(d) Weyl
+   module dimension dim W_lambda(d). Their product is the size of the
+   lambda-isotypic block of (C^d)^{otimes n}. *)
+
+TableauWeylDimension[yt_YoungTableau ? YoungTableauQ, d_] :=
+    SchurDimension[TableauShape[yt], d]
+
+TableauWeylDimension::noyt = "TableauWeylDimension accepts only YoungTableau as input, got `1`.";
+
+TableauWeylDimension[expr_, _] := (Message[TableauWeylDimension::noyt, expr]; $Failed)
+
+
+(* ============================================ *)
 (* Young Symmetrizer                            *)
 (* ============================================ *)
 
@@ -303,19 +346,29 @@ YoungTableau /: MakeBoxes[yt : YoungTableau[rows_List] /; YoungTableauQ[Unevalua
     With[{
         shape = TableauShape[yt],
         dim = TableauDimension[yt],
-        nBoxes = TableauSize[yt]
+        nBoxes = TableauSize[yt],
+        nRows = Length[rows],
+        nCols = Max[Length /@ rows],
+        cellPx = 16
     },
         BoxForm`ArrangeSummaryBox[
             YoungTableau,
             yt,
-            (* Icon: simple Young diagram visualization *)
+            (* Icon: Young diagram with cell entries. ImageSize is pinned in
+               both dimensions so each cell is exactly cellPx square, regardless
+               of shape (single-row shapes render wide-and-short, etc.). *)
             Graphics[{
                 EdgeForm[Gray], White,
                 Table[
                     Rectangle[{c - 1, -r}, {c, -r + 1}],
-                    {r, Length[rows]}, {c, Length[rows[[r]]]}
+                    {r, nRows}, {c, Length[rows[[r]]]}
+                ],
+                Black,
+                Table[
+                    Text[Style[rows[[r, c]], 10], {c - 0.5, -r + 0.5}],
+                    {r, nRows}, {c, Length[rows[[r]]]}
                 ]
-            }, ImageSize -> 32, AspectRatio -> 1],
+            }, ImageSize -> cellPx * {nCols, nRows}],
             (* Always shown *)
             {
                 {BoxForm`SummaryItem[{"Shape: ", shape}]},
