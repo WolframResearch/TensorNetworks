@@ -2,11 +2,11 @@
 
 This tutorial walks through every function the `Wolfram`TensorNetworks`Symmetry`` sub-context exports, in the order a tensor-network practitioner actually meets them. The goal is operational: after working through the document you should be able to (i) decide whether a partition or a tableau is the right object for a problem, (ii) predict the size of every block of a symmetry-resolved tensor in closed form, and (iii) project a real TN tensor onto the irrep subspace it physically belongs to. Every claim below is paired with a small Wolfram Language cell that you can rerun and modify; nothing is asserted without being computed.
 
-We start where the physics starts: two indistinguishable particles. From there we walk up the ladder of rank, picking up one Symmetry-subcontext function per pedagogical step. By the end we will have used all twelve exported functions, every one of them at least once on a tensor that has a tensor-network reason to exist.
+We start where the physics starts: two indistinguishable particles. From there we walk up the ladder of rank, picking up one Symmetry-subcontext function per pedagogical step. By the end we will have used all fourteen exported functions, every one of them at least once on a tensor that has a tensor-network reason to exist.
 
 ## Inventory
 
-The sub-context exports twelve symbols. Six are about the *combinatorics* of Young diagrams (a counting layer that decides "how much room is there?"). Six are about the *action on tensors* (the operational layer that produces a tensor in the right symmetry class).
+The sub-context exports fourteen symbols. Six are about the *combinatorics* of Young diagrams (a counting layer that decides "how much room is there?"). Two are typed *accessors* for reading the row and column structure out of a tableau. Four are about *dimensions* of the irreducible-representation blocks. Two are about the *action on tensors* (the operational layer that produces a tensor in the right symmetry class).
 
 | Symbol | Layer | One-line role |
 |---|---|---|
@@ -16,6 +16,8 @@ The sub-context exports twelve symbols. Six are about the *combinatorics* of You
 | `YoungTableauQ` | combinatorics | Is this `YoungTableau[...]` well-formed? |
 | `TableauShape` | combinatorics | Read off the partition from a tableau. |
 | `TableauSize` | combinatorics | Total box count $n$ (the rank we will act on). |
+| `TableauRows` | accessor | The list-of-rows out of an atomic `YoungTableau[...]`. |
+| `TableauColumns` | accessor | The column-slot lists (handles ragged shapes). |
 | `HookLength` | dimensions | One cell's hook length. |
 | `HookLengths` | dimensions | All hook lengths in one nested list. |
 | `HookFactor` | dimensions | $1/\prod h(i,j)$, the prefactor in the dimension formula. |
@@ -25,10 +27,46 @@ The sub-context exports twelve symbols. Six are about the *combinatorics* of You
 
 The tutorial is structured around four physical settings that successively bring more of these functions into play:
 
-1. **Two-site bonds and identical particles** uses `YoungTableau`, `YoungTableauQ`, `TableauShape`, `TableauSize`, `YoungSymmetrize`, `YoungProject`.
+1. **Two-site bonds and identical particles** uses `YoungTableau`, `YoungTableauQ`, `TableauShape`, `TableauSize`, `TableauRows`, `TableauColumns`, `YoungSymmetrize`, `YoungProject`.
 2. **Diagrams as combinatorial bookkeeping** picks up `PartitionQ` and `TransposePartition`.
 3. **Counting before allocating** brings in `HookLength`, `HookLengths`, `HookFactor`, and `TableauDimension`.
 4. **Three TN payoffs** revisits every function in working examples: Schur-Weyl block decomposition on three sites, the Riemann tensor as a rank-4 TN node, and the spectrum of a class-function Hamiltonian via content sums.
+
+---
+
+## Where this sub-context sits in WL's tensor stack
+
+Before any code, the structural relationship between the sub-context and built-in Wolfram Language tensor symmetry. Built-in WL (since 9.0) ships a complete language for *mono-term* symmetries: relations of the form
+
+$$
+\phi\, \mathrm{TensorTranspose}[T, \sigma] \;=\; T
+$$
+
+for one permutation $\sigma$ and one root of unity $\phi$. The kernel surface for these is
+
+- named heads `Symmetric[{slots}]`, `Antisymmetric[{slots}]`, `Hermitian[{1,2}]`, `Antihermitian[{1,2}]`, `ZeroSymmetric[{slots}]`,
+- generic generators as lists `{ {Cycles[...], phase}, ... }`,
+- the projector `Symmetrize[T, sym]` (group-averaging; the idempotent normalised form),
+- the analyser `TensorSymmetry[T]`,
+- the compressed-storage type `SymmetrizedArray[rules, dims, sym]`,
+- the assumption-layer envelopes `Arrays[...]` / `Matrices[...]` / `Vectors[...]` that drive `TensorReduce` / `TensorExpand`.
+
+This is everything you need to declare "this tensor is symmetric in slots 1, 2", "this matrix is Hermitian", "this rank-4 tensor antisymmetrises in $(1,2)$ and in $(3,4)$ and is invariant under swapping the pairs". It is not enough to declare "$R_{abcd} + R_{acdb} + R_{adbc} = 0$": that is a *multi-term* relation (three permuted copies summing to zero) and lies outside the mono-term language. The same gap is what blocks Young projection onto a mixed-symmetry irrep: those projectors are sums-with-signs over the group on each row and each column of a Young diagram, and the image is defined by satisfying *several* permutation relations together, not one.
+
+The `Wolfram`TensorNetworks`Symmetry`` sub-context fills exactly this gap. Its `YoungProject` produces tensors that lie in *one $S_n$ irrep*, a condition that always implies extra multi-term identities. The Riemann curvature tensor is the canonical example: living in the $\{2,2\}$ irrep simultaneously satisfies pair-antisymmetry $R_{abcd} = -R_{bacd}$, pair-antisymmetry $R_{abcd} = -R_{abdc}$, pair-swap $R_{abcd} = R_{cdab}$, *and* the algebraic first Bianchi identity $R_{abcd} + R_{acdb} + R_{adbc} = 0$. The three pair conditions are mono-term and reachable by built-in `Symmetrize`; the Bianchi identity is multi-term and is not.
+
+We make this concrete in §4.2 (with a numerical demonstration that built-in `Symmetrize` with the three Riemann pair generators *fails* to enforce Bianchi, while `YoungProject` *succeeds*). For now, the takeaway map:
+
+| Operation | Built-in WL | Sub-context |
+|---|---|---|
+| Mono-term symmetrise (boson, fermion, Riemann pair) | `Symmetrize[T, sym]` | (sub-context wraps this) |
+| Detect mono-term symmetry group | `TensorSymmetry[T]` | (no analogue) |
+| Compressed storage by orbit | `SymmetrizedArray` | (no analogue; sub-context emits dense / `Normal`) |
+| Single-tableau / mixed-symmetry projection (multi-term) | (not supported) | `YoungProject[T, tab]` |
+| Irrep dimension $\dim V_\lambda$ via hook formula | (not supported) | `TableauDimension[par]` |
+| Hook lengths for $S_n$ representation theory | (not supported) | `HookLength`, `HookLengths`, `HookFactor` |
+
+The two layers compose. The sub-context's `YoungSymmetrize` is implemented as two calls to built-in `Symmetrize` (one with `Symmetric /@ rows`, one with `Antisymmetric /@ columns`) plus the row- and column-stabiliser normalisation factors. So the multi-term machinery sits as a direct extension of the mono-term machinery, not as a competitor.
 
 ---
 
@@ -74,7 +112,7 @@ $$
 \text{boson}: \; T \,=\, T^T, \qquad \text{fermion}: \; T \,=\, -\,T^T,
 $$
 
-with $T^T$ the entry-by-entry transpose. Hermiticity, the condition $T = T^\dagger = (T^*)^T$, is a separate and independent constraint; we will come back to it later in this section and show that the Symmetry sub-context is the wrong tool for it.
+with $T^T$ the entry-by-entry transpose. Hermiticity, the condition $T = T^\dagger = (T^*)^T$, is a separate and independent constraint; we will come back to it later in this section and show that the Symmetry sub-context is the wrong tool for it. Built-in WL recognises this distinction: `Matrices[{n,n}, Reals, Hermitian[{1,2}]]` automatically collapses to `Matrices[{n,n}, Reals, Symmetric[{1,2}]]` because the imaginary part of the conjugation drops out on real entries.
 
 ## 1.2 The symmetric / antisymmetric decomposition
 
@@ -96,7 +134,7 @@ This $T$ is our running test object for the rest of the section. The bosonic pro
 
 ## `YoungTableau`: the named handle for a symmetry class
 
-A *Young tableau* is a left-justified arrangement of boxes (the "shape") together with a labelling of those boxes by the slot indices $\{1, 2, \ldots, n\}$ of the tensor we plan to act on. For two indices there are exactly two shapes:
+A *Young tableau* is a left-justified arrangement of boxes (the "shape") together with a labelling of those boxes by the slot indices $\{1, 2, \ldots, n\}$ of the tensor we plan to act on. **The labelling must be a permutation of $1, 2, \ldots, n$** (a *standard tableau*). For two indices there are exactly two shapes:
 
 - one row of two boxes, written $\{2\}$, labels the *symmetric* class;
 - one column of two boxes, written $\{1,1\}$, labels the *antisymmetric* class.
@@ -115,7 +153,7 @@ YoungTableau[{{1, 2}}]      (* same as YoungTableau[{2}] *)
 YoungTableau[{{1}, {2}}]    (* same as YoungTableau[{1, 1}] *)
 ```
 
-The explicit form will matter once we move beyond rank 2, because it lets us choose *which* slot goes in which row and column.
+The explicit form will matter once we move beyond rank 2, because it lets us choose *which* slot goes in which row and column. For example, `YoungTableau[{{1, 3}, {2}}]` is a $\{2,1\}$-shape tableau on rank 3 where slot 3 is paired with slot 1 in the column (and slot 2 sits alone), not the default `YoungTableau[{{1, 2}, {3}}]` that fills row by row.
 
 ## What familiar matrices look like in each shape
 
@@ -170,16 +208,18 @@ Every entry in the right column is "Young projector applied gives back the tenso
 
 ## `YoungTableauQ`: validate before you commit
 
-`YoungTableauQ` returns `True` if the argument is a `YoungTableau[...]` whose rows obey the partition shape rule (non-increasing row lengths, distinct positive integer entries) and `False` otherwise. We will rely on it implicitly: the other Symmetry-subcontext functions reject malformed tableaux with informative messages instead of crashing. Test it:
+`YoungTableauQ` returns `True` if the argument is a `YoungTableau[...]` whose rows obey the standard-tableau rules: non-increasing row lengths and slot labels that are *exactly* the integers $1, 2, \ldots, n$ in some order. It returns `False` otherwise. We will rely on it implicitly: the other Symmetry-subcontext functions reject malformed tableaux with informative messages instead of crashing. Test it:
 
 ```wolfram
 YoungTableauQ[symTab]                                (* True *)
 YoungTableauQ[YoungTableau[{{1}, {2, 3}}]]           (* False: row 2 longer than row 1 *)
 YoungTableauQ[YoungTableau[{{1, 2}, {2, 3}}]]        (* False: 2 appears twice *)
+YoungTableauQ[YoungTableau[{{3, 5, 7}, {1, 2}}]]     (* False: slots {1,2,3,5,7} != Range[5] *)
+YoungTableauQ[YoungTableau[{{1, 3, 5}, {2, 4}}]]     (* True:  slots {1,2,3,4,5} == Range[5] *)
 YoungTableauQ["definitely not a tableau"]            (* False *)
 ```
 
-The first call is `True`. The next three are `False`, each for a different reason: increasing row lengths, duplicated slot label, wrong head entirely.
+The fourth call is the new strict check: even though `{3, 5, 7, 1, 2}` is a set of distinct positive integers, it is not a permutation of `{1, 2, 3, 4, 5}`, so it is not a valid standard tableau. The fifth call shows that custom slot orderings *within* the legal label set are still allowed.
 
 ## `TableauShape` and `TableauSize`: rank and partition
 
@@ -191,6 +231,29 @@ TableauSize[symTab]     (* 2     *)
 ```
 
 If you ever pass a tensor of the wrong rank to `YoungSymmetrize` or `YoungProject`, you will get an error message and a `$Failed` return. `TableauSize` is how you check rank ahead of time.
+
+## `TableauRows` and `TableauColumns`: reading the structure
+
+A `YoungTableau` is atomic: `First`, `Part`, and friends cannot reach inside. The two accessors `TableauRows` and `TableauColumns` are the way to read off the row and column slot lists. They are the inputs the kernel itself uses when calling `Symmetrize` internally (see the next subsection).
+
+```wolfram
+tab = YoungTableau[{{1, 2, 3}, {4, 5}, {6}}];
+
+TableauRows[tab]
+(* {{1, 2, 3}, {4, 5}, {6}} *)
+
+TableauColumns[tab]
+(* {{1, 4, 6}, {2, 5}, {3}} *)
+```
+
+`TableauColumns` handles ragged shapes correctly: column 1 has all three rows reaching it, column 2 only the first two, column 3 only the first one. For the `{2, 1}` standard tableau the same function gives:
+
+```wolfram
+TableauColumns[YoungTableau[{2, 1}]]
+(* {{1, 3}, {2}} *)
+```
+
+You will use these accessors most often when you want to inspect a tableau's structure, build a custom symmetriser that mixes Young projection with other slot operations, or debug a projection that does not produce what you expected. The two functions are also what makes the next subsection (the implementation of `YoungSymmetrize`) directly auditable.
 
 ## `YoungSymmetrize`: the unnormalised action
 
@@ -208,6 +271,17 @@ YoungSymmetrize[T, symTab]
 ```
 
 The result is manifestly symmetric, but it is *twice* the natural symmetric projection $(T + T^T)/2$. That factor of 2 is the size of the row, $|row|! = 2! = 2$. In general `YoungSymmetrize[T, tab]` is the Young symmetriser $c_T \cdot T$, which satisfies $c_T^2 = (n! / d_\lambda)\, c_T$ rather than $c_T^2 = c_T$. Useful when you want the *unnormalised* combination, e.g. for hand calculations.
+
+**Implementation note.** Under the hood `YoungSymmetrize` is built directly on built-in WL's `Symmetrize`: it calls `Symmetrize[T, Symmetric /@ TableauRows[tab]]` (row symmetrisation) then `Symmetrize[..., Antisymmetric /@ TableauColumns[tab]]` (column antisymmetrisation), each scaled by the order of the row or column stabiliser to undo `Symmetrize`'s built-in $1/|G|$ normalisation. The two `Symmetrize` calls compose because rows and columns of a Young tableau touch disjoint slot sets, so the two `Symmetric` / `Antisymmetric` lists each describe a direct-product symmetry that `Symmetrize` handles natively. Concretely: for `T = Array[t, {2,2}]`,
+
+```wolfram
+2 * Normal @ Symmetrize[T, Symmetric[{1, 2}]] ==
+    YoungSymmetrize[T, YoungTableau[{2}]]                            (* True *)
+2 * Normal @ Symmetrize[T, Antisymmetric[{1, 2}]] ==
+    YoungSymmetrize[T, YoungTableau[{1, 1}]]                         (* True *)
+```
+
+The factor of 2 is $2! = $ row-stabiliser (or column-stabiliser) size.
 
 The antisymmetric two-tableau gives the operator $T_{ij} - T_{ji}$:
 
@@ -276,14 +350,14 @@ The Hermitian-symmetric part $(T + T^\dagger)/2$ is a *different* object that th
 PsymC == (TC + ConjugateTranspose[TC])/2     (* False *)
 ```
 
-If you want a Hermitian decomposition $T = T_H + i\, T_A$ with $T_H = T_H^\dagger$ and $T_A = T_A^\dagger$, use `(T + ConjugateTranspose[T])/2` directly: that is not a Young-tableau operation and the Symmetry sub-context does not produce it. Young projection lives in the symmetric-group representation theory; Hermiticity is a parallel layer (unitary-group representation theory) that needs different tools.
+If you want a Hermitian decomposition $T = T_H + i\, T_A$ with $T_H = T_H^\dagger$ and $T_A = T_A^\dagger$, use `(T + ConjugateTranspose[T])/2` directly. That is not a Young-tableau operation, and *that one is what built-in `Symmetrize[T, Hermitian[{1,2}]]` computes*: Hermiticity lives in the mono-term language too, but with a complex phase. The Symmetry sub-context lives in the symmetric-group representation theory only; conjugation-by-phase symmetries are the built-in `Symmetrize` territory.
 
 The takeaway:
 
-- **Boson / fermion (exchange) symmetry** is about transpose: $T \,=\, \pm T^T$. Use `YoungProject` with shape $\{2\}$ or $\{1,1\}$.
-- **Hermiticity** is about adjoint: $T \,=\, T^\dagger$. Use `(T + ConjugateTranspose[T])/2` by hand.
+- **Boson / fermion (exchange) symmetry** is about transpose: $T \,=\, \pm T^T$. Use `YoungProject` with shape $\{2\}$ or $\{1,1\}$, or built-in `Symmetrize` with `Symmetric` / `Antisymmetric`.
+- **Hermiticity** is about adjoint: $T \,=\, T^\dagger$. Use built-in `Symmetrize[T, Hermitian[{1,2}]]` or `(T + ConjugateTranspose[T])/2` by hand.
 
-So far we have used six of the twelve functions: `YoungTableau`, `YoungTableauQ`, `TableauShape`, `TableauSize`, `YoungSymmetrize`, `YoungProject`. That covers everything you need to enforce boson / fermion parity on a single bond. Three quick TN-conventional applications follow, then we move on to the combinatorial machinery needed for higher rank.
+So far we have used eight of the fourteen functions: `YoungTableau`, `YoungTableauQ`, `TableauShape`, `TableauSize`, `TableauRows`, `TableauColumns`, `YoungSymmetrize`, `YoungProject`. That covers everything you need to enforce boson / fermion parity on a single bond. Three quick TN-conventional applications follow, then we move on to the combinatorial machinery needed for higher rank.
 
 ## TN payoffs: singlet/triplet, SWAP gate, fermionic bond
 
@@ -328,7 +402,7 @@ $$
 P_{\{2\}} \;=\; \tfrac{1}{2}(I + \text{SWAP}), \qquad P_{\{1,1\}} \;=\; \tfrac{1}{2}(I - \text{SWAP}).
 $$
 
-Acting on the coefficient tensor that statement reads $(T + T^T)/2$ and $(T - T^T)/2$, the formulas we have been using all along. The SWAP eigenspace dimensions are $3$ and $1$ at $d = 2$, matching $d(d+1)/2$ and $d(d-1)/2$. SWAP, transpose, and Young projection are the same operation written in three notations.
+Acting on the coefficient tensor that statement reads $(T + T^T)/2$ and $(T - T^T)/2$, the formulas we have been using all along. The SWAP eigenspace dimensions are $3$ and $1$ at $d = 2$, matching $d(d+1)/2$ and $d(d-1)/2$. SWAP, transpose, Young projection, and built-in `Symmetrize[..., Symmetric[{1,2}]]` are the same operation written in four notations.
 
 ### A fermionic bond in a TN
 
@@ -357,7 +431,7 @@ Abs[(A . T . B) - (A . TFermi . B)] > tol
 (* True *)
 ```
 
-After the projection, every downstream TN operation that respects index types (`TensorContract`, `Dot`, SVD on the paired index, partial trace) preserves the antisymmetric class. The orthogonal sector is gone for good, halving the bond's worth of stored numbers in the asymptotic limit.
+After the projection, every downstream TN operation that respects index types (`TensorContract`, `Dot`, SVD on the paired index, partial trace) preserves the antisymmetric class. The orthogonal sector is gone for good, halving the bond's worth of stored numbers in the asymptotic limit. If memory matters more than evaluation speed, you can also store the projected bond as a `SymmetrizedArray[..., Antisymmetric[{1,2}]]`; built-in WL handles tensor-arithmetic on it without ever materialising the dense form.
 
 The same project-first-then-contract pattern carries to higher-rank fermionic networks, to bosonic permutation-invariant Hamiltonians, and (with a different Young diagram) to objects like the Riemann curvature tensor that we will meet in §4.
 
@@ -396,7 +470,7 @@ TransposePartition[{1, 1, 1}]    (* {3}          *)
 TransposePartition[{2, 2}]       (* {2, 2}       *)
 ```
 
-Note that $\{2,2\}$ is self-conjugate. Self-conjugate shapes have special status in TN: they sit on the diagonal of the Schur-Weyl decomposition and carry their own peculiar mixed symmetry.
+Note that $\{2,2\}$ is self-conjugate. Self-conjugate shapes have special status in TN: they sit on the diagonal of the Schur-Weyl decomposition and carry their own peculiar mixed symmetry. The Riemann tensor's shape, which we meet in §4.2, is exactly this one.
 
 The TN-relevant identity that uses `TransposePartition` is the *parity flip*: if your network is built from bosonic tensors at irrep $\lambda$, the same network rewritten with fermionic tensors lives at irrep $\lambda'$. In numerical TN codes this is how you cheaply swap statistics without rewriting the algorithm.
 
@@ -428,7 +502,7 @@ HookLength[YoungTableau[{3, 2}], {1, 2}]    (* 3 *)
 HookLength[YoungTableau[{3, 2}], {2, 2}]    (* 1, bottom-right corner *)
 ```
 
-The corners of a diagram always have hook length 1. The top-left always has the largest hook.
+The corners of a diagram always have hook length 1. The top-left always has the largest hook. Out-of-range positions are caught: `HookLength[YoungTableau[{3, 2}], {3, 1}]` emits a range message and returns `$Failed`.
 
 ## `HookLengths`: every cell at once
 
@@ -496,7 +570,7 @@ TableauDimension[YoungTableau[{{1, 2}, {3}}]]     (* 2 *)
 
 - `PartitionQ`: shape is a non-empty non-increasing list of positive integers.
 - `TransposePartition`: flips the diagram, mapping irrep $\lambda$ to its sign-twist $\lambda'$.
-- `YoungTableau`, `YoungTableauQ`, `TableauShape`, `TableauSize`: typed handle and accessors.
+- `YoungTableau`, `YoungTableauQ`, `TableauShape`, `TableauSize`, `TableauRows`, `TableauColumns`: typed handle and accessors.
 - `HookLength`, `HookLengths`: the cell quantities the dimension formula consumes.
 - `HookFactor`: the $1/\prod h$ prefactor.
 - `TableauDimension`: $n! \cdot \text{HookFactor}$, the block size in symmetry-resolved TN.
@@ -593,9 +667,46 @@ The Riemann curvature tensor $R_{abcd}$ is a rank-4 tensor with four classical s
 3. Symmetric under pair swap: $R_{abcd} = R_{cdab}$.
 4. *First Bianchi identity*: $R_{abcd} + R_{acdb} + R_{adbc} = 0$.
 
-The first three are *single-term* slot symmetries (each says $T = \pm T^\sigma$ for one permutation $\sigma$). Standard WL canonicalisation via `TensorReduce[Arrays[..., sym]]` can enforce them. The fourth, the first Bianchi identity, is *multi-term*: a sum of three permutations is zero, and no single $(\sigma, \phi)$ pair tells you that. Slot-permutation canonicalisation cannot reach it.
+The first three are *single-term* slot symmetries (each says $T = \pm T^\sigma$ for one permutation $\sigma$). Standard WL canonicalisation via `TensorReduce[Arrays[..., sym]]` covers them. The fourth, the first Bianchi identity, is *multi-term*: a sum of three permutations is zero, and no single $(\sigma, \phi)$ pair tells you that. **This is the gap the Symmetry sub-context fills.**
 
 But all four constraints are the content of a single $S_4$ irrep, the one labelled by the partition $\{2,2\}$. The Riemann tensor is *literally* the projection of a generic rank-4 tensor onto this irrep. One `YoungProject` call enforces everything at once.
+
+### The mono-term-only attempt with built-in `Symmetrize`
+
+Take a generic rank-4 tensor and try to make it Riemann-like with built-in WL alone. The three pair symmetries lift directly into a generator list:
+
+```wolfram
+SeedRandom[42];
+T0 = RandomReal[{-1, 1}, {4, 4, 4, 4}];
+
+riemannGens = {
+    {Cycles[{{1, 2}}],         -1},   (* antisym in (1,2) *)
+    {Cycles[{{3, 4}}],         -1},   (* antisym in (3,4) *)
+    {Cycles[{{1, 3}, {2, 4}}],  1}    (* pair-swap *)
+};
+Rmono = Normal @ Symmetrize[T0, riemannGens];
+```
+
+Check the three pair conditions:
+
+```wolfram
+Max[Abs[Flatten[Rmono + Transpose[Rmono, {2, 1, 3, 4}]]]] < tol    (* True *)
+Max[Abs[Flatten[Rmono + Transpose[Rmono, {1, 2, 4, 3}]]]] < tol    (* True *)
+Max[Abs[Flatten[Rmono - Transpose[Rmono, {3, 4, 1, 2}]]]] < tol    (* True *)
+```
+
+All three pass. Now check Bianchi:
+
+```wolfram
+Max[Abs[Flatten[
+    Rmono + Transpose[Rmono, {1, 3, 4, 2}] + Transpose[Rmono, {1, 4, 2, 3}]
+]]]
+(* approximately 0.68, clearly nonzero *)
+```
+
+Built-in `Symmetrize` produces a tensor with the three pair symmetries, but the Bianchi sum has $O(1)$ residual. No mono-term language can fix this: Bianchi asks three permuted copies to sum to zero, which is two relations short of the single-permutation form `Symmetrize` understands. The corresponding count is visible in `SymmetrizedIndependentComponents`: at dimension 4 with the three mono-term Riemann generators the kernel reports 21 independent components, whereas the true number of Riemann components (post-Bianchi) is $n^2 (n^2 - 1) / 12 = 20$. The single missing relation is Bianchi.
+
+### The Young-projector solution
 
 The slot labelling matters here. The two columns of the diagram contain the two antisymmetric pairs, and the two rows contain the slots that get pair-swap symmetry. So we choose
 
@@ -607,11 +718,9 @@ The slot labelling matters here. The two columns of the diagram contain the two 
 +---+---+
 ```
 
-which is `YoungTableau[{{1, 3}, {2, 4}}]`. Project a generic random tensor:
+which is `YoungTableau[{{1, 3}, {2, 4}}]`. Project the same generic tensor:
 
 ```wolfram
-SeedRandom[42];
-T0 = RandomReal[{-1, 1}, {4, 4, 4, 4}];
 R = YoungProject[T0, YoungTableau[{{1, 3}, {2, 4}}]];
 ```
 
@@ -638,7 +747,7 @@ Max[Abs[Flatten[R - Transpose[R, {3, 4, 1, 2}]]]] < tol
 (* True *)
 ```
 
-First Bianchi identity. *This is the constraint built-in WL canonicalisation cannot reach.*
+First Bianchi identity. *This is the constraint built-in `Symmetrize` cannot reach.*
 
 ```wolfram
 Max[Abs[Flatten[
@@ -649,7 +758,20 @@ Max[Abs[Flatten[
 
 All four hold, from one `YoungProject` call.
 
-The TN reward: once $R$ lives in the right irrep, downstream contractions preserve the structure for free. The Euclidean Ricci tensor is the partial trace $R_{bd} = \delta^{ac} R_{abcd}$, which we write as `TensorContract[R, {{1,3}}]`. It comes out symmetric automatically:
+### Composition with built-in `TensorSymmetry`
+
+After projection, the mono-term content of $R$ is detected by `TensorSymmetry`:
+
+```wolfram
+TensorSymmetry[R]
+(* {{Cycles[{{3, 4}}], -1}, {Cycles[{{1, 2}}], -1}, {Cycles[{{1, 3}, {2, 4}}], 1}} *)
+```
+
+Built-in WL reports the three Riemann pair generators. It does *not* (and cannot) report Bianchi as a generator: Bianchi is not a `{perm, phase}` relation. But it is satisfied identically by the components of $R$, as the numerical check above confirms. The sub-context's job is "produce a tensor in this irrep"; the built-in `TensorSymmetry`'s job is "read off the mono-term subgroup of its slot symmetries". The two answers compose cleanly because `YoungProject` outputs a real array (or a `SymmetrizedArray`-compatible structure) that built-in WL handles directly.
+
+### The TN reward
+
+Once $R$ lives in the right irrep, downstream contractions preserve the structure for free. The Euclidean Ricci tensor is the partial trace $R_{bd} = \delta^{ac} R_{abcd}$, which we write as `TensorContract[R, {{1,3}}]`. It comes out symmetric automatically:
 
 ```wolfram
 Ric = TensorContract[R, {{1, 3}}];
@@ -744,15 +866,15 @@ Five concrete things you can now do:
 
 - Decide, given a rank-$n$ tensor and a partition $\lambda \vdash n$, what the dimension of the corresponding block is: a single `TableauDimension[par] * schurDim[par, d]` call.
 - Allocate a symmetry-resolved MPS / MPO with exact block sizes per sector, including correctly skipping sectors that vanish (the rank-3 fermionic sector at $d=2$, the rank-4 fully-antisymmetric sector at $d \leq 3$, and so on).
-- Enforce multi-term symmetry constraints (Riemann tensor, Weyl tensor, mixed-symmetry curvature objects, higher-spin gauge fields) with a single `YoungProject` call.
-- Cleanly project a bond onto a single statistics sector (boson, fermion, or mixed), and trust that downstream TN operations preserve it.
+- Enforce multi-term symmetry constraints (Riemann tensor, Weyl tensor, mixed-symmetry curvature objects, higher-spin gauge fields) with a single `YoungProject` call, in cases where built-in `Symmetrize` reaches only the mono-term subset.
+- Cleanly project a bond onto a single statistics sector (boson, fermion, or mixed), and trust that downstream TN operations (built-in `TensorContract`, `TensorTranspose`, `Dot`, SVD, `TensorReduce`, `TensorSymmetry`) preserve it.
 - For class-function Hamiltonians, read off the entire spectrum from `TableauDimension`, `HookLengths`, and `contentSum` without any numerical diagonalisation.
 
 Three traps worth flagging:
 
 - `YoungSymmetrize` returns the *unnormalised* symmetriser $c_T$; if you want a projector ($P^2 = P$), call `YoungProject`. Iterative TN algorithms need the idempotent.
 - The Young symmetriser is applied as "rows first, columns second": row symmetry can be broken by the subsequent column antisymmetrisation. For non-trivial mixed-symmetry diagrams (anything other than fully-row or fully-column), the *first* symmetry imposed is not generally preserved.
-- The closed-form block sizes from `TableauDimension * schurDim` are exact; the explicit projector ranks measured by `YoungProject` agree with them up to floating-point precision. In production code, prefer the closed-form prediction.
+- The validator is strict: tableau slot labels must be a permutation of $1, 2, \ldots, n$. Older examples that used distinct positive integers outside this range (e.g. `{{3,5,7},{1,2}}`) are now rejected.
 
 ## Function-by-function quick reference
 
@@ -764,11 +886,17 @@ Three traps worth flagging:
 | `YoungTableauQ[expr]` | anything | `True`/`False` | §1 |
 | `TableauShape[tab]` | tableau | partition | §1 |
 | `TableauSize[tab]` | tableau | integer $n$ | §1 |
-| `HookLength[tab, {r,c}]` | tableau + position | integer | §3 |
+| `TableauRows[tab]` | tableau | list of row-slot lists | §1 |
+| `TableauColumns[tab]` | tableau | list of column-slot lists (ragged-safe) | §1 |
+| `HookLength[tab, {r,c}]` | tableau + position | integer (or `$Failed`) | §3 |
 | `HookLengths[par]` or `HookLengths[tab]` | partition or tableau | nested list | §3, §4 |
 | `HookFactor[par]` or `HookFactor[tab]` | partition or tableau | rational | §3 |
 | `TableauDimension[par]` or `TableauDimension[tab]` | partition or tableau | integer | §3, §4 |
 | `YoungSymmetrize[T, tab]` | tensor of rank $n$ + tableau of size $n$ | tensor | §1 |
 | `YoungProject[T, tab]` | tensor of rank $n$ + tableau of size $n$ | tensor | §1, §4 |
 
-The four sections above sit on top of these twelve calls. Anywhere a symmetry-resolved tensor network needs sizing, block enumeration, or constraint enforcement, the right call is one of them.
+The four sections above sit on top of these fourteen calls. Anywhere a symmetry-resolved tensor network needs sizing, block enumeration, or constraint enforcement, the right call is one of them.
+
+## Relationship to built-in WL surface, in one paragraph
+
+For mono-term symmetries the right tool is built-in `Symmetrize[T, sym]` and friends; the sub-context's `YoungSymmetrize` is built on top of `Symmetrize` and exists to compose two such calls (rows symmetrise, columns antisymmetrise) into a Young symmetriser. For multi-term identities (the algebraic Bianchi identity, mixed-symmetry irreps, projection onto a *single* $S_n$ irrep rather than a slot-permutation subgroup) the sub-context is the only WL primitive that does the job: built-in `Symmetrize` with a Riemann generator list produces a tensor with the three pair symmetries but a Bianchi residual of order one, while `YoungProject[T, YoungTableau[{{1,3},{2,4}}]]` produces a tensor satisfying all four conditions. Once a tensor is in the right irrep, downstream WL machinery (`TensorContract`, `TensorTranspose`, `TensorSymmetry`, `SymmetrizedArray`, `TensorReduce`) sees and preserves the structure for free.
