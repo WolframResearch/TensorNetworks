@@ -61,7 +61,7 @@ toSymbolicTensor[t_, OptionsPattern[]] := Activate[t /. {
 	IgnoringInactive[Dot[a_, b_]] :> Inactive[Dot][toSymbolicTensor[a], toSymbolicTensor[b]],
 	IgnoringInactive[Verbatim[Table][_, iter : {_, _Integer} ..]] :> ArraySymbol["T", {iter}[[All, 2]]],
 	IgnoringInactive[(h : TensorContract | Transpose)[body_, args__]] :> Inactive[h][toSymbolicTensor[body], args],
-	IgnoringInactive[TensorProduct[args__]] :> ArraySymbol["T", Catenate[symbolicTensorDimensions /@ {args}]],
+	IgnoringInactive[Verbatim[TensorProduct][args__]] :> ArraySymbol["T", Catenate[symbolicTensorDimensions /@ {args}]],
 	indices : {{_Integer, _Integer} ...} :> indices,
 	tt_ :> ArraySymbol["T", tensorDimensions[tt]]
 }, Except[TensorContract | Dot | ArrayDot | TensorProduct]]
