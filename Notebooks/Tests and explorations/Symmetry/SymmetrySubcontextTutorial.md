@@ -647,7 +647,29 @@ Contract the projected bond against $A$ and $B$. The scalar equals $\tfrac{1}{2}
 A . TFermi . B
 ```
 
-The unprojected contraction overcounts by the symmetric piece, which the Pauli principle forbids for identical fermions.
+To see what the Young projection *does* to a tensor network, build the same three-node network with the **unprojected** bond $T$ and contract it through the paclet's contraction engine. Encode the three nodes and their shared indices as a hyperedge list (vector $A$ on index `i`, the bond on `i, j`, vector $B$ on `j`), then let `TensorNetworkContract` evaluate it.
+
+```wolfram
+bareTN = TensorNetwork[{A, T, B}, {{"i"}, {"i", "j"}, {"j"}}, {}];
+TensorNetworkContract[bareTN]
+```
+
+Now apply `YoungProject` to the bond node *inside* the network: feed the antisymmetric projection of $T$ into the same hyperedge layout, then contract. This is the symmetry-to-core-TN handoff in one step: `YoungProject` rewrites the bond into the fermionic sector, and `TensorNetworkContract` evaluates the symmetry-restricted network.
+
+```wolfram
+fermionTN = TensorNetwork[
+    {A, YoungProject[T, antiTab], B},
+    {{"i"}, {"i", "j"}, {"j"}}, {}
+];
+TensorNetworkContract[fermionTN]
+```
+
+The two scalars differ. What the projection removes is exactly the symmetric piece $\tfrac{1}{2}(A \cdot T \cdot B + B \cdot T \cdot A)$ that the Pauli principle forbids for identical fermions.
+
+```wolfram
+Chop[(TensorNetworkContract[bareTN] - TensorNetworkContract[fermionTN]) -
+     (A . T . B + B . T . A)/2] < tol
+```
 
 ```wolfram
 Abs[(A . T . B) - (A . TFermi . B)] > tol
@@ -1076,6 +1098,63 @@ Contract within the fully antisymmetric block.
 
 ```wolfram
 b111 = Total[Flatten[e111 * f111]]
+```
+
+To see the same block-sparsity *inside* the paclet's TN flow, start from the **unprojected** two-node network over $T$ and $S$ with all three indices shared, contract it, and recover the full Frobenius product.
+
+```wolfram
+bareFro = TensorNetworkContract @
+    TensorNetwork[{T3, S3}, {{"i", "j", "k"}, {"i", "j", "k"}}, {}]
+```
+
+Now apply `YoungProject` to both nodes inside the same network, restricting them to a chosen irrep sector before the contraction runs. The helper below sums over the standard tableaux of a given shape, projects both `U` and `V` into that sector, and contracts the resulting two-node TN.
+
+```wolfram
+sectorContract[U_, V_, syt_List] :=
+    TensorNetworkContract @ TensorNetwork[
+        {Total[YoungProject[U, YoungTableau[#]] & /@ syt],
+         Total[YoungProject[V, YoungTableau[#]] & /@ syt]},
+        {{"i", "j", "k"}, {"i", "j", "k"}}, {}
+    ];
+```
+
+List the three standard-tableau sets and evaluate the three within-sector contractions through the paclet's contraction engine.
+
+```wolfram
+{syt3, syt21, syt111} = {
+    {{{1, 2, 3}}},
+    {{{1, 2}, {3}}, {{1, 3}, {2}}},
+    {{{1}, {2}, {3}}}
+};
+{sectorContract[T3, S3, syt3],
+ sectorContract[T3, S3, syt21],
+ sectorContract[T3, S3, syt111]}
+```
+
+The three within-sector contractions sum to the bare Frobenius product.
+
+```wolfram
+Chop[bareFro - Total @ {
+    sectorContract[T3, S3, syt3],
+    sectorContract[T3, S3, syt21],
+    sectorContract[T3, S3, syt111]
+}] < tol
+```
+
+Mismatched-sector projections give zero by Schur orthogonality: $T_3$ projected onto one shape against $S_3$ projected onto a *different* shape vanishes for every cross-shape pair.
+
+```wolfram
+crossContract[U_, V_, sytU_List, sytV_List] :=
+    TensorNetworkContract @ TensorNetwork[
+        {Total[YoungProject[U, YoungTableau[#]] & /@ sytU],
+         Total[YoungProject[V, YoungTableau[#]] & /@ sytV]},
+        {{"i", "j", "k"}, {"i", "j", "k"}}, {}
+    ];
+Chop @ {
+    crossContract[T3, S3, syt3,   syt21], crossContract[T3, S3, syt3,   syt111],
+    crossContract[T3, S3, syt21,  syt3],  crossContract[T3, S3, syt21,  syt111],
+    crossContract[T3, S3, syt111, syt3],  crossContract[T3, S3, syt111, syt21]
+}
 ```
 
 The sum of the three within-block contractions reproduces the full Frobenius product.
