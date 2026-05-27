@@ -233,8 +233,8 @@ TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ 
 TensorNetworkContraction[net_, "Greedy", opts : OptionsPattern[]] :=
     TensorNetworkContraction[net, GreedyContractionPath[net], opts]
 
-TensorNetworkContraction[net_, method : "Optimal" | "flops" | "max" | "size" | "write" | "combo" | "limit", opts : OptionsPattern[]] :=
-    TensorNetworkContraction[net, OptimalContractionPath[net, Method -> Replace[method, "Optimal" -> "size"]], opts]
+TensorNetworkContraction[net_, method : Automatic | "Optimal" | "flops" | "max" | "size" | "write" | "combo" | "limit", opts : OptionsPattern[]] :=
+    TensorNetworkContraction[net, OptimalContractionPath[net, Method -> Replace[method, Automatic | "Optimal" -> "size"]], opts]
 
 TensorNetworkContraction[
     KeyValuePattern[{
