@@ -1,0 +1,33 @@
+name: Submit
+on:
+  workflow_dispatch:
+  push:
+    branches:  ['release/*']
+env:
+  RESOURCE_PUBLISHER_TOKEN: ${{ secrets.RESOURCE_PUBLISHER_TOKEN }}
+  WOLFRAMSCRIPT_ENTITLEMENTID: ${{ secrets.WOLFRAMSCRIPT_ENTITLEMENTID }}
+  WLPR_PACLET_SITE: https://resources.wolframcloud.com/PacletRepository/pacletsite
+jobs:
+  Submit:
+    name: Submit
+    runs-on: ubuntu-latest
+    container:
+      image: wolframresearch/wolframengine:latest
+      options: --user root
+    env:
+      WOLFRAM_SYSTEM_ID: Linux-x86-64
+    steps:
+    # - run: apt-get update && apt-get install -y git-lfs
+    - name: Checkout
+      id: checkout-code-step
+      uses: actions/checkout@v3
+      with:
+        lfs: false
+    - name: Submit
+      id: submit-paclet-step
+      uses: WolframResearch/submit-paclet@v1.11.0
+      with:
+        check: true
+        paclet_cicd_version: 0.36.0
+        definition_notebook: ./TensorNetworks/ResourceDefinition.nb
+        resource_system_base: https://www.wolframcloud.com/obj/resourcesystem/api/1.0
