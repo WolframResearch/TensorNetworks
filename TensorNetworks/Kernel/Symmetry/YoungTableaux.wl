@@ -12,6 +12,7 @@ PackageExport[TableauShape]
 PackageExport[TableauSize]
 PackageExport[TableauRows]
 PackageExport[TableauColumns]
+PackageExport[StandardTableauQ]
 PackageExport[HookLength]
 PackageExport[HookLengths]
 PackageExport[HookFactor]
@@ -35,18 +36,20 @@ PackageExport[YoungProject]
 (* Validation                                   *)
 (* ============================================ *)
 
-(* A valid Young tableau has:
+(* A valid Young tableau row layout has:
    - Rows as lists of distinct positive integers
-   - Row lengths are non-increasing (partition condition)
-   - All indices from 1 to n appear exactly once (standard tableau) *)
+   - Row lengths are non-increasing (partition shape)
+   - Entries spelling 1..n exactly once
+   Note: this is the slot-diagram convention. Row-internal ordering is
+   meaningful (it defines column-sets, hence the Young symmetrizer), so
+   {{1,2,3},{5,4}} is a legitimate presentation, not the same projector as
+   the canonical {{1,2,3},{4,5}}. *)
 
-youngTableauQ[YoungTableau[rows_List]] := And[
+slotDiagramRowsQ[rows_List] := And[
     AllTrue[rows, ListQ],
     Length[rows] > 0,
     AllTrue[rows, Length[#] > 0 &],
-    (* Row lengths are non-increasing *)
     OrderedQ[Length /@ rows, GreaterEqual],
-    (* All entries are exactly 1..n (standard tableau convention) *)
     With[{flat = Flatten[rows]},
         And[
             AllTrue[flat, IntegerQ[#] && # > 0 &],
@@ -54,6 +57,9 @@ youngTableauQ[YoungTableau[rows_List]] := And[
         ]
     ]
 ]
+slotDiagramRowsQ[_] := False
+
+youngTableauQ[YoungTableau[rows_List]] := slotDiagramRowsQ[rows]
 
 youngTableauQ[_] := False
 
@@ -99,6 +105,15 @@ TableauColumns[YoungTableau[rows_List] ? YoungTableauQ] := getColumns[rows]
 TableauColumns::noyt = "TableauColumns accepts only YoungTableau as input, got `1`.";
 
 TableauColumns[expr_] := (Message[TableauColumns::noyt, expr]; $Failed)
+
+(* StandardTableauQ tests the Standard Young Tableau property: rows and
+   columns are strictly increasing. YoungTableauQ already guarantees the
+   entries are exactly {1, ..., n} distinct, so the two strict-increase
+   checks are a complete SYT test. Returns False on any non-YoungTableau
+   input (no message; this is a Boolean predicate like YoungTableauQ). *)
+StandardTableauQ[YoungTableau[rows_List] ? YoungTableauQ] :=
+    AllTrue[Join[rows, getColumns[rows]], OrderedQ[#, Less] &]
+StandardTableauQ[_] := False
 
 
 (* ============================================ *)
@@ -337,10 +352,33 @@ YoungProject[tensor_ ? ArrayQ, yt : YoungTableau[rows_List] ? YoungTableauQ] :=
 YoungTableau[partition_ ? PartitionQ] :=
     YoungTableau[TakeList[Range[Total[partition]], partition]]
 
+YoungTableau::notpar = "YoungTableau expects a valid partition (non-increasing list of positive integers), got `1`. PartitionQ[`1`] is False.";
+
+YoungTableau[list : {__Integer}] /; !PartitionQ[list] :=
+    (Message[YoungTableau::notpar, list]; $Failed)
+
+YoungTableau::notslot = "YoungTableau row layout `1` is not a valid slot diagram. Expected a non-empty list of non-empty integer lists with non-increasing row lengths and entries spelling 1..n exactly once.";
+
+YoungTableau[rows_List] /; !MatchQ[rows, {__Integer}] && !slotDiagramRowsQ[rows] :=
+    (Message[YoungTableau::notslot, rows]; $Failed)
+
 
 (* ============================================ *)
 (* Formatting                                   *)
 (* ============================================ *)
+
+(* canonicalFillingQ tests whether the stored row layout is the row-reading
+   canonical SYT for its own shape: boxes filled with 1..n in left-to-right
+   top-to-bottom order. Used by MakeBoxes to pick the "Canonical" branch of
+   the three-way filling label (Canonical | Standard | Explicit). The test
+   is on content alone, so a user who spells out the canonical filling by
+   hand still gets "Canonical", which is the correct mathematical
+   identification. Canonical implies Standard. Private; not exported. *)
+canonicalFillingQ[rows_List] :=
+    With[{shape = Length /@ rows},
+        rows === TakeList[Range[Total[shape]], shape]
+    ]
+
 
 YoungTableau /: MakeBoxes[yt : YoungTableau[rows_List] /; YoungTableauQ[Unevaluated[yt]], fmt_] :=
     With[{
@@ -349,7 +387,20 @@ YoungTableau /: MakeBoxes[yt : YoungTableau[rows_List] /; YoungTableauQ[Unevalua
         nBoxes = TableauSize[yt],
         nRows = Length[rows],
         nCols = Max[Length /@ rows],
-        cellPx = 16
+        cellPx = 16,
+        (* fillingLabel is computed at display time and not stored in the
+           YoungTableau expression, so the data model is unchanged. The
+           three-way split distinguishes:
+             "Canonical" — row-reading default filling 1..n (implies Standard)
+             "Standard"  — rows and columns strictly increasing, but not the
+                           canonical filling (a valid SYT chosen by the user)
+             "Explicit"  — neither canonical nor standard (rows or columns
+                           not strictly increasing) *)
+        fillingLabel = Which[
+            canonicalFillingQ[rows], "Canonical",
+            StandardTableauQ[YoungTableau[rows]], "Standard",
+            True, "Explicit"
+        ]
     },
         BoxForm`ArrangeSummaryBox[
             YoungTableau,
@@ -369,9 +420,14 @@ YoungTableau /: MakeBoxes[yt : YoungTableau[rows_List] /; YoungTableauQ[Unevalua
                     {r, nRows}, {c, Length[rows[[r]]]}
                 ]
             }, ImageSize -> cellPx * {nCols, nRows}],
-            (* Always shown *)
+            (* Always shown. The Filling row tells the viewer whether the
+               numeric labels in the icon are the row-reading default
+               ("Canonical"), a user-picked valid SYT ("Standard"), or a
+               non-SYT labeling ("Explicit"). Without it a viewer cannot
+               tell these cases apart. *)
             {
                 {BoxForm`SummaryItem[{"Shape: ", shape}]},
+                {BoxForm`SummaryItem[{"Filling: ", fillingLabel}]},
                 {BoxForm`SummaryItem[{"Dimension: ", dim}]}
             },
             (* Expanded *)

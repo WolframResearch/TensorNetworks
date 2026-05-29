@@ -370,9 +370,6 @@ WithCapability[{"YoungSymmetrize", "YoungTableau"}, "paclet-fuzz-yp-tb-random-pr
             Flatten @ Table[
                 Module[{yt = $randomTableau[shape, 17 + 113 seed + Hash[shape]],
                         T},
-                    T = Array[(100 First[#] + #2 + #3/10) &,  (* dim-3 distinguishable tensor *)
-                              ConstantArray[3, Total[shape]]];
-                    (* Replace Array indexing with a uniform expression on rank-n: *)
                     T = Array[Total[10^Range[0, Total[shape] - 1] * {##}] &,
                               ConstantArray[3, Total[shape]]];
                     YoungSymmetrize[T, yt] === $referenceYoungSymmetrize[T, yt]

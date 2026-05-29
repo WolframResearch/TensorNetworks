@@ -238,7 +238,59 @@ WithCapability[{"YoungTableauQ"}, "paclet-symmetry-E2-youngtableauq", "Sagan 'Sy
             YoungTableauQ[{{1, 2, 3}, {4, 5}}]                  (* not wrapped        *)
         },
         {True, True, False, False, False},
+        (* The two malformed inner constructions now reject at construction
+           time with YoungTableau::notslot; YoungTableauQ on the resulting
+           $Failed still returns False, so the assertion value is unchanged. *)
+        {YoungTableau::notslot, YoungTableau::notslot},
         TestID -> "paclet-symmetry-E2-youngtableauq"
+    ]
+];
+
+(* Each malformed-input check lives in its own VerificationTest so the
+   per-calculation General::stop suppression of repeated YoungTableau::notslot
+   doesn't pollute the expected-messages slot. *)
+WithCapability[{"YoungTableau"}, "paclet-symmetry-E2b-rejects-entry-outside-range", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Fulton-Harris Lec 4; Symmetry/README.md",
+    VerificationTest[
+        YoungTableau[{{1, 10, 3}, {5, 4}}],
+        $Failed,
+        {YoungTableau::notslot},
+        TestID -> "paclet-symmetry-E2b-rejects-entry-outside-range"
+    ]
+];
+
+WithCapability[{"YoungTableau"}, "paclet-symmetry-E2d-rejects-duplicate-entry", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Fulton-Harris Lec 4; Symmetry/README.md",
+    VerificationTest[
+        YoungTableau[{{1, 2}, {2, 3}}],
+        $Failed,
+        {YoungTableau::notslot},
+        TestID -> "paclet-symmetry-E2d-rejects-duplicate-entry"
+    ]
+];
+
+WithCapability[{"YoungTableau"}, "paclet-symmetry-E2e-rejects-bad-shape", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Fulton-Harris Lec 4; Symmetry/README.md",
+    VerificationTest[
+        YoungTableau[{{1}, {2, 3}}],
+        $Failed,
+        {YoungTableau::notslot},
+        TestID -> "paclet-symmetry-E2e-rejects-bad-shape"
+    ]
+];
+
+WithCapability[{"YoungTableau"}, "paclet-symmetry-E2f-rejects-empty-rows", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Fulton-Harris Lec 4; Symmetry/README.md",
+    VerificationTest[
+        YoungTableau[{}],
+        $Failed,
+        {YoungTableau::notslot},
+        TestID -> "paclet-symmetry-E2f-rejects-empty-rows"
+    ]
+];
+
+WithCapability[{"YoungTableau"}, "paclet-symmetry-E2c-constructor-rejects-bad-partition", "Sagan 'Symmetric Group' 2e Thm 3.10.2; Fulton-Harris Lec 4; Symmetry/README.md",
+    VerificationTest[
+        YoungTableau[{1, 2}],                  (* not non-increasing *)
+        $Failed,
+        {YoungTableau::notpar},
+        TestID -> "paclet-symmetry-E2c-constructor-rejects-bad-partition"
     ]
 ];
 
