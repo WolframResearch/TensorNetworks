@@ -14,20 +14,20 @@ This document provides a detailed comparison between:
 |---------|-------------|------------------|-----|
 | **Data Structure** ||||
 | Tableau head | `Tableau[row1, row2, ...]` | `YoungTableau[rows_List]` | Similar |
-| Partition validation | `PartitionQ` (standalone) | Inline in `youngTableauQ` | Missing standalone |
+| Partition validation | `PartitionQ` (standalone) | `PartitionQ` (standalone) | Equivalent |
 | Formatting | Blue-frame grid with `Format` | `SummaryBox` with icon | Different style |
 | **Partition Operations** ||||
-| Transpose partition | `TransposePartition[par]` | Not available | **Missing** |
+| Transpose partition | `TransposePartition[par]` | `TransposePartition[par]` | Equivalent |
 | Shape extraction | `TableauPartition[tab]` | `TableauShape[yt]` | Equivalent |
 | **Dimension Computation** ||||
-| Hook factor | `HookFactor[par]` - determinant-based | N/A | **Missing** |
-| Hook length | Computes all at once | `HookLength[yt, {r,c}]` per cell | Less efficient |
-| Dimension | Via `n! * HookFactor[par]` | `TableauDimension[yt]` via product | Different algorithm |
+| Hook factor | `HookFactor[par]` - determinant-based | `HookFactor[par]` - Frobenius determinant | Equivalent |
+| Hook length | Computes all at once | `HookLengths[par]` all at once; `HookLength[yt, {r,c}]` per cell (O(1)) | Equivalent |
+| Dimension | Via `n! * HookFactor[par]` | `TableauDimension[par]` via `n! * HookFactor` | Equivalent |
 | **Tableau Types** ||||
 | General validation | `TableauQ` | `YoungTableauQ` | Equivalent |
 | Disjoint tableau | `DisjointTableauQ` | Not available | **Missing** |
 | Semistandard | `SemistandardTableauQ` | Not available | **Missing** |
-| Standard | `StandardTableauQ` | Implicit in `YoungTableauQ` | Not explicit |
+| Standard | `StandardTableauQ` | `StandardTableauQ` (explicit) | Equivalent |
 | Normal | `NormalTableauQ` | Not available | **Missing** |
 | **Tableau Generation** ||||
 | All tableaux | `Tableaux[par, set]` | Not available | **Missing** |
@@ -67,17 +67,31 @@ This document provides a detailed comparison between:
 
 **YoungTableaux.wl (Current):**
 ```mathematica
-HookLength[YoungTableau[rows_], {row_, col_}] :=
-    Module[{rowLen, colLen},
-        rowLen = Length[rows[[row]]] - col + 1;
-        colLen = Count[rows[[row + 1 ;;]], _?(Length[#] >= col &)];
-        rowLen + colLen
+frobeniusDet[list_List] := Times @@ (Subtract @@@ Subsets[list, {2}])  (* Vandermonde product *)
+
+(* Single cell: O(1) via the conjugate (transpose) partition *)
+HookLength[YoungTableau[rows_List] ? YoungTableauQ, {row_Integer, col_Integer}] :=
+    With[{partition = Length /@ rows},
+        partition[[row]] - col + TransposePartition[partition][[col]] - row + 1
     ]
 
-TableauDimension[yt_] := n! / Times @@ (all hook lengths)
+(* All hook lengths at once: O(n) over the n boxes *)
+HookLengths[partition_ ? PartitionQ] :=
+    With[{transposed = TransposePartition[partition]},
+        Table[partition[[i]] - j + transposed[[j]] - i + 1,
+            {i, Length[partition]}, {j, partition[[i]]}]
+    ]
+
+(* HookFactor = 1 / Prod(hooks) via the Frobenius determinant *)
+HookFactor[partition_ ? PartitionQ] :=
+    With[{shifted = partition + Range[Length[partition] - 1, 0, -1]},
+        frobeniusDet[shifted] / Times @@ (Factorial /@ shifted)
+    ]
+
+TableauDimension[partition_ ? PartitionQ] := Total[partition]! * HookFactor[partition]
 ```
-- **Complexity**: O(n) per cell, O(n²) total for dimension
-- **Approach**: Per-cell computation, no caching
+- **Complexity**: `HookLength` O(1) per cell; `HookLengths` O(n) over the n boxes; `TableauDimension` polynomial in the row count r via the Frobenius determinant, not O(n²) in the boxes
+- **Approach**: `TransposePartition`-based hook formula; dimension via `n! * HookFactor[par]`, the same Frobenius-determinant route as `Tableaux.nb`
 
 **Tableaux.nb (HookFactor - Frobenius Determinant):**
 ```mathematica
@@ -102,7 +116,7 @@ TransposePartition[par_] := Table[Count[par, x_ /; x >= i], {i, par[[1]]}]
 TransposeTableau[tab_] := (* Generalizes Transpose for ragged arrays *)
 ```
 
-**YoungTableaux.wl:** Not implemented. Uses internal `getColumns` helper only.
+**YoungTableaux.wl:** `TransposePartition` is implemented and exported; a full `TransposeTableau` for ragged arrays is not, though the internal `getColumns` helper derives the column slot lists.
 
 ### 2.3 Standard Tableau Generation
 

@@ -1,820 +1,360 @@
-# TensorNetworks Symmetry Functions - Complete Usage Guide & Test Plan
+# TensorNetworks Symmetry Subcontext: Young Tableaux
 
 ## Overview
 
-The TensorNetworks Wolfram Language package provides symmetry operations via **Young tableaux** - mathematical objects that encode tensor symmetry properties. The symmetry module is located in:
-- [YoungTableaux.wl](YoungTableaux.wl) - Main implementation
-- [AUsage.wl](AUsage.wl) - Usage documentation
-- [ArrayUtilities.wl](../IndexArray/ArrayUtilities.wl) - Array symmetry utilities
+The `` Wolfram`TensorNetworks`Symmetry` `` subcontext provides Young tableaux and the tensor symmetry operations built on them. A Young tableau encodes a symmetry type for the slots of a tensor with `n` indices; from it the module computes representation-theoretic dimensions (symmetric group and `GL(d)`) and applies the corresponding Young symmetrizer or normalized projector to a numeric or symbolic array.
+
+Files in this directory:
+
+| File | Role |
+|------|------|
+| `Symmetry.wl` | Subpackage loader (`Package["Wolfram`TensorNetworks`Symmetry`"]`). |
+| `YoungTableaux.wl` | Implementation of all exported symbols. |
+| `Usage.wl` | `::usage` strings for the exported symbols. |
+
+A related but separate symbol, `ArraySymmetry`, lives in the `IndexArray` subcontext, not here.
+
+All examples below were evaluated against the current kernel; the values shown in `(* ... *)` comments are the actual returns.
 
 ---
 
-## Function Reference
+## Exported symbols
 
-### 1. `YoungTableau` - Constructor
+| Group | Symbols |
+|-------|---------|
+| Construction and predicates | `YoungTableau`, `YoungTableauQ`, `StandardTableauQ`, `PartitionQ` |
+| Shape and structure | `TableauShape`, `TableauSize`, `TableauRows`, `TableauColumns`, `TransposePartition` |
+| Hook lengths and dimensions | `HookLength`, `HookLengths`, `HookFactor`, `TableauDimension`, `SchurDimension`, `TableauWeylDimension` |
+| Tensor operations | `YoungSymmetrize`, `YoungProject` |
 
-**Purpose:** Creates a Young tableau data structure that defines tensor index symmetry properties.
+---
 
-**Input Patterns:**
+## Conventions
 
-| Pattern | Description |
-|---------|-------------|
-| `YoungTableau[{{i1,i2,...}, {j1,j2,...}, ...}]` | Explicit row specification - each sublist is a row of slot indices |
-| `YoungTableau[{d1, d2, d3, ...}]` | Partition specification - creates standard tableau with `d1 >= d2 >= d3 >= ...` |
-
-**Validation Rules:**
-- Row lengths must be non-increasing (partition condition)
-- All entries must be distinct positive integers
-- All integers from 1 to n must appear exactly once (standard tableau)
-
-**Examples (10+):**
+**Two constructor forms.** `YoungTableau[partition]` takes a partition (a non-increasing list of positive integers) and auto-fills the boxes with `1, 2, ..., n` in reading order. `YoungTableau[rows]` takes an explicit list of rows of slot indices. The two agree when the explicit rows are the canonical reading-order filling.
 
 ```mathematica
-(* Example 1: Simple partition - fully symmetric (1 row) *)
-YoungTableau[{3}]
-(* Creates: YoungTableau[{{1,2,3}}] - Shape {3}, Dimension 1 *)
+YoungTableau[{3, 2}] === YoungTableau[{{1, 2, 3}, {4, 5}}]   (* True  *)
+YoungTableau[{2, 1}] === YoungTableau[{{1, 2}, {3}}]         (* True  *)
+```
 
-(* Example 2: Simple partition - fully antisymmetric (1 column) *)
-YoungTableau[{1,1,1}]
-(* Creates: YoungTableau[{{1},{2},{3}}] - Shape {1,1,1}, Dimension 1 *)
+**Slot-diagram model: row order is meaningful.** A `YoungTableau` is a labeled diagram, not only a standard tableau. The order of entries within a row defines the column sets, hence the Young symmetrizer, so a reordered row layout is a legitimate but *different* object with a *different* projector.
 
-(* Example 3: Mixed symmetry partition *)
-YoungTableau[{2,1}]
-(* Creates: YoungTableau[{{1,2},{3}}] - Shape {2,1}, Dimension 2 *)
+```mathematica
+TableauColumns[YoungTableau[{{1, 2, 3}, {4, 5}}]]   (* {{1, 4}, {2, 5}, {3}} *)
+TableauColumns[YoungTableau[{{1, 2, 3}, {5, 4}}]]   (* {{1, 5}, {2, 4}, {3}} *)
+(* The two tableaux give different YoungSymmetrize results. *)
+```
 
-(* Example 4: Explicit row specification *)
-YoungTableau[{{1,2,3},{4,5}}]
-(* Shape {3,2}, Dimension 5 *)
+**`YoungTableauQ` is structural; `StandardTableauQ` is strict.** `YoungTableauQ` checks only that the shape is a partition and that the entries are exactly `1..n` used once each. It does *not* require the strict row/column increase of a standard Young tableau (SYT); that is what `StandardTableauQ` adds.
 
-(* Example 5: Custom slot ordering *)
-YoungTableau[{{1,3,5},{2,4}}]
-(* Shape {3,2}, Dimension 5 - indices 1,3,5 symmetrized; 2,4 symmetrized *)
+**Filling label in the summary box.** When a `YoungTableau` renders, its summary box reports a `Filling` of `Canonical` (the reading-order default `1..n`, which is always standard), `Standard` (a different strictly increasing SYT), or `Explicit` (rows or columns not strictly increasing). The label is computed from content at display time and does not change the stored object.
 
-(* Example 6: Three-row tableau *)
-YoungTableau[{4,2,1}]
-(* Creates: YoungTableau[{{1,2,3,4},{5,6},{7}}] - Shape {4,2,1}, Dimension 35 *)
+**Constructor validation.** Malformed input is rejected at construction with a message and `$Failed`, so you rarely hold an invalid `YoungTableau`. A bad partition triggers `YoungTableau::notpar`; a bad row layout triggers `YoungTableau::notslot`.
 
-(* Example 7: Square tableau *)
-YoungTableau[{2,2}]
-(* Creates: YoungTableau[{{1,2},{3,4}}] - Shape {2,2}, Dimension 2 *)
-
-(* Example 8: Large fully symmetric *)
-YoungTableau[{5}]
-(* Creates: YoungTableau[{{1,2,3,4,5}}] - Shape {5}, Dimension 1 *)
-
-(* Example 9: Hook-shaped tableau *)
-YoungTableau[{3,1,1}]
-(* Shape {3,1,1}, Dimension 6 *)
-
-(* Example 10: Staircase tableau *)
-YoungTableau[{3,2,1}]
-(* Creates: YoungTableau[{{1,2,3},{4,5},{6}}] - Shape {3,2,1}, Dimension 16 *)
-
-(* Example 11: Explicit non-standard filling *)
-YoungTableau[{{5,6,7},{3,4},{1,2}}]
-(* Same shape {3,2,2} but with custom index assignment *)
-
-(* Example 12: Single box *)
-YoungTableau[{1}]
-(* Creates: YoungTableau[{{1}}] - Shape {1}, Dimension 1 (trivial) *)
+```mathematica
+YoungTableau[{1, 2}]          (* $Failed, YoungTableau::notpar  (not non-increasing) *)
+YoungTableau[{{1}, {2, 3}}]   (* $Failed, YoungTableau::notslot (row lengths increase) *)
+YoungTableau[{{1, 2}, {2, 3}}](* $Failed, YoungTableau::notslot (entry 2 repeats)     *)
 ```
 
 ---
 
-### 2. `YoungTableauQ` - Validation Predicate
+## Function reference
 
-**Purpose:** Tests whether an expression is a valid Young tableau.
+### Construction and predicates
 
-**Input Patterns:**
+#### `YoungTableau`
 
-| Pattern | Description |
-|---------|-------------|
-| `YoungTableauQ[expr]` | Returns `True` if expr is a valid YoungTableau, `False` otherwise |
-
-**Validation Checks:**
-- All rows are lists
-- At least one row with at least one element
-- Row lengths are non-increasing
-- All entries are distinct positive integers
-
-**Examples (10+):**
+Creates a Young tableau. `YoungTableau[partition]` auto-fills the canonical reading-order tableau; `YoungTableau[rows]` stores an explicit slot layout. Renders as a summary box showing shape, filling, and dimension.
 
 ```mathematica
-(* Example 1: Valid tableau from partition *)
-YoungTableauQ[YoungTableau[{3,2}]]
-(* Returns: True *)
+TableauRows[YoungTableau[{4, 2, 1}]]   (* {{1, 2, 3, 4}, {5, 6}, {7}} *)
+TableauRows[YoungTableau[{3, 2, 1}]]   (* {{1, 2, 3}, {4, 5}, {6}}    *)
+YoungTableauQ[YoungTableau[{{1, 3, 5}, {2, 4}}]]   (* True: valid non-canonical layout *)
+```
 
-(* Example 2: Valid explicit tableau *)
-YoungTableauQ[YoungTableau[{{1,2},{3}}]]
-(* Returns: True *)
+#### `YoungTableauQ`
 
-(* Example 3: Invalid - increasing row lengths *)
-YoungTableauQ[YoungTableau[{{1},{2,3}}]]
-(* Returns: False - row 2 longer than row 1 *)
+Tests whether an expression is a valid `YoungTableau` (partition shape, entries `1..n` once each). Structural only; non-tableau input returns `False` without a message.
 
-(* Example 4: Invalid - duplicate entries *)
-YoungTableauQ[YoungTableau[{{1,2},{2,3}}]]
-(* Returns: False - 2 appears twice *)
+```mathematica
+YoungTableauQ[YoungTableau[{{1, 2, 3}, {4, 5}}]]   (* True  *)
+YoungTableauQ[YoungTableau[{{5, 1, 3}, {2, 4}}]]   (* True: valid, though not an SYT *)
+YoungTableauQ["not a tableau"]                     (* False *)
+YoungTableauQ[42]                                  (* False *)
+YoungTableauQ[{{1, 2, 3}, {4, 5}}]                 (* False: not wrapped in YoungTableau *)
+```
 
-(* Example 5: Invalid - non-positive integer *)
-YoungTableauQ[YoungTableau[{{0,1},{2}}]]
-(* Returns: False - 0 is not positive *)
+#### `StandardTableauQ`
 
-(* Example 6: Invalid - non-integer *)
-YoungTableauQ[YoungTableau[{{1.5,2},{3}}]]
-(* Returns: False - 1.5 is not an integer *)
+Tests the standard Young tableau property: rows and columns strictly increasing. Requires `YoungTableauQ` to pass first; any non-tableau input returns `False`.
 
-(* Example 7: Not a tableau at all *)
-YoungTableauQ["not a tableau"]
-(* Returns: False *)
+```mathematica
+StandardTableauQ[YoungTableau[{3, 2, 1}]]          (* True: canonical filling  *)
+StandardTableauQ[YoungTableau[{{1, 2, 4}, {3, 5}}]](* True: non-canonical SYT   *)
+StandardTableauQ[YoungTableau[{{5, 1, 3}, {2, 4}}]](* False: row not increasing *)
+StandardTableauQ[YoungTableau[{{1, 4}, {2, 3}}]]   (* False: column not increasing *)
+StandardTableauQ[{{1, 2}, {3}}]                    (* False: not a YoungTableau *)
+```
 
-(* Example 8: Empty rows invalid *)
-YoungTableauQ[YoungTableau[{{},{1}}]]
-(* Returns: False - empty row *)
+#### `PartitionQ`
 
-(* Example 9: Valid single element *)
-YoungTableauQ[YoungTableau[{{1}}]]
-(* Returns: True *)
+Tests whether a list is a valid integer partition: a non-empty list of positive integers in non-increasing order.
 
-(* Example 10: Valid large tableau *)
-YoungTableauQ[YoungTableau[{5,4,3,2,1}]]
-(* Returns: True *)
-
-(* Example 11: Invalid - negative integer *)
-YoungTableauQ[YoungTableau[{{-1,2},{3}}]]
-(* Returns: False *)
-
-(* Example 12: Valid custom filling *)
-YoungTableauQ[YoungTableau[{{3,5,7},{1,2}}]]
-(* Returns: True - distinct positive integers, non-increasing rows *)
+```mathematica
+PartitionQ /@ {{3, 2, 1}, {3, 3, 1}, {1}, {1, 2, 3}, {3, 0, 1}, {-1, 1}, {3, 5/2, 1}, {}}
+(* {True, True, True, False, False, False, False, False} *)
 ```
 
 ---
 
-### 3. `TableauShape` - Get Partition Shape
+### Shape and structure
 
-**Purpose:** Returns the shape (partition) of a Young tableau as a list of row lengths.
+#### `TableauShape`
 
-**Input Patterns:**
-
-| Pattern | Description |
-|---------|-------------|
-| `TableauShape[YoungTableau[rows]]` | Returns `{d1, d2, ...}` where di is length of row i |
-
-**Note:** `TableauShape` only accepts `YoungTableau` as input. Passing other types returns `$Failed` with an error message.
-
-**Examples (10+):**
+Returns the partition (list of row lengths). Accepts only a `YoungTableau`; other input gives `$Failed` with `TableauShape::noyt`.
 
 ```mathematica
-(* Example 1: Two-row tableau *)
-TableauShape[YoungTableau[{{1,2,3},{4,5}}]]
-(* Returns: {3, 2} *)
-
-(* Example 2: From partition input *)
-TableauShape[YoungTableau[{4,2,1}]]
-(* Returns: {4, 2, 1} *)
-
-(* Example 3: Single row (symmetric) *)
-TableauShape[YoungTableau[{5}]]
-(* Returns: {5} *)
-
-(* Example 4: Single column (antisymmetric) *)
-TableauShape[YoungTableau[{1,1,1,1}]]
-(* Returns: {1, 1, 1, 1} *)
-
-(* Example 5: Square shape *)
-TableauShape[YoungTableau[{3,3,3}]]
-(* Returns: {3, 3, 3} *)
-
-(* Example 6: Custom slot assignment *)
-TableauShape[YoungTableau[{{1,3,5},{2,4}}]]
-(* Returns: {3, 2} - shape independent of slot values *)
-
-(* Example 7: Single box *)
-TableauShape[YoungTableau[{1}]]
-(* Returns: {1} *)
-
-(* Example 8: Staircase *)
-TableauShape[YoungTableau[{4,3,2,1}]]
-(* Returns: {4, 3, 2, 1} *)
-
-(* Example 9: Error case - raw list input rejected *)
-TableauShape[{{1,2},{3}}]
-(* Returns: $Failed with message: "TableauShape accepts only YoungTableau as input" *)
-
-(* Example 10: Two equal rows *)
-TableauShape[YoungTableau[{2,2}]]
-(* Returns: {2, 2} *)
-
-(* Example 11: Large tableau *)
-TableauShape[YoungTableau[{6,4,4,2,1}]]
-(* Returns: {6, 4, 4, 2, 1} *)
+TableauShape[YoungTableau[{{1, 2, 3}, {4, 5}}]]   (* {3, 2}    *)
+TableauShape[YoungTableau[{4, 2, 1}]]             (* {4, 2, 1} *)
+TableauShape[{{1, 2}, {3}}]                       (* $Failed, TableauShape::noyt *)
 ```
+
+#### `TableauSize`
+
+Returns the total number of boxes `n` (the sum of the row lengths), which is the tensor rank the tableau acts on and the `n` of the symmetric group `S_n`. Accepts only a `YoungTableau`.
+
+```mathematica
+TableauSize[YoungTableau[{{1, 2, 3}, {4, 5}}]]   (* 5 *)
+TableauSize[YoungTableau[{4, 2, 1}]]             (* 7 *)
+TableauSize[YoungTableau[{3, 2, 1}]]             (* 6 *)
+```
+
+#### `TableauRows`
+
+Returns the inner row list as a list of lists of slot indices. `YoungTableau` is atomic, so this accessor (not `First` or `Part`) is how you read the rows. Accepts only a `YoungTableau`.
+
+```mathematica
+TableauRows[YoungTableau[{{1, 2, 3}, {4, 5}, {6}}]]   (* {{1, 2, 3}, {4, 5}, {6}} *)
+TableauRows[YoungTableau[{4, 2, 1}]]                  (* {{1, 2, 3, 4}, {5, 6}, {7}} *)
+```
+
+#### `TableauColumns`
+
+Derives the column slot lists from the row layout, stopping each column correctly on ragged shapes. Accepts only a `YoungTableau`.
+
+```mathematica
+TableauColumns[YoungTableau[{{1, 2, 3}, {4, 5}, {6}}]]   (* {{1, 4, 6}, {2, 5}, {3}} *)
+TableauColumns[YoungTableau[{4, 2, 1}]]                  (* {{1, 5, 7}, {2, 6}, {3}, {4}} *)
+TableauColumns[YoungTableau[{{5, 6, 7}, {3, 4}, {1, 2}}]](* {{5, 3, 1}, {6, 4, 2}, {7}} *)
+```
+
+#### `TransposePartition`
+
+Returns the conjugate (transpose) of an integer partition: swapping rows and columns of the diagram. An involution that preserves the weight `Total`.
+
+```mathematica
+TransposePartition /@ {{4, 2, 1}, {3, 2, 2, 1}, {5}, {1, 1, 1}, {3, 3}}
+(* {{3, 2, 1, 1}, {4, 3, 1}, {1, 1, 1, 1, 1}, {3}, {2, 2, 2}} *)
+TransposePartition[TransposePartition[{4, 2, 1}]]   (* {4, 2, 1} : involution *)
+TransposePartition["x"]                             (* $Failed, TransposePartition::notpar *)
+```
+
+The conjugate of the fully symmetric shape `{n}` is the fully antisymmetric shape `{1, ..., 1}`, and vice versa; representation-theoretically conjugation tensors the `S_n` irrep with the sign representation.
 
 ---
 
-### 4. `TableauSize` - Get Total Number of Boxes
+### Hook lengths and dimensions
 
-**Purpose:** Returns the total number of boxes (size/weight) of a Young tableau. This equals the sum of the partition elements.
+#### `HookLength`
 
-**Input Patterns:**
-
-| Pattern | Description |
-|---------|-------------|
-| `TableauSize[YoungTableau[rows]]` | Returns the total number of boxes n |
-
-**Note:** `TableauSize` only accepts `YoungTableau` as input. Passing other types returns `$Failed` with an error message.
-
-**Examples (10+):**
+`HookLength[tableau, {row, col}]` is the hook length at one cell: cells to the right in the same row, plus cells below in the same column, plus one. Out-of-range cells give `$Failed` with `HookLength::range`; non-tableau input gives `HookLength::noyt`.
 
 ```mathematica
-(* Example 1: Two-row tableau *)
-TableauSize[YoungTableau[{{1,2,3},{4,5}}]]
-(* Returns: 5 *)
-
-(* Example 2: From partition input *)
-TableauSize[YoungTableau[{4,2,1}]]
-(* Returns: 7 *)
-
-(* Example 3: Single row (symmetric) *)
-TableauSize[YoungTableau[{5}]]
-(* Returns: 5 *)
-
-(* Example 4: Single column (antisymmetric) *)
-TableauSize[YoungTableau[{1,1,1,1}]]
-(* Returns: 4 *)
-
-(* Example 5: Square shape *)
-TableauSize[YoungTableau[{3,3,3}]]
-(* Returns: 9 *)
-
-(* Example 6: Custom slot assignment *)
-TableauSize[YoungTableau[{{1,3,5},{2,4}}]]
-(* Returns: 5 *)
-
-(* Example 7: Single box *)
-TableauSize[YoungTableau[{1}]]
-(* Returns: 1 *)
-
-(* Example 8: Staircase *)
-TableauSize[YoungTableau[{4,3,2,1}]]
-(* Returns: 10 *)
-
-(* Example 9: Error case - raw list input rejected *)
-TableauSize[{{1,2},{3}}]
-(* Returns: $Failed with message: "TableauSize accepts only YoungTableau as input" *)
-
-(* Example 10: Two equal rows *)
-TableauSize[YoungTableau[{2,2}]]
-(* Returns: 4 *)
-
-(* Example 11: Large tableau *)
-TableauSize[YoungTableau[{6,4,4,2,1}]]
-(* Returns: 17 *)
-
-(* Example 12: Relates to symmetric group *)
-(* TableauSize[tab] = n means the tableau relates to S_n *)
-TableauSize[YoungTableau[{3,2,1}]]
-(* Returns: 6 - relates to S_6 *)
+HookLength[YoungTableau[{3, 2}], #] & /@ {{1, 1}, {1, 2}, {1, 3}, {2, 1}, {2, 2}}
+(* {4, 3, 1, 2, 1} *)
+HookLength[YoungTableau[{4, 2, 1}], #] & /@ {{1, 1}, {2, 1}, {3, 1}}   (* {6, 3, 1} *)
+HookLength[YoungTableau[{3, 2}], {5, 5}]   (* $Failed, HookLength::range *)
 ```
+
+#### `HookLengths`
+
+Returns all hook lengths at once as a nested list matching the shape. Accepts a partition or a `YoungTableau`; bad input gives `HookLengths::notpar`.
+
+```mathematica
+HookLengths[{3, 2}]                 (* {{4, 3, 1}, {2, 1}}    product 24, dim 120/24 = 5 *)
+HookLengths[{4, 2}]                 (* {{5, 4, 2, 1}, {2, 1}} product 80, dim 720/80 = 9 *)
+HookLengths[{2, 2, 1}]              (* {{4, 2}, {3, 1}, {1}}  product 24, dim 120/24 = 5 *)
+HookLengths[YoungTableau[{3, 2}]]   (* {{4, 3, 1}, {2, 1}} : tableau overload *)
+```
+
+#### `HookFactor`
+
+Returns `1 / (product of hook lengths)` evaluated by the Frobenius determinant formula, which is `O(r^3)` in the number of rows. Accepts a partition or a `YoungTableau`. The irrep dimension is `n! * HookFactor[partition]`.
+
+```mathematica
+HookFactor[{3, 2}]              (* 1/24 *)
+HookFactor[{2, 2}]              (* 1/12 *)
+Total[{3, 2}]! HookFactor[{3, 2}]   (* 5 : equals TableauDimension[{3,2}] *)
+(* n! HookFactor[p] === TableauDimension[p] for every partition of 1..6 : True *)
+```
+
+#### `TableauDimension`
+
+The dimension `dim V_lambda` of the irreducible representation of the symmetric group labeled by the shape, via the hook-length formula `d = n! / (product of hook lengths)`. Accepts a partition or a `YoungTableau`.
+
+```mathematica
+TableauDimension /@ {{3}, {1, 1, 1}, {2, 1}, {3, 2}, {4, 2, 1}, {2, 2}, {3, 2, 1}, {3, 1, 1}, {1}}
+(* {1, 1, 2, 5, 35, 2, 16, 6, 1} *)
+TableauDimension /@ IntegerPartitions[4]   (* {1, 3, 2, 3, 1} *)
+(* Plancherel sum rule: *)
+Total[(TableauDimension /@ IntegerPartitions[5])^2]   (* 120 == 5! *)
+```
+
+#### `SchurDimension`
+
+`SchurDimension[partition, d]` is the dimension `dim W_lambda(d)` of the `GL(d)` Weyl module via Stanley's hook-content formula `prod (d + j - i) / hook(i, j)`. Accepts a partition or a `YoungTableau`; accepts numeric or symbolic `d`.
+
+```mathematica
+{SchurDimension[{3}, 2], SchurDimension[{2, 1}, 2], SchurDimension[{1, 1, 1}, 2],
+ SchurDimension[{1, 1, 1}, 3], SchurDimension[{4, 2}, 3]}
+(* {4, 2, 0, 1, 27} *)
+```
+
+The fully symmetric shape gives `Binomial[d + n - 1, n]` and the fully antisymmetric shape gives `Binomial[d, n]`. A shape with more rows than `d` vanishes (Pauli exclusion), as `SchurDimension[{1,1,1}, 2] == 0` above. Symbolic `d` returns a polynomial:
+
+```mathematica
+Simplify[SchurDimension[{2, 2}, x] - x^2 (x^2 - 1)/12]   (* 0 *)
+```
+
+Together with `TableauDimension` it satisfies the Schur-Weyl identity `Sum_{lambda |- n} dim V_lambda * dim W_lambda(d) == d^n` (verified for `n = 2..5`, `d = 2..4`).
+
+#### `TableauWeylDimension`
+
+The tableau-keyed companion to `SchurDimension`: `TableauWeylDimension[tableau, d]` is the `GL(d)` Weyl-module dimension for the partition underlying the tableau. Unlike `SchurDimension`, it accepts only a `YoungTableau`; a bare partition gives `$Failed` with `TableauWeylDimension::noyt`.
+
+```mathematica
+TableauWeylDimension[YoungTableau[{2, 2}], 3]   (* 6 : equals SchurDimension[{2,2},3] *)
+TableauWeylDimension[{2, 2}, 3]                 (* $Failed, TableauWeylDimension::noyt *)
+```
+
+While `TableauDimension[tab]` gives the `S_n` multiplicity `dim V_lambda`, `TableauWeylDimension[tab, d]` gives the block size `dim W_lambda(d)`; their product is the size of the lambda-isotypic block of `(C^d)^(tensor n)`.
 
 ---
 
-### 5. `HookLength` - Compute Hook Length at Position
+### Tensor operations
 
-**Purpose:** Computes the hook length at a specific cell position. Used in the hook-length formula for irrep dimensions.
+#### `YoungSymmetrize`
 
-**Input Patterns:**
+`YoungSymmetrize[tensor, tableau]` applies the unnormalized Young symmetrizer `c_T = a_T b_T`: it first symmetrizes over each row, then antisymmetrizes over each column. The tensor rank (`ArrayDepth`) must equal `TableauSize`; otherwise it returns `$Failed` with `YoungSymmetrize::rank`. Internally it delegates to the kernel's `Symmetrize` with `Symmetric /@ rows` and `Antisymmetric /@ cols`, scaled by the row and column stabilizer orders.
 
-| Pattern | Description |
-|---------|-------------|
-| `HookLength[YoungTableau[rows], {row, col}]` | Hook length at position (row, col) |
-
-**Note:** `HookLength` only accepts `YoungTableau` as input. Passing other types returns `$Failed` with an error message.
-
-**Formula:** `hook(r,c) = (cells to right in row r) + (cells below in column c) + 1`
-
-**Examples (10+):**
+A single-row tableau is full symmetrization; a single-column tableau is full antisymmetrization.
 
 ```mathematica
-(* Setup tableau: YoungTableau[{3,2}] = {{1,2,3},{4,5}} *)
-tab = YoungTableau[{3,2}];
-
-(* Example 1: Top-left corner *)
-HookLength[tab, {1,1}]
-(* Returns: 4 (2 right + 1 below + 1 = 4) *)
-
-(* Example 2: Position {1,2} *)
-HookLength[tab, {1,2}]
-(* Returns: 3 (1 right + 1 below + 1 = 3) *)
-
-(* Example 3: Position {1,3} - corner *)
-HookLength[tab, {1,3}]
-(* Returns: 1 (0 right + 0 below + 1 = 1) *)
-
-(* Example 4: Position {2,1} *)
-HookLength[tab, {2,1}]
-(* Returns: 2 (1 right + 0 below + 1 = 2) *)
-
-(* Example 5: Position {2,2} - corner *)
-HookLength[tab, {2,2}]
-(* Returns: 1 *)
-
-(* Example 6: Larger tableau {4,2,1} *)
-tab2 = YoungTableau[{4,2,1}];
-HookLength[tab2, {1,1}]
-(* Returns: 6 (3 right + 2 below + 1 = 6) *)
-
-(* Example 7: Hook at {2,1} in {4,2,1} *)
-HookLength[tab2, {2,1}]
-(* Returns: 3 (1 right + 1 below + 1 = 3) *)
-
-(* Example 8: Hook at {3,1} in {4,2,1} *)
-HookLength[tab2, {3,1}]
-(* Returns: 1 *)
-
-(* Example 9: Square tableau {2,2} *)
-tab3 = YoungTableau[{2,2}];
-HookLength[tab3, {1,1}]
-(* Returns: 3 (1 right + 1 below + 1 = 3) *)
-
-(* Example 10: Error case - raw list input rejected *)
-HookLength[{{1,2,3},{4,5}}, {1,1}]
-(* Returns: $Failed with message: "HookLength accepts only YoungTableau as input" *)
-
-(* Example 11: Single row tableau *)
-HookLength[YoungTableau[{4}], {1,2}]
-(* Returns: 3 (2 right + 0 below + 1 = 3) *)
-
-(* Example 12: Single column *)
-HookLength[YoungTableau[{1,1,1}], {2,1}]
-(* Returns: 2 (0 right + 1 below + 1 = 2) *)
+YoungSymmetrize[{{a, b}, {c, d}}, YoungTableau[{2}]]     (* {{2 a, b + c}, {b + c, 2 d}} *)
+YoungSymmetrize[{{1, 2}, {3, 4}}, YoungTableau[{2}]]     (* {{2, 5}, {5, 8}} *)
+YoungSymmetrize[{{a, b}, {c, d}}, YoungTableau[{1, 1}]]  (* {{0, b - c}, {-b + c, 0}} *)
+YoungSymmetrize[{{1, 2}, {3, 4}}, YoungTableau[{1, 1}]]  (* {{0, -1}, {1, 0}} *)
 ```
 
----
-
-### 6. `TableauDimension` - Irrep Dimension via Hook-Length Formula
-
-**Purpose:** Computes the dimension of the irreducible representation corresponding to a Young tableau.
-
-**Input Patterns:**
-
-| Pattern | Description |
-|---------|-------------|
-| `TableauDimension[YoungTableau[rows]]` | Dimension using hook-length formula |
-
-**Note:** `TableauDimension` only accepts `YoungTableau` as input. Passing other types returns `$Failed` with an error message.
-
-**Formula:** `d = n! / Product[HookLength[tab,{r,c}], all cells]`
-
-**Examples (10+):**
+The operations are sequential, so the *last* one (column antisymmetry) is always preserved while the first (row symmetry) is generally destroyed. The mixed shape `{2, 1}` produces a tensor in the irreducible mixed-symmetry subspace, not a simply symmetric or antisymmetric one.
 
 ```mathematica
-(* Example 1: Fully symmetric - single row *)
-TableauDimension[YoungTableau[{3}]]
-(* Returns: 1 (3!/6 = 1) - trivial symmetric representation *)
-
-(* Example 2: Fully antisymmetric - single column *)
-TableauDimension[YoungTableau[{1,1,1}]]
-(* Returns: 1 (3!/6 = 1) - trivial antisymmetric representation *)
-
-(* Example 3: Mixed symmetry {2,1} *)
-TableauDimension[YoungTableau[{2,1}]]
-(* Returns: 2 (3!/(3*1*1) = 6/3 = 2) *)
-
-(* Example 4: Shape {3,2} *)
-TableauDimension[YoungTableau[{3,2}]]
-(* Returns: 5 (5!/(4*3*1*2*1) = 120/24 = 5) *)
-
-(* Example 5: Shape {4,2,1} *)
-TableauDimension[YoungTableau[{4,2,1}]]
-(* Returns: 35 *)
-
-(* Example 6: Square {2,2} *)
-TableauDimension[YoungTableau[{2,2}]]
-(* Returns: 2 (4!/(3*2*2*1) = 24/12 = 2) *)
-
-(* Example 7: Large symmetric *)
-TableauDimension[YoungTableau[{6}]]
-(* Returns: 1 *)
-
-(* Example 8: Staircase {3,2,1} *)
-TableauDimension[YoungTableau[{3,2,1}]]
-(* Returns: 16 *)
-
-(* Example 9: Hook shape {3,1,1} *)
-TableauDimension[YoungTableau[{3,1,1}]]
-(* Returns: 6 *)
-
-(* Example 10: Error case - raw list input rejected *)
-TableauDimension[{{1,2},{3}}]
-(* Returns: $Failed with message: "TableauDimension accepts only YoungTableau as input" *)
-
-(* Example 11: Single box (trivial) *)
-TableauDimension[YoungTableau[{1}]]
-(* Returns: 1 *)
-
-(* Example 12: Two boxes {2} vs {1,1} *)
-TableauDimension[YoungTableau[{2}]]   (* Returns: 1 - symmetric *)
-TableauDimension[YoungTableau[{1,1}]] (* Returns: 1 - antisymmetric *)
+m = YoungSymmetrize[Array[t, {3, 3, 3}], YoungTableau[{2, 1}]];
+{m === -Transpose[m, {3, 2, 1}],   (* True:  column antisymmetry preserved *)
+ m === Transpose[m, {2, 1, 3}]}    (* False: row symmetry not preserved   *)
 ```
 
----
-
-### 7. `YoungSymmetrize` - Tensor Symmetrization
-
-**Purpose:** Projects a tensor onto the symmetry class defined by a Young tableau. First symmetrizes over rows, then antisymmetrizes over columns.
-
-**Input Patterns:**
-
-| Pattern | Description |
-|---------|-------------|
-| `YoungSymmetrize[tensor, YoungTableau[rows]]` | Apply Young symmetrizer to tensor |
-
-**Requirements:**
-- `tensor` must be an array (`ArrayQ` returns True)
-- `ArrayDepth[tensor]` must equal total number of boxes in tableau (use `TableauSize`)
-
-**Algorithm:**
-1. Symmetrize over each row (operator b_T) - sum over all permutations
-2. Then antisymmetrize over each column (operator a_T) - sum with signature
-
-**Critical:** Operations are applied **sequentially**. The **last operation** (column antisymmetry) is **always preserved**. Earlier operations (row symmetry) may be **destroyed** by subsequent operations.
-
-**Understanding Symmetry:**
-- **Symmetric tensor**: `T[i,j] == T[j,i]` for all i,j. Verify: `T == Transpose[T]`
-- **Antisymmetric tensor**: `T[i,j] == -T[j,i]` for all i,j. Verify: `T == -Transpose[T]`
-- Antisymmetric tensors have zero diagonal: `T[i,i] == 0`
-- **Mixed symmetry**: Result lies in an irreducible representation subspace. Only column antisymmetry is guaranteed; row symmetry is generally destroyed.
-
-**Examples (10+):**
+A rank-2 tensor splits into its symmetric and antisymmetric parts (the `n = 2` Schur-Weyl decomposition):
 
 ```mathematica
-(* ============================================ *)
-(* SYMMETRIC TENSORS: YoungTableau[{n}]         *)
-(* Single row = fully symmetric over all indices *)
-(* ============================================ *)
-
-(* Example 1: Symmetrize a rank-2 tensor *)
-(* YoungTableau[{2}] = single row with 2 boxes = symmetric in indices {1,2} *)
-T = {{a, b}, {c, d}};
-sym = YoungSymmetrize[T, YoungTableau[{2}]];
-(* Result: {{2a, b+c}, {b+c, 2d}} *)
-
-(* VERIFY: Symmetric means T == Transpose[T] *)
-sym == Transpose[sym]
-(* Returns: True *)
-
-(* Example 2: Symmetrize numerical matrix *)
 M = {{1, 2}, {3, 4}};
-symM = YoungSymmetrize[M, YoungTableau[{2}]];
-(* Result: {{2, 5}, {5, 8}} *)
-
-(* VERIFY symmetry *)
-symM == Transpose[symM]
-(* Returns: True *)
-
-(* Example 3: Already symmetric tensor is scaled by 2! = 2 *)
-symTensor = {{1, 2}, {2, 4}};  (* symmetric: symTensor == Transpose[symTensor] *)
-YoungSymmetrize[symTensor, YoungTableau[{2}]]
-(* Result: {{2, 4}, {4, 8}} = 2 * symTensor *)
-(* Factor of 2 comes from summing over 2! = 2 permutations *)
-
-
-(* ============================================ *)
-(* ANTISYMMETRIC TENSORS: YoungTableau[{1,1,...}] *)
-(* Single column = fully antisymmetric            *)
-(* ============================================ *)
-
-(* Example 4: Antisymmetrize a rank-2 tensor *)
-(* YoungTableau[{1,1}] = single column = antisymmetric in indices {1,2} *)
-T = {{a, b}, {c, d}};
-anti = YoungSymmetrize[T, YoungTableau[{1,1}]];
-(* Result: {{0, b-c}, {c-b, 0}} *)
-
-(* VERIFY: Antisymmetric means T == -Transpose[T] *)
-anti == -Transpose[anti]
-(* Returns: True *)
-
-(* VERIFY: Diagonal is always zero for antisymmetric *)
-Diagonal[anti]
-(* Returns: {0, 0} *)
-
-(* Example 5: Antisymmetrize numerical matrix *)
-M = {{1, 2}, {3, 4}};
-antiM = YoungSymmetrize[M, YoungTableau[{1,1}]];
-(* Result: {{0, -1}, {1, 0}} *)
-
-(* VERIFY antisymmetry *)
-antiM == -Transpose[antiM]
-(* Returns: True *)
-
-(* Example 6: Already antisymmetric tensor is scaled by 2! = 2 *)
-antiTensor = {{0, 1}, {-1, 0}};  (* antisymmetric *)
-YoungSymmetrize[antiTensor, YoungTableau[{1,1}]]
-(* Result: {{0, 2}, {-2, 0}} = 2 * antiTensor *)
-
-
-(* ============================================ *)
-(* RANK-3 TENSORS: More complex symmetries      *)
-(* ============================================ *)
-
-(* Example 7: Fully symmetric rank-3 tensor *)
-(* YoungTableau[{3}] = symmetric in all 3 indices *)
-T3 = Array[t, {2, 2, 2}];
-sym3 = YoungSymmetrize[T3, YoungTableau[{3}]];
-
-(* VERIFY: Symmetric under ANY transposition *)
-sym3 == Transpose[sym3, {2, 1, 3}]  (* swap indices 1,2 *)
-(* Returns: True *)
-sym3 == Transpose[sym3, {1, 3, 2}]  (* swap indices 2,3 *)
-(* Returns: True *)
-sym3 == Transpose[sym3, {3, 2, 1}]  (* swap indices 1,3 *)
-(* Returns: True *)
-
-(* Example 8: Fully antisymmetric rank-3 tensor *)
-(* YoungTableau[{1,1,1}] = antisymmetric in all 3 indices *)
-T3 = Array[t, {2, 2, 2}];
-anti3 = YoungSymmetrize[T3, YoungTableau[{1,1,1}]];
-
-(* VERIFY: Antisymmetric under ANY transposition *)
-anti3 == -Transpose[anti3, {2, 1, 3}]  (* swap indices 1,2 *)
-(* Returns: True *)
-anti3 == -Transpose[anti3, {1, 3, 2}]  (* swap indices 2,3 *)
-(* Returns: True *)
-
-(* Note: Fully antisymmetric rank-3 tensor in dimension 2 is zero! *)
-(* (Can't have 3 antisymmetric indices with only 2 values each) *)
-
-
-(* ============================================ *)
-(* MIXED SYMMETRY: YoungTableau[{2,1}]          *)
-(* ============================================ *)
-
-(* IMPORTANT: Understanding the algorithm order:
-
-   The Young symmetrizer c_T = a_T * b_T applies operations SEQUENTIALLY:
-   1. FIRST: Symmetrize over rows (b_T)
-   2. SECOND: Antisymmetrize over columns (a_T)
-
-   KEY INSIGHT: The LAST operation (column antisymmetry) IS preserved.
-                The FIRST operation (row symmetry) may be DESTROYED by the second!
-
-   The result lies in an IRREDUCIBLE REPRESENTATION subspace - a "mixed symmetry"
-   that is more complex than simple pairwise symmetry/antisymmetry.
-*)
-
-(* Example 9: Mixed symmetry {2,1} on rank-3 tensor *)
-(* YoungTableau[{2,1}] = {{1,2},{3}}
-   - Rows: {1,2} and {3}
-   - Columns: {1,3} and {2}
-
-   Algorithm:
-   Step 1: Symmetrize over {1,2} -> intermediate result symmetric in 1,2
-   Step 2: Antisymmetrize over {1,3} -> DESTROYS symmetry in 1,2!
-*)
-T3 = Array[t, {3, 3, 3}];
-mixed = YoungSymmetrize[T3, YoungTableau[{2,1}]];
-
-(* VERIFY: Column antisymmetry IS preserved (last operation) *)
-mixed == -Transpose[mixed, {3, 2, 1}]
-(* Returns: True *)
-
-(* VERIFY: Row symmetry is NOT preserved! *)
-mixed == Transpose[mixed, {2, 1, 3}]
-(* Returns: False (or unevaluated - they are NOT equal) *)
-
-(* The result satisfies a more complex "mixed symmetry" condition.
-   It lies in the irreducible representation labeled by partition {2,1}. *)
-
-
-(* Example 10: Custom index assignment - DETAILED ANALYSIS *)
-(* YoungTableau[{{1,3},{2}}] means:
-   - Rows: {1,3} and {2}
-   - Columns: {1,2} and {3}
-
-   Algorithm:
-   Step 1: Symmetrize over {1,3} -> T + Transpose[T,{3,2,1}]
-   Step 2: Antisymmetrize over {1,2} -> result - Transpose[result,{2,1,3}]
-*)
-T3 = Array[t, {2, 2, 2}];
-custom = YoungSymmetrize[T3, YoungTableau[{{1,3},{2}}]];
-
-(* VERIFY: Column antisymmetry in {1,2} IS preserved (last operation) *)
-custom == -Transpose[custom, {2, 1, 3}]
-(* Returns: True *)
-
-(* VERIFY: Row symmetry in {1,3} is NOT preserved! *)
-custom == Transpose[custom, {3, 2, 1}]
-(* Returns: False - the antisymmetrization step destroyed it *)
-
-(* Let's see what we actually get: *)
-custom
-(* The tensor has "mixed symmetry" - antisymmetric in {1,2} but NOT
-   simply symmetric in {1,3}. It belongs to the irreducible subspace
-   characterized by the Young tableau shape {2,1}. *)
-
-
-(* Example 10b: Verify with explicit calculation *)
-T = Array[t, {2, 2, 2}];
-result = YoungSymmetrize[T, YoungTableau[{{1,3},{2}}]];
-
-(* Check antisymmetry in indices 1,2 *)
-Simplify[result + Transpose[result, {2, 1, 3}]]
-(* Returns: zero tensor - confirms antisymmetry *)
-
-(* Check symmetry in indices 1,3 *)
-Simplify[result - Transpose[result, {3, 2, 1}]]
-(* Returns: NON-zero - confirms symmetry is NOT preserved *)
-
-
-(* ============================================ *)
-(* WHAT MIXED SYMMETRY ACTUALLY MEANS           *)
-(* ============================================ *)
-
-(* For a {2,1} tableau, the result satisfies these properties:
-   1. Antisymmetric in column indices (ALWAYS preserved - last operation)
-   2. Satisfies a CYCLIC IDENTITY (not simple symmetry)
-
-   For {{1,2},{3}}: T[i,j,k] + T[j,k,i] + T[k,i,j] = 0  (when also antisym in 1,3)
-*)
-
-(* Example 10c: The standard {2,1} tableau *)
-T3 = Array[t, {3, 3, 3}];
-std21 = YoungSymmetrize[T3, YoungTableau[{2,1}]];  (* = {{1,2},{3}} *)
-
-(* Column antisymmetry: swap 1 and 3 *)
-std21 == -Transpose[std21, {3, 2, 1}]
-(* Returns: True *)
-
-(* NOT symmetric in 1,2 (row symmetry destroyed): *)
-std21 == Transpose[std21, {2, 1, 3}]
-(* Returns: False *)
-
-(* But satisfies: the cyclic sum vanishes *)
-(* std21 + cycle(std21) + cycle(cycle(std21)) involves the irrep structure *)
-
-
-(* ============================================ *)
-(* ADDITIONAL EXAMPLES                          *)
-(* ============================================ *)
-
-(* Example 11: Identity on rank-1 (vectors have no symmetry to impose) *)
-vector = {a, b, c};
-YoungSymmetrize[vector, YoungTableau[{1}]]
-(* Returns: {a, b, c} - unchanged *)
-
-(* Example 12: Error case - rank mismatch *)
-T2 = Array[t, {3, 3}];
-YoungSymmetrize[T2, YoungTableau[{3}]]
-(* Returns $Failed with message: "Tensor rank 2 does not match tableau size 3." *)
-
-(* Example 13: Numerical verification of symmetry *)
-M = RandomReal[{-1, 1}, {3, 3}];
-symM = YoungSymmetrize[M, YoungTableau[{2}]];
-Norm[symM - Transpose[symM]] < 10^-10
-(* Returns: True - confirms numerical symmetry *)
-
-antiM = YoungSymmetrize[M, YoungTableau[{1,1}]];
-Norm[antiM + Transpose[antiM]] < 10^-10
-(* Returns: True - confirms numerical antisymmetry *)
-
-(* Example 14: Decomposition - any matrix = symmetric + antisymmetric *)
-M = {{1, 2}, {3, 4}};
-symPart = YoungSymmetrize[M, YoungTableau[{2}]] / 2;    (* {{1, 5/2}, {5/2, 4}} *)
-antiPart = YoungSymmetrize[M, YoungTableau[{1,1}]] / 2; (* {{0, -1/2}, {1/2, 0}} *)
-symPart + antiPart == M
-(* Returns: True *)
+YoungSymmetrize[M, YoungTableau[{2}]]/2 + YoungSymmetrize[M, YoungTableau[{1, 1}]]/2 === M   (* True *)
 ```
 
----
+#### `YoungProject`
 
-### 8. `YoungProject` - Normalized Projection
-
-**Purpose:** Returns the normalized projection of a tensor onto a Young tableau symmetry class. The result is idempotent: applying twice gives the same result.
-
-**Input Patterns:**
-
-| Pattern | Description |
-|---------|-------------|
-| `YoungProject[tensor, YoungTableau[rows]]` | Normalized projection: `(d/n!) * YoungSymmetrize[tensor, tab]` |
-
-**Normalization:**
-- Factor: `d/n!` where `d = TableauDimension[tab]` and `n = number of boxes`
-- This makes the projector idempotent: `P[P[T]] = P[T]`
-
-**Examples (10+):**
+`YoungProject[tensor, tableau]` is the normalized projection `(d / n!) * YoungSymmetrize[tensor, tableau]`, where `d = TableauDimension` and `n = TableauSize`. The normalization makes it idempotent (`P[P[T]] == P[T]`), so it is a genuine projector onto the tableau's symmetry class.
 
 ```mathematica
-(* Example 1: Project onto symmetric subspace *)
-tensor2 = Array[T, {3, 3}];
-YoungProject[tensor2, YoungTableau[{2}]]
-(* Normalized: (1/2!) * (T + T^T) = (T + T^T)/2 *)
+YoungProject[{{a, b}, {c, d}}, YoungTableau[{2}]]     (* {{a, (b + c)/2}, {(b + c)/2, d}} *)
+YoungProject[{{a, b}, {c, d}}, YoungTableau[{1, 1}]]  (* {{0, (b - c)/2}, {(-b + c)/2, 0}} *)
+```
 
-(* Example 2: Project onto antisymmetric subspace *)
-YoungProject[tensor2, YoungTableau[{1,1}]]
-(* Normalized: (1/2!) * (T - T^T) = (T - T^T)/2 *)
+For rank 2 the symmetric and antisymmetric projectors are complete (`P_sym + P_anti == identity`), and the normalization factors `d / n!` are small rationals:
 
-(* Example 3: Mixed symmetry projection *)
-tensor3 = Array[T, {2, 2, 2}];
-YoungProject[tensor3, YoungTableau[{2,1}]]
-(* Factor: 2/3! = 1/3 *)
+```mathematica
+T = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+YoungProject[T, YoungTableau[{{1, 2}}]] + YoungProject[T, YoungTableau[{{1}, {2}}]] === T   (* True *)
 
-(* Example 4: Verify idempotence numerically *)
-numTensor = RandomReal[{-1, 1}, {2, 2, 2}];
-proj1 = YoungProject[numTensor, YoungTableau[{2,1}]];
-proj2 = YoungProject[proj1, YoungTableau[{2,1}]];
-(* proj1 == proj2 should be True (within numerical precision) *)
+{TableauDimension[{2, 1}]/3!, TableauDimension[{2, 2}]/4!,
+ TableauDimension[{3, 1}]/4!, TableauDimension[{5}]/5!}      (* {1/3, 1/12, 1/8, 1/120} *)
+```
 
-(* Example 5: Project numerical tensor *)
-numT = {{{1, 2}, {3, 4}}, {{5, 6}, {7, 8}}};
-YoungProject[numT, YoungTableau[{2,1}]]
+For the pure symmetric and antisymmetric shapes, `YoungProject` agrees with the kernel's own `Symmetrize` (which averages over the group):
 
-(* Example 6: Symmetric projection is average *)
-sym = {{a, b}, {c, d}};
-YoungProject[sym, YoungTableau[{2}]]
-(* Returns: {{a, (b+c)/2}, {(b+c)/2, d}} *)
-
-(* Example 7: Rank-4 mixed symmetry *)
-tensor4 = Array[T, {2, 2, 2, 2}];
-YoungProject[tensor4, YoungTableau[{2,2}]]
-(* Factor: 2/4! = 1/12 *)
-
-(* Example 8: Hook symmetry projection *)
-YoungProject[tensor4, YoungTableau[{3,1}]]
-(* Factor: 3/4! = 1/8 *)
-
-(* Example 9: Fully symmetric large tensor *)
-tensor5 = Array[T, {2, 2, 2, 2, 2}];
-YoungProject[tensor5, YoungTableau[{5}]]
-(* Factor: 1/5! = 1/120 *)
-
-(* Example 10: Verify orthogonal projections *)
-(* Different tableaux project onto orthogonal subspaces *)
-t3 = RandomReal[{-1, 1}, {3, 3, 3}];
-p1 = YoungProject[t3, YoungTableau[{3}]];     (* symmetric *)
-p2 = YoungProject[t3, YoungTableau[{1,1,1}]]; (* antisymmetric *)
-(* Inner product of p1 and p2 should be 0 *)
-
-(* Example 11: Single element tensor *)
-YoungProject[{x}, YoungTableau[{1}]]
-(* Returns: {x} *)
-
-(* Example 12: Compare with YoungSymmetrize *)
-t = Array[a, {2, 2}];
-ys = YoungSymmetrize[t, YoungTableau[{2}]];
-yp = YoungProject[t, YoungTableau[{2}]];
-(* yp == ys/2 *)
+```mathematica
+YoungProject[Array[a, {3, 3}], YoungTableau[{2}]] ===
+  Normal @ Symmetrize[Array[a, {3, 3}], Symmetric[{1, 2}]]   (* True *)
 ```
 
 ---
 
-## Mathematical Background
+## Mathematical background
 
-### Young Tableaux
+**Young diagram and partition.** A partition `lambda = {lambda_1, ..., lambda_k}` of `n` (non-increasing positive integers summing to `n`) is drawn as `k` left-justified rows of boxes. Shape `{3, 2}`:
 
-A Young tableau is a way of arranging n boxes into left-justified rows where:
-- Row lengths form a non-increasing sequence (partition of n)
-- Each box contains a distinct positive integer
-
-**Visual Example - Shape {3,2}:**
 ```
-┌───┬───┬───┐
-│ 1 │ 2 │ 3 │
-├───┼───┼───┘
-│ 4 │ 5 │
-└───┴───┘
++---+---+---+
+| 1 | 2 | 3 |
++---+---+---+
+| 4 | 5 |
++---+---+
 ```
 
-### Young Symmetrizer
+**Young symmetrizer.** For a tableau `T`, the symmetrizer is `c_T = a_T b_T`, where `b_T` sums over the row stabilizer (symmetrizing rows) and `a_T` sums over the column stabilizer with signatures (antisymmetrizing columns). Applying `b_T` first and `a_T` second ensures the column antisymmetry survives in the result.
 
-The Young symmetrizer c_T = a_T * b_T where:
-- b_T: symmetrizes over each row (sum over permutations)
-- a_T: antisymmetrizes over each column (sum with signatures)
+**Hook-length formula.** The hook length at cell `(i, j)` is `hook(i, j) = (lambda_i - j) + (lambda^T_j - i) + 1`. The symmetric-group irrep dimension is `dim V_lambda = n! / prod hook(i, j)`, evaluated here through `HookFactor` (Frobenius determinant).
 
-This ordering ensures column antisymmetry is preserved in the final result.
+**Hook-content formula.** The `GL(d)` Weyl-module dimension is `dim W_lambda(d) = prod (d + j - i) / hook(i, j)`, returned by `SchurDimension`.
 
-### Hook-Length Formula
-
-The dimension of the irreducible representation is:
-```
-d = n! / (product of all hook lengths)
-```
-
-Where hook length at position (r,c) = cells to right + cells below + 1.
+**Schur-Weyl duality.** The space `(C^d)^(tensor n)` decomposes as a `GL(d) x S_n` bimodule into `direct sum over lambda of W_lambda(d) tensor V_lambda`, so `d^n = Sum_lambda dim W_lambda(d) * dim V_lambda`. The Plancherel special case at the level of `S_n` is `Sum_{lambda |- n} (dim V_lambda)^2 = n!`.
 
 ---
 
-## Quick Reference
+## Quick reference
 
-| Function | Purpose | Example |
-|----------|---------|---------|
-| `YoungTableau[{d1,d2,...}]` | Create from partition | `YoungTableau[{3,2}]` |
-| `YoungTableau[{{...},...}]` | Create with explicit slots | `YoungTableau[{{1,3},{2}}]` |
-| `YoungTableauQ[t]` | Validate tableau | `YoungTableauQ[tab]` |
-| `TableauShape[t]` | Get partition | `TableauShape[tab]` -> `{3,2}` |
-| `TableauSize[t]` | Get number of boxes | `TableauSize[tab]` -> `5` |
-| `HookLength[t,{r,c}]` | Hook at position | `HookLength[tab,{1,1}]` |
-| `TableauDimension[t]` | Irrep dimension | `TableauDimension[tab]` |
-| `YoungSymmetrize[T,t]` | Unnormalized symmetrization | `YoungSymmetrize[tensor,tab]` |
-| `YoungProject[T,t]` | Normalized projection | `YoungProject[tensor,tab]` |
+| Function | Purpose | Example -> result |
+|----------|---------|-------------------|
+| `PartitionQ[list]` | Validate an integer partition | `PartitionQ[{3,1}]` -> `True` |
+| `YoungTableau[part]` | Build canonical tableau from partition | `YoungTableau[{3,2}]` |
+| `YoungTableau[rows]` | Build tableau from explicit slot rows | `YoungTableau[{{1,3},{2}}]` |
+| `YoungTableauQ[expr]` | Structural tableau test | `YoungTableauQ[tab]` -> `True` |
+| `StandardTableauQ[tab]` | Strict-increase (SYT) test | `StandardTableauQ[tab]` -> `True` |
+| `TableauShape[tab]` | Partition (row lengths) | `TableauShape[tab]` -> `{3,2}` |
+| `TableauSize[tab]` | Number of boxes `n` | `TableauSize[tab]` -> `5` |
+| `TableauRows[tab]` | Inner row list | `TableauRows[tab]` -> `{{1,2,3},{4,5}}` |
+| `TableauColumns[tab]` | Column slot lists | `TableauColumns[tab]` -> `{{1,4},{2,5},{3}}` |
+| `TransposePartition[part]` | Conjugate partition | `TransposePartition[{4,2,1}]` -> `{3,2,1,1}` |
+| `HookLength[tab,{r,c}]` | Hook length at one cell | `HookLength[tab,{1,1}]` -> `4` |
+| `HookLengths[part]` | All hook lengths | `HookLengths[{3,2}]` -> `{{4,3,1},{2,1}}` |
+| `HookFactor[part]` | `1 / prod(hooks)` | `HookFactor[{3,2}]` -> `1/24` |
+| `TableauDimension[part]` | `S_n` irrep dimension | `TableauDimension[{3,2}]` -> `5` |
+| `SchurDimension[part,d]` | `GL(d)` Weyl-module dimension | `SchurDimension[{4,2},3]` -> `27` |
+| `TableauWeylDimension[tab,d]` | `GL(d)` dimension (tableau form) | `TableauWeylDimension[tab,3]` -> `6` |
+| `YoungSymmetrize[T,tab]` | Unnormalized symmetrizer `c_T` | `YoungSymmetrize[T,tab]` |
+| `YoungProject[T,tab]` | Normalized projector `P_T` | `YoungProject[T,tab]` |
+
+---
+
+## Further reading
+
+Tutorials and notes that build on this subcontext:
+
+- `TensorNetworks/Documentation/English/Tutorials/YoungSymmetries.nb`
+- `TensorNetworks/Documentation/English/Tutorials/SymmetrySubcontextTutorial.nb`
+- `Notebooks/Tests and explorations/Symmetry/young_tableaux.md` (physics applications: decoherence-free subspaces, Schur sampling, symmetric tensor networks)
+- `Notebooks/Tests and explorations/Symmetry/young_tableaux_and_wl_symmetry.md` (how these symbols relate to the built-in `IntegerPartitions`, `SymmetricGroup`, `Permutations`, `Symmetrize`, and `TensorSymmetry`)
+
+Reference pages for each symbol live under `TensorNetworks/Documentation/English/ReferencePages/Symbols/`.
