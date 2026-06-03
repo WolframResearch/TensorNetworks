@@ -15,7 +15,18 @@ TARGETS=(
 
 MACOS_SDK="${MACOS_SDK:-/opt/macos-sdk/MacOSX.sdk}"
 
+# Put cargo's target dir where ExtensionCargo`CargoCollect looks for it.
+# CargoCollect scans <SourceDirectory>/target/<triple>/... where
+# SourceDirectory is the paclet's "Root" -> "Cotengra" from PacletInfo.wl.
+# In a Cargo workspace artifacts default to <workspace-root>/target/, which
+# CargoCollect can't see — so only the host build would get manifested
+# (Manifest_<host-SystemID>.wxf), and every other cross-built binary would
+# be silently dropped from the paclet.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$SCRIPT_DIR/TensorNetworks/Cotengra/target}"
+
 echo "Building for all targets..."
+echo "  CARGO_TARGET_DIR=$CARGO_TARGET_DIR"
 echo
 
 for entry in "${TARGETS[@]}"; do
@@ -70,5 +81,5 @@ for entry in "${TARGETS[@]}"; do
             ext="so"
             ;;
     esac
-    echo "  $system_id: TensorNetworks/target/$target/release/libcotengrust.$ext"
+    echo "  $system_id: ${CARGO_TARGET_DIR#$SCRIPT_DIR/}/$target/release/libcotengrust.$ext"
 done
