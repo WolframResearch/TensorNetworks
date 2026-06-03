@@ -11,9 +11,18 @@ Needs["ExtensionCargo`"];
 name = "TensorNetworks";
 paclet = PacletObject["Wolfram/TensorNetworks"];
 
-(* CargoCollect - collects binaries built by build_all_targets.sh *)
+(* CargoCollect - collects binaries built by build_all_targets.sh.
+   The paclet's "Cargo" extension Root points at TensorNetworks/Cotengra,
+   but cargo workspace artifacts live at <workspace-root>/target/, so
+   the default invocation would only find the host's native build.
+   Pass the workspace root as the source and the paclet's Binaries dir
+   as the destination so all 5 cross-built libraries are manifested
+   without polluting the paclet tree with target/. *)
 Print["Running CargoCollect..."];
-ExtensionCargo`CargoCollect[paclet];
+ExtensionCargo`CargoCollect[
+    Directory[],
+    FileNameJoin[{paclet["Location"], "Binaries"}]
+]
 
 (* Create Paclet Archive *)
 Print["Creating Paclet Archive..."];
