@@ -25,9 +25,15 @@ for entry in "${TARGETS[@]}"; do
 
     case "$target" in
         *-apple-darwin)
-            # Provide a real SDK so rustc skips xcrun and the linker finds
-            # frameworks (e.g. CoreFoundation pulled in by iana-time-zone).
-            export SDKROOT="$MACOS_SDK"
+            # Override SDKROOT only when the CI cross-compile SDK is present
+            # (Linux container). On a macOS host, leave it unset so xcrun
+            # resolves the installed Xcode SDK — pointing it at a stale path
+            # makes clang exit with status 72.
+            if [ -d "$MACOS_SDK" ]; then
+                export SDKROOT="$MACOS_SDK"
+            else
+                unset SDKROOT
+            fi
             ;;
         *)
             unset SDKROOT
