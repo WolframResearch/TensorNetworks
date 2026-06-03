@@ -224,7 +224,7 @@ TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
 TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args__] :=
     TensorNetworkContraction[TensorNetworkData[BinaryTensorNetwork[net]], args]
     
-TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ] :=
+TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, _ : Automatic : Automatic] :=
     TensorNetworkContraction[TensorNetworkData[net]]
 
 TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? CanonicalPathQ, opts : OptionsPattern[]] := 
@@ -233,8 +233,8 @@ TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ 
 TensorNetworkContraction[net_, "Greedy", opts : OptionsPattern[]] :=
     TensorNetworkContraction[net, GreedyContractionPath[net], opts]
 
-TensorNetworkContraction[net_, method : Automatic | "Optimal" | "flops" | "max" | "size" | "write" | "combo" | "limit", opts : OptionsPattern[]] :=
-    TensorNetworkContraction[net, OptimalContractionPath[net, Method -> Replace[method, Automatic | "Optimal" -> "size"]], opts]
+TensorNetworkContraction[net_, method : "Optimal" | "flops" | "max" | "size" | "write" | "combo" | "limit", opts : OptionsPattern[]] :=
+    TensorNetworkContraction[net, OptimalContractionPath[net, Method -> Replace[method, "Optimal" -> "size"]], opts]
 
 TensorNetworkContraction[
     KeyValuePattern[{
@@ -271,6 +271,7 @@ TensorNetworkContraction[
 		"ContractionIndices" -> indices_,
         "FreeIndices" -> freeIndices_
 	}],
+	_ : Automatic : Automatic,
 	OptionsPattern[]
 ] := If[TrueQ[OptionValue["Inactive"]], Identity, ActivateTensors] @ EinsteinSummation[indices -> freeIndices, tensors]
 
