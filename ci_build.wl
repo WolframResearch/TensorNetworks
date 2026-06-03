@@ -21,14 +21,33 @@ paclet = PacletObject["Wolfram/TensorNetworks"];
 Print["Running CargoCollect..."];
 ExtensionCargo`CargoCollect[
     Directory[],
-    FileNameJoin[{paclet["Location"], "Binaries"}]
+    FileNameJoin[paclet["Location"], "Binaries"]
 ]
 
 (* Create Paclet Archive *)
 Print["Creating Paclet Archive..."];
 
 << PacletTools`
-build = PacletBuild[name]
+
+(* The "Cargo" (Root -> Cotengra) and "Build" (Actions -> {CargoBuild})
+   extensions both enumerate Cotengra/Cargo.toml and Cotengra/src/lib.rs.
+   PacletBuild copies them once for the Cargo extension and then aborts
+   on CopyFile::eexist when the Build extension tries to copy the same
+   files. Override only the "Build" extension's Build handler with a
+   no-op so the Cargo extension stays the sole copier; keep the other
+   operations (Files, DefaultRoot, ...) at their default so PacletBuild
+   can still enumerate files. *)
+build = PacletBuild[name,
+    PacletTools`PacletExtensionHandlers -> Append[
+        PacletTools`$PacletExtensionHandlers,
+        "Build" -> <|
+            "DefaultRoot" -> Automatic,
+            "AllowedAtPacletRoot" -> False,
+            "Files" -> Automatic,
+            "Build" -> (Null &)
+        |>
+    ]
+]
 If[FailureQ[build], Print["Build failed."]; Exit[1]]
 pacletFile = build["PacletArchive"]
 
