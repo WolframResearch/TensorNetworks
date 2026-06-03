@@ -97,11 +97,27 @@ jobs:
       - name: Build Paclet and Run Tests
         run: |
           # Each on-demand wolframscript invocation does its own activation
-          # against the entitlement service; the 2nd or 3rd invocation in a
-          # job sometimes gets refused with "No valid password found".
-          # Running build + tests in a single wolframscript invocation keeps
-          # us to one activation per CI run.
-          wolframscript -code 'Get["ci_build.wl"]; Get["Tests/run_tests.wl"]'
+          # against the entitlement service; that activation intermittently
+          # fails with "No valid password found / Connection closed by
+          # WolframKernel". Running build + tests in a single wolframscript
+          # invocation keeps us to one activation per run, and the retry
+          # loop rides out transient refusals.
+          set +e
+          for attempt in 1 2 3 4 5; do
+            echo "::group::wolframscript attempt $attempt"
+            wolframscript -code 'Get["ci_build.wl"]; Get["Tests/run_tests.wl"]'
+            rc=$?
+            echo "::endgroup::"
+            [ "$rc" -eq 0 ] && exit 0
+            if [ "$rc" -eq 255 ] && [ "$attempt" -lt 5 ]; then
+              wait=$((attempt * 60))
+              echo "Activation refused (exit $rc); sleeping ${wait}s before retry"
+              sleep "$wait"
+              continue
+            fi
+            exit "$rc"
+          done
+          exit 1
 
       - name: Find Paclet File
         id: find_paclet
