@@ -96,23 +96,28 @@ jobs:
 
       - name: Build Paclet and Run Tests
         run: |
-          # Each on-demand wolframscript invocation does its own activation
-          # against the entitlement service; that activation intermittently
-          # fails with "No valid password found / Connection closed by
-          # WolframKernel". Running build + tests in a single wolframscript
-          # invocation keeps us to one activation per run, and the retry
-          # loop rides out transient refusals.
+          # The on-demand entitlement service intermittently refuses
+          # individual activation attempts with "No valid password found /
+          # Connection closed by WolframKernel" (exit 255), even though
+          # the entitlement itself is healthy. WolframResearch/build-paclet
+          # rides through this because PacletCICD spawns many parallel
+          # subkernels and only needs some to succeed.
+          #
+          # We have a single wolframscript invocation, so we mimic that
+          # pattern with a tight retry burst: each refused attempt exits
+          # in ~1 s, so up to 60 attempts at 1 s spacing burn at most ~2
+          # min if every single one is rejected. Real activations succeed
+          # quickly, after which we run the full build/test and exit.
           set +e
-          for attempt in 1 2 3 4 5; do
+          MAX_ATTEMPTS=60
+          for attempt in $(seq 1 $MAX_ATTEMPTS); do
             echo "::group::wolframscript attempt $attempt"
             wolframscript -code 'Get["ci_build.wl"]; Get["Tests/run_tests.wl"]'
             rc=$?
             echo "::endgroup::"
             [ "$rc" -eq 0 ] && exit 0
-            if [ "$rc" -eq 255 ] && [ "$attempt" -lt 5 ]; then
-              wait=$((attempt * 60))
-              echo "Activation refused (exit $rc); sleeping ${wait}s before retry"
-              sleep "$wait"
+            if [ "$rc" -eq 255 ] && [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+              sleep 1
               continue
             fi
             exit "$rc"
