@@ -4,6 +4,8 @@ A Wolfram Language paclet for tensor networks. A network is stored as a flat lis
 
 On top of the core layer, the paclet ships a Matrix Product State toolkit (canonical forms, overlap, Schmidt decomposition, entanglement entropy, truncation) and a Young-tableau subpackage for the symmetric-group decomposition of tensor slots.
 
+This paclet is a byproduct of Wolfram quantum efforts and is designed with quantum computation in mind. As such, this paclet sits under the broader umbrella of the Wolfram Quantum Initiative rather than as a standalone offering. Because Wolfram R&D is actively developing related topics, the methods and algorithms exposed here are expected to evolve and to be refined further as our core-area functionality matures.
+
 Full documentation, with every symbol's reference page rendered for the web, lives at the Wolfram Paclet Repository: [resources.wolframcloud.com/PacletRepository/resources/Wolfram/TensorNetworks](https://resources.wolframcloud.com/PacletRepository/resources/Wolfram/TensorNetworks/). This README is a guided tour; the doc pages carry every calling form and option.
 
 ## Installation
