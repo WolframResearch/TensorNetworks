@@ -1,0 +1,682 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 15.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     26997,        672]
+NotebookOptionsPosition[     20654,        565]
+NotebookOutlinePosition[     21065,        582]
+CellTagsIndexPosition[     21022,        579]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Mono-Term Symmetry and Tensor-Network Contraction", "Title",ExpressionUUID->"0f26b29a-9815-47dd-860d-e29be213f3e1"],
+
+Cell["\<\
+The Wolfram Language kernel ships a compact language for tensor symmetry: a \
+tensor is declared equal to a phased permutation of itself, and \
+SymmetrizedArray stores only the independent components. This note asks one \
+precise question and answers it by computation: when such a \
+symmetry-structured tensor becomes a node in a Wolfram TensorNetworks \
+network, what exactly happens to its symmetry under contraction? We build \
+every result explicitly so it can be tested, modified, and extended, and we \
+let the kernel correct us wherever intuition is wrong.\
+\>", "Text",ExpressionUUID->"875ac1fb-9c4c-47c3-b091-4ddae95a1a44"],
+
+Cell["\<\
+We start with the kernel's mono-term objects and what they store, test how \
+the bare contraction primitives (TensorContract, ArrayDot) treat them, and \
+then put the decisive question to the paclet's TensorNetworkContract: does \
+declaring a symmetry change the result or the cost of a contraction? It does \
+not. We close with the honest ceiling the experiments expose and the \
+integration question it raises.\
+\>", "Text",ExpressionUUID->"944bae69-5f65-458a-88cf-0b01b9cdd033"],
+
+Cell["Load the paclet; every later cell assumes this has run.", "Text",ExpressionUUID->"be68f688-45f8-4ce9-9249-2e16e1741907"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+  "PacletDirectoryLoad", 
+   "[", "\"\</Users/mohammadb/Documents/GitHub/TensorNetworks\>\"", "]"}], ";", 
+  RowBox[{"Needs", "[", "\"\<Wolfram`TensorNetworks`\>\"", "]"}]}]], "Input",
+ CellLabel->" In[1]:=",ExpressionUUID->"d3d0940c-b569-4ba5-850f-5b43ef20d8c4"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Mono-term symmetry: a tensor equals a permuted copy of itself\
+\>", "Section",ExpressionUUID->"f68ce285-e943-4566-8dab-676c8de15b6b"],
+
+Cell["\<\
+The kernel models a symmetry as a relation phi TensorTranspose[T, perm] == T \
+with phi a root of unity: one permuted copy equated to the tensor. This is \
+the mono-term language, and Symmetric, Antisymmetric, and Hermitian are its \
+named symmetry types. A SymmetrizedArray carries the symmetry as metadata \
+rather than expanding it. Build the two-spin singlet as a totally \
+antisymmetric array.\
+\>", "Text",ExpressionUUID->"2a5f5243-ab99-4735-a549-75b89b104616"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"eps", "=", 
+   RowBox[{"Symmetrize", "[", 
+    RowBox[{
+     FractionBox[
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "1"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"-", "1"}], ",", "0"}], "}"}]}], "}"}], 
+      SqrtBox["2"]], ",", 
+     RowBox[{"Antisymmetric", "[", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", "2"}], "}"}], "]"}]}], "]"}]}], ";", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"MatchQ", "[", 
+     RowBox[{"eps", ",", "_SymmetrizedArray"}], "]"}], ",", 
+    RowBox[{"Normal", "[", "eps", "]"}]}], "}"}]}]], "Input",
+ CellLabel->" In[2]:=",ExpressionUUID->"30c35ce4-5bdf-4600-8d8a-d59ed29349d6"],
+
+Cell[OutputFormData["\<\
+               1            1
+{True, {{0, -------}, {-(-------), 0}}}
+            Sqrt[2]      Sqrt[2]\
+\>"], "Output",
+ CellChangeTimes->{3.9891748693864202`*^9},
+ CellLabel->" Out[2]=",ExpressionUUID->"4848c70a-a290-49af-98bf-f9634045286c"]
+}, Open  ]],
+
+Cell["\<\
+The structure test returns True, so the object is still a SymmetrizedArray, \
+and Normal expands it to the familiar antisymmetric matrix. As one can see, \
+the object knows it is antisymmetric without us repeating the entries.\
+\>", "Text",ExpressionUUID->"585e8c71-59fa-46ce-b148-7c5f5637f637"],
+
+Cell["\<\
+Symmetrize is not merely a relabeling; it is the orthogonal projector onto \
+the symmetry class, so applying it twice changes nothing. Verify idempotence \
+on a generic 2x2 array (the result is True).\
+\>", "Text",ExpressionUUID->"a1e9d89e-f6fc-4d36-a86f-ade57c5a5c3c"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"g", "=", 
+   RowBox[{"Array", "[", 
+    RowBox[{"a", ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "2"}], "}"}]}], "]"}]}], ";", 
+  RowBox[{
+   RowBox[{"Normal", "[", 
+    RowBox[{"Symmetrize", "[", 
+     RowBox[{
+      RowBox[{"Normal", "[", 
+       RowBox[{"Symmetrize", "[", 
+        RowBox[{"g", ",", 
+         RowBox[{"Symmetric", "[", 
+          RowBox[{"{", 
+           RowBox[{"1", ",", "2"}], "}"}], "]"}]}], "]"}], "]"}], ",", 
+      RowBox[{"Symmetric", "[", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", "2"}], "}"}], "]"}]}], "]"}], "]"}], "===", 
+   RowBox[{"Normal", "[", 
+    RowBox[{"Symmetrize", "[", 
+     RowBox[{"g", ",", 
+      RowBox[{"Symmetric", "[", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", "2"}], "}"}], "]"}]}], "]"}], "]"}]}]}]], "Input",
+ CellLabel->" In[3]:=",ExpressionUUID->"9155c4dc-7e03-4e34-a60d-aa31ae24d16c"],
+
+Cell[OutputFormData["\<\
+True\
+\>"], "Output",
+ CellChangeTimes->{3.9891748693899107`*^9},
+ CellLabel->" Out[3]=",ExpressionUUID->"27e9dba4-9a66-4386-9c4d-2298884a1829"]
+}, Open  ]],
+
+Cell["\<\
+The loop closes the other way too: TensorSymmetry inspects a concrete array \
+and reports the largest symmetry group that fixes it. Read the symmetry back \
+off a symmetric and an antisymmetric projection (returns Symmetric[{1,2}] and \
+Antisymmetric[{1,2}]).\
+\>", "Text",ExpressionUUID->"d7534f65-5229-4d53-b000-3cb309e6ec79"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"TensorSymmetry", "[", 
+    RowBox[{"Normal", "[", 
+     RowBox[{"Symmetrize", "[", 
+      RowBox[{"g", ",", 
+       RowBox[{"Symmetric", "[", 
+        RowBox[{"{", 
+         RowBox[{"1", ",", "2"}], "}"}], "]"}]}], "]"}], "]"}], "]"}], ",", 
+   RowBox[{"TensorSymmetry", "[", 
+    RowBox[{"Normal", "[", 
+     RowBox[{"Symmetrize", "[", 
+      RowBox[{"g", ",", 
+       RowBox[{"Antisymmetric", "[", 
+        RowBox[{"{", 
+         RowBox[{"1", ",", "2"}], "}"}], "]"}]}], "]"}], "]"}], "]"}]}], 
+  "}"}]], "Input",
+ CellLabel->" In[4]:=",ExpressionUUID->"f7c45971-4589-46e4-848a-1efcfcf95318"],
+
+Cell[OutputFormData["\<\
+{Symmetric[{1, 2}], Antisymmetric[{1, 2}]}\
+\>"], "Output",
+ CellChangeTimes->{3.989174869396511*^9},
+ CellLabel->" Out[4]=",ExpressionUUID->"50e6f66c-e47f-4f2f-8853-3b450ee8483c"]
+}, Open  ]],
+
+Cell["\<\
+The payoff of the structured representation is storage: a SymmetrizedArray \
+keeps only orbit representatives. Compare the independent-component count of \
+the rank-3 Levi-Civita tensor with its dense entry count (2 stored rules \
+versus 27 dense entries).\
+\>", "Text",ExpressionUUID->"0eb89c93-13a6-40ae-ae7c-7df52f67d07d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"e3", "=", 
+   RowBox[{"Symmetrize", "[", 
+    RowBox[{
+     RowBox[{"LeviCivitaTensor", "[", "3", "]"}], ",", 
+     RowBox[{"Antisymmetric", "[", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", "2", ",", "3"}], "}"}], "]"}]}], "]"}]}], ";", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"Length", "[", 
+     RowBox[{"SymmetrizedArrayRules", "[", "e3", "]"}], "]"}], ",", 
+    SuperscriptBox["3", "3"]}], "}"}]}]], "Input",
+ CellLabel->" In[5]:=",ExpressionUUID->"ab8694d5-21ce-4aaf-900f-9bb60c6fab3a"],
+
+Cell[OutputFormData["\<\
+{2, 27}\
+\>"], "Output",
+ CellChangeTimes->{3.989174869399062*^9},
+ CellLabel->" Out[5]=",ExpressionUUID->"ab4efb60-1ab7-46ab-a93c-e8c2379987f1"]
+}, Open  ]],
+
+Cell["\<\
+This compression is a genuine property of the kernel object. The rest of the \
+note tests whether it survives into a tensor-network contraction. It does not.\
+\>", "Text",ExpressionUUID->"c83a300a-2416-4cd7-9702-6bbe6f01c508"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["What the contraction primitives do to the structure", "Section",ExpressionUUID->"f5a70f93-c986-4b46-975d-94638fa856a2"],
+
+Cell["\<\
+A tensor-network contraction is built from two kernel primitives: \
+TensorContract (the unfused form, contracting slots of a single tensor \
+product) and ArrayDot (the fused two-tensor form the paclet prefers for \
+speed). They do not treat structure the same way. First, contract the rank-3 \
+e3 against a basis vector with the unfused TensorContract, leaving a rank-2 \
+result; the structure test returns True.\
+\>", "Text",ExpressionUUID->"30d693c7-bad0-47b6-a695-5413c9f34597"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"MatchQ", "[", 
+  RowBox[{
+   RowBox[{"TensorContract", "[", 
+    RowBox[{
+     RowBox[{"e3", "\[TensorProduct]", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", "0", ",", "0"}], "}"}]}], ",", 
+     RowBox[{"{", 
+      RowBox[{"{", 
+       RowBox[{"3", ",", "4"}], "}"}], "}"}]}], "]"}], ",", 
+   "_SymmetrizedArray"}], "]"}]], "Input",
+ CellLabel->" In[6]:=",ExpressionUUID->"7e8fcf06-f2f1-4dda-8202-961916cf66a6"],
+
+Cell[OutputFormData["\<\
+True\
+\>"], "Output",
+ CellChangeTimes->{3.989174869401067*^9},
+ CellLabel->" Out[6]=",ExpressionUUID->"27515c64-8156-4130-adda-d5c7be1b4ea7"]
+}, Open  ]],
+
+Cell["\<\
+The unfused path keeps the SymmetrizedArray tag. Now do the same contraction \
+with the fused ArrayDot: the structure test returns False (a plain dense \
+List).\
+\>", "Text",ExpressionUUID->"d9e4297f-9148-4f29-b90e-9a902aa6e7c9"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ad", "=", 
+   RowBox[{"ArrayDot", "[", 
+    RowBox[{"e3", ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "0", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"{", 
+       RowBox[{"3", ",", "1"}], "}"}], "}"}]}], "]"}]}], ";", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"MatchQ", "[", 
+     RowBox[{"ad", ",", "_SymmetrizedArray"}], "]"}], ",", 
+    RowBox[{"Normal", "[", "ad", "]"}]}], "}"}]}]], "Input",
+ CellLabel->" In[7]:=",ExpressionUUID->"4ed7ea2a-295a-483e-8921-3cc523655b43"],
+
+Cell[OutputFormData["\<\
+{False, {{0, 0, 0}, {0, 0, 1}, {0, -1, 0}}}\
+\>"], "Output",
+ CellChangeTimes->{3.9891748694023333`*^9},
+ CellLabel->" Out[7]=",ExpressionUUID->"b6b8cec7-7640-4628-8e7a-b4a9e5e015e3"]
+}, Open  ]],
+
+Cell["\<\
+The structure tag is gone. Crucially, though, the symmetry itself is not \
+lost, only its label. Confirm that TensorSymmetry still recognizes the \
+antisymmetry in the dense values (returns Antisymmetric[{1,2}]).\
+\>", "Text",ExpressionUUID->"859867a5-f47d-476d-aacd-7bfc9da88b37"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorSymmetry", "[", "ad", "]"}]], "Input",
+ CellLabel->" In[8]:=",ExpressionUUID->"f8e49788-6e8c-4197-8ce0-639ffdfa8e34"],
+
+Cell[OutputFormData["\<\
+Antisymmetric[{1, 2}]\
+\>"], "Output",
+ CellChangeTimes->{3.989174869403179*^9},
+ CellLabel->" Out[8]=",ExpressionUUID->"49423f34-2596-422d-b22a-e57640f52448"]
+}, Open  ]],
+
+Cell["\<\
+Before moving into the paclet, summarize what the kernel layer establishes:\
+\>", "Text",ExpressionUUID->"0714d5c7-4545-4d2c-8170-97202b1500ae"],
+
+Cell["\<\
+A SymmetrizedArray stores a mono-term symmetry as metadata and only the \
+independent components.\
+\>", "Item",ExpressionUUID->"87bbcd53-b2c7-430f-983a-dbdb6a97d0dc"],
+
+Cell["\<\
+Symmetrize is an idempotent projector; TensorSymmetry is its inverse reader.\
+\>", "Item",ExpressionUUID->"6ecea5a6-ea03-4215-829a-8748b0d96b9f"],
+
+Cell["\<\
+Unfused TensorContract preserves the SymmetrizedArray tag when the result has \
+rank at least 2.\
+\>", "Item",ExpressionUUID->"fc428735-1ac3-4ca4-907a-7881901e50a0"],
+
+Cell["\<\
+Fused ArrayDot returns a dense List; the symmetry survives in the values but \
+the tag is dropped.\
+\>", "Item",ExpressionUUID->"a15dddfc-ef58-446e-be2b-f7b7ca0e1e5a"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Inside the TensorNetworks paclet", "Section",ExpressionUUID->"51013c8b-7fa3-469b-b4ee-8cd78f7993a1"],
+
+Cell["\<\
+TensorNetworkContract is what we actually call, and it can pick any of \
+several contraction methods. The natural question is which of the kernel \
+behaviors above it inherits. Start with the degenerate case: a network of a \
+single node with two free indices and no shared index, so no contraction \
+happens. With nothing to contract, the paclet hands the node back untouched \
+and the tag survives (the structure test returns True).\
+\>", "Text",ExpressionUUID->"02c662a3-a12a-41ae-9fbc-7e1aa3e01e0d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tnEps", "=", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", "eps", "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"{", 
+       RowBox[{"\"\<a\>\"", ",", "\"\<b\>\""}], "}"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\"\<a\>\"", ",", "\"\<b\>\""}], "}"}]}], "]"}]}], ";", 
+  RowBox[{"MatchQ", "[", 
+   RowBox[{
+    RowBox[{"TensorNetworkContract", "[", "tnEps", "]"}], ",", 
+    "_SymmetrizedArray"}], "]"}]}]], "Input",
+ CellLabel->" In[9]:=",ExpressionUUID->"6f080035-e03d-4ea0-bbdd-1a02d7f284e8"],
+
+Cell[OutputFormData["\<\
+True\
+\>"], "Output",
+ CellChangeTimes->{3.989174870811625*^9},
+ CellLabel->" Out[9]=",ExpressionUUID->"fb2de54f-c7ae-45f1-aeae-f9fad9563632"]
+}, Open  ]],
+
+Cell["\<\
+Now make it a real contraction: wire the rank-3 e3 to a vector on index c, \
+leaving two free legs, and sweep every available method. Every method returns \
+False (a dense List).\
+\>", "Text",ExpressionUUID->"f2ea94fa-8fe7-415b-8f96-dd6bb4dfec04"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tn", "=", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"e3", ",", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", "0", ",", "0"}], "}"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"\"\<a\>\"", ",", "\"\<b\>\"", ",", "\"\<c\>\""}], "}"}], ",", 
+       RowBox[{"{", "\"\<c\>\"", "}"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\"\<a\>\"", ",", "\"\<b\>\""}], "}"}]}], "]"}]}], ";", 
+  RowBox[{"Table", "[", 
+   RowBox[{
+    RowBox[{"m", "\[Rule]", 
+     RowBox[{"MatchQ", "[", 
+      RowBox[{
+       RowBox[{"TensorNetworkContract", "[", 
+        RowBox[{"tn", ",", 
+         RowBox[{"Method", "\[Rule]", "m"}]}], "]"}], ",", 
+       "_SymmetrizedArray"}], "]"}]}], ",", 
+    RowBox[{"{", 
+     RowBox[{"m", ",", 
+      RowBox[{"{", 
+       RowBox[{"\"\<ArrayDot\>\"", ",", "\"\<ArrayDotTranspose\>\"", 
+        ",", "\"\<Dot\>\"", ",", "\"\<TensorContract\>\"", 
+        ",", "\"\<TableSum\>\""}], "}"}]}], "}"}]}], "]"}]}]], "Input",
+ CellLabel->
+  " In[10]:=",ExpressionUUID->"86268a81-7952-4159-876b-d1338573c8fd"],
+
+Cell[OutputFormData["\<\
+{ArrayDot -> False, ArrayDotTranspose -> False, Dot -> False, 
+ 
+>   TensorContract -> False, TableSum -> False}\
+\>"], "Output",
+ CellChangeTimes->{3.989174870816742*^9},
+ CellLabel->
+  " Out[10]=",ExpressionUUID->"ee84e89c-3e61-4352-8c72-737c3c839412"]
+}, Open  ]],
+
+Cell["\<\
+The structure tag does not survive a genuine contraction through the paclet \
+under any method, including the one named after the tag-preserving kernel \
+primitive (the paclet post-processes indices, which drops the structure tag). \
+The symmetry is still present numerically, recoverable on demand (returns \
+Antisymmetric[{1,2}]).\
+\>", "Text",ExpressionUUID->"ea988de5-d9cd-4144-94bf-de10b5f423aa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"TensorSymmetry", "[", 
+  RowBox[{"Normal", "[", 
+   RowBox[{"TensorNetworkContract", "[", "tn", "]"}], "]"}], "]"}]], "Input",
+ CellLabel->
+  " In[11]:=",ExpressionUUID->"5452e9e5-b37e-4e4b-843f-734fd967cd25"],
+
+Cell[OutputFormData["\<\
+Antisymmetric[{1, 2}]\
+\>"], "Output",
+ CellChangeTimes->{3.989174870819034*^9},
+ CellLabel->
+  " Out[11]=",ExpressionUUID->"b478c4ee-4767-46be-8474-e8ead46d2f4b"]
+}, Open  ]],
+
+Cell["\<\
+Because the engine never relies on the tag, feeding it the structured array \
+or its dense expansion must give the same answer. Verify that the \
+SymmetrizedArray node and its Normal produce identical results (returns True).\
+\>", "Text",ExpressionUUID->"4dd45bf4-7eb2-4a8c-bff8-cce630764932"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tnDense", "=", 
+   RowBox[{"TensorNetwork", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"Normal", "[", "eps", "]"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"{", 
+       RowBox[{"\"\<a\>\"", ",", "\"\<b\>\""}], "}"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\"\<a\>\"", ",", "\"\<b\>\""}], "}"}]}], "]"}]}], ";", 
+  RowBox[{
+   RowBox[{"Normal", "[", 
+    RowBox[{"TensorNetworkContract", "[", "tnEps", "]"}], "]"}], "===", 
+   RowBox[{"Normal", "[", 
+    RowBox[{"TensorNetworkContract", "[", "tnDense", "]"}], 
+    "]"}]}]}]], "Input",
+ CellLabel->
+  " In[12]:=",ExpressionUUID->"5c7d6594-638c-4bd7-bdc1-40bef70acdf3"],
+
+Cell[OutputFormData["\<\
+True\
+\>"], "Output",
+ CellChangeTimes->{3.989174870821477*^9},
+ CellLabel->
+  " Out[12]=",ExpressionUUID->"f39f94f2-b5e1-40c6-b323-aa86b709b2fa"]
+}, Open  ]],
+
+Cell["\<\
+The reading is clear and worth stating plainly: the paclet consumes a \
+symmetry-structured node correctly but densely. Replacing every symmetric \
+node with its plain dense expansion changes neither the result nor the work \
+done, so in the current paclet declaring a symmetry buys nothing at \
+contraction time. The symmetry is input metadata, not something the \
+contraction propagates or exploits. That is a real limitation, and it is also \
+exactly the seam where an integration effort would add value.\
+\>", "Text",ExpressionUUID->"064bd3a8-25f6-4eb4-9fa0-8504a7bf3a6b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Summary", "Section",ExpressionUUID->"2430c656-27c6-45ed-a71d-064d29f49675"],
+
+Cell["\<\
+The experiments establish a precise and slightly uncomfortable picture:\
+\>", "Text",ExpressionUUID->"96e2e66d-c350-42ec-ae4c-df059672d8e6"],
+
+Cell["\<\
+Kernel mono-term symmetry objects store the symmetry as metadata and compress \
+to independent components.\
+\>", "Item",ExpressionUUID->"101ba80a-4ff8-4e9d-b596-be2fd638974e"],
+
+Cell["\<\
+Among bare primitives, unfused TensorContract preserves the SymmetrizedArray \
+tag (rank at least 2), while fused ArrayDot returns a dense List.\
+\>", "Item",ExpressionUUID->"e2eab5eb-bf36-4b7d-ba4a-1746edcc2d6b"],
+
+Cell["\<\
+The paclet's TensorNetworkContract drops the tag under every method once a \
+real (index-sharing) contraction occurs; only a no-contraction network \
+returns the node untouched.\
+\>", "Item",ExpressionUUID->"cbe5aa29-0090-4b0b-b109-f677e74dfb16"],
+
+Cell["\<\
+The symmetry is never lost numerically: TensorSymmetry recovers it from the \
+dense output, and structured input and its Normal give identical answers.\
+\>", "Item",ExpressionUUID->"676675e9-97a7-464d-8745-6baf7934843f"],
+
+Cell["\<\
+Because the symmetric input is expanded to dense before contraction, a \
+symmetric network and its dense counterpart give identical results at \
+identical cost: in the current paclet, declaring a symmetry confers no speed, \
+memory, or accuracy benefit at contraction time.\
+\>", "Item",ExpressionUUID->"782a7411-fdff-4a86-8d10-82d837720837"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Where this leaves us", "Section",ExpressionUUID->"330811a1-557b-48cd-a220-f9e08f524099"],
+
+Cell["\<\
+We built symmetry-structured tensors with the kernel, fed them through the \
+TensorNetworks paclet, and measured exactly what survives. The paclet \
+contracts these nodes correctly, but the symmetry is consumed densely: a \
+symmetric network and its dense expansion give identical results at identical \
+cost, established here by computation rather than assertion. The \
+SymmetrizedArray compression and the mono-term tag do not propagate through \
+contraction, so the engine neither stores intermediates compactly nor \
+exploits the symmetry for speed.\
+\>", "Text",ExpressionUUID->"579b587c-1504-4227-afe7-4198061f843a"],
+
+Cell["\<\
+That gap is the natural starting point for the next step: making \
+TensorNetworkContract symmetry-aware, so that the storage and \
+contraction-cost benefits of a declared symmetry survive into intermediates \
+and outputs rather than being flattened at the first ArrayDot. Designing that \
+integration (how to carry block structure through the path optimizer and the \
+fused contraction primitives) deserves its own dedicated treatment.\
+\>", "Text",ExpressionUUID->"1453f47e-9b2a-4cf7-93c1-04a04ef3152f"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{808, 911},
+WindowMargins->{{4, Automatic}, {Automatic, 4}},
+Visible->False,
+FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (February 17, 2026)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"e7579b46-ef82-4d41-a9d3-6da0f08fa550"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 121, 0, 70, "Title",ExpressionUUID->"0f26b29a-9815-47dd-860d-e29be213f3e1"],
+Cell[700, 24, 643, 9, 70, "Text",ExpressionUUID->"875ac1fb-9c4c-47c3-b091-4ddae95a1a44"],
+Cell[1346, 35, 491, 7, 70, "Text",ExpressionUUID->"944bae69-5f65-458a-88cf-0b01b9cdd033"],
+Cell[1840, 44, 126, 0, 70, "Text",ExpressionUUID->"be68f688-45f8-4ce9-9249-2e16e1741907"],
+Cell[1969, 46, 298, 6, 70, "Input",ExpressionUUID->"d3d0940c-b569-4ba5-850f-5b43ef20d8c4"],
+Cell[CellGroupData[{
+Cell[2292, 56, 143, 2, 70, "Section",ExpressionUUID->"f68ce285-e943-4566-8dab-676c8de15b6b"],
+Cell[2438, 60, 477, 7, 70, "Text",ExpressionUUID->"2a5f5243-ab99-4735-a549-75b89b104616"],
+Cell[CellGroupData[{
+Cell[2940, 71, 716, 22, 72, "Input",ExpressionUUID->"30c35ce4-5bdf-4600-8d8a-d59ed29349d6"],
+Cell[3659, 95, 267, 6, 60, "Output",ExpressionUUID->"4848c70a-a290-49af-98bf-f9634045286c"]
+}, Open  ]],
+Cell[3941, 104, 305, 4, 70, "Text",ExpressionUUID->"585e8c71-59fa-46ce-b148-7c5f5637f637"],
+Cell[4249, 110, 279, 4, 70, "Text",ExpressionUUID->"a1e9d89e-f6fc-4d36-a86f-ade57c5a5c3c"],
+Cell[CellGroupData[{
+Cell[4553, 118, 893, 26, 70, "Input",ExpressionUUID->"9155c4dc-7e03-4e34-a60d-aa31ae24d16c"],
+Cell[5449, 146, 169, 4, 38, "Output",ExpressionUUID->"27e9dba4-9a66-4386-9c4d-2298884a1829"]
+}, Open  ]],
+Cell[5633, 153, 338, 5, 70, "Text",ExpressionUUID->"d7534f65-5229-4d53-b000-3cb309e6ec79"],
+Cell[CellGroupData[{
+Cell[5996, 162, 646, 18, 49, "Input",ExpressionUUID->"f7c45971-4589-46e4-848a-1efcfcf95318"],
+Cell[6645, 182, 205, 4, 38, "Output",ExpressionUUID->"50e6f66c-e47f-4f2f-8853-3b450ee8483c"]
+}, Open  ]],
+Cell[6865, 189, 335, 5, 70, "Text",ExpressionUUID->"0eb89c93-13a6-40ae-ae7c-7df52f67d07d"],
+Cell[CellGroupData[{
+Cell[7225, 198, 529, 14, 51, "Input",ExpressionUUID->"ab8694d5-21ce-4aaf-900f-9bb60c6fab3a"],
+Cell[7757, 214, 170, 4, 38, "Output",ExpressionUUID->"ab4efb60-1ab7-46ab-a93c-e8c2379987f1"]
+}, Open  ]],
+Cell[7942, 221, 236, 3, 70, "Text",ExpressionUUID->"c83a300a-2416-4cd7-9702-6bbe6f01c508"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8215, 229, 125, 0, 70, "Section",ExpressionUUID->"f5a70f93-c986-4b46-975d-94638fa856a2"],
+Cell[8343, 231, 491, 7, 70, "Text",ExpressionUUID->"30d693c7-bad0-47b6-a695-5413c9f34597"],
+Cell[CellGroupData[{
+Cell[8859, 242, 436, 12, 29, "Input",ExpressionUUID->"7e8fcf06-f2f1-4dda-8202-961916cf66a6"],
+Cell[9298, 256, 167, 4, 38, "Output",ExpressionUUID->"27515c64-8156-4130-adda-d5c7be1b4ea7"]
+}, Open  ]],
+Cell[9480, 263, 239, 4, 70, "Text",ExpressionUUID->"d9e4297f-9148-4f29-b90e-9a902aa6e7c9"],
+Cell[CellGroupData[{
+Cell[9744, 271, 529, 15, 29, "Input",ExpressionUUID->"4ed7ea2a-295a-483e-8921-3cc523655b43"],
+Cell[10276, 288, 208, 4, 38, "Output",ExpressionUUID->"b6b8cec7-7640-4628-8e7a-b4a9e5e015e3"]
+}, Open  ]],
+Cell[10499, 295, 291, 4, 70, "Text",ExpressionUUID->"859867a5-f47d-476d-aacd-7bfc9da88b37"],
+Cell[CellGroupData[{
+Cell[10815, 303, 147, 2, 29, "Input",ExpressionUUID->"f8e49788-6e8c-4197-8ce0-639ffdfa8e34"],
+Cell[10965, 307, 184, 4, 38, "Output",ExpressionUUID->"49423f34-2596-422d-b22a-e57640f52448"]
+}, Open  ]],
+Cell[11164, 314, 154, 2, 70, "Text",ExpressionUUID->"0714d5c7-4545-4d2c-8170-97202b1500ae"],
+Cell[11321, 318, 176, 3, 70, "Item",ExpressionUUID->"87bbcd53-b2c7-430f-983a-dbdb6a97d0dc"],
+Cell[11500, 323, 155, 2, 70, "Item",ExpressionUUID->"6ecea5a6-ea03-4215-829a-8748b0d96b9f"],
+Cell[11658, 327, 175, 3, 70, "Item",ExpressionUUID->"fc428735-1ac3-4ca4-907a-7881901e50a0"],
+Cell[11836, 332, 177, 3, 70, "Item",ExpressionUUID->"a15dddfc-ef58-446e-be2b-f7b7ca0e1e5a"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12050, 340, 106, 0, 70, "Section",ExpressionUUID->"51013c8b-7fa3-469b-b4ee-8cd78f7993a1"],
+Cell[12159, 342, 513, 7, 70, "Text",ExpressionUUID->"02c662a3-a12a-41ae-9fbc-7e1aa3e01e0d"],
+Cell[CellGroupData[{
+Cell[12697, 353, 557, 15, 49, "Input",ExpressionUUID->"6f080035-e03d-4ea0-bbdd-1a02d7f284e8"],
+Cell[13257, 370, 167, 4, 38, "Output",ExpressionUUID->"fb2de54f-c7ae-45f1-aeae-f9fad9563632"]
+}, Open  ]],
+Cell[13439, 377, 257, 4, 70, "Text",ExpressionUUID->"f2ea94fa-8fe7-415b-8f96-dd6bb4dfec04"],
+Cell[CellGroupData[{
+Cell[13721, 385, 1139, 32, 70, "Input",ExpressionUUID->"86268a81-7952-4159-876b-d1338573c8fd"],
+Cell[14863, 419, 279, 7, 60, "Output",ExpressionUUID->"ee84e89c-3e61-4352-8c72-737c3c839412"]
+}, Open  ]],
+Cell[15157, 429, 411, 6, 70, "Text",ExpressionUUID->"ea988de5-d9cd-4144-94bf-de10b5f423aa"],
+Cell[CellGroupData[{
+Cell[15593, 439, 233, 5, 29, "Input",ExpressionUUID->"5452e9e5-b37e-4e4b-843f-734fd967cd25"],
+Cell[15829, 446, 188, 5, 38, "Output",ExpressionUUID->"b478c4ee-4767-46be-8474-e8ead46d2f4b"]
+}, Open  ]],
+Cell[16032, 454, 303, 4, 70, "Text",ExpressionUUID->"4dd45bf4-7eb2-4a8c-bff8-cce630764932"],
+Cell[CellGroupData[{
+Cell[16360, 462, 676, 19, 49, "Input",ExpressionUUID->"5c7d6594-638c-4bd7-bdc1-40bef70acdf3"],
+Cell[17039, 483, 171, 5, 38, "Output",ExpressionUUID->"f39f94f2-b5e1-40c6-b323-aa86b709b2fa"]
+}, Open  ]],
+Cell[17225, 491, 586, 8, 70, "Text",ExpressionUUID->"064bd3a8-25f6-4eb4-9fa0-8504a7bf3a6b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[17848, 504, 81, 0, 70, "Section",ExpressionUUID->"2430c656-27c6-45ed-a71d-064d29f49675"],
+Cell[17932, 506, 150, 2, 70, "Text",ExpressionUUID->"96e2e66d-c350-42ec-ae4c-df059672d8e6"],
+Cell[18085, 510, 185, 3, 70, "Item",ExpressionUUID->"101ba80a-4ff8-4e9d-b596-be2fd638974e"],
+Cell[18273, 515, 223, 3, 70, "Item",ExpressionUUID->"e2eab5eb-bf36-4b7d-ba4a-1746edcc2d6b"],
+Cell[18499, 520, 256, 4, 70, "Item",ExpressionUUID->"cbe5aa29-0090-4b0b-b109-f677e74dfb16"],
+Cell[18758, 526, 230, 3, 70, "Item",ExpressionUUID->"676675e9-97a7-464d-8745-6baf7934843f"],
+Cell[18991, 531, 352, 5, 70, "Item",ExpressionUUID->"782a7411-fdff-4a86-8d10-82d837720837"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[19380, 541, 94, 0, 70, "Section",ExpressionUUID->"330811a1-557b-48cd-a220-f9e08f524099"],
+Cell[19477, 543, 632, 9, 70, "Text",ExpressionUUID->"579b587c-1504-4227-afe7-4198061f843a"],
+Cell[20112, 554, 514, 7, 70, "Text",ExpressionUUID->"1453f47e-9b2a-4cf7-93c1-04a04ef3152f"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+
