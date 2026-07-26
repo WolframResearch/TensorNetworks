@@ -444,89 +444,14 @@ TensorNetworkRemoveCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Grap
 
 
 
+(* Thin wrapper over the "NetGraph" contraction method of Contraction.wl: the
+   leaf lifting and the per-pair transpose / reshape / dot / reshape lowering
+   this function used to own now live in the einsumNetGraph handler, so a net is
+   just one more container that TensorNetworkContraction can produce. *)
+
 TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ] := TensorNetworkToNetGraph[net, OptimalContractionPath[net]]
 
-TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ, path_] := Enclose @ Block[{tensors, indices, freeIndices, g, tensorQueue, addEinsumLayer, n},
-    tensors = Chop @* FullSimplify @* N @* Normal /@ TensorNetworkTensors[net];
-    indices = TensorNetworkIndices[net];
-    freeIndices = TensorNetworkFreeIndices[net];
-    indices = Replace[indices, Rule @@@ EdgeTags[net], {2}];
-    n = Length[tensors];
-    g = NetGraph[
-        Block[{body, symbols},
-            symbols = Union @@ Reap[body = Replace[#, s_Symbol /; ! NumericQ[s] :> Slot @@ {Sow[ToString[s]]}, Infinity]][[2]];
-            If[ symbols === {},
-                Confirm @ NetArrayLayer["Array" -> NumericArray[#]],
-                Confirm @ FunctionLayer[Function[Evaluate[body]], Sequence @@ (# -> {} & /@ symbols)]
-            ]
-        ] & /@ tensors,
-        # -> NetPort["T" <> ToString[#]] & /@ Range[n]
-    ];
-    tensorQueue = "T" <> ToString[#] & /@ Range[n];
-    addEinsumLayer[{i_, j_} -> k_, a_, b_] :=
-		With[{
-			c = Complement[Join[i, j], k],
-			adim = Flatten[{NetExtract[g, a]}],
-			bdim = Flatten[{NetExtract[g, b]}]
-	    },
-		With[{
-			ac = Catenate @ Lookup[PositionIndex[i], c],
-			bc = Catenate @ Lookup[PositionIndex[j], c]
-		},
-		With[{
-			al = Complement[Range[Length[i]], ac],
-			br = Complement[Range[Length[j]], bc],
-			ad = Times @@ adim[[ac]],
-			bd = Times @@ bdim[[bc]]
-		},
-		With[{
-			reshapea = {Times @@ adim / ad, ad},
-			reshapeb = {bd, Times @@ bdim / bd},
-			perma = PermutationList @ FindPermutation[Join[al, ac]],
-			permb = PermutationList @ FindPermutation[Join[bc, br]],
-			reshape = Join[adim[[al]], bdim[[br]]],
-			perm = PermutationList @ FindPermutation[Join[i[[al]], j[[br]]], k]
-		},
-		n++;
-		g = Confirm @ NetGraph[
-			{
-				g,
-				Confirm @ NetGraph[<|
-                    (*ToString[n] -> FunctionLayer[Apply[
-                        Transpose[
-                            ArrayReshape[
-                                ArrayReshape[Transpose[#1, perma], reshapea] . ArrayReshape[Transpose[#2, permb], reshapeb],
-                                reshape
-                            ],
-                            perm
-                        ] &
-                    ]]*)
-					"a" -> NetChain[{If[perma === {}, Nothing, TransposeLayer[perma]], ReshapeLayer[reshapea]}],
-					"b" -> NetChain[{If[permb === {}, Nothing, TransposeLayer[permb]], ReshapeLayer[reshapeb]}],
-					"dot" -> DotLayer[],
-					"post" -> NetChain[{ReshapeLayer[reshape], If[perm === {}, Nothing, TransposeLayer[perm]]}]
-				|>, {NetPort[a] -> "a", NetPort[b] -> "b", {"a", "b"} -> "dot" -> "post" -> NetPort["T" <> ToString[n]]}]
-			},
-			{NetPort[{1, a}] -> NetPort[{2, a}], NetPort[{1, b}] -> NetPort[{2, b}]}
-		];
-	]]]];
-    Do[
-		Replace[p, {
-			{i_} :> (
-				{tensorQueue, indices} = Append[Delete[#, {i}], #[[i]]] & /@ {tensorQueue, indices}
-			),
-			{i_, j_} :> With[{out = SymmetricDifference @@ Extract[indices, {{i}, {j}}]},
-				addEinsumLayer[indices[[{i, j}]] -> out, tensorQueue[[i]], tensorQueue[[j]]];
-				tensorQueue = Append[Delete[tensorQueue, {{i}, {j}}], "T" <> ToString[n]];
-				indices = Append[Delete[indices, {{i}, {j}}], out];
-			]
-		}],
-		{p, path}
-	];
-	ConfirmAssert[Length[tensorQueue] == Length[indices] == 1];
-	ConfirmAssert[ContainsAll[indices[[1]], freeIndices]];
-	With[{perm = PermutationList @ FindPermutation[indices[[1]], freeIndices]},
-		If[perm === {}, g, NetAppend[g, TransposeLayer[perm]]]
-	]
-]
+TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ, path_] :=
+    TensorNetworkContraction[net, path, Method -> "NetGraph", "Inactive" -> True]
+
 
