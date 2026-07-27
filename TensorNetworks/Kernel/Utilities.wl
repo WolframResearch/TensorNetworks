@@ -1,5 +1,7 @@
 Package["Wolfram`TensorNetworks`"]
 
+PackageImport["Wolfram`Arrays`"]
+
 PackageScope[tensorToVector]
 PackageScope[toTensor]
 PackageScope[tensorDimensions]
@@ -14,8 +16,6 @@ PackageScope[arrayContainerQ]
 PackageScope[arrayContainerDimensions]
 PackageScope[arrayContainerMaterialize]
 PackageScope[arrayComputeNativeQ]
-PackageScope[arraysAvailableQ]
-PackageScope[$arraysAvailable]
 
 
 
@@ -48,60 +48,19 @@ SetAttributes[silentConstruct, HoldFirst]
 silentConstruct[expr_] := Quiet @ Check[expr, $Failed]
 
 
-(* Array-container routing.
+(* Array-container routing: Wolfram/Arrays is a declared dependency
+   (see PacletInfo.wl), so every route here calls it directly. *)
 
-   Wolfram/Arrays is an OPTIONAL runtime dependency: TensorNetworks declares no
-   paclet dependencies at all (see PacletInfo.wl, whose only extensions are
-   Kernel, Cargo, Build, Binaries, FrontEnd and Documentation), and Wolfram/Arrays
-   is not published, so a hard dependency would make this paclet unloadable
-   wherever that paclet is missing.  Each route is therefore probed at run time:
-   with Wolfram/Arrays present every container it admits works here with no
-   change, and without it the narrow local fallback covers the explicit heads
-   this paclet already handles. *)
+arrayContainerQ[t_] := TrueQ @ ArrayContainerQ[t]
 
-(* ONLY THE POSITIVE ANSWER IS CACHED.  TensorNetworks is the lower-level paclet
-   and is typically touched first, so a container query can easily run before
-   Wolfram/Arrays is loaded; memoizing that negative would disable the whole
-   optional-dependency route for the rest of the session, even after the paclet
-   is present, and arrayContainerQ would then keep misclassifying genuine Arrays
-   containers as unrecognized.  A False is therefore re-probed, which costs one
-   PacletFind per query until the paclet appears and nothing after that. *)
+arrayContainerDimensions[t_] := Replace[ArrayDimensions[t], Except[{___Integer}] :> {}]
 
-$arraysAvailable = False
-
-arraysAvailableQ[] := TrueQ[$arraysAvailable] || (
-	$arraysAvailable = TrueQ @ And[
-		PacletFind["Wolfram/Arrays"] =!= {},
-		(* An absent or unloadable optional dependency is not an error here, so
-		   the probe stays silent and answers False. *)
-		Quiet @ Check[Needs["Wolfram`Arrays`"]; True, False]
-	]
-)
-
-arraysSymbol[name_String] := Symbol["Wolfram`Arrays`" <> name]
-
-
-arrayContainerQ[t_] := If[ arraysAvailableQ[],
-	TrueQ @ arraysSymbol["ArrayContainerQ"][t],
-	ArrayQ[t] || MatchQ[t, _SparseArray | _NumericArray | _SymmetrizedArray]
-]
-
-arrayContainerDimensions[t_] := Replace[
-	If[arraysAvailableQ[], arraysSymbol["ArrayDimensions"][t], Dimensions[t]],
-	Except[{___Integer}] :> {}
-]
-
-arrayContainerMaterialize[t_] := If[arraysAvailableQ[], arraysSymbol["ArrayMaterialize"][t], Normal[t]]
+arrayContainerMaterialize[t_] := ArrayMaterialize[t]
 
 (* Compute-nativeness - does the container run Dot and elementwise arithmetic
    without materializing - is what decides whether a leaf container can be
-   handed to an evaluated contraction at all.  The local fallback names the two
-   heads this paclet can vouch for without Wolfram/Arrays. *)
-arrayComputeNativeQ[t_] := If[
-	arraysAvailableQ[],
-	TrueQ @ arraysSymbol["ArrayComputeNativeQ"][t],
-	ArrayQ[t] || MatchQ[t, _SparseArray]
-]
+   handed to an evaluated contraction at all. *)
+arrayComputeNativeQ[t_] := TrueQ @ ArrayComputeNativeQ[t]
 
 
 

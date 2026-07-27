@@ -29,4 +29,10 @@ Module[{candidates, root},
     ];
     PacletDirectoryLoad[FileNameJoin[{root, "TensorNetworks"}]];
     Needs["Wolfram`TensorNetworks`"];
+    (* PackageScope is a context but not a package, so Needs alone cannot put it
+       on $ContextPath and every internal symbol a test names would have to carry
+       its full context.  BeginPackage/EndPackage registers it as one; the Block
+       keeps the registration from leaking a context path change of its own. *)
+    Block[{$ContextPath}, BeginPackage["Wolfram`TensorNetworks`PackageScope`"]; EndPackage[]];
+    Needs["Wolfram`TensorNetworks`PackageScope`"];
 ];
