@@ -451,3 +451,28 @@ VerificationTest[
 ]
 
 
+
+
+(* A fully contracted leaf is a scalar, and the materialization route is called
+   on it.  ArrayMaterialize answers for containers and is left unevaluated by
+   anything else, so an unguarded call leaves an inert ArrayMaterialize[...] in
+   the value, which then poisons every expression built from it - QuantumFramework
+   state preparation returned Re[Sqrt[ArrayMaterialize[...] Conjugate[...]]]
+   instead of a fidelity of 1. *)
+VerificationTest[
+    arrayContainerMaterialize[0.5 - 0.25 I],
+    0.5 - 0.25 I,
+    TestID -> "ContainerRoute_MaterializeIsTotalOnScalars"
+]
+
+VerificationTest[
+    arrayContainerMaterialize[3],
+    3,
+    TestID -> "ContainerRoute_MaterializeIsTotalOnIntegers"
+]
+
+VerificationTest[
+    arrayContainerMaterialize[NumericArray[{{1., 2.}, {3., 4.}}, "Real64"]],
+    {{1., 2.}, {3., 4.}},
+    TestID -> "ContainerRoute_MaterializeStillMaterializesContainers"
+]

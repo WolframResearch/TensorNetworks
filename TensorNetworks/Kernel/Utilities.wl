@@ -55,7 +55,13 @@ arrayContainerQ[t_] := TrueQ @ ArrayContainerQ[t]
 
 arrayContainerDimensions[t_] := Replace[ArrayDimensions[t], Except[{___Integer}] :> {}]
 
-arrayContainerMaterialize[t_] := ArrayMaterialize[t]
+(* ArrayMaterialize answers for containers and is left unevaluated by anything
+   else, so a scalar handed to it survives into arithmetic as an inert
+   ArrayMaterialize[...] and poisons every expression built from it.  This
+   route is called on tensors that may already be scalars - a fully contracted
+   leaf is one - so it is total by construction, as the Normal fallback it
+   replaced was. *)
+arrayContainerMaterialize[t_] := If[arrayContainerQ[t], ArrayMaterialize[t], t]
 
 (* Compute-nativeness - does the container run Dot and elementwise arithmetic
    without materializing - is what decides whether a leaf container can be
