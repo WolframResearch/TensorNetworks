@@ -504,7 +504,9 @@ TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
 TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, args__] :=
     TensorNetworkContraction[TensorNetworkData[BinaryTensorNetwork[net]], args]
     
-TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ, _ : Automatic : Automatic] :=
+(* The args__ clause above takes every call with an explicit path or method,
+   so this clause only ever fires for a bare net. *)
+TensorNetworkContraction[net_TensorNetwork ? TensorNetworkQ] :=
     TensorNetworkContraction[TensorNetworkData[net]]
 
 TensorNetworkContraction[data : KeyValuePattern["Vertices" -> vertices_], path_ ? CanonicalPathQ, opts : OptionsPattern[]] := 
