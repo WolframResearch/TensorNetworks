@@ -4,6 +4,28 @@
 PacletInstall["https://www.wolframcloud.com/obj/nikm/ExternalEvaluate.paclet"];
 PacletInstall["https://www.wolframcloud.com/obj/nikm/PacletExtensions.paclet"];
 
+(* Install Runtime Dependencies.
+
+   The container ships no paclets beyond the base image, and declaring a
+   dependency in PacletInfo does not install one - it is a statement about
+   what the paclet needs, which something has to act on.  Without this the
+   kernel files' PackageImport of Wolfram`Arrays` finds no such context and
+   every symbol it exports resolves into TensorNetworks' own private context
+   instead, undefined: the container tests then fail with $Failed results
+   naming Wolfram`TensorNetworks`Utilities`PackagePrivate`ArrayMaterialize. *)
+Check[
+    PacletInstall["Wolfram/Arrays"],
+    Print["FATAL: could not install the Wolfram/Arrays dependency."];
+    Exit[1]
+];
+
+Needs["Wolfram`Arrays`"];
+
+If[ ! MemberQ[$Packages, "Wolfram`Arrays`"],
+    Print["FATAL: Wolfram`Arrays` did not load."];
+    Exit[1]
+];
+
 PacletDirectoryLoad[FileNameJoin[{Directory[], "TensorNetworks"}]];
 
 Needs["ExtensionCargo`"];
