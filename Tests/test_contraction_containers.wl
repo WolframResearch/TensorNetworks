@@ -12,6 +12,10 @@ makeNet[tensors_, indices_] := ToTensorNetworkGraph[TensorNetwork[tensors, indic
    float-precision, not exact. *)
 netTolerance = 10^-6
 
+(* Leaf-container routes agree with the plain route to machine precision, not
+   exactly: the conversion reorders the arithmetic. *)
+containerTolerance = 10^-10
+
 netParity[net_, path_] := Block[{ref, g},
     ref = N @ Normal @ TensorNetworkContract[net, path, Method -> "ArrayDot"];
     g = TensorNetworkContraction[net, path, Method -> "NetGraph"];
@@ -335,13 +339,16 @@ VerificationTest[
     TestID -> "LeafContainer_NoPathRoute"
 ]
 
-(* Compute-native containers still activate to the same value. *)
+(* Compute-native containers still activate to the same value.  Agreement is
+   to a tolerance, not bit for bit: routing the leaves through a different
+   container reorders the arithmetic, and a sparse Dot lands on a different
+   last bit from a dense one on some platforms. *)
 VerificationTest[
     Table[
         Max @ Abs @ Flatten[
             Normal @ TensorNetworkContract[pairNet, {{1, 2}}, Method -> {"ArrayDot", "LeafContainer" -> container}] -
             Normal @ TensorNetworkContract[pairNet, {{1, 2}}, Method -> "ArrayDot"]
-        ] == 0,
+        ] < containerTolerance,
         {container, {"List", "SparseArray"}}
     ],
     {True, True},
@@ -359,7 +366,7 @@ VerificationTest[
         With[{value = TensorNetworkContract[pairNet, {{1, 2}}, Method -> {method, "LeafContainer" -> container}]},
             {
                 ArrayQ[value],
-                Max @ Abs @ Flatten[value - TensorNetworkContract[pairNet, {{1, 2}}, Method -> method]] == 0
+                Max @ Abs @ Flatten[value - TensorNetworkContract[pairNet, {{1, 2}}, Method -> method]] < containerTolerance
             }
         ],
         {method, $TensorNetworkContractionMethods},
