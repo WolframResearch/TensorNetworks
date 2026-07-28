@@ -7,7 +7,7 @@ PacletObject[
     "Creator" -> "Wolfram Research, Quantum Computation Framework team",
     "License" -> "MIT",
     "PublisherID" -> "Wolfram",
-    "Version" -> "1.0.10",
+    "Version" -> "1.0.11",
     "WolframVersion" -> "14.3+",
     "PrimaryContext" -> "Wolfram`TensorNetworks`",
     "Dependencies" -> {"Wolfram/Arrays"},
