@@ -26,9 +26,11 @@ rewrite the audit, bump the SHA in `last-synced.md` only). The `Audit/` folder i
 - Kernel source: `TensorNetworks/Kernel/*.wl` (21 files; excludes any `build/` copy).
 - Public API: the 84 autoload `Symbols` in `TensorNetworks/PacletInfo.wl`. (Three exported
   `Symmetry` symbols are currently missing from that list: see Finding F1.)
-- Rust optimizer (`Cotengra/`, via `ExtensionCargo`/`CargoLoad`) and the C++ Netcon
-  LibraryLink back the path-finders; they are out of scope for the kernel audit except
-  where the kernel calls into them.
+- Rust optimizer (`Cotengra/`, built and packaged by `cargo wl build` from
+  WolframResearch/wolfram-rust-library; the kernel `Get`s the generated
+  `Binaries/Cotengra-<SystemID>/Functions.wl` loader) and the C++ Netcon LibraryLink
+  back the path-finders; they are out of scope for the kernel audit except where the
+  kernel calls into them.
 
 ## Wolfram Language conventions
 

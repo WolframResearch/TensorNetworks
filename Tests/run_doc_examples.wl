@@ -41,9 +41,9 @@ Needs["Wolfram`TensorNetworks`IndexArray`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 
 (* Pre-warm the cotengrust library. The first call into a Rust-backed
-   function (e.g. GreedyContractionPath) lazily fires ExtensionCargo`CargoBuild,
-   which can take longer than the per-input 30 s timeout in CI. Triggering
-   the lazy load now keeps the per-input timeouts honest. *)
+   function (e.g. GreedyContractionPath) lazily loads the prebuilt library
+   package from Binaries/Cotengra-<SystemID>/. Triggering the lazy load now
+   keeps the per-input timeouts honest. *)
 Quiet @ Check[
   GreedyContractionPath[{{1}}, {}, <|1 -> 2|>],
   Null

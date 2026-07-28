@@ -9,39 +9,20 @@ PackageScope[extractContractionParameters]
 
 ClearAll["Wolfram`TensorNetworks`*", "Wolfram`TensorNetworks`**`*"]
 
-pacletInstalledQ[paclet_, version_] := AnyTrue[Through[PacletFind[paclet]["Version"]], ResourceFunction["VersionOrder"][#, version] <= 0 &]
+(* The Rust optimizers are packaged by `cargo wl build` (cargo-wl, from
+   WolframResearch/wolfram-rust-library): it compiles the Cotengra cdylib,
+   reads the function manifest the #[export] macro embeds in the binary, and
+   writes the library together with a generated Functions.wl loader into
+   Binaries/Cotengra-<SystemID>/. Getting that Functions.wl yields
+   <|"name" -> function, ...|> with the WXF (de)serialization built in. *)
 
-libraryFunctions := libraryFunctions = (
-	If[ ! pacletInstalledQ["ExternalEvaluate", "38.0.1"],
-		PacletInstall["ExternalEvaluate"]
-	];
-	If[ ! pacletInstalledQ["PacletExtensions", "40.0.0"],
-		PacletInstall["https://www.wolframcloud.com/obj/nikm/PacletExtensions.paclet"]
-	];
-	Needs["ExtensionCargo`"];
-	Replace[
-		ExtensionCargo`CargoLoad[
-			PacletObject["Wolfram/TensorNetworks"],
-			"Functions"
-		],
-		Except[_ ? AssociationQ] :> Replace[
-			ExtensionCargo`CargoBuild[PacletObject["Wolfram/TensorNetworks"]], {
-				f : Except[{__ ? FileExistsQ}] :> Function @ Function @ Failure["CargoBuildError", <|
-						"MessageTemplate" -> "Cargo build failed",
-						"Return" -> f
-					|>],
-				files_ :> Replace[
-					ExtensionCargo`CargoLoad[files, "Functions"],
-					f : Except[_ ? AssociationQ] :>
-						Function @ Function @ Failure["CargoLoadError", <|
-							"MessageTemplate" -> "Cargo load failed",
-							"Return" -> f
-						|>]
-				]
-			}
-		]
-	]
-) // Replace[{
+libraryLoaderFile := FileNameJoin[{
+	PacletObject["Wolfram/TensorNetworks"]["Location"],
+	"Binaries", "Cotengra-" <> $SystemID, "Functions.wl"
+}]
+
+libraryFunctions := libraryFunctions = Replace[
+	If[ FileExistsQ[libraryLoaderFile], Get[libraryLoaderFile], $Failed], {
 	functions_ ? AssociationQ :>
 		Association @ KeyValueMap[
 			#1 -> Composition[
@@ -55,9 +36,24 @@ libraryFunctions := libraryFunctions = (
 			#2
 		] &,
 		functions
-	]
+	],
+	failure_ :> Function @ Function @ Failure["LibraryLoadError", <|
+		"MessageTemplate" -> "No Cotengra library package for ``; prebuild it with build_all_targets.sh",
+		"MessageParameters" -> {$SystemID},
+		"Return" -> failure
+	|>]
 }
 ]
+
+(* WXF boundary helpers: the generated loader BinarySerializes the argument
+   list, and the Rust side reads Vec<u32> from a packed array (ByteArray[{}]
+   standing in for an empty one, which NumericArray cannot express), jagged
+   index lists flattened to (indices, lengths), and Option values in
+   wolfram-serialize's enum encoding. *)
+indexArray[{}] := ByteArray[{}]
+indexArray[list_List] := NumericArray[list, "UnsignedInteger32"]
+option[None] := "None"
+option[value_] := {"Some", value}
 
 
 Options[GreedyContractionPath] = {
@@ -94,18 +90,19 @@ GreedyContractionPath[
     seed : _Integer | None : None,
 	simplify : True | False | None : None,
 	useSSA : True | False | None : None
-] := Block[{ds = Developer`DataStore, path},
+] := Block[{path},
 	Enclose[
-		path = List @@ List @@@ Confirm @ libraryFunctions["optimize_greedy"][
-			ds @@ ds @@@ input,
-			ds @@ output,
-			ds @@ ds @@@ Normal[N /@ Replace[sizeDict, Except[_ ? NumericQ] -> 2, 1]],
-			ds @ Replace[N[costMod], None -> Sequence[]],
-			ds @ Replace[N[temperature], None -> Sequence[]],
-			ds @ Replace[maxNeighbors, None -> Sequence[]],
-			ds @ Replace[seed, None -> Sequence[]],
-			ds @ Replace[simplify, None -> Sequence[]],
-			ds @ Replace[useSSA, None -> Sequence[]]
+		path = Confirm @ libraryFunctions["optimize_greedy"][
+			indexArray @ Catenate[input],
+			indexArray[Length /@ input],
+			indexArray @ output,
+			N /@ Replace[sizeDict, Except[_ ? NumericQ] -> 2, 1],
+			option @ N[costMod],
+			option @ N[temperature],
+			option @ maxNeighbors,
+			option @ seed,
+			option @ simplify,
+			option @ useSSA
 		];
 		path + 1
 	]
@@ -158,17 +155,18 @@ OptimalContractionPath[
 	searchOuter : True | False | None : None,
 	simplify : True | False | None : None,
 	useSSA : True | False | None : None
-] := Block[{ds = Developer`DataStore, path},
+] := Block[{path},
 	Enclose[
-		path = List @@ List @@@ Confirm @ libraryFunctions["optimize_optimal"][
-			ds @@ ds @@@ input,
-			ds @@ output,
-			ds @@ ds @@@ Normal[N /@ Replace[sizeDict, Except[_ ? NumericQ] -> 2, 1]],
-			ds @ Replace[minimize, None -> Sequence[]],
-			ds @ Replace[N[costCap], None -> Sequence[]],
-			ds @ Replace[searchOuter, None -> Sequence[]],
-			ds @ Replace[simplify, None -> Sequence[]],
-			ds @ Replace[useSSA, None -> Sequence[]]
+		path = Confirm @ libraryFunctions["optimize_optimal"][
+			indexArray @ Catenate[input],
+			indexArray[Length /@ input],
+			indexArray @ output,
+			N /@ Replace[sizeDict, Except[_ ? NumericQ] -> 2, 1],
+			option @ minimize,
+			option @ N[costCap],
+			option @ searchOuter,
+			option @ simplify,
+			option @ useSSA
 		];
 		path + 1
 	]

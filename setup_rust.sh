@@ -28,6 +28,12 @@ rustup target add \
 # Install rustfmt
 rustup component add rustfmt
 
+# Install cargo-wl (WolframResearch/wolfram-rust-library): builds LibraryLink
+# crates and generates their WL loader packages; used by build_all_targets.sh.
+if ! command -v cargo-wl &> /dev/null; then
+    cargo install cargo-wl --locked
+fi
+
 # Configure Cargo linkers. For macOS targets, point zig cc at the macOS SDK
 # via -isysroot so the linker can resolve frameworks (CoreFoundation etc.) and
 # libiconv/libSystem stubs from the SDK.

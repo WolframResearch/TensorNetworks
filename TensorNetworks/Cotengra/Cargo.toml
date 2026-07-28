@@ -4,6 +4,16 @@ version = "0.2.0"
 authors = ["Johnnie Gray <johnniemcgray@gmail.com>"]
 edition = "2024"
 
+# `cargo wl build` (cargo-wl, from WolframResearch/wolfram-rust-library)
+# compiles the cdylib, reads the function manifest the #[export] macro embeds
+# in it, and writes the binary plus a generated Functions.wl loader into
+# <paclet>/Binaries/Cotengra-<SystemID>/. The kernel Gets that Functions.wl
+# to obtain <|"name" -> function, ...|>.
+[package.metadata.wl.pacletinfo]
+name = "Cotengra"
+output = "../Binaries"
+named-exports = true
+
 [lib]
 name = "cotengrust"
 crate-type = ["lib", "cdylib"]
@@ -15,4 +25,8 @@ num-traits = "0.2"
 ordered-float = "5.1"
 rand = "0.9"
 rustc-hash = "2.1"
-wolfram-library-link = { git = "https://github.com/sw1sh/wolfram-library-link-rs", rev = "a266644362d0ad3df2ab4221750b6b7d8c5804ac" }
+wolfram-export = { version = "0.6.1", features = ["wxf"] }
+wolfram-expr = "0.6"
+# Direct dep only for wolfram_library_link::aborted() (kernel-abort checks in
+# the long-running searches); wolfram-export already builds this crate anyway.
+wolfram-library-link = { version = "0.6.1", default-features = false }

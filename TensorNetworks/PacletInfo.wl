@@ -107,9 +107,13 @@ PacletObject[
           "Wolfram`TensorNetworks`TreePathToPath"
         }
       },
-      {"Cargo", "Root" -> "Cotengra"},
-      {"Build", "Actions" -> {"CargoBuild"}},
-      {"Binaries"},
+      {
+        "Asset",
+        "Root" -> ".",
+        "Assets" -> {
+          {"Binaries", "Binaries"}
+        }
+      },
       {"FrontEnd", "Prepend" -> True},
       {"Documentation", "Language" -> "English"}
     }
