@@ -352,7 +352,7 @@ RowBox[{StyleBox[\"tensor\", \"TI\"], \",\", StyleBox[\"label\", \"TI\"]}], \
 \[Bullet]\n\!\(\*RowBox[{\"TensorNetworkAdd\", \"[\", \
 RowBox[{StyleBox[\"graph\", \"TI\"], \",\", StyleBox[\"tensor\", \"TI\"]}], \
 \"]\"}]\) joins each slot of \!\(\*StyleBox[\"tensor\", \"TI\"]\) to a free index of the same dimension in \
-\!\(\*StyleBox[\"graph\", \"TI\"]\)."
+\!\(\*StyleBox[\"graph\", \"TI\"]\); slots with no such index stay free."
 
 
 
