@@ -363,7 +363,7 @@ RandomTensorNetwork[g_ ? GraphQ, {fixedDim_Integer}, additionalRank_Integer : 0,
                 curIndices[[#, i]] = Nothing;
                 ret
             ] &,
-            Rule @@@ EdgeList[g],
+            Rule @@@ EdgeList[IndexGraph[g]],
             {2}
         ];
         indices = Replace[indices, rules, {2}];

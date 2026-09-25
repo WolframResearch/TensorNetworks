@@ -90,15 +90,29 @@ TensorNetworkIndexDimensions[indices_List, tensors_List] :=
     TensorNetworkIndexDimensions[<|"Indices" -> indices, "Dimensions" -> tensorDimensions /@ tensors|>]
 
 
+(* The graph is rebuilt on the same vertices with relabeled edges. Every
+   vertex keeps its "Tensor" and other annotations and the graph keeps its
+   own annotations and options; only "Index" is rewritten. *)
 TensorNetworkReplaceIndices[net_ ? TensorNetworkGraphQ, rules_] := With[{
     vs = VertexList[net],
-    newIndices = Replace[TensorNetworkIndices[net], rules, {2}],
+    newIndices = AssociationThread[VertexList[net], Replace[TensorNetworkIndices[net], rules, {2}]],
     newEdges = Replace[EdgeList[net], e : DirectedEdge[_, _, _] :> MapAt[Replace[#, rules, {1}] &, e, 3], {1}]
 },
     Graph[
         vs,
         newEdges,
-        AnnotationRules -> MapThread[#1 -> {"Index" -> #2} &, {vs, newIndices}]
+        (* Vertex entries get the new "Index", graph-level entries are kept,
+           and entries of the replaced edges are dropped. *)
+        AnnotationRules -> Replace[
+            OptionValue[Options[net], AnnotationRules],
+            {
+                (v_ -> props_) /; KeyExistsQ[newIndices, v] :> v -> Normal[Append[Association[props], "Index" -> newIndices[v]]],
+                entry : ("GraphProperties" -> _) :> entry,
+                _ -> Nothing
+            },
+            {1}
+        ],
+        Sequence @@ FilterRules[Options[net], Except[AnnotationRules]]
     ]
 ]
 
@@ -174,10 +188,12 @@ TensorNetworkAdd[net_Graph ? TensorNetworkGraphQ, Labeled[tensor_, label_ : None
     index = MapIndexed[If[MatchQ[#1, _Subscript], Superscript[newVertex, #2[[1]]], Subscript[newVertex, #2[[1]]]] &, partners]
 },
     ConfirmAssert[Length[Replace[autoIndex, Automatic -> {}]] <= rank];
+    (* The vertex is added before its edges: a tensor that joins no open index
+       has no edge that would create it. *)
     Annotate[
         {
             EdgeAdd[
-                net,
+                VertexAdd[net, newVertex],
                 Cases[
                     Transpose[{index, partners}],
                     {i_, p : Except[None]} :> If[MatchQ[i, _Superscript], DirectedEdge[newVertex, First[p], {i, p}], DirectedEdge[First[p], newVertex, {p, i}]]

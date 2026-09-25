@@ -496,6 +496,21 @@ contractTensorPair[{tensor1_ -> indices1_, tensor2_ -> indices2_}, OptionsPatter
 	][{indices1, indices2} -> Automatic, tensor1, tensor2, TrueQ[OptionValue["Inactive"]]]
 
 
+(* A label that occurs twice on one tensor is summed over that tensor alone,
+   a trace the pair handlers never take. The leaf is replaced by its trace
+   over every such pair of slots, and its label list by the labels left. *)
+traceRepeatedIndices[tensor_, indices_List, inactiveQ_] := With[{
+	pairs = Select[Values @ PositionIndex[indices], Length[#] == 2 &]
+},
+	If[ pairs === {},
+		{tensor, indices},
+		{
+			If[inactiveQ, Inactive[TensorContract], TensorContract][tensor, pairs],
+			Delete[indices, List /@ Catenate[pairs]]
+		}
+	]
+]
+
 Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"TransposeFunction" -> Transpose}]
 
 TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
@@ -538,7 +553,15 @@ TensorNetworkContraction[
     If[! TrueQ[OptionValue["Inactive"]], leafTensors = computableLeafTensors[leafTensors]];
     tensorPath = FixedPoint[
         ReplaceAll[{"Pair"[t1_, i1_], "Pair"[t2_, i2_]} :> "Pair" @@ contractTensorPair[{t1 -> i1, t2 -> i2}, contractOpts]],
-        Replace[treePath, MapThread[{#1} -> "Pair"[#2, #3] &, {vertices, leafTensors, contractions}], {-2}]
+        Replace[
+            treePath,
+            MapThread[
+                (* A net leaf is lifted from its values, so its trace is taken eagerly. *)
+                {#1} -> "Pair" @@ traceRepeatedIndices[#2, #3, TrueQ[OptionValue["Inactive"]] && ! netGraphMethodQ[method]] &,
+                {vertices, leafTensors, contractions}
+            ],
+            {-2}
+        ]
     ];
     perm = FindPermutation[tensorPath[[2]], freeIndices];
     If[ netGraphMethodQ[method]

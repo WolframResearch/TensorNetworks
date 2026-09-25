@@ -21,6 +21,30 @@ libraryLoaderFile := FileNameJoin[{
 	"Binaries", "Cotengra-" <> $SystemID, "Functions.wl"
 }]
 
+(* wolfram-serialize reads a bool only from a symbol spelled out as
+   System`True or System`False, while BinarySerialize writes System` symbols
+   without their context. Each loaded function is a Composition that applies
+   BinarySerialize to the argument list; serializeArguments takes its place.
+   It writes the argument list itself and serializes each argument with
+   BinarySerialize, except a Boolean, alone or as {"Some", b}, whose symbol
+   is spelled out in full. Only whole arguments are rewritten, never bytes
+   inside another value. A WXF symbol token is the byte 115 ("s"), the name
+   length and the name; a function token is 102 ("f"), the argument count
+   and the head. Both counts are one byte here, since every name and
+   argument list is shorter than 128. *)
+wxfSymbolToken[name_String] := Join[{115, StringLength[name]}, ToCharacterCode[name, "UTF8"]]
+
+wxfArgument[b : True | False] := wxfSymbolToken["System`" <> ToString[b]]
+wxfArgument[{"Some", b : True | False}] := Join[{102, 2}, wxfSymbolToken["List"], wxfArgument["Some"], wxfArgument[b]]
+(* BinarySerialize output starts with the two header bytes "8:". *)
+wxfArgument[x_] := Drop[Normal @ BinarySerialize[x], 2]
+
+serializeArguments[args_List] := ByteArray @ Join[
+	{56, 58, 102, Length[args]},
+	wxfSymbolToken["List"],
+	Catenate[wxfArgument /@ args]
+]
+
 libraryFunctions := libraryFunctions = Replace[
 	If[ FileExistsQ[libraryLoaderFile], Get[libraryLoaderFile], $Failed], {
 	functions_ ? AssociationQ :>
@@ -33,7 +57,7 @@ libraryFunctions := libraryFunctions = Replace[
 					"Error" -> error, "ErrorCode" -> code, "Function" -> #1
 				|>]
 			],
-			#2
+			#2 /. HoldPattern[BinarySerialize] -> serializeArguments
 		] &,
 		functions
 	],
