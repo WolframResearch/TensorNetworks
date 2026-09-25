@@ -137,24 +137,50 @@ InitializeTensorNetwork[net_Graph ? TensorNetworkGraphQ, tensor_, index : _List 
         ]
     ]
 
+(* Equal dimensions, or a dimension that is not known (a symbolic tensor). *)
+compatibleDimensionQ[d_Integer, e_Integer] := d == e
+compatibleDimensionQ[_, _] := True
+
+(* Each slot of the new tensor, in order, takes the first still-open leg of
+   the same dimension, or None when no open leg has that dimension. *)
+dimensionMatchedLegs[legs_List, legDimensions_, slotDimensions_List] := FoldPairList[
+    Function[{open, d},
+        Replace[
+            FirstPosition[open, leg_ /; compatibleDimensionQ[Lookup[legDimensions, leg, None], d], None, {1}, Heads -> False],
+            {None -> {None, open}, {k_} :> {open[[k]], Delete[open, k]}}
+        ]
+    ],
+    legs,
+    slotDimensions
+]
+
 TensorNetworkAdd[net_Graph ? TensorNetworkGraphQ, Labeled[tensor_, label_ : None], autoIndex : _List | Automatic : Automatic] := Enclose @ With[{
     newVertex = Max[VertexList[net, _Integer], 0] + 1,
-    toIndex = Replace[autoIndex, Automatic :> Take[SortBy[TensorNetworkFreeIndices[net], Replace[{Superscript[_, x_] :> {1, x}, Subscript[_, x_] :> {0, x}}]], UpTo[tensorRank[tensor]]]]
+    rank = tensorRank[tensor]
 },
 {
-    index = Join[
-        Replace[toIndex, {Superscript[_, q_] :> Subscript[newVertex, q], Subscript[_, q_] :> Superscript[newVertex, q]}, {1}],
-        Subscript[newVertex, #] & /@ Range[tensorRank[tensor] - Length[toIndex]]
-    ]
+    partners = Replace[autoIndex, {
+        Automatic :> dimensionMatchedLegs[
+            TensorNetworkFreeIndices[net],
+            TensorNetworkIndexDimensions[net],
+            tensorDimensions[tensor]
+        ],
+        legs_List :> PadRight[legs, rank, None]
+    }]
 },
-    ConfirmAssert[tensorRank[tensor] == Length[index]];
+{
+    (* Slot k of the new vertex is named by k: an outgoing leg when it feeds
+       an open input of the network, an incoming leg otherwise. *)
+    index = MapIndexed[If[MatchQ[#1, _Subscript], Superscript[newVertex, #2[[1]]], Subscript[newVertex, #2[[1]]]] &, partners]
+},
+    ConfirmAssert[Length[Replace[autoIndex, Automatic -> {}]] <= rank];
     Annotate[
         {
             EdgeAdd[
                 net,
-                MapThread[
-                    If[MatchQ[#1, _Superscript], DirectedEdge[newVertex, First[#2], {#1, #2}], DirectedEdge[First[#2], newVertex, {#2, #1}]] &,
-                    {Take[index, UpTo[Length[toIndex]]], toIndex}
+                Cases[
+                    Transpose[{index, partners}],
+                    {i_, p : Except[None]} :> If[MatchQ[i, _Superscript], DirectedEdge[newVertex, First[p], {i, p}], DirectedEdge[First[p], newVertex, {p, i}]]
                 ]
             ],
             newVertex

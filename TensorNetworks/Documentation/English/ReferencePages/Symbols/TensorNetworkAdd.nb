@@ -193,7 +193,11 @@ Cell[TextData[{
    BaseStyle->"Link",
    ButtonData->"paclet:ref/Automatic"]], "InlineFormula",ExpressionUUID->
   "e753ec3f-3f90-44c5-9f87-7607b9fe64a4"],
- " in the Graph form, indices are taken in order from ",
+ " in the Graph form, each slot of ",
+ Cell[BoxData[
+  StyleBox["tensor", "TI"]], "InlineFormula",ExpressionUUID->
+  "0a6b3c1e-5d2f-4c8a-9e7b-2f4d6a8c1b30"],
+ " in turn joins the first unused index of the same dimension in ",
  Cell[BoxData[
   ButtonBox["TensorNetworkFreeIndices",
    BaseStyle->"Link",
@@ -203,11 +207,7 @@ Cell[TextData[{
  Cell[BoxData[
   StyleBox["graph", "TI"]], "InlineFormula",ExpressionUUID->
   "52b48c57-3288-4ef4-bab6-c74ec3234f44"],
- "], up to the rank of ",
- Cell[BoxData[
-  StyleBox["tensor", "TI"]], "InlineFormula",ExpressionUUID->
-  "5c39f12e-1ca1-401a-91b4-8bd333b441e6"],
- ". Any remaining slots become fresh free indices on the new vertex."
+ "]. A slot whose dimension matches no remaining free index becomes a fresh free index on the new vertex."
 }], "Notes",
  CellID->921589582,ExpressionUUID->"470363e4-5c7a-4df5-b678-eb73cc138137"],
 
@@ -2839,8 +2839,8 @@ Cell[BoxData[
  CellID->622521432,ExpressionUUID->"5be21a3d-6c6e-4598-84d8-6f26cd5ecd16"],
 
 Cell["\<\
-Omit the index list and the new tensor binds to the first available free \
-indices, taken in sorted order from TensorNetworkFreeIndices:\
+Omit the index list and each slot of the new tensor binds to the first free \
+index of the same dimension, in the order of TensorNetworkFreeIndices:\
 \>", "ExampleText",
  CellID->814750920,ExpressionUUID->"1b79aa44-b46c-41e8-9fa8-1dea12191a8e"],
 

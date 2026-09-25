@@ -351,7 +351,7 @@ RowBox[{StyleBox[\"tensor\", \"TI\"], \",\", StyleBox[\"label\", \"TI\"]}], \
 \!\(\*StyleBox[\"label\", \"TI\"]\) in the Graph form. \
 \[Bullet]\n\!\(\*RowBox[{\"TensorNetworkAdd\", \"[\", \
 RowBox[{StyleBox[\"graph\", \"TI\"], \",\", StyleBox[\"tensor\", \"TI\"]}], \
-\"]\"}]\) selects indices automatically from the current free indices of \
+\"]\"}]\) joins each slot of \!\(\*StyleBox[\"tensor\", \"TI\"]\) to a free index of the same dimension in \
 \!\(\*StyleBox[\"graph\", \"TI\"]\)."
 
 
