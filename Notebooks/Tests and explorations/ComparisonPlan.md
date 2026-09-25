@@ -2,7 +2,7 @@
 
 **Paclet:** `Wolfram/TensorNetworks` v1.0.4 (PrimaryContext `Wolfram`TensorNetworks``).
 **Audit date:** 2026-05-25.
-**Scope:** every exported kernel symbol across `Kernel/*.wl`, `Kernel/IndexArray/*.wl`, and `Kernel/Symmetry/*.wl`, scored against the cataloged external corpora at `Tests/external_validation/` (503 numerical entries) and `TN courses/External symbolic tensor/` (150 symbolic entries).
+**Scope:** every exported kernel symbol across `Kernel/*.wl`, `Kernel/IndexArray/*.wl`, and `Kernel/Symmetry/*.wl`, scored against the cataloged external corpora at `Tests/external_validation/` (503 numerical entries) and `External symbolic tensor/` in the private repository `mbahram/TN-courses` (150 symbolic entries).
 
 This document supersedes the earlier draft (which predated the IndexArray/MetricTensor subpackage, the Rust path optimizer, the Young-tableau module, the QuantumFramework downstream integration, and the external-validation suite). It is a planning document, not a tutorial; pair it with the existing tutorials under `TensorNetworks/Documentation/English/Tutorials/`.
 
@@ -120,7 +120,7 @@ Local clones live under `tn-external/numerical/` (see `reference_external_tn_pac
 
 ### 2.2 Symbolic packages
 
-Local clones live under `TN courses/External symbolic tensor/`; catalog in `EXAMPLES_CATALOG.md` and audit in `WL_PILLAR_AUDIT.md` (see `reference_external_symbolic_packages` memory):
+Local clones live under `External symbolic tensor/` in the private repository `mbahram/TN-courses`; catalog in `EXAMPLES_CATALOG.md` and audit in `WL_PILLAR_AUDIT.md` (see `reference_external_symbolic_packages` memory):
 
 | Package | Language | Focus | Cataloged entries |
 |---|---|---|---|
@@ -373,9 +373,9 @@ Audit and source documents inside the repository:
 - `Audit/Wolfram-vs-Numeric-TN-Assessment-2026-04-26.md`: six unique wedges, mapped to a real graduate TN syllabus.
 - `Audit/Wolfram-TN-Six-Wedges-Demos.md`: runnable demonstrations of those wedges.
 - `Audit/Decision-Diagram-Integration-Plan-2026-05-22.md`: DD integration plan.
-- `TN courses/A course on symbolic Tensor Networks/Symbolic_TN_feature_pillars.md`: the 5-pillar symbolic-TN framework.
-- `TN courses/External symbolic tensor/EXAMPLES_CATALOG.md`: 150 cataloged symbolic-tensor examples.
-- `TN courses/External symbolic tensor/WL_PILLAR_AUDIT.md`: per-pillar audit of this paclet vs the symbolic corpus.
+- `TN-courses/A course on symbolic Tensor Networks/Symbolic_TN_feature_pillars.md`: the 5-pillar symbolic-TN framework.
+- `TN-courses/External symbolic tensor/EXAMPLES_CATALOG.md`: 150 cataloged symbolic-tensor examples.
+- `TN-courses/External symbolic tensor/WL_PILLAR_AUDIT.md`: per-pillar audit of this paclet vs the symbolic corpus.
 - `Tests/external_validation/EXAMPLES_CATALOG.md`: 503 numerical examples.
 - `Tests/external_validation/PLAN.md`: live test-suite status.
 - `TensorNetworks/PacletInfo.wl`: version, dependency, Cargo build wiring.
