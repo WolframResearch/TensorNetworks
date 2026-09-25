@@ -15,7 +15,7 @@
      wolframscript -file Build/clean_xxxx.wl
    ============================================================ *)
 
-docsDir = "/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks/Documentation/English/ReferencePages/Symbols";
+docsDir = FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks", "Documentation", "English", "ReferencePages", "Symbols"}];
 
 emptyCellStyles = {"Notes", "Tutorials", "MoreAbout", "RelatedLinks", "Keywords", "ExampleSubsection"};
 

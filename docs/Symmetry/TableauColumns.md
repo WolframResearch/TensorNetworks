@@ -15,7 +15,7 @@ RelatedGuides: [TensorNetworks]
 
 ## Details & Options
 
-- The column lengths give the conjugate (transpose) partition of *tableau*'s shape — equivalent to [`TransposePartition`]() applied to [`TableauShape`]().
+- The column lengths give the conjugate (transpose) partition of *tableau*'s shape: equivalent to [`TransposePartition`]() applied to [`TableauShape`]().
 - Ragged tableau shapes are handled: short rows simply contribute no entry to their missing columns.
 - [`YoungTableau`]() is atomic, so columns are not directly accessible via [`Part`](); [`TableauColumns`]() is the canonical accessor.
 

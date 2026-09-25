@@ -10,7 +10,7 @@ If[Length[args] < 1, Print["Usage: ... <path_to_nb>"]; Quit[2]];
 nbPath = args[[1]];
 If[! FileExistsQ[nbPath], Print["Not found: ", nbPath]; Quit[2]];
 
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks"];
+PacletDirectoryLoad[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks"}]];
 Quiet @ Needs["Wolfram`TensorNetworks`"];
 Quiet @ Needs["Wolfram`TensorNetworks`IndexArray`"];
 Quiet @ Needs["Wolfram`TensorNetworks`Symmetry`"];

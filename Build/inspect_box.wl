@@ -13,8 +13,8 @@ inspect[path_String, idx_Integer] := Module[{nb, inputs, box},
   Print[]
 ];
 
-inspect["/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks/Documentation/English/ReferencePages/Symbols/BinaryTensorNetwork.nb", 3];
-inspect["/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks/Documentation/English/ReferencePages/Symbols/TensorNetwork.nb", 2];
-inspect["/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks/Documentation/English/ReferencePages/Symbols/PathIndexContractions.nb", 3];
-inspect["/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks/Documentation/English/ReferencePages/Symbols/ToTensorNetworkGraph.nb", 3];
+inspect[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks", "Documentation", "English", "ReferencePages", "Symbols", "BinaryTensorNetwork.nb"}], 3];
+inspect[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks", "Documentation", "English", "ReferencePages", "Symbols", "TensorNetwork.nb"}], 2];
+inspect[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks", "Documentation", "English", "ReferencePages", "Symbols", "PathIndexContractions.nb"}], 3];
+inspect[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks", "Documentation", "English", "ReferencePages", "Symbols", "ToTensorNetworkGraph.nb"}], 3];
 Quit[0]

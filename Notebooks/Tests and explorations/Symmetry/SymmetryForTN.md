@@ -27,7 +27,7 @@ Load the paclet and the Symmetry subcontext. The Symmetry subcontext exports
 `TableauDimension`, `YoungSymmetrize`, and `YoungProject`.
 
 ```wolfram
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks"];
+PacletDirectoryLoad["/path/to/TensorNetworks"];
 Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 ```
@@ -127,10 +127,10 @@ symmetry-resolved MPS / MPO blocks.
 
 ### Symmetry-subcontext functions used
 
-- `TableauDimension[par]` — computes $\dim V_\lambda$ via the hook-length formula $n! / \prod h(i,j)$. This is the $S_n$-irrep factor.
-- `HookLengths[par]` — the per-cell hook lengths used inside `schurDim` to evaluate $\dim S^\lambda(\mathbb{C}^d)$ via the Weyl formula.
-- `YoungTableau[t]` — wraps each standard tableau into the structural type that `YoungProject` understands.
-- `YoungProject[T, YoungTableau[t]]` — projects basis tensors onto the irrep subspace (inside `flattenProjector` / `irrepRank`), giving the *measured* block dimension as a verification of the closed-form prediction.
+- `TableauDimension[par]`: computes $\dim V_\lambda$ via the hook-length formula $n! / \prod h(i,j)$. This is the $S_n$-irrep factor.
+- `HookLengths[par]`: the per-cell hook lengths used inside `schurDim` to evaluate $\dim S^\lambda(\mathbb{C}^d)$ via the Weyl formula.
+- `YoungTableau[t]`: wraps each standard tableau into the structural type that `YoungProject` understands.
+- `YoungProject[T, YoungTableau[t]]`: projects basis tensors onto the irrep subspace (inside `flattenProjector` / `irrepRank`), giving the *measured* block dimension as a verification of the closed-form prediction.
 
 ### Why Symmetry matters here, and how it helps
 
@@ -219,10 +219,10 @@ The closed-form prediction and the explicit projector rank agree on every row, i
 
 ### Symmetry-subcontext functions used
 
-- `YoungTableau[t]` — one per standard tableau, four times in this example (one for $\{3\}$, two for $\{2,1\}$, one for $\{1,1,1\}$).
-- `YoungProject[T, YoungTableau[t]]` — projects $T$ onto each tableau; for the mixed-symmetry irrep we sum two `YoungProject` calls to form the isotypic projector $E_{\{2,1\}}$.
-- `TableauDimension[par]` — gives the $S_n$-irrep dimension that equals the number of standard tableaux of shape $\lambda$.
-- `HookLengths[par]` (via `schurDim`) — used to evaluate the GL(d) factor in the Schur-Weyl multiplicity.
+- `YoungTableau[t]`: one per standard tableau, four times in this example (one for $\{3\}$, two for $\{2,1\}$, one for $\{1,1,1\}$).
+- `YoungProject[T, YoungTableau[t]]`: projects $T$ onto each tableau; for the mixed-symmetry irrep we sum two `YoungProject` calls to form the isotypic projector $E_{\{2,1\}}$.
+- `TableauDimension[par]`: gives the $S_n$-irrep dimension that equals the number of standard tableaux of shape $\lambda$.
+- `HookLengths[par]` (via `schurDim`): used to evaluate the GL(d) factor in the Schur-Weyl multiplicity.
 
 ### Why Symmetry matters here, and how it helps
 
@@ -343,8 +343,8 @@ WL primitive that does the right thing.
 
 ### Symmetry-subcontext functions used
 
-- `YoungTableau[{{1,3},{2,4}}]` — encodes the $(2,2)$ Young diagram with the slot labelling that defines Riemann symmetry.
-- `YoungProject[T, ...]` — projects a generic rank-4 tensor onto the (2,2) irrep subspace, in one call.
+- `YoungTableau[{{1,3},{2,4}}]`: encodes the $(2,2)$ Young diagram with the slot labelling that defines Riemann symmetry.
+- `YoungProject[T, ...]`: projects a generic rank-4 tensor onto the (2,2) irrep subspace, in one call.
 
 ### Why Symmetry matters here, and how it helps
 
@@ -434,9 +434,9 @@ the TN proceeds with no further intervention.
 
 ### Symmetry-subcontext functions used
 
-- `YoungTableau[{{1,2}}]` — the $\{2\}$ partition (symmetric).
-- `YoungTableau[{{1},{2}}]` — the $\{1,1\}$ partition (antisymmetric).
-- `YoungProject[T, ...]` — the normalised idempotent projector for each.
+- `YoungTableau[{{1,2}}]`: the $\{2\}$ partition (symmetric).
+- `YoungTableau[{{1},{2}}]`: the $\{1,1\}$ partition (antisymmetric).
+- `YoungProject[T, ...]`: the normalised idempotent projector for each.
 
 ### Why Symmetry matters here, and how it helps
 

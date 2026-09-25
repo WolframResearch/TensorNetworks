@@ -4,12 +4,12 @@
    current ::usage message. Flags drift (different number of overloads, or
    substantially different prose). *)
 
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks"];
+PacletDirectoryLoad[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks"}]];
 Quiet @ Needs["Wolfram`TensorNetworks`"];
 Quiet @ Needs["Wolfram`TensorNetworks`IndexArray`"];
 Quiet @ Needs["Wolfram`TensorNetworks`Symmetry`"];
 
-docsDir = "/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks/Documentation/English/ReferencePages/Symbols";
+docsDir = FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks", "Documentation", "English", "ReferencePages", "Symbols"}];
 
 (* Resolve symbol from base name across all 3 contexts. *)
 resolveSymbol[name_String] := Module[{candidates},

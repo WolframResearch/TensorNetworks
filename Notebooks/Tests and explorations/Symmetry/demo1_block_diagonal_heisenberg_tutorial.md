@@ -20,7 +20,7 @@ The worked example is the spin-1/2 Heisenberg chain. We work in two stages: a si
 Load the paclet, pull the Symmetry sub-context into scope, fix the numerical tolerance used by every identity check.
 
 ```wl
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks"];
+PacletDirectoryLoad["/path/to/TensorNetworks"];
 Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 

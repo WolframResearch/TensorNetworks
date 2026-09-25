@@ -18,7 +18,7 @@ $NetconHibernated = {
 paths = Select[paths, ! MemberQ[$NetconHibernated, FileBaseName[#]] &];
 If[paths === {}, Print["No pages to check (all on Netcon-hibernation skip list)."]; Quit[0]];
 
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks"];
+PacletDirectoryLoad[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks"}]];
 Quiet @ Needs["Wolfram`TensorNetworks`"];
 Quiet @ Needs["Wolfram`TensorNetworks`IndexArray`"];
 Quiet @ Needs["Wolfram`TensorNetworks`Symmetry`"];

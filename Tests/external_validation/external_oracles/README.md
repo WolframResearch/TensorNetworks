@@ -1,8 +1,8 @@
-# External oracles — fixture extraction
+# External oracles: fixture extraction
 
 Offline scripts that pull reference inputs and expected outputs from numerical
 TN packages (quimb, cotengra, ITensorMPS, ...) into JSON fixtures committed
-under `fixtures/`. The WL test suite never calls these packages at test time —
+under `fixtures/`. The WL test suite never calls these packages at test time:
 it `Import`s the fixtures and re-runs the same computations through paclet
 primitives.
 
@@ -11,7 +11,7 @@ to passing direct-validation; see `../PLAN.md` § Tier-2 oracle fixtures.
 
 ## Run
 
-Tests don't need this directory — only fixture regeneration does.
+Tests don't need this directory: only fixture regeneration does.
 
 ```bash
 # One-time toolchain bootstrap (only on a fresh checkout / package upgrade)

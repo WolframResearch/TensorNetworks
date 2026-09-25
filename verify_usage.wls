@@ -2,7 +2,7 @@
 (* Test script to verify usage messages display correctly *)
 
 (* Load the package *)
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks"];
+PacletDirectoryLoad[FileNameJoin[{DirectoryName[$InputFileName], "TensorNetworks"}]];
 Get["Wolfram`TensorNetworks`"];
 
 Print["\\n========================================"];

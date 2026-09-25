@@ -7,7 +7,7 @@ We start with the kernel's mono-term objects and what they store, test how the b
 Load the paclet; every later cell assumes this has run.
 
 ```wl
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks"];
+PacletDirectoryLoad["/path/to/TensorNetworks"];
 Needs["Wolfram`TensorNetworks`"];
 ```
 

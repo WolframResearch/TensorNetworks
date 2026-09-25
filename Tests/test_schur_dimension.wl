@@ -30,7 +30,7 @@
    H.  Failure paths reject malformed input.
 *)
 
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks"];
+PacletDirectoryLoad[ParentDirectory[DirectoryName[$InputFileName]]];
 Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 

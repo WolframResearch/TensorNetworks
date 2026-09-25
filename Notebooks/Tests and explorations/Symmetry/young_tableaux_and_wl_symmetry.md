@@ -7,7 +7,7 @@ A Young tableau in the paclet's `` Wolfram`TensorNetworks`Symmetry` `` subcontex
 The Young-tableau symbols live in a subcontext of the TensorNetworks paclet, so we load the paclet and pull both contexts into scope. Every later cell assumes these three lines have run.
 
 ```wl
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks"];
+PacletDirectoryLoad["/path/to/TensorNetworks"];
 Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 ```

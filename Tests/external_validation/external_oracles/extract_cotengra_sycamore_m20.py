@@ -26,9 +26,10 @@ from pathlib import Path
 import cotengra as ctg
 
 
-SYCAMORE_JSON = Path(
-    "/Users/mohammadb/Documents/GitHub/TensorNetworks/tn-external/numerical/"
-    "cotengra/examples/benchmarks/sycamore_n53_m20_s0_e0_pABCDCDAB.json"
+REPO_ROOT = Path(__file__).resolve().parents[3]
+SYCAMORE_JSON = (
+    REPO_ROOT / "tn-external" / "numerical" / "cotengra" / "examples" / "benchmarks"
+    / "sycamore_n53_m20_s0_e0_pABCDCDAB.json"
 )
 
 

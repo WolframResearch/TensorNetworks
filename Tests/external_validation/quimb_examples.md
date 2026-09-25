@@ -1,6 +1,6 @@
 # Quimb Validation-Test Catalog
 
-Source: `tn-external/numerical/quimb/`. All paths below are relative to that root.
+Source: the quimb repository (https://github.com/jcmgray/quimb). All paths below are relative to its root.
 
 ## Summary
 
@@ -245,7 +245,7 @@ Conventions:
 
 ## Notes on validation testing
 
-- DMRG/TEBD/SU/FU/TRG numerics are deterministic given matched RNG seeds (where shown). For random-seed-dependent values (e.g., random PEPS contraction = 0.5078), agreement is checked by running the *same* RNG seed on both sides — quimb honors `seed=` kwargs in `MPS_rand_state`, `PEPS.rand`, `MERA.rand`, `rand_tensor`, `rand_ket`, `rand_uni`, `rand_herm`, etc.
+- DMRG/TEBD/SU/FU/TRG numerics are deterministic given matched RNG seeds (where shown). For random-seed-dependent values (e.g., random PEPS contraction = 0.5078), agreement is checked by running the *same* RNG seed on both sides: quimb honors `seed=` kwargs in `MPS_rand_state`, `PEPS.rand`, `MERA.rand`, `rand_tensor`, `rand_ket`, `rand_uni`, `rand_herm`, etc.
 - For Heisenberg-energy comparisons, both sides should call `qu.heisenberg_energy(L)` (analytic Bethe ansatz) or compute via `qu.groundenergy(qu.ham_heis(L, ...))` independently.
 - Boundary contraction tolerances (`max_bond`, `cutoff`) introduce systematic offsets; treat these as soft equality (within ~1e-3 for max_bond=64).
 - All "WL-portable: No" entries depend on autodiff (jax/torch/autograd) infrastructure that has no direct WL analog; either skip or compare only the loss surface qualitatively.

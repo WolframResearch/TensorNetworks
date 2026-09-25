@@ -1,6 +1,6 @@
 #!/usr/bin/env wolframscript
 
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks"];
+PacletDirectoryLoad[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks"}]];
 Quiet @ Needs["Wolfram`TensorNetworks`"];
 
 tn = RandomTensorNetwork[{4, 5}, 3];

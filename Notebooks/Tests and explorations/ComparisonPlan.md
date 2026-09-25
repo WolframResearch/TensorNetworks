@@ -2,7 +2,7 @@
 
 **Paclet:** `Wolfram/TensorNetworks` v1.0.4 (PrimaryContext `Wolfram`TensorNetworks``).
 **Audit date:** 2026-05-25.
-**Scope:** every exported kernel symbol across `Kernel/*.wl`, `Kernel/IndexArray/*.wl`, and `Kernel/Symmetry/*.wl`, scored against the cataloged external corpora at `Tests/external_validation/` (503 numerical entries) and `External symbolic tensor/` in the private repository `mbahram/TN-courses` (150 symbolic entries).
+**Scope:** every exported kernel symbol across `Kernel/*.wl`, `Kernel/IndexArray/*.wl`, and `Kernel/Symmetry/*.wl`, scored against the numerical-package examples cataloged in `Tests/external_validation/` (503 entries) and 150 examples from symbolic tensor packages (§2.2).
 
 This document supersedes the earlier draft (which predated the IndexArray/MetricTensor subpackage, the Rust path optimizer, the Young-tableau module, the QuantumFramework downstream integration, and the external-validation suite). It is a planning document, not a tutorial; pair it with the existing tutorials under `TensorNetworks/Documentation/English/Tutorials/`.
 
@@ -95,7 +95,7 @@ Properties: `"MatrixRepresentation"`, `"InverseMetricTensor"`, `"Determinant"`, 
 - **Hypergraph plotting.** Bridge to `WolframInstitute/Hypergraph` paclet via `PacletSymbol` for `Hypergraph` and `SimpleHypergraphPlot` (used in `"Hypergraph"` property and the summary box icon for binary networks).
 - **Documentation.** 80 reference pages under `TensorNetworks/Documentation/English/ReferencePages/Symbols/`, 6 tutorials (`TensorNetworksOverview`, `BuildingTensorNetworks`, `ContractionPathsAndExecution`, `MPSAlgorithms`, `IndexArrayAndMetrics`, `YoungSymmetries`), and the master `Guides/TensorNetworks.nb`.
 - **Tests.** `Tests/test_mps.wl`, `Tests/test_add_delete.wl`, `Tests/test_random_tensor_network.wl`, `Tests/test_setup.wl`, `Tests/run_doc_examples.wl`, `Tests/run_tests.wl`. `Tests/external_validation/` adds 156 passing oracle-fixture tests against quimb/cotengra/ITensor* under `paclet_primitives/`, `baselines/`, `paclet_fuzz/`, driven by `run_external_validation.wl`. Project-wide pass at audit time: **2256/2256** with 10 skip-missing entries for documented feature gaps.
-- **Downstream consumer.** `Wolfram/QuantumFramework` v1.6.5 auto-installs this paclet at exactly v1.0.4 and consumes `TensorNetwork`, `TensorNetworkQ`, `TensorNetworkGraphQ`, `TensorNetworkContract`, `TensorNetworkIndices`, `TensorNetworkFreeIndices`, `GraphTensorNetwork` as de facto public API. See `Audit/TensorNetworks-Capabilities-Audit-and-Quantum-Roadmap.md` §1.12.
+- **Downstream consumer.** `Wolfram/QuantumFramework` v1.6.5 auto-installs this paclet at exactly v1.0.4 and consumes `TensorNetwork`, `TensorNetworkQ`, `TensorNetworkGraphQ`, `TensorNetworkContract`, `TensorNetworkIndices`, `TensorNetworkFreeIndices`, `GraphTensorNetwork` as de facto public API.
 
 **Total exported kernel surface: 76 symbols.**
 
@@ -105,7 +105,7 @@ Properties: `"MatrixRepresentation"`, `"InverseMetricTensor"`, `"Determinant"`, 
 
 ### 2.1 Numerical packages
 
-Local clones live under `tn-external/numerical/` (see `reference_external_tn_packages` memory). Per-package catalogs in `Tests/external_validation/`:
+Per-package catalogs in `Tests/external_validation/`:
 
 | Package | Language | Strengths | Local catalog |
 |---|---|---|---|
@@ -120,7 +120,7 @@ Local clones live under `tn-external/numerical/` (see `reference_external_tn_pac
 
 ### 2.2 Symbolic packages
 
-Local clones live under `External symbolic tensor/` in the private repository `mbahram/TN-courses`; catalog in `EXAMPLES_CATALOG.md` and audit in `WL_PILLAR_AUDIT.md` (see `reference_external_symbolic_packages` memory):
+Symbolic packages compared, with the number of their examples cataloged:
 
 | Package | Language | Focus | Cataloged entries |
 |---|---|---|---|
@@ -146,7 +146,7 @@ Not a competitor; an integration partner that is already shipped:
 
 ## Part 3. Where the paclet leads or lags
 
-Verdicts use the same legend as `WL_PILLAR_AUDIT.md`: 🟢 covered, 🟡 partial (substrate but no headline API), 🔴 gap, ⚪ out of scope.
+Verdicts use the legend: 🟢 covered, 🟡 partial (substrate but no headline API), 🔴 gap, ⚪ out of scope.
 
 ### 3.1 Differentiators (🟢, no equivalent in any external package)
 
@@ -159,7 +159,7 @@ Verdicts use the same legend as `WL_PILLAR_AUDIT.md`: 🟢 covered, 🟡 partial
 | 5 swappable contraction backends | `$TensorNetworkContractionMethods` = `{"ArrayDotTranspose", "ArrayDot", "Dot", "TensorContract", "TableSum"}` | `"TableSum"` emits a literal `Table[Sum[Part[a,...] Part[b,...]]]`, which preserves symbolic structure other libraries collapse. |
 | Hyperedge-native TN object with `BinaryTensorNetwork` reduction | `TensorNetwork[tensors, {{i, j, k, ...}, ...}]`, `BinaryTensorNetwork` (spider insertion via `SymbolicDeltaProductArray`) | quimb and ITensorNetworks use multi-tensor delta tensors; the paclet keeps the hyperedge as the primary representation and treats binarization as an explicit, inspectable transform. |
 | Round-trip with the Wolfram neural net stack | `TensorNetworkToNetGraph` (compiles a path into `NetArrayLayer`/`TransposeLayer`/`ReshapeLayer`/`DotLayer`) | Quimb-on-JAX is close; no Python package compiles to the same kind of differentiable layer graph backed by Wolfram's `NetTrain`. |
-| Pinned downstream quantum stack | `Wolfram/QuantumFramework` v1.6.5 already routes `qco["TensorNetwork"]`, `QuantumTensorNetwork[qco]`, `ZXTensorNetwork[qc]` through this paclet | Stabilizer simulation, named QECCs, bosonic CV, multi-formalism execution, symbolic Schrödinger/Lindblad (`QuantumEvolve`) are all reachable from the same circuit object. Documented in `Audit/Wolfram-TN-Six-Wedges-Demos.md` (see §5.2 below). |
+| Pinned downstream quantum stack | `Wolfram/QuantumFramework` v1.6.5 already routes `qco["TensorNetwork"]`, `QuantumTensorNetwork[qco]`, `ZXTensorNetwork[qc]` through this paclet | Stabilizer simulation, named QECCs, bosonic CV, multi-formalism execution, symbolic Schrödinger/Lindblad (`QuantumEvolve`) are all reachable from the same circuit object. |
 
 ### 3.2 Parity (🟢, externally matched but paclet-side present)
 
@@ -173,8 +173,6 @@ Verdicts use the same legend as `WL_PILLAR_AUDIT.md`: 🟢 covered, 🟡 partial
 | Path-tree algebra | `PathToTreePath`, `TreePathToPath`, `CanonicalPath`, `PathIndexContractions`, `ContractionTree` | EinExprs.jl path-as-tree |
 
 ### 3.3 Gaps (🟡 or 🔴, prioritized)
-
-Pulled from `Audit/TensorNetworks-Capabilities-Audit-and-Quantum-Roadmap.md` §3 and `WL_PILLAR_AUDIT.md`:
 
 | Gap | Verdict | Closest external | Where it would live |
 |---|---|---|---|
@@ -192,7 +190,7 @@ Pulled from `Audit/TensorNetworks-Capabilities-Audit-and-Quantum-Roadmap.md` §3
 | Symmetry-preserving tensors (abelian / non-abelian QN) | 🔴 | ITensors.jl QN, TeNPy charges | Hook into `IndexArray`/`Shape` variance |
 | Fermion (Grassmann) parity tracking | 🔴 | ITensorMPS.jl, TeNPy | New `Kernel/Fermions.wl` (QF only has bosonic CV) |
 
-### 3.4 Known bugs and limitations carried over (from memory)
+### 3.4 Known bugs and limitations
 
 - `Netcon` C++ library hangs on hyperedge networks and on disconnected networks; `TimeConstrained` cannot interrupt LibraryLink. Avoid for those topologies; the Rust optimizers are safe.
 - `SymbolicDeltaProductArray` is not numerically evaluable directly by `ArrayDot`. Workaround: `Normal[s_SymbolicDeltaProductArray]`. The `numericBinaryNetwork` helper in `Tests/test_netcon_audit.wl` wraps this.
@@ -223,7 +221,7 @@ Tests/external_validation/
 
 Driver: `wolframscript -file Tests/external_validation/run_external_validation.wl`. Audit-time status: **156/156** with 10 documented skips.
 
-Project-wide test status at audit time (from `reference_external_validation_suite` memory):
+Project-wide test status at audit time:
 - Main suite: 36/36.
 - Doc examples: 2064/2064 across 81 pages (2 Netcon-hibernated pages skipped).
 - External validation: 156/156.
@@ -254,7 +252,7 @@ For each new feature in Part 5, add (in priority order):
 
 ### Phase 2. Path algebra: symbolic surface
 
-Maps to `WL_PILLAR_AUDIT.md` Pillar 3 (🟡, "mostly an API-surfacing job"):
+Maps to symbolic-TN Pillar 3 (Phase 4; 🟡, "mostly an API-surfacing job"):
 
 | Task | Closest external | Surface |
 |---|---|---|
@@ -267,8 +265,6 @@ Tests: cross-check 2.1 against EinExprs.jl symbolic costs for MPS norm O(d^N) vs
 
 ### Phase 3. MPS / MPO algorithm extensions
 
-Maps to `Audit/...Roadmap.md` §3.1 HIGH-priority entries.
-
 | Task | Maps to | Surface |
 |---|---|---|
 | 3.1 `MPOApply[mpo, mps]` with bond-dimension control | ITensorMPS.jl `applyMPO`, TeNPy `apply_mpo` | `Kernel/MPS.wl` |
@@ -278,7 +274,7 @@ Maps to `Audit/...Roadmap.md` §3.1 HIGH-priority entries.
 | 3.5 Two-site DMRG sweep (`Method -> "DMRG"` on a future `GroundState` API) | ITensorMPS.jl `dmrg`, TeNPy `engine.run` | New `Kernel/DMRG.wl` |
 | 3.6 `TEBDStep[mps, gates, dt]` (Suzuki-Trotter, real and imaginary time) | quimb `tebd`, TeNPy `tebd_engine` | New `Kernel/Dynamics.wl` |
 
-### Phase 4. Symbolic-TN pillars (from `Symbolic_TN_feature_pillars.md`)
+### Phase 4. Symbolic-TN pillars
 
 | Pillar | Verdict | New surface |
 |---|---|---|
@@ -338,14 +334,14 @@ What this plan adds (mapped to phases):
 | Notebook | Phase | Purpose |
 |---|---|---|
 | `Notebooks/Tests and explorations/LibraryComparison.nb` | 1 | Side-by-side: same problem, paclet vs quimb, cotengra, ITensorMPS.jl, EinExprs.jl. Driven by `external_oracles` fixtures. |
-| `Documentation/English/Tutorials/SymbolicComputation.nb` | 1 | Closed-form Schmidt, transfer-matrix eigenvalues, parametric entropies. Source for §3.1 wedge 1. |
+| `Documentation/English/Tutorials/SymbolicComputation.nb` | 1 | Closed-form Schmidt, transfer-matrix eigenvalues, parametric entropies. Source for the first differentiator in §3.1. |
 | `Documentation/English/Tutorials/MPOAndDynamics.nb` | 3 | Once Phase 3 ships: `MPOApply`, `ExpectationValue`, `TEBDStep`. |
 | `Documentation/English/Tutorials/HamiltonianToMPO.nb` | 4 (Pillar 1) | The headline symbolic-TN deliverable. |
 | `Documentation/English/Tutorials/Canonicalization.nb` | 4 (Pillar 2) | First Bianchi, Riemann polynomial identity, Wick on small fermionic product. |
 | `Documentation/English/Tutorials/ZXRewrites.nb` | 4 (Pillar 4) | If we extend the QF bridge: AKLT, GHZ, cluster state. |
 | `Documentation/English/Tutorials/HaarIntegration.nb` | 4 (Pillar 5) | Isserlis, Weingarten, random-PEPS averages. |
 
-Do **not** create the `Documentation/MathematicaAdvantages.nb` / `MigrationFromPython.nb` / `PhysicsApplications.nb` notebooks the earlier draft proposed. Their content is better folded into the audit document `Audit/Wolfram-TN-Six-Wedges-Demos.md` and the existing tutorials.
+Do **not** create the `Documentation/MathematicaAdvantages.nb` / `MigrationFromPython.nb` / `PhysicsApplications.nb` notebooks the earlier draft proposed. Their content is better folded into the existing tutorials.
 
 ---
 
@@ -357,7 +353,7 @@ Do **not** create the `Documentation/MathematicaAdvantages.nb` / `MigrationFromP
 | GR-style tensor algebra (covariance, metric, Christoffel) | `Wolfram/TensorNetworks` + xAct. Paclet wins on "20 metrics in one expression"; xAct wins on Butler-Portugal canonicalization. |
 | Young symmetrization / irrep projection | **`Wolfram/TensorNetworks`** (`YoungProject` is normalized; xAct/Cadabra ship the unnormalized symmetrizer). |
 | Hyperedge / symbolic-spider TN with `SymbolicDeltaProductArray` | **`Wolfram/TensorNetworks`** (quimb has hyperedges; only paclet keeps them inspectable). |
-| Quantum-circuit ↔ TN ↔ ZX round-trip in one kernel | **`Wolfram/QuantumFramework` + this paclet** (six wedges in `Audit/Wolfram-TN-Six-Wedges-Demos.md`). |
+| Quantum-circuit ↔ TN ↔ ZX round-trip in one kernel | **`Wolfram/QuantumFramework` + this paclet**. |
 | DMRG ground state, large iDMRG / iTEBD | ITensorMPS.jl or TeNPy until Phase 3.5/3.6 lands. |
 | Path search for 100+ tensor networks | quimb + cotengra, or this paclet's Rust `OptimalContractionPath` (parity, with the `Method -> "size"` caveat). |
 | GPU contraction | cuTensorNet (no equivalent here yet). |
@@ -367,15 +363,8 @@ Do **not** create the `Documentation/MathematicaAdvantages.nb` / `MigrationFromP
 
 ## Part 8. References
 
-Audit and source documents inside the repository:
+Source documents inside the repository:
 
-- `Audit/TensorNetworks-Capabilities-Audit-and-Quantum-Roadmap.md` (rev 2, 2026-04-26): definitive capability + roadmap with QF cross-check.
-- `Audit/Wolfram-vs-Numeric-TN-Assessment-2026-04-26.md`: six unique wedges, mapped to a real graduate TN syllabus.
-- `Audit/Wolfram-TN-Six-Wedges-Demos.md`: runnable demonstrations of those wedges.
-- `Audit/Decision-Diagram-Integration-Plan-2026-05-22.md`: DD integration plan.
-- `TN-courses/A course on symbolic Tensor Networks/Symbolic_TN_feature_pillars.md`: the 5-pillar symbolic-TN framework.
-- `TN-courses/External symbolic tensor/EXAMPLES_CATALOG.md`: 150 cataloged symbolic-tensor examples.
-- `TN-courses/External symbolic tensor/WL_PILLAR_AUDIT.md`: per-pillar audit of this paclet vs the symbolic corpus.
 - `Tests/external_validation/EXAMPLES_CATALOG.md`: 503 numerical examples.
 - `Tests/external_validation/PLAN.md`: live test-suite status.
 - `TensorNetworks/PacletInfo.wl`: version, dependency, Cargo build wiring.
@@ -406,7 +395,7 @@ Before any phase ships:
 2. The pipe through `wolframscript -file Tests/run_tests.wl` stays green.
 3. `wolframscript -file Tests/external_validation/run_external_validation.wl` stays at 156+ passing (no regressions; new tests added for each new feature).
 4. `Wolfram/QuantumFramework` v1.6.5's `QuantumTensorNetwork[qco]`, `TensorNetworkApply[qco, qs]`, `ZXTensorNetwork[qc]` still work end-to-end. The QF-consumed symbols (§1.9) are renamed only with a signed-off deprecation cycle.
-5. `EXAMPLES_CATALOG.md` (numerical and symbolic) is updated when the new feature has an external counterpart.
+5. `Tests/external_validation/EXAMPLES_CATALOG.md` is updated when the new feature has an external counterpart.
 6. `Notebooks/Tests and explorations/LibraryComparison.nb` runs end-to-end on the host machine.
 
 ---

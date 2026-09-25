@@ -1,6 +1,6 @@
 # ITensors.jl Validation-Test Catalog
 
-Source: `tn-external/numerical/ITensors.jl/`. **For MPS / MPO / DMRG / OpSum / `inner` / `expect` coverage, see [itensormps_examples.md](itensormps_examples.md).**
+Source: the ITensors.jl repository (https://github.com/ITensor/ITensors.jl). **For MPS / MPO / DMRG / OpSum / `inner` / `expect` coverage, see [itensormps_examples.md](itensormps_examples.md).**
 
 ## Summary
 
@@ -139,7 +139,7 @@ WL-portable counts: **Yes: 30, Partial: 9, No: 2** (the two No items are GPU-spe
 - **Inputs:** Various `Index` of dims 2, 3, 4, 5, 6 with random fills.
 - **API:** `*`, `permute`, `array`, `scalar`.
 - **Expected output:** Matches the equivalent Julia BLAS computation (`array(C) ≈ ...`).
-- **WL-portable:** Yes — gold-standard validation case.
+- **WL-portable:** Yes: gold-standard validation case.
 
 ### 15. Trace via delta tensor
 - **Source:** `docs/src/examples/ITensor.md:260-291`
@@ -147,7 +147,7 @@ WL-portable counts: **Yes: 30, Partial: 9, No: 2** (the two No items are GPU-spe
 - **Inputs:** `A = random_itensor(i,j,l)`, `i=Index(4), j=Index(3), l=Index(4)`.
 - **API:** `delta`, `*`.
 - **Expected output:** Matches `sum(A[ii,jj,ii] for ii)` for each `jj`.
-- **WL-portable:** Partial (WL TensorNetworks paclet uses `SymbolicDeltaProductArray` for hyper-edges; convert via `Normal[]` per project memory).
+- **WL-portable:** Partial (WL TensorNetworks paclet uses `SymbolicDeltaProductArray` for hyper-edges; convert via `Normal[]`).
 
 ### 16. Trace via diag pairs
 - **Source:** `test/base/test_itensor.jl:293-310`
@@ -171,7 +171,7 @@ WL-portable counts: **Yes: 30, Partial: 9, No: 2** (the two No items are GPU-spe
 - **Inputs:** indices of dims `m,m,k,k,k,d,d`; symbolic via `@variables m,k,d`.
 - **API:** `contraction_cost`, `optimal_contraction_sequence`, `dag`, `'`.
 - **Expected output:** `cost1` faster for large `m`, `cost2` faster for large `k`.
-- **WL-portable:** Partial (`OptimalContractionPath` from paclet exists; uses different sequence convention — opt_einsum vs ITensors).
+- **WL-portable:** Partial (`OptimalContractionPath` from paclet exists; uses different sequence convention: opt_einsum vs ITensors).
 
 ## Decomposition (svd / qr / eigen / factorize)
 
@@ -210,7 +210,7 @@ WL-portable counts: **Yes: 30, Partial: 9, No: 2** (the two No items are GPU-spe
 ### 23. QR factorization with positive=true
 - **Source:** `docs/src/examples/ITensor.md:423-444`, `test/base/test_decomp.jl:164-200`
 - **Description:** QR of an order-3 tensor with `(i,k)` going to Q. With `positive=true`, R has non-negative diagonal (unique factorization).
-- **Inputs:** Various — e.g., `Index(5,"l"), Index(2,"s"), Index(5,"r")`, `random_itensor(elt, l, s, r)`; `Linds = inds(A)[1:ninds]` for `ninds=0..3`.
+- **Inputs:** Various: e.g., `Index(5,"l"), Index(2,"s"), Index(5,"r")`, `random_itensor(elt, l, s, r)`; `Linds = inds(A)[1:ninds]` for `ninds=0..3`.
 - **API:** `qr(A, Linds; positive=true, tags=...)`, also `rq`, `ql`, `lq`.
 - **Expected output:** `A ≈ Q*R` (atol 1e-13); `Q*dag(prime(Q,q)) ≈ δ(q,q')`; R is upper-triangular.
 - **WL-portable:** Yes.
@@ -266,7 +266,7 @@ WL-portable counts: **Yes: 30, Partial: 9, No: 2** (the two No items are GPU-spe
 
 ## Symmetry sectors (QN / Block sparse)
 
-### 30. QN basics — values, modulus, arithmetic
+### 30. QN basics: values, modulus, arithmetic
 - **Source:** `test/base/test_qn.jl`
 - **Description:** Construct, compare, add, subtract `QN("Sz",1)`, `QN("P",1,2)` (mod 2), multi-sector `QN(("A",1),("B",2))`, ordering.
 - **API:** `QN`, `val`, `modulus`, `+`, `-`, `==`, `<`.
@@ -301,13 +301,13 @@ WL-portable counts: **Yes: 30, Partial: 9, No: 2** (the two No items are GPU-spe
 ### 34. Pauli & Clifford operators on Qubit sites
 - **Source:** `test/base/test_phys_site_types.jl:47-200+`
 - **Description:** Hand-coded matrix forms for "Z", "Y", "X", "H", "Phase"/"S"/"P", "T"/"π/8", "Rx", "Ry", "Rz", "Rn", "S+"/"S-", "Splus"/"Sminus", projector "Proj0"/"Proj1", "√NOT", "√SWAP", "√iSWAP", "SWAP", "iSWAP", "Cphase", "RXX", "RYY". Also state vectors "Up", "Dn", "+", "X+", "Y+", "Z+", "Tetra1..4".
-- **Inputs:** `s = siteinds("Qubit", 10)` (a no-op vector creator) — the example also uses `siteind("Qubit"; conserve_parity=true / conserve_number=true)`.
+- **Inputs:** `s = siteinds("Qubit", 10)` (a no-op vector creator): the example also uses `siteind("Qubit"; conserve_parity=true / conserve_number=true)`.
 - **API:** `op("name", s, n; θ, ϕ, λ)`, `state("Up", s[i])`, `apply`, `product`.
 - **Expected output:** Each operator matches its standard 2×2 (or 4×4) matrix form to machine precision.
 - **Note:** `siteinds`, `op`, `state` here come from the in-package `ITensors.SiteTypes` submodule, not from the moved-out `ITensorMPS.jl`.
 - **WL-portable:** Yes (`PauliMatrix` and friends in WL).
 
-### 35. Operator string algebra — `*`, `+`, `-` in op names
+### 35. Operator string algebra: `*`, `+`, `-` in op names
 - **Source:** `test/base/test_sitetype.jl:14-94`
 - **Description:** Compose operators by string: `op("Sz * Sz", s, 2)` ≈ `product(Sz, Sz)`; `"S+ + S-"`, `"S+ - S- - S+"`, `"S+ * S- - S- * S+ + Sz * Sx * Sy"`, etc.
 - **Inputs:** `siteind("S=1/2")`, `siteind("Qudit"; dim=5)` ("a", "a†").
@@ -368,24 +368,24 @@ WL-portable counts: **Yes: 30, Partial: 9, No: 2** (the two No items are GPU-spe
 
 ## Notes on excluded / not-applicable categories
 
-- **MPS construction, MPS algebra, MPO construction, MPO algebra, DMRG, expectation value (`expect`), `inner`, ground-state energy, OpSum / Hamiltonian, AutoMPO, observer/sweep callbacks** — all of these were moved to **ITensorMPS.jl** in v0.7 (October 2024). The package as audited contains *zero* such examples in `docs/src/`, `examples/`, or `test/base/`. The only references that survive are:
-  - The MPS-DMRG-environment-shaped 5-tensor network in `docs/src/ContractionSequenceOptimization.md` (entry #18) — but it's purely about contraction-sequence cost, not DMRG.
+- **MPS construction, MPS algebra, MPO construction, MPO algebra, DMRG, expectation value (`expect`), `inner`, ground-state energy, OpSum / Hamiltonian, AutoMPO, observer/sweep callbacks**: all of these were moved to **ITensorMPS.jl** in v0.7 (October 2024). The package as audited contains *zero* such examples in `docs/src/`, `examples/`, or `test/base/`. The only references that survive are:
+  - The MPS-DMRG-environment-shaped 5-tensor network in `docs/src/ContractionSequenceOptimization.md` (entry #18): but it's purely about contraction-sequence cost, not DMRG.
   - String mentions ("Ising MPO") inside TRG/CTMRG comments, where "MPO" refers loosely to the 4-leg Boltzmann tensor, not an `ITensorMPS.MPO`.
 - **GPU items in `docs/src/RunningOnGPUs.md`:** WL-portable: No.
-- **Multithreaded block-sparse contraction in `docs/src/Multithreading.md`:** Same algorithmic shape as #33 plus threading flag — not a new computational example.
+- **Multithreaded block-sparse contraction in `docs/src/Multithreading.md`:** Same algorithmic shape as #33 plus threading flag: not a new computational example.
 - **HDF5 round-trip examples (`docs/src/HDF5FileFormats.md`, `docs/src/examples/ITensor.md:502-557`):** I/O not numerical computation; skipped from catalog.
 - **Upgrade-guide examples (`docs/src/UpgradeGuide_0.1_to_0.2.md`):** These are migration explanations, not new test cases.
 
 ## Recommended validation-test priority order
 
 For implementing in the WL TensorNetworks paclet (highest signal first):
-1. Entries #1, #13, #14, #19, #20, #23, #27, #41 — core ITensor + contraction + decomp validation (deterministic numeric tests).
-2. Entries #38, #39 — TRG and isotropic CTMRG against the closed-form Ising free energy and magnetization.
-3. Entries #34, #35 — operator-on-site dispatch.
-4. Entries #22, #24, #25 — edge-case decomposition behaviour.
-5. Entry #18 — contraction-sequence comparison (mind the convention: paclet `OptimalContractionPath` defaults to `Method->"size"`; pass `Method->"flops"` for cross-validation, per project memory).
-6. Entries #30–#33 — QN/block-sparse; partly out of scope per project memory unless paclet adds block-sparse support.
+1. Entries #1, #13, #14, #19, #20, #23, #27, #41: core ITensor + contraction + decomp validation (deterministic numeric tests).
+2. Entries #38, #39: TRG and isotropic CTMRG against the closed-form Ising free energy and magnetization.
+3. Entries #34, #35: operator-on-site dispatch.
+4. Entries #22, #24, #25: edge-case decomposition behaviour.
+5. Entry #18: contraction-sequence comparison (mind the convention: paclet `OptimalContractionPath` defaults to `Method->"size"`; pass `Method->"flops"` for cross-validation).
+6. Entries #30-#33: QN/block-sparse; partly out of scope unless the paclet adds block-sparse support.
 
 ## Note: missing MPS/DMRG features
 
-For MPS/MPO/DMRG/`inner`/`expect`/OpSum coverage, see [itensormps_examples.md](itensormps_examples.md) — 134 entries from ITensorMPS.jl which now lives at `tn-external/numerical/ITensorMPS.jl/`.
+For MPS/MPO/DMRG/`inner`/`expect`/OpSum coverage, see [itensormps_examples.md](itensormps_examples.md): 134 entries from ITensorMPS.jl.

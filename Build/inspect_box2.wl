@@ -1,6 +1,6 @@
 #!/usr/bin/env wolframscript
 
-nb = Get["/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks/Documentation/English/ReferencePages/Symbols/BinaryTensorNetwork.nb"];
+nb = Get[FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks", "Documentation", "English", "ReferencePages", "Symbols", "BinaryTensorNetwork.nb"}]];
 inputs = Cases[nb, Cell[BoxData[box_], "Input", ___] :> box, Infinity];
 inputs = Catenate @ Map[Function[b, If[MatchQ[b, _List], b, {b}]], inputs];
 box = inputs[[3]];

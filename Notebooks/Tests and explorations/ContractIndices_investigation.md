@@ -1,8 +1,8 @@
 # `ContractIndices` investigation (Wolfram/TensorNetworks)
 
-Investigation only. No kernel, `PacletInfo.wl`, `Usage.wl`, or audit files were modified.
+Investigation only. No kernel, `PacletInfo.wl`, or `Usage.wl` files were modified.
 
-- **Anchor commit:** `f383b09` (HEAD is at the anchor; the audit drift check returns empty, so the audit is current).
+- **Commit investigated:** `f383b09`.
 - **Symbol:** `Wolfram`TensorNetworks`ContractIndices`, defined at [`Paths.wl:99`](../../TensorNetworks/Kernel/Paths.wl), usage at [`Usage.wl:42`](../../TensorNetworks/Kernel/Usage.wl), listed in [`PacletInfo.wl:28`](../../TensorNetworks/PacletInfo.wl).
 - All claims below were verified against a live `wolframscript` kernel after `Needs["Wolfram`TensorNetworks`"]`.
 
@@ -66,7 +66,7 @@ So `ContractIndices` (and `PathIndexContractions` built on it) is correct **only
 
 There are three signatures.
 
-### (a) `PathIndexContractions[path, indices]` — raw labels ([`:109`](../../TensorNetworks/Kernel/Paths.wl))
+### (a) `PathIndexContractions[path, indices]`: raw labels ([`:109`](../../TensorNetworks/Kernel/Paths.wl))
 
 ```wl
 DeleteCases[{}] @ FoldPairList[
@@ -87,7 +87,7 @@ DeleteCases[{}] @ FoldPairList[
 
 Hyperedge caveat confirmed: `PathIndexContractions[{{1,2},{1,2}}, {{1,9},{2,9},{3,9}}]` → `{{9}}` (only one merge records `9`; the third `9` is silently dropped). Hyperedge networks must be binarized first.
 
-### (b) `PathIndexContractions[path, indices, contractions]` — integer positions ([`:122`](../../TensorNetworks/Kernel/Paths.wl))
+### (b) `PathIndexContractions[path, indices, contractions]`: integer positions ([`:122`](../../TensorNetworks/Kernel/Paths.wl))
 
 ```wl
 With[{index = First /@ PositionIndex[Catenate[indices]]},
@@ -98,7 +98,7 @@ It runs form (a) on **`contractions`** (the per-tensor bond-group lists, where e
 
 Verified on the 3-tensor ring: `{{{2,3}}, {{1,6},{4,5}}}` (nested: per step, per contracted bond, the two endpoint positions).
 
-### (c) `PathIndexContractions[path, data]` — flattened ([`:127`](../../TensorNetworks/Kernel/Paths.wl))
+### (c) `PathIndexContractions[path, data]`: flattened ([`:127`](../../TensorNetworks/Kernel/Paths.wl))
 
 ```wl
 PathIndexContractions[path_List, KeyValuePattern[{"Indices" -> indices_, "Contractions" -> contractions_}]] :=
@@ -133,7 +133,7 @@ Confirmed in a fresh kernel after `Needs["Wolfram`TensorNetworks`"]`:
 
 **Root cause.** [`Paths.wl`](../../TensorNetworks/Kernel/Paths.wl) `PackageExport`s seven symbols (lines 4-10): `TreePathQ`, `PathQ`, `CanonicalPathQ`, `TreePathToPath`, `PathToTreePath`, `CanonicalPath`, `PathIndexContractions`. It does **not** `PackageExport[ContractIndices]`. Because the file opens with `Package["Wolfram`TensorNetworks`"]`, an un-exported symbol first mentioned at line 99 resolves into the file's private context `Wolfram`TensorNetworks`Paths`PackagePrivate`ContractIndices`. Independently, [`Usage.wl:42`](../../TensorNetworks/Kernel/Usage.wl) sets `ContractIndices::usage` inside *its* file, so the usage attaches to `Wolfram`TensorNetworks`Usage`PackagePrivate`ContractIndices` (a different private symbol). Meanwhile [`PacletInfo.wl:28`](../../TensorNetworks/PacletInfo.wl) declares the **public** `Wolfram`TensorNetworks`ContractIndices` as an autoload symbol, but nothing ever defines that public symbol.
 
-**Net effect.** The documented, autoload-declared `ContractIndices` is **inaccessible**: 0 DownValues, no usage, calls return unevaluated. The working definition and the usage string live in two *different* private contexts, neither reachable as `ContractIndices` from a user session. This is the exact mirror of audit Finding **F1** (symbols exported but missing from `PacletInfo`); here the symbol is in `PacletInfo` and documented but **never exported**.
+**Net effect.** The documented, autoload-declared `ContractIndices` is **inaccessible**: 0 DownValues, no usage, calls return unevaluated. The working definition and the usage string live in two *different* private contexts, neither reachable as `ContractIndices` from a user session. This is the mirror image of a symbol that is exported but missing from `PacletInfo`: here the symbol is in `PacletInfo` and documented but **never exported**.
 
 **`PathIndexContractions` is unaffected.** It is genuinely exported and calls `ContractIndices` from within the same file/private context, so the internal call resolves to the working private definition. All three `PathIndexContractions` signatures work (verified). No other file references `ContractIndices` (grep across `*.wl`/`*.m`/`*.nb`: only `Paths.wl:99`, `Paths.wl:115`, `Usage.wl:42`, `PacletInfo.wl:28`), so nothing else breaks.
 
@@ -159,26 +159,20 @@ This is wrong: the return is a `Rule` `intersection -> {remaining_i, remaining_j
 ### Drift in the other Paths usage strings
 
 - `PathIndexContractions::usage` ([`Usage.wl:240`](../../TensorNetworks/Kernel/Usage.wl)) is **accurate**: it documents all three signatures (sequence of index sets; integer-position form mapping back to `contractions` labels; and the `"Indices"`/`"Contractions"` association form, "such as `tn["Data"]`"). Matches observed behavior. One soft caveat worth adding: the 2-arg form only reports contractions when shared bonds appear as repeated labels, so on `tn["Data"]["Indices"]` (per-tensor-unique labels) it yields `{}` and the 3-arg/association forms are the ones to use; and all forms assume a binarized network for hyperedges. Optional, not a correctness bug.
-- `CanonicalPathQ::usage` ([`Usage.wl:26`](../../TensorNetworks/Kernel/Usage.wl)) and `TreePathQ::usage` ([`Usage.wl:623`](../../TensorNetworks/Kernel/Usage.wl)) contain `\[LongDash]` (em dash) — already captured as audit Finding **F8**. No new finding.
+- `CanonicalPathQ::usage` ([`Usage.wl:26`](../../TensorNetworks/Kernel/Usage.wl)) and `TreePathQ::usage` ([`Usage.wl:623`](../../TensorNetworks/Kernel/Usage.wl)) contain `\[LongDash]` (em dash), a house-style issue rather than a correctness one. No new finding.
 - `CanonicalPath`, `PathQ`, `PathToTreePath`, `TreePathToPath` usage strings: spot-checked, descriptions match behavior; no drift.
 
 ---
 
-## 5. Cross-check against the audit (recommend adding F11)
+## 5. Summary finding
 
-The `ContractIndices` export/visibility problem is **not** in [`Audit/TensorNetworks_Kernel_Audit.md`](../../Audit/TensorNetworks_Kernel_Audit.md). The audit even lists `ContractIndices` among the exported `Paths.wl` symbols in the §3.1 API table (line 135) and the §2.3 description (line 245), implicitly assuming it is public, when in fact it is not exported. Recommend adding it as a new finding **F11** (and correcting the §3.1 row to note it is currently inaccessible). The usage-string inaccuracy in §4 is best folded into the same finding rather than as a separate one.
+### `ContractIndices` is declared public and documented but never exported, so it is inaccessible. **[verified]**. Severity: High
 
-Draft finding text, in the F1-F10 format (do **not** apply; for the audit owner to insert):
-
----
-
-### F11. `ContractIndices` is declared public and documented but never exported, so it is inaccessible. **[verified]**. Severity: High
-
-[`PacletInfo.wl:28`](../../TensorNetworks/PacletInfo.wl) lists `Wolfram`TensorNetworks`ContractIndices` as an autoload symbol and [`Usage.wl:42`](../../TensorNetworks/Kernel/Usage.wl) sets `ContractIndices::usage`, but [`Paths.wl`](../../TensorNetworks/Kernel/Paths.wl) never calls `PackageExport[ContractIndices]` (it exports the other seven `Paths.wl` symbols at lines 4-10). The definition at `Paths.wl:99` therefore binds in the file-private context `Wolfram`TensorNetworks`Paths`PackagePrivate`ContractIndices`, and the usage binds in yet another private context `Wolfram`TensorNetworks`Usage`PackagePrivate`ContractIndices`. Effect (verified in a fresh kernel after `Needs`): the public `Wolfram`TensorNetworks`ContractIndices` has 0 DownValues, no usage, and the documented call `ContractIndices[{1,2},{2,3}]` returns unevaluated. `PathIndexContractions` is unaffected because it calls `ContractIndices` from inside the same private context. This is the inverse of F1 (there: exported but missing from `PacletInfo`; here: in `PacletInfo` and documented but not exported). Secondary defect: even once reachable, the usage string is wrong: it says the function "returns the list of indices that would be contracted … (their intersection)", but the actual return is a `Rule` `intersection -> {remaining_i, remaining_j}`.
-*Fix:* add `PackageExport[ContractIndices]` to `Paths.wl` (preferred: matches the documented, autoload-declared intent), or, if it is meant to be internal, remove it from the `PacletInfo.wl` `Symbols` list and delete its usage block. Either way, correct `ContractIndices::usage` to describe the `Rule` return shape. Also note that the §3.1 API table (audit line 135) currently lists `ContractIndices` as an exported `Paths.wl` symbol; that row should be annotated as currently inaccessible until the export is added.
+[`PacletInfo.wl:28`](../../TensorNetworks/PacletInfo.wl) lists `Wolfram`TensorNetworks`ContractIndices` as an autoload symbol and [`Usage.wl:42`](../../TensorNetworks/Kernel/Usage.wl) sets `ContractIndices::usage`, but [`Paths.wl`](../../TensorNetworks/Kernel/Paths.wl) never calls `PackageExport[ContractIndices]` (it exports the other seven `Paths.wl` symbols at lines 4-10). The definition at `Paths.wl:99` therefore binds in the file-private context `Wolfram`TensorNetworks`Paths`PackagePrivate`ContractIndices`, and the usage binds in yet another private context `Wolfram`TensorNetworks`Usage`PackagePrivate`ContractIndices`. Effect (verified in a fresh kernel after `Needs`): the public `Wolfram`TensorNetworks`ContractIndices` has 0 DownValues, no usage, and the documented call `ContractIndices[{1,2},{2,3}]` returns unevaluated. `PathIndexContractions` is unaffected because it calls `ContractIndices` from inside the same private context. This is the inverse of a symbol that is exported but missing from `PacletInfo`: here the symbol is in `PacletInfo` and documented but not exported. Secondary defect: even once reachable, the usage string is wrong: it says the function "returns the list of indices that would be contracted … (their intersection)", but the actual return is a `Rule` `intersection -> {remaining_i, remaining_j}`.
+*Fix:* add `PackageExport[ContractIndices]` to `Paths.wl` (preferred: matches the documented, autoload-declared intent), or, if it is meant to be internal, remove it from the `PacletInfo.wl` `Symbols` list and delete its usage block. Either way, correct `ContractIndices::usage` to describe the `Rule` return shape.
 
 ---
 
 ## Appendix: reproduction
 
-Scripts used (throwaway, under `/private/tmp/`): `ci_investigate.wl` (visibility), `ci_semantics.wl` / `ci_semantics2.wl` (semantics, three signatures, hyperedge/binarization), `ci_fuzz.wl` (10,000-case `Complement[Join,SymmetricDifference] === Intersection`). All run with `wolframscript -file …`.
+Scripts used (throwaway, not kept): `ci_investigate.wl` (visibility), `ci_semantics.wl` / `ci_semantics2.wl` (semantics, three signatures, hyperedge/binarization), `ci_fuzz.wl` (10,000-case `Complement[Join,SymmetricDifference] === Intersection`). All run with `wolframscript -file …`.

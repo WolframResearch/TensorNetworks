@@ -75,7 +75,7 @@ isotypicProjector[lambda_, n_, d_] := With[
 ]
 ```
 
-Wait — the issue is that `YoungProject` acts on a *tensor*, not directly on a Hilbert-space vector. We need to apply $\Pi_\lambda$ to a state $|\psi\rangle = \sum_{i_1 i_2 i_3} \psi_{i_1 i_2 i_3} |i_1 i_2 i_3\rangle$, which is rank-3 tensor data. So the right construction is
+Wait: the issue is that `YoungProject` acts on a *tensor*, not directly on a Hilbert-space vector. We need to apply $\Pi_\lambda$ to a state $|\psi\rangle = \sum_{i_1 i_2 i_3} \psi_{i_1 i_2 i_3} |i_1 i_2 i_3\rangle$, which is rank-3 tensor data. So the right construction is
 
 ```wl
 applyIsotypicProjector[psi_, lambda_] := Total[

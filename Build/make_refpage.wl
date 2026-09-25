@@ -41,7 +41,7 @@ If[! DirectoryQ[outputDir], Print["output dir not found: ", outputDir]; Quit[2]]
 specsRaw = Get[specPath];
 specs    = If[AssociationQ[specsRaw], {specsRaw}, specsRaw];
 
-templatesDir = "/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks/Documentation/English/ReferencePages/Symbols";
+templatesDir = FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks", "Documentation", "English", "ReferencePages", "Symbols"}];
 
 freshUUID[] := CreateUUID[];
 freshCellID[] := RandomInteger[{10^8, 10^10}];

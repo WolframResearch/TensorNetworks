@@ -1,6 +1,6 @@
 # ITensorNetworks.jl Validation-Test Catalog
 
-Source: `tn-external/numerical/ITensorNetworks.jl/`. General-graph TN built on ITensors.jl. The package's `examples/` and `benchmark/` directories are essentially empty (Literate stub); concrete computations live in `docs/src/*.md` (Documenter `@example` blocks) and `test/*.jl` — both are fully audited below, so the test suite is the source of truth.
+Source: the ITensorNetworks.jl repository (https://github.com/ITensor/ITensorNetworks.jl). General-graph TN built on ITensors.jl. The package's `examples/` and `benchmark/` directories are essentially empty (Literate stub); concrete computations live in `docs/src/*.md` (Documenter `@example` blocks) and `test/*.jl`: both are fully audited below, so the test suite is the source of truth.
 
 ## Summary
 
@@ -31,7 +31,7 @@ Counts per category:
 - **Description:** Build comb-tree TTN with `siteinds("S=1/2", g)`, then make a zero-init `ttn(sites)` and a product `|↑⟩` state via `ttn(v -> "Up", sites)`; also a 1D MPS via `mps(v -> "Up", siteinds("S=1/2", 6))`.
 - **Inputs:** `named_comb_tree((3, 2))`; spin-½; product state, no truncation.
 - **API calls:** `named_comb_tree`, `siteinds`, `ttn`, `mps`.
-- **Expected output:** Qualitative — bond dim 1 product state.
+- **Expected output:** Qualitative: bond dim 1 product state.
 - **WL-portable:** Yes.
 
 ### 2. Convert dense ITensor to TTN (cycle-free factorization)
@@ -40,7 +40,7 @@ Counts per category:
 - **Inputs:** `named_comb_tree((3, 1))`, random ITensor over 3 site indices.
 - **API calls:** `random_itensor`, `ttn(A, sites; cutoff)`, `contract(s1, root_vertex)`, `ortho_region`.
 - **Expected output:** Reconstruction error ≲ 1e-8.
-- **WL-portable:** Partial — needs tree-graph SVD sequencing not yet in the paclet.
+- **WL-portable:** Partial: needs tree-graph SVD sequencing not yet in the paclet.
 
 ### 3. ITensorNetwork ↔ TreeTensorNetwork conversion
 - **Source:** `docs/src/tree_tensor_networks.md:50-56`; `test/test_ttns.jl:36-47`
@@ -56,7 +56,7 @@ Counts per category:
 - **Inputs:** Comb-tree (3,2), `S=1/2` product state.
 - **API calls:** `orthogonalize`, `ortho_region`.
 - **Expected output:** `ortho_region == [v1]` or `[v1, v2]`.
-- **WL-portable:** Partial — requires tree-graph QR sweep.
+- **WL-portable:** Partial: requires tree-graph QR sweep.
 
 ### 5. TTN sweep-based whole-network truncation
 - **Source:** `docs/src/tree_tensor_networks.md:107-118`
@@ -98,7 +98,7 @@ Counts per category:
 - **Inputs:** `named_comb_tree((2,2))`, `siteinds("S=1/2", g; conserve_qns=true)`.
 - **API calls:** `ttn(state, sites)`, `ψ1 + ψ2`, `ITensors.allfluxequal`.
 - **Expected output:** All output tensors flux-consistent.
-- **WL-portable:** No — paclet has no QN sectors.
+- **WL-portable:** No: paclet has no QN sectors.
 
 ### 10. Single-edge truncation of a generic ITensorNetwork
 - **Source:** `docs/src/itensor_networks.md:95-101`
@@ -130,7 +130,7 @@ Counts per category:
 - **Inputs:** `grid((4,))`, `named_grid((3,3))`; eltypes `{Float32, Float64, ComplexF32, ComplexF64}`.
 - **API calls:** `ITensorNetwork(g; kwargs...) do v`, `random_tensornetwork`, `conj`, `dag`, `convert_scalartype`.
 - **Expected output:** Eltype propagation correct.
-- **WL-portable:** Yes (numeric only — paclet uses native Complex).
+- **WL-portable:** Yes (numeric only: paclet uses native Complex).
 
 ### 14. Custom-distribution random tensor network
 - **Source:** `test/test_itensornetwork.jl:227-234`
@@ -155,8 +155,8 @@ Counts per category:
 - **Description:** PEPS imaginary-time evolution `tebd(group_terms(ℋ, g), ψ_init; β=2.0, Δβ=0.2, cutoff=1e-8, maxdim=2)` for transverse-Ising at h=0.1; compare ortho on/off energies. Test marked `@test_broken`.
 - **Inputs:** `named_grid((2,3))`, S=1/2, β=2.0.
 - **API calls:** `tebd`, `group_terms`, `ModelHamiltonians.ising`.
-- **Expected output:** Qualitative — ground-state energy lowered; current Julia test is broken.
-- **WL-portable:** Partial — TEBD on PEPS is heavy.
+- **Expected output:** Qualitative: ground-state energy lowered; current Julia test is broken.
+- **WL-portable:** Partial: TEBD on PEPS is heavy.
 
 ### 17. 3×3 PEPS BP cache and 2-site RDM
 - **Source:** `test/test_belief_propagation.jl:23-77`
@@ -164,7 +164,7 @@ Counts per category:
 - **Inputs:** 3×3 grid, S=1/2, bond dim χ=2; eltypes Float32/64, ComplexF32/64.
 - **API calls:** `BeliefPropagationCache`, `update`, `environment`, `split_index`, `combiner`, `eigvals`.
 - **Expected output:** RDM is 4×4, trace 1, PSD; messages converged.
-- **WL-portable:** No — BP not implemented in paclet.
+- **WL-portable:** No: BP not implemented in paclet.
 
 ### 18. PEPS gate apply with BP environments (simple/general)
 - **Source:** `test/test_apply.jl:12-75`
@@ -172,7 +172,7 @@ Counts per category:
 - **Inputs:** `named_grid((2,2))`, S=1/2, bond dim 2.
 - **API calls:** `BeliefPropagationCache`, `update`, `environment`, `apply(o, ψ; envs, maxdim, normalize, callback)`, `inner`.
 - **Expected output:** Fidelity GBP ≥ Fidelity SBP; non-zero truncation error.
-- **WL-portable:** No — BP environment not in paclet.
+- **WL-portable:** No: BP environment not in paclet.
 
 ## Category 4: Belief propagation (BP)
 
@@ -198,9 +198,9 @@ Counts per category:
 - **Inputs:** Tree of 4 nodes, S=1/2, χ=2; Heisenberg operator from `OpSum`.
 - **API calls:** `inner`, `loginner`, `scalar`, `inner_network`, `logscalar`.
 - **Expected output:** `bp == exact == exp(logbp)` (BP exact on trees).
-- **WL-portable:** Partial — paclet has exact contraction; BP needed for validation test only.
+- **WL-portable:** Partial: paclet has exact contraction; BP needed for validation test only.
 
-### 22. BP rescaling — `rescale_messages`, `rescale_partitions`, `rescale`
+### 22. BP rescaling: `rescale_messages`, `rescale_partitions`, `rescale`
 - **Source:** Documented `developer_methods.md:333-350`; not directly exercised in tests, but `test/test_normalize.jl` uses `rescale(tn; alg="bp")`.
 - **Description:** Rescale messages/partitions so the local region scalar is 1.
 - **Inputs:** Random TN on `named_comb_tree((2,3))` and `named_grid((3,2))`, χ=2.
@@ -214,7 +214,7 @@ Counts per category:
 - **Inputs:** L=4, χ=2; L=2, χ=2.
 - **API calls:** `expect(ψ, "Sz"; alg, cache_construction_kwargs, cache_update_kwargs)`.
 - **Expected output:** `bp ≈ exact` in all three cases.
-- **WL-portable:** Partial — exact path portable; BP not.
+- **WL-portable:** Partial: exact path portable; BP not.
 
 ### 24. BP environment / form-network gradient
 - **Source:** `test/test_forms.jl:59-71`
@@ -232,15 +232,15 @@ Counts per category:
 - **Inputs:** 2×3 grid, S=1/2, χ=10.
 - **API calls:** `contraction_sequence(tn; alg, ...)`, `contract(tn; sequence)`.
 - **Expected output:** All ≈ optimal.
-- **WL-portable:** Partial — paclet has its own optimal-path / netcon; no SA/KaHyPar backends.
+- **WL-portable:** Partial: paclet has its own optimal-path / netcon; no SA/KaHyPar backends.
 
-### 26. Path through chain TN — Dijkstra and mincut
+### 26. Path through chain TN: Dijkstra and mincut
 - **Source:** `test/test_itensornetwork.jl:258-283`
 - **Description:** `dijkstra_shortest_paths(tn, [1])` on `ITensorNetwork(named_grid(4); link_space=2|3)`; `GraphsFlows.mincut(tn, 2, 3)` with default and log-bond weights.
 - **Inputs:** Chain of 4 vertices.
 - **API calls:** `dijkstra_shortest_paths`, `weights(tn)` (returns `log2(bonddim)`), `GraphsFlows.mincut`.
 - **Expected output:** Distances `[0,1,2,3]`; mincut weight `log2(3)`.
-- **WL-portable:** Partial — needs graph algorithms.
+- **WL-portable:** Partial: needs graph algorithms.
 
 ## Category 6: TTN-DMRG / eigsolve
 
@@ -250,7 +250,7 @@ Counts per category:
 - **Inputs:** Comb-tree (3,2), S=1/2, χ_max=10.
 - **API calls:** `OpSum`, `ttn(h, s)`, `dmrg`, `eigsolve`.
 - **Expected output:** Numerical (energy printed). Qualitative for validation.
-- **WL-portable:** Partial — paclet has DMRG only on MPS.
+- **WL-portable:** Partial: paclet has DMRG only on MPS.
 
 ### 28. DMRG on tree graph (3 branches × 3 sites) cross-checked against exact diagonalization
 - **Source:** `test/solvers/test_eigsolve.jl:12-103`
@@ -258,7 +258,7 @@ Counts per category:
 - **Inputs:** 10-vertex tree, S=1/2, cutoff 1e-5, maxdim 40, nsweeps 5; both 1-site (with subspace expansion) and 2-site DMRG; vector-of-cutoff/maxdim per sweep.
 - **API calls:** `dmrg(H, psi0; factorize_kwargs, nsites, nsweeps, outputlevel, sweep_callback, extract!_kwargs)`, `SweepIterator`.
 - **Expected output:** `E ≈ Ex atol = 1e-5`.
-- **WL-portable:** Partial — tree-DMRG.
+- **WL-portable:** Partial: tree-DMRG.
 
 ## Category 7: TDVP / time evolution / applyexp
 
@@ -268,7 +268,7 @@ Counts per category:
 - **Inputs:** 10+1 site graph, S=1/2.
 - **API calls:** `time_evolve(H, time_points, psi)`, `dmrg`, `inner`.
 - **Expected output:** Phase test atol 1e-4.
-- **WL-portable:** Partial — paclet TDVP for MPS only.
+- **WL-portable:** Partial: paclet TDVP for MPS only.
 
 ### 30. `applyexp` time-point handling on 10-site path graph
 - **Source:** `test/solvers/test_applyexp.jl:80-143`
@@ -294,7 +294,7 @@ Counts per category:
 - **Inputs:** Chain TTN, χ=2.
 - **API calls:** `expect(ψ, "Sz")`, `expect(ψ, "Sz", [(1,),(3,)])`, `expect(ψ, "Sz"; alg="exact")`.
 - **Expected output:** Numerical match exact ≈ BP for tree.
-- **WL-portable:** Partial — exact yes, BP no.
+- **WL-portable:** Partial: exact yes, BP no.
 
 ### 33. Inner products: `inner`, `loginner`, `norm` (BP default vs exact)
 - **Source:** `docs/src/computing_properties.md:36-55`
@@ -368,7 +368,7 @@ Counts per category:
 - **Inputs:** Various 6-site combs; S=1/2 (with/without QN), Fermion (`conserve_nf`).
 - **API calls:** `ttn(H, is; root_vertex, cutoff)`, `ITensorMPS.MPO`, `contract`, `replace_vertices`, `with_auto_fermion`, `removeqns`.
 - **Expected output:** `Tttno ≈ Tmpo rtol = 1e-6`; for fermions `norm(Tmpo) ≈ norm(Tttno)`.
-- **WL-portable:** No — needs `ITensorMPS` and QN/fermion.
+- **WL-portable:** No: needs `ITensorMPS` and QN/fermion.
 
 ### 43. ProjTTN out-of-place position update
 - **Source:** `test/test_ttn_position.jl:12-46`
@@ -386,7 +386,7 @@ Counts per category:
 
 ## Category 12: Other (utilities, ITensorsExtensions)
 
-### 45. `ITensorsExtensions.map_eigvals` (sqrt/inv) — bosonic and fermionic
+### 45. `ITensorsExtensions.map_eigvals` (sqrt/inv): bosonic and fermionic
 - **Source:** `test/test_itensorsextensions.jl:7-134`
 - **Description:** For random Hermitian rank-2 / rank-4 ITensors with QN sectors and with autofermion enabled, test `map_eigvals(sqrt, P, linds, rinds; ishermitian=true)` recovers `P` via `sqrtP * sqrtP'`; same for `inv`, `inv∘sqrt`. Includes index-permutation tests and bosonic-with-fermion-enabled mixed test.
 - **Inputs:** dims n ∈ {2,3,5,10}; eltypes Float32/64, ComplexF32/64; QN`("Nf",0/1,-1)`.
@@ -396,7 +396,7 @@ Counts per category:
 
 ### 46. IndsNetwork construction and merging on comb-tree
 - **Source:** `test/test_indsnetwork.jl:10-182`
-- **Description:** On `named_comb_tree((3,2))`, exhaustively test all combinations of `site_space` and `link_space` specs — uniform integer, integer vector, integer dictionary, Index dictionary, Index vector dictionary, multi-Index per vertex/edge. Also `union_all_inds(is1, is2)`.
+- **Description:** On `named_comb_tree((3,2))`, exhaustively test all combinations of `site_space` and `link_space` specs: uniform integer, integer vector, integer dictionary, Index dictionary, Index vector dictionary, multi-Index per vertex/edge. Also `union_all_inds(is1, is2)`.
 - **API calls:** `IndsNetwork`, `union_all_inds`.
 - **Expected output:** Per-vertex/edge dim/index correctness.
 - **WL-portable:** Partial (paclet has IndsNetwork analog).
@@ -411,12 +411,12 @@ Counts per category:
 
 ### 48. Rooted directed graph utilities
 - **Source:** `test/test_abstractgraph.jl:1-17`
-- **Description:** Build a `NamedDiGraph([1,2,3])`; assert `is_rooted`, `root_vertex==1`, `is_binary_arborescence`; add a 4th vertex/edge — no longer binary.
+- **Description:** Build a `NamedDiGraph([1,2,3])`; assert `is_rooted`, `root_vertex==1`, `is_binary_arborescence`; add a 4th vertex/edge: no longer binary.
 - **API calls:** `NamedDiGraph`, `is_rooted`, `root_vertex`, `is_binary_arborescence`.
 - **WL-portable:** Yes (Graph utilities are simple).
 
 ## Notes for the Wolfram paclet validation catalog
 
-- The Julia package's `examples/` and `benchmark/` directories contain no real examples — every concrete computation lives either in `docs/src/*.md` (Documenter `@example main` blocks) or `test/*.jl`. So the Mathematica side cannot mimic an `examples/` workload — the test suite is the source of truth.
+- The Julia package's `examples/` and `benchmark/` directories contain no real examples: every concrete computation lives either in `docs/src/*.md` (Documenter `@example main` blocks) or `test/*.jl`. So the Mathematica side cannot mimic an `examples/` workload; the test suite is the source of truth.
 - The major gating capabilities for validation testing are: (a) BP cache infrastructure (Items 17-24, 32-34, 36, 38), (b) tree-graph DMRG/TDVP (Items 28-30), (c) QN-symmetric tensors (Items 9, 41-44), (d) auto-fermion logic (Items 42, 44, 45). None of these are implemented in the paclet; the rest of the catalog (≈25 examples) is portable directly via the paclet's existing `BinaryTensorNetwork` / `OptimalContractionPath` / `ArrayContract` machinery.
 - "Partial" ratings indicate the result is reproducible numerically (e.g., expectation on a tree, contract-merge, single-bond truncate, Heisenberg on tree via exact diag) but the underlying gauge / cache machinery would need to be re-implemented to match Julia API semantics rather than just numerical output.

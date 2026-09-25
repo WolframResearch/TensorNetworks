@@ -25,7 +25,7 @@ These four are not separate tricks. They are *one* construction (replace an $n$-
 Load the paclet and pull the Symmetry subcontext into scope; both `Needs` are assumed in every subsequent cell.
 
 ```wl
-PacletDirectoryLoad["/Users/mohammadb/Documents/GitHub/TensorNetworks"];
+PacletDirectoryLoad["/path/to/TensorNetworks"];
 Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 ```

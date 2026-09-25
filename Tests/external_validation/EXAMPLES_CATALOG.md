@@ -2,67 +2,67 @@
 
 Comprehensive catalog of computational examples extracted from the six leading numerical TN+quantum packages. Goal: reproduce each example in the Wolfram TensorNetworks paclet and compare results, building a validation test suite.
 
-Source clones live at `tn-external/numerical/` (gitignored via `.git/info/exclude`).
+Examples were collected from each package's public repository.
 
-> **Live implementation status:** 95 validation tests passing (Tier-1 + Tier-2). For the up-to-date pass/fail/skip matrix and the strategy that maps catalog entries to implemented tests, see [PLAN.md](PLAN.md) and the auto-generated [SKIPPED_AND_MISSING.md](SKIPPED_AND_MISSING.md). The lists below are the *catalog priorities* — not all of them are implemented yet.
+> **Live implementation status:** 95 validation tests passing (Tier-1 + Tier-2). For the up-to-date pass/fail/skip matrix and the strategy that maps catalog entries to implemented tests, see [PLAN.md](PLAN.md) and the auto-generated [SKIPPED_AND_MISSING.md](SKIPPED_AND_MISSING.md). The lists below are the *catalog priorities*: not all of them are implemented yet.
 
 ## Summary
 
-| Package | Examples | Source path | Per-package catalog |
+| Package | Examples | Repository | Per-package catalog |
 |---|---|---|---|
-| quimb | 142 | `tn-external/numerical/quimb/` | [quimb_examples.md](quimb_examples.md) |
-| cotengra | 67 | `tn-external/numerical/cotengra/` | [cotengra_examples.md](cotengra_examples.md) |
-| ITensors.jl | 41 | `tn-external/numerical/ITensors.jl/` | [itensors_examples.md](itensors_examples.md) |
-| ITensorMPS.jl | 134 | `tn-external/numerical/ITensorMPS.jl/` | [itensormps_examples.md](itensormps_examples.md) |
-| ITensorNetworks.jl | 41 | `tn-external/numerical/ITensorNetworks.jl/` | [itensornetworks_examples.md](itensornetworks_examples.md) |
-| TeNPy | 78 | `tn-external/numerical/tenpy/` | [tenpy_examples.md](tenpy_examples.md) |
+| quimb | 142 | https://github.com/jcmgray/quimb | [quimb_examples.md](quimb_examples.md) |
+| cotengra | 67 | https://github.com/jcmgray/cotengra | [cotengra_examples.md](cotengra_examples.md) |
+| ITensors.jl | 41 | https://github.com/ITensor/ITensors.jl | [itensors_examples.md](itensors_examples.md) |
+| ITensorMPS.jl | 134 | https://github.com/ITensor/ITensorMPS.jl | [itensormps_examples.md](itensormps_examples.md) |
+| ITensorNetworks.jl | 41 | https://github.com/ITensor/ITensorNetworks.jl | [itensornetworks_examples.md](itensornetworks_examples.md) |
+| TeNPy | 78 | https://github.com/tenpy/tenpy | [tenpy_examples.md](tenpy_examples.md) |
 | **Total** | **503** | | |
 
 ## Cross-package category coverage
 
 | Category | quimb | cotengra | ITensors | ITensorMPS | ITensorNets | TeNPy |
 |---|---|---|---|---|---|---|
-| tensor algebra / contraction | 22 | — | 6 | — | — | — |
-| MPS construction | 11 | — | — | 14 | — | 7 |
-| MPS algebra | 12 | — | — | 14 | — | 4 |
-| MPO construction | 8 | — | — | 6 | — | 5 |
-| MPO algebra | — | — | — | 11 | — | — |
-| OpSum / Hamiltonian | — | — | — | 13 | — | — |
-| AutoMPO | — | — | — | 7 | — | — |
-| PEPS / 2D TN | 11 | — | — | — | 4 | — |
-| MERA | 5 | — | — | — | — | — |
-| TTN / general-graph TN | — | — | — | — | 14 | — |
-| contraction path / cost | 9 | 26 | — | — | 2 | — |
-| decomposition | 11 | — | 7 | — | — | — |
-| gauge | 7 | — | — | — | 2 | — |
-| circuit construction | 13 | — | — | — | — | — |
-| gate application / TEBD / METTS | 12 | — | — | 7 | 3 | — |
-| expectation value (`expect`/`inner`) | 11 | — | — | 8 | 4 | 5 |
-| sampling / measurement | 8 | — | — | 3 | 0 | — |
-| optimization | 9 | — | — | — | — | — |
-| DMRG (finite + iDMRG) | — | — | — | 23 | 2 | 12 |
-| DMRG-X / TDVP | — | — | — | 7 | 2 | 4 |
-| model construction | — | — | — | — | — | 14 |
-| ground-state energy vs analytic | — | — | — | 6 | — | 6 |
-| correlation function | — | — | — | 5 | — | 4 |
-| entanglement entropy / Schmidt | — | — | — | 3 | — | 4 |
-| symmetry sectors (QN) | — | — | 4 | 6 | — | 3 |
-| custom site types | — | — | 3 | 4 | — | 2 |
-| observer / sweep callbacks | — | — | — | 5 | — | 2 |
-| projector / ProjMPO | — | — | — | 5 | — | — |
-| random MPS | — | — | — | 4 | — | — |
-| MPS↔dense conversion | — | — | — | 3 | — | — |
-| TRG / CTMRG | — | — | 4 | — | — | — |
-| benchmark networks | — | 14 | — | — | — | — |
-| slicing / SA / reconfigure | — | 17 | — | — | — | — |
-| compressed contraction | — | 5 | — | — | — | — |
-| BP (belief propagation) | — | — | — | — | 6 | — |
-| OpSum → TTN operator | — | — | — | — | 4 | — |
-| lattices / sweeps / other | — | — | — | 14 | — | — |
+| tensor algebra / contraction | 22 | 0 | 6 | 0 | 0 | 0 |
+| MPS construction | 11 | 0 | 0 | 14 | 0 | 7 |
+| MPS algebra | 12 | 0 | 0 | 14 | 0 | 4 |
+| MPO construction | 8 | 0 | 0 | 6 | 0 | 5 |
+| MPO algebra | 0 | 0 | 0 | 11 | 0 | 0 |
+| OpSum / Hamiltonian | 0 | 0 | 0 | 13 | 0 | 0 |
+| AutoMPO | 0 | 0 | 0 | 7 | 0 | 0 |
+| PEPS / 2D TN | 11 | 0 | 0 | 0 | 4 | 0 |
+| MERA | 5 | 0 | 0 | 0 | 0 | 0 |
+| TTN / general-graph TN | 0 | 0 | 0 | 0 | 14 | 0 |
+| contraction path / cost | 9 | 26 | 0 | 0 | 2 | 0 |
+| decomposition | 11 | 0 | 7 | 0 | 0 | 0 |
+| gauge | 7 | 0 | 0 | 0 | 2 | 0 |
+| circuit construction | 13 | 0 | 0 | 0 | 0 | 0 |
+| gate application / TEBD / METTS | 12 | 0 | 0 | 7 | 3 | 0 |
+| expectation value (`expect`/`inner`) | 11 | 0 | 0 | 8 | 4 | 5 |
+| sampling / measurement | 8 | 0 | 0 | 3 | 0 | 0 |
+| optimization | 9 | 0 | 0 | 0 | 0 | 0 |
+| DMRG (finite + iDMRG) | 0 | 0 | 0 | 23 | 2 | 12 |
+| DMRG-X / TDVP | 0 | 0 | 0 | 7 | 2 | 4 |
+| model construction | 0 | 0 | 0 | 0 | 0 | 14 |
+| ground-state energy vs analytic | 0 | 0 | 0 | 6 | 0 | 6 |
+| correlation function | 0 | 0 | 0 | 5 | 0 | 4 |
+| entanglement entropy / Schmidt | 0 | 0 | 0 | 3 | 0 | 4 |
+| symmetry sectors (QN) | 0 | 0 | 4 | 6 | 0 | 3 |
+| custom site types | 0 | 0 | 3 | 4 | 0 | 2 |
+| observer / sweep callbacks | 0 | 0 | 0 | 5 | 0 | 2 |
+| projector / ProjMPO | 0 | 0 | 0 | 5 | 0 | 0 |
+| random MPS | 0 | 0 | 0 | 4 | 0 | 0 |
+| MPS↔dense conversion | 0 | 0 | 0 | 3 | 0 | 0 |
+| TRG / CTMRG | 0 | 0 | 4 | 0 | 0 | 0 |
+| benchmark networks | 0 | 14 | 0 | 0 | 0 | 0 |
+| slicing / SA / reconfigure | 0 | 17 | 0 | 0 | 0 | 0 |
+| compressed contraction | 0 | 5 | 0 | 0 | 0 | 0 |
+| BP (belief propagation) | 0 | 0 | 0 | 0 | 6 | 0 |
+| OpSum → TTN operator | 0 | 0 | 0 | 0 | 4 | 0 |
+| lattices / sweeps / other | 0 | 0 | 0 | 14 | 0 | 0 |
 
 ## Tier-1 priority validation tests
 
-The most actionable validation tests — deterministic, exact numerical answers, small enough to run quickly. Groups A→H in increasing computational cost (A-G = numeric tests, H = network-loading sanity).
+The most actionable validation tests: deterministic, exact numerical answers, small enough to run quickly. Groups A→H in increasing computational cost (A-G = numeric tests, H = network-loading sanity).
 
 ### A. Pure tensor algebra (instant, exact)
 
@@ -130,7 +130,7 @@ The most actionable validation tests — deterministic, exact numerical answers,
 | F6 | ITensorMPS.jl AutoMPO #4 (`test_autompo.jl:395-414`) | OpSum Heisenberg vs hand-built MPO | `<ψ\|H_OpSum\|ψ> == <ψ\|H_hand\|ψ>` |
 | F7 | ITensorMPS.jl OpSum #13 (`test_autompo.jl:1120-1156`) | HardCore boson L=20 t=1 V1=1e-3 V2=2e-5 on alternating product `\|10101...>` | `<ψ0\|H\|ψ0> = 0.00018` ± 1e-10 |
 
-### G. Algorithmic — DMRG / TRG / CTMRG (slow but high-signal)
+### G. Algorithmic: DMRG / TRG / CTMRG (slow but high-signal)
 
 | # | From | What | Expected |
 |---|---|---|---|
@@ -155,7 +155,7 @@ The most actionable validation tests — deterministic, exact numerical answers,
 
 ### H. Cross-platform benchmark networks (just topology)
 
-cotengra ships canonical JSON benchmark networks at `tn-external/numerical/cotengra/examples/benchmarks/`. These are gold for round-trip topology + cost-comparison tests:
+cotengra ships canonical JSON benchmark networks in `examples/benchmarks/` of its repository. These are gold for round-trip topology + cost-comparison tests:
 
 | File | Tensors | Indices | Type |
 |---|---|---|---|
@@ -184,28 +184,28 @@ For data-dependent answers (random PEPS contraction, random MPO compression erro
 
 These bundle external dependencies the WL paclet does not have. Either skip these examples or compare only at a coarse level:
 
-- **autodiff-based optimizers** (`quimb.TNOptimizer` with jax/torch/autograd backend) — most "MERA optimization", "PEPS energy minimization", "circuit training" examples
-- **GPU primitives** — `cuTensorNet`, anything requiring CUDA/`cupy`
-- **Belief-propagation infrastructure** — large parts of ITensorNetworks.jl tests; no BP cache in the paclet today
-- **QN / charge-conserving symmetric tensors** — block-sparse machinery; most packages have it (ITensors.jl + ITensorMPS.jl + ITensorNetworks.jl + TeNPy), paclet doesn't yet
-- **Bayesian-optimizer hyperparameter search** — cotengra's `HyperOptimizer` with KaHyPar/optuna/cmaes
-- **Fermionic / Jordan-Wigner** — TeNPy Hubbard / Haldane / Chern-insulator examples
-- **External solvers** — slepc, ARPACK shift-invert (some quimb examples)
+- **autodiff-based optimizers** (`quimb.TNOptimizer` with jax/torch/autograd backend): most "MERA optimization", "PEPS energy minimization", "circuit training" examples
+- **GPU primitives**: `cuTensorNet`, anything requiring CUDA/`cupy`
+- **Belief-propagation infrastructure**: large parts of ITensorNetworks.jl tests; no BP cache in the paclet today
+- **QN / charge-conserving symmetric tensors**: block-sparse machinery; most packages have it (ITensors.jl + ITensorMPS.jl + ITensorNetworks.jl + TeNPy), paclet doesn't yet
+- **Bayesian-optimizer hyperparameter search**: cotengra's `HyperOptimizer` with KaHyPar/optuna/cmaes
+- **Fermionic / Jordan-Wigner**: TeNPy Hubbard / Haldane / Chern-insulator examples
+- **External solvers**: slepc, ARPACK shift-invert (some quimb examples)
 
 ## How implemented tests map to this catalog
 
 The suite exists. Tests are organized by **intent**, not by source-package:
 
-- `paclet_primitives/` — tests that exercise paclet symbols (`EinsteinSummation`, `OptimalContractionPath`, `MPSCanonicalForm`, etc.)
-- `baselines/` — Mathematica-native sanity checks against catalog values (no paclet calls)
+- `paclet_primitives/`: tests that exercise paclet symbols (`EinsteinSummation`, `OptimalContractionPath`, `MPSCanonicalForm`, etc.)
+- `baselines/`: Mathematica-native sanity checks against catalog values (no paclet calls)
 
 See [PLAN.md](PLAN.md) section 4 for the full tier-by-tier mapping (which catalog group → which `.wl` files), and [SKIPPED_AND_MISSING.md](SKIPPED_AND_MISSING.md) for the live pass/fail/skip state. To add a new test, follow the pattern in [PLAN.md](PLAN.md) section 9.
 
 Catalog groups still pending implementation (deferred to Tier-3 because the paclet doesn't have the relevant primitive yet):
 
-- **G. Algorithmic — DMRG / TRG / CTMRG** (most of these): paclet has no DMRG, TRG, CTMRG, or TDVP. Promotes when these primitives land.
-- **H. Cross-platform benchmark networks** (the 8 JSON files): JSON loader + `BinaryTensorNetwork` adapter not yet written. Lower priority — most cost numbers are RNG-dependent (HyperOptimizer + KaHyPar) and would be SkipRNG anyway.
+- **G. Algorithmic: DMRG / TRG / CTMRG** (most of these): paclet has no DMRG, TRG, CTMRG, or TDVP. Promotes when these primitives land.
+- **H. Cross-platform benchmark networks** (the 8 JSON files): JSON loader + `BinaryTensorNetwork` adapter not yet written. Lower priority: most cost numbers are RNG-dependent (HyperOptimizer + KaHyPar) and would be SkipRNG anyway.
 
 ## How to refresh this catalog
 
-Re-clone packages with `git clone --depth=1` into `tn-external/numerical/`, then re-run the six validation-audit agents (one per package; see git log for the agent prompts used). Compare the fresh catalog against this one to detect new examples added upstream.
+Re-clone the packages with `git clone --depth=1`, then re-run the six validation-audit agents (one per package; see git log for the agent prompts used). Compare the fresh catalog against this one to detect new examples added upstream.

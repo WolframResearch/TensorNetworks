@@ -2,7 +2,7 @@
 
 (* Surgical fixes for failing example inputs found by the harness. *)
 
-docsDir = "/Users/mohammadb/Documents/GitHub/TensorNetworks/TensorNetworks/Documentation/English/ReferencePages/Symbols";
+docsDir = FileNameJoin[{ParentDirectory[DirectoryName[$InputFileName]], "TensorNetworks", "Documentation", "English", "ReferencePages", "Symbols"}];
 
 fixPage[path_String, transforms_List] := Module[{nb, before, after, edits = 0},
   nb = Get[path];

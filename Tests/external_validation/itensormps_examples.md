@@ -1,6 +1,6 @@
 # ITensorMPS.jl Validation-Test Catalog
 
-Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0.7 (Oct 2024). Owns all MPS/MPO/DMRG/OpSum/`siteinds`/`inner`/`expect`/observer machinery. This catalog complements [itensors_examples.md](itensors_examples.md) which has only tensor primitives + TRG/CTMRG.
+Source: the ITensorMPS.jl repository (https://github.com/ITensor/ITensorMPS.jl). Split out from ITensors.jl in v0.7 (Oct 2024). Owns all MPS/MPO/DMRG/OpSum/`siteinds`/`inner`/`expect`/observer machinery. This catalog complements [itensors_examples.md](itensors_examples.md) which has only tensor primitives + TRG/CTMRG.
 
 ## Summary
 
@@ -36,15 +36,15 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 
 **Gold validation tests** (analytical or known-numeric reference):
 
-* TFI critical OBC energy, `E = 1 − 1/sin(π/(4N+2))` — `test_dmrg.jl:218-247`, `:271`. For N=32 ≈ −20.1817.
-* Heisenberg S=1 N=100 final energy `E = -138.94008605883985` — README, `index.md`, `examples/dmrg/1d_heisenberg.jl`.
-* Spinless-fermion N=8 t=1 V=4 `E = -2.859778` — `test_fermions.jl:195-208`.
-* Hubbard L=10 N=8 t=1 U=1 V=0.5 `-8.02 < E < -8.01` — `test_dmrg.jl:415-441`.
-* Heisenberg S=1 L=10 OBC `E < -12` (Haldane regime) — `test_dmrg.jl:6-58`.
-* TFI excited-state gap `Eg = 2|h-1|` — `docs/src/examples/DMRG.md:285-368`.
-* HardCore-boson product-state expectation value `0.00018` — `test_autompo.jl:1120-1156`.
-* Fermion matrix-element checks `inner(ψA',H,ψB) ≈ ±t1` — `test_fermions.jl:68-155`.
-* Heisenberg L=14 DMRG vs. exact diagonalization (Krylov on contracted MPO) — `examples/exact_diagonalization/exact_diagonalization.jl`.
+* TFI critical OBC energy, `E = 1 − 1/sin(π/(4N+2))`: `test_dmrg.jl:218-247`, `:271`. For N=32 ≈ −20.1817.
+* Heisenberg S=1 N=100 final energy `E = -138.94008605883985`: README, `index.md`, `examples/dmrg/1d_heisenberg.jl`.
+* Spinless-fermion N=8 t=1 V=4 `E = -2.859778`: `test_fermions.jl:195-208`.
+* Hubbard L=10 N=8 t=1 U=1 V=0.5 `-8.02 < E < -8.01`: `test_dmrg.jl:415-441`.
+* Heisenberg S=1 L=10 OBC `E < -12` (Haldane regime): `test_dmrg.jl:6-58`.
+* TFI excited-state gap `Eg = 2|h-1|`: `docs/src/examples/DMRG.md:285-368`.
+* HardCore-boson product-state expectation value `0.00018`: `test_autompo.jl:1120-1156`.
+* Fermion matrix-element checks `inner(ψA',H,ψB) ≈ ±t1`: `test_fermions.jl:68-155`.
+* Heisenberg L=14 DMRG vs. exact diagonalization (Krylov on contracted MPO): `examples/exact_diagonalization/exact_diagonalization.jl`.
 
 ## MPS construction
 
@@ -58,8 +58,8 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 8. **MPS from a Julia array.** `docs/src/examples/MPSandMPO.md:40-75`, `test_mps.jl:1346-1355`. `A = randn(d,d,d,d,d)` or `randn(d^N)`, then `MPS(A,sites; cutoff,maxdim)`. WL-portable: Yes.
 9. **MPS over a Hilbert space subset; setting tensor ranges.** `test_mps.jl:1357-1383`. `ψ[2:N-1] = ϕ` and `ψ[2:N-1, orthocenter=3] = A`. WL-portable: Yes.
 10. **MPS with no link indices.** `test_mps.jl:2056-2068`. `MPS([itensor(randn(ComplexF64,2),s[n]) for n=1:N])`; `orthogonalize` adds default link tags. WL-portable: Yes.
-11. **`random_mps` — chi=1 default.** `test_mps.jl:200-214`. `random_mps(sites)` and `random_mps(ComplexF64,sites)`; `maxlinkdim==1`, every tensor has unit norm. WL-portable: Yes.
-12. **`random_mps` — non-uniform link dims.** `test_mps.jl:227-231`. `random_mps(sites; linkdims=[2,3,4,2,4,3,2,2,2])`. WL-portable: Yes.
+11. **`random_mps`: chi=1 default.** `test_mps.jl:200-214`. `random_mps(sites)` and `random_mps(ComplexF64,sites)`; `maxlinkdim==1`, every tensor has unit norm. WL-portable: Yes.
+12. **`random_mps`: non-uniform link dims.** `test_mps.jl:227-231`. `random_mps(sites; linkdims=[2,3,4,2,4,3,2,2,2])`. WL-portable: Yes.
 13. **`random_mps` from initial QN state.** `test_mps.jl:854-878`. `random_mps(sites,state; linkdims=8)` on QN-conserving S=1/2 sites; verifies `flux(M) == QN("Sz",0)` etc. Inputs: L=20, S=1/2 conserve_qns. WL-portable: Partial (block-sparse).
 14. **Deprecated `randomMPS` API.** `test_deprecated.jl`. Many positional / kwarg variants. WL-portable: Yes.
 
@@ -116,7 +116,7 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 9. **Multisite coordinate index.** `test_autompo.jl:217-222`. `("X",(1,2))` (tuple-as-site). WL-portable: Partial.
 10. **Complex OpSum coefs.** `test_autompo.jl:1037-1053`. With Float64 / QN; verifies `inner(ψud',H,ψdu) = +i`, `inner(ψdu',H,ψud) = -i`. WL-portable: Yes.
 11. **Non-zero QN MPO from single creation operator.** `test_autompo.jl:1055-1084`. `os += "Adag",j` with Boson conserve_qns; matches hand-built op_mpo. WL-portable: Partial.
-12. **Hashing / repeated terms.** `test_autompo.jl:1177-1205`. `os += ("Z",1) + ("Z",1)` — `sortmergeterms` collapses. WL-portable: Yes.
+12. **Hashing / repeated terms.** `test_autompo.jl:1177-1205`. `os += ("Z",1) + ("Z",1)`: `sortmergeterms` collapses. WL-portable: Yes.
 13. **HardCore boson Hamiltonian on product state.** `test_autompo.jl:1120-1156`. L=20, t=1, V1=1e-3, V2=2e-5; `<ψ0|H|ψ0> = 0.00018` ± 1e-10. **Gold validation test.** WL-portable: No (custom HardCore site type, must port).
 
 ## AutoMPO
@@ -131,7 +131,7 @@ Source: `tn-external/numerical/ITensorMPS.jl/`. Split out from ITensors.jl in v0
 
 ## DMRG (finite)
 
-1. **Heisenberg S=1 N=100 with default sweeps.** README, `docs/src/index.md`, `examples/dmrg/1d_heisenberg.jl`. `nsweeps=5`, `maxdim=[10,20,100,100,200]`, `cutoff=1e-10`. **`Final energy = -138.94008605883985`** — gold validation (Haldane gap region). WL-portable: Yes.
+1. **Heisenberg S=1 N=100 with default sweeps.** README, `docs/src/index.md`, `examples/dmrg/1d_heisenberg.jl`. `nsweeps=5`, `maxdim=[10,20,100,100,200]`, `cutoff=1e-10`. **`Final energy = -138.94008605883985`**: gold validation (Haldane gap region). WL-portable: Yes.
 2. **Heisenberg S=1 N=10 small system.** `test_dmrg.jl:7-31`. Checks `energy < -12`. WL-portable: Yes.
 3. **Heisenberg S=1 N=10 conserving QN.** `test_dmrg.jl:33-58`. Néel state init; `energy < -12`. WL-portable: Partial (block sparse needed for matching low-D blocks).
 4. **Disk-cached Heisenberg S=1 conserve_qns.** `test_dmrg.jl:60-85`. `write_when_maxdim_exceeds=15`. WL-portable: No.
