@@ -400,3 +400,32 @@ VerificationTest[
     True,
     TestID -> "BinarizedFramePath_StillRuns"
 ]
+
+
+(* ------------------------------------------------------------------ *)
+(* Path choice                                                         *)
+(* ------------------------------------------------------------------ *)
+
+(* A brickwork circuit of random two-qubit gates on 16 wires, 8 layers deep,
+   is one whose half-weight greedy path is priced cheaper than the default, so
+   Automatic contracts along it.  The order changes, the value does not. *)
+brickwork = BlockRandom[SeedRandom[1]; Module[{v = ConstantArray[0, 16], w, tensors, edges},
+    w[q_] := Subscript[x, q, v[[q]]];
+    tensors = {ArrayReshape[Normalize[RandomComplex[{-1 - I, 1 + I}, 2^16]], ConstantArray[2, 16]]};
+    edges = {Table[w[q], {q, 16}]};
+    Do[
+        With[{old = {w[q], w[q + 1]}},
+            v[[q]]++; v[[q + 1]]++;
+            AppendTo[tensors, ArrayReshape[Orthogonalize[RandomComplex[{-1 - I, 1 + I}, {4, 4}]], {2, 2, 2, 2}]];
+            AppendTo[edges, Join[{w[q], w[q + 1]}, old]]
+        ],
+        {layer, 8}, {q, 1 + Mod[layer, 2], 15, 2}
+    ];
+    TensorNetwork[tensors, edges, Table[w[q], {q, 16}]]
+]];
+
+VerificationTest[
+    Max @ Abs @ Flatten[TensorNetworkContract[brickwork] - TensorNetworkContract[brickwork, GreedyContractionPath[brickwork]]] < 10^-10,
+    True,
+    TestID -> "Automatic_HalfWeightPath_SameValue"
+]

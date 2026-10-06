@@ -972,7 +972,7 @@ TensorNetworkContraction[
 	   naming each index once, the optimizer available - and EinsteinSummation
 	   is the route everywhere else, as it always was. *)
 	! TrueQ[OptionValue["Inactive"]] && path === Automatic && greedyPlannableQ[data],
-		With[{treePath = greedyTreePath[data]},
+		With[{treePath = greedyTreePath[data, alternativePathQ[tensors, OptionValue[Method]]]},
 			If[ TreePathQ[treePath],
 				TensorNetworkContraction[data, treePath, opts],
 				einsteinSummationContraction[tensors, indices, freeIndices, OptionValue[Method], TrueQ[OptionValue["Inactive"]]]
@@ -997,15 +997,170 @@ einsteinSummationContraction[tensors_, indices_, freeIndices_, methodSpec_, inac
    same tree with its steps renumbered, and renumbering is quadratic in the
    number of tensors - a third of the planning time on a 216-tensor circuit - so
    a path that is only ever executed is not canonicalized. *)
-greedyTreePath[data_] := With[{parameters = extractContractionParameters[data]},
+greedyTreePath[data_, alternativeQ_] := With[{parameters = extractContractionParameters[data]},
 	If[ MatchQ[parameters, {_List, _List, _Association}],
-		With[{raw = GreedyContractionPath @@ parameters},
+		With[{raw = If[alternativeQ, cheaperGreedyPath[parameters], GreedyContractionPath @@ parameters]},
 			If[ PathQ[raw] && Count[raw, {_, _}] + 1 === Length[data["Vertices"]],
 				PathToTreePath[raw, data["Vertices"]],
 				$Failed
 			]
 		],
 		$Failed
+	]
+]
+
+(* The greedy optimizer's default weighs a step's result against its operands
+   one to one, which keeps intermediates small and suits a circuit simulated
+   gate by gate: weighing the operands half as much makes a 20-qubit QFT five
+   times slower.  It does not suit everything.  On a 20-qubit Trotter circuit,
+   a 20-qubit brickwork of 4 layers or an MPS overlap of bond dimension 128, the
+   half-weight path moves less data and contracts 1.3 to 3.8 times faster, and
+   no fixed weight is right for both kinds.
+
+   So where the default path is expensive enough for a second plan to be cheap
+   beside it, the half-weight path is planned too, and both are priced in what
+   this executor pays: the elements a step moves - both operands and the
+   result, twice over for an array of more than 2^20 elements, which has left
+   the cache - plus its multiply-adds at a seventieth, the rate of a BLAS
+   product against a move.  The cheaper is contracted, but never one whose
+   largest intermediate is more than four times the default's, which keeps a
+   mispriced path from becoming a memory blowup.  Of 46 circuits, MPS,
+   lattices, random regular graphs and brickworks, 8 took the half-weight path,
+   seven of them 1.3 to 3.8 times faster and the eighth even, and the rest were
+   within timing noise of the default, planning included: the set took 11.8 s
+   against 13.5 s.  The second plan and both prices add 4 ms to the planning of
+   a 20-qubit QFT, whose contraction takes 370 ms.
+
+   The prices hold for this executor on machine numbers only: a product of
+   exact numbers has no BLAS rate, and a SparseArray kept sparse moves no dense
+   blocks.  Anywhere else the default path is taken, as before. *)
+alternativePathQ[tensors_, method_] :=
+	contractionMethodName[method] === "ArrayDot" &&
+		leafContainerAutomaticQ[method] &&
+		Min[Precision /@ tensors] === MachinePrecision &&
+		AllTrue[tensors, ! MatchQ[#, _SparseArray] || #["Density"] >= $denseFill &]
+
+cheaperGreedyPath[parameters : {input_, _, sizes_}] := With[{default = GreedyContractionPath @@ parameters},
+	If[ ! PathQ[default] || Length[input] < 8 || ! AllTrue[Values[sizes], IntegerQ],
+		default,
+		With[{costInput = pathCostInput[parameters]},
+			With[{defaultCost = pathCost[default, costInput]},
+				(* A second plan costs about as much as the first; it is made only
+				   when the contraction it may shorten outweighs it many times. *)
+				If[ First[defaultCost] <= 2.^16 Length[input],
+					default,
+					With[{alternative = GreedyContractionPath[Sequence @@ parameters, "MemoryWeight" -> 0.5]},
+						If[ PathQ[alternative] && Length[alternative] === Length[default],
+							With[{alternativeCost = pathCost[alternative, costInput]},
+								If[ First[alternativeCost] < First[defaultCost] && Last[alternativeCost] <= 4 Last[defaultCost],
+									alternative,
+									default
+								]
+							],
+							default
+						]
+					]
+				]
+			]
+		]
+	]
+]
+
+(* The labels of each leaf as dense integers, without the labels its settling
+   sums - those only it carries that the output lacks - with each label's
+   dimension, whether the output keeps it, and how many leaves hold it. *)
+pathCostInput[{input_, output_, sizes_}] := Module[{
+	ids = AssociationThread[Keys[sizes], Range[Length[sizes]]], leaves, labels, holders, kept, settled
+},
+	leaves = DeleteDuplicates /@ input;
+	labels = Lookup[ids, Catenate[leaves]];
+	holders = BinCounts[labels, {1, Length[sizes] + 1, 1}];
+	kept = ConstantArray[0, Length[sizes]];
+	kept[[Lookup[ids, output]]] = 1;
+	settled = Unitize[UnitStep[holders[[labels]] - 2] + kept[[labels]]];
+	{Pick[labels, settled, 1], Total /@ TakeList[settled, Length /@ leaves], N[Values[sizes]], kept, holders}
+]
+
+pathCost[path_, {labels_, lengths_, dims_, kept_, holders_}] := pathCostCompiled[
+	labels, lengths, path[[All, 1]], Replace[path, {{_} -> 0, {_, j_} :> j}, {1}], dims, kept, holders
+]
+
+(* {price, largest intermediate} of a path in the optimizer's format, where each
+   step removes its operands from the list and appends its result.  An
+   operand's position is then the rank of its node among the live ones in
+   creation order, which a Fenwick tree answers in logarithmic time, as in
+   stepPositions.  A step keeps a label that another node or the output still
+   holds, as the executor does, and sums the rest. *)
+pathCostCompiled = Compile[{
+	{labels, _Integer, 1}, {lengths, _Integer, 1}, {first, _Integer, 1}, {second, _Integer, 1},
+	{dims, _Real, 1}, {output, _Integer, 1}, {holders0, _Integer, 1}
+},
+	Module[{
+		leafCount = Length[lengths], stepCount = Length[first], labelCount = Length[dims], nodes = 0,
+		holders = holders0, start, count, size, buffer, used = Length[labels], tree, mark, touched, top = 1,
+		touchedCount = 0, a = 0, b = 0, node = 0, keptCount = 0, sa = 0., sb = 0., sk = 1., su = 1.,
+		cost = 0., largest = 0., l = 0, c = 0, k = 0, j = 0, pos = 0, bit = 0, cap = 0
+	},
+		nodes = leafCount + stepCount;
+		cap = Length[labels] + 8 stepCount + labelCount;
+		buffer = Table[0, {cap}];
+		Do[buffer[[m]] = labels[[m]], {m, Length[labels]}];
+		start = Table[0, {nodes}];
+		count = Table[0, {nodes}];
+		size = Table[1., {nodes}];
+		k = 1;
+		Do[
+			start[[n]] = k;
+			count[[n]] = lengths[[n]];
+			Do[size[[n]] *= dims[[buffer[[m]]]], {m, k, k + lengths[[n]] - 1}];
+			k += lengths[[n]],
+			{n, leafCount}
+		];
+		tree = Table[0, {nodes}];
+		Do[j = n; While[j <= nodes, tree[[j]] += 1; j += BitAnd[j, -j]], {n, leafCount}];
+		While[2 top <= nodes, top *= 2];
+		mark = Table[0, {labelCount}];
+		touched = Table[0, {labelCount}];
+		Do[
+			(* both operands are found before either is removed *)
+			pos = 0; k = first[[step]]; bit = top;
+			While[bit > 0, If[pos + bit <= nodes && tree[[pos + bit]] < k, pos += bit; k -= tree[[pos]]]; bit = Quotient[bit, 2]];
+			a = pos + 1;
+			If[ second[[step]] > 0,
+				pos = 0; k = second[[step]]; bit = top;
+				While[bit > 0, If[pos + bit <= nodes && tree[[pos + bit]] < k, pos += bit; k -= tree[[pos]]]; bit = Quotient[bit, 2]];
+				b = pos + 1,
+				b = 0
+			];
+			node = leafCount + step;
+			j = a; While[j <= nodes, tree[[j]] -= 1; j += BitAnd[j, -j]];
+			If[b > 0, j = b; While[j <= nodes, tree[[j]] -= 1; j += BitAnd[j, -j]]];
+			j = node; While[j <= nodes, tree[[j]] += 1; j += BitAnd[j, -j]];
+			If[ b == 0,
+				(* a step of one operand only moves it to the end *)
+				start[[node]] = start[[a]]; count[[node]] = count[[a]]; size[[node]] = size[[a]],
+				touchedCount = 0;
+				Do[l = buffer[[m]]; If[mark[[l]] == 0, touchedCount++; touched[[touchedCount]] = l]; mark[[l]] += 1, {m, start[[a]], start[[a]] + count[[a]] - 1}];
+				Do[l = buffer[[m]]; If[mark[[l]] == 0, touchedCount++; touched[[touchedCount]] = l]; mark[[l]] += 1, {m, start[[b]], start[[b]] + count[[b]] - 1}];
+				If[used + touchedCount > cap, buffer = Join[buffer, Table[0, {cap + touchedCount}]]; cap = Length[buffer]];
+				keptCount = 0; sk = 1.; su = 1.;
+				Do[
+					l = touched[[m]]; c = mark[[l]]; mark[[l]] = 0;
+					su *= dims[[l]];
+					If[ holders[[l]] > c || output[[l]] == 1,
+						holders[[l]] += 1 - c; keptCount++; buffer[[used + keptCount]] = l; sk *= dims[[l]],
+						holders[[l]] -= c
+					],
+					{m, touchedCount}
+				];
+				start[[node]] = used + 1; count[[node]] = keptCount; size[[node]] = sk; used += keptCount;
+				sa = size[[a]]; sb = size[[b]];
+				cost += sa If[sa > 1048576., 2., 1.] + sb If[sb > 1048576., 2., 1.] + sk If[sk > 1048576., 2., 1.] + su / 70.;
+				largest = Max[largest, sk]
+			],
+			{step, stepCount}
+		];
+		{cost, largest}
 	]
 ]
 
