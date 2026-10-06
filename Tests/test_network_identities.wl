@@ -59,6 +59,8 @@
 
 Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
 Needs["Wolfram`TensorNetworks`IndexArray`"];
+(* ArrayDimensions, which the E tests read shapes with, is Wolfram/Arrays'. *)
+Needs["Wolfram`Arrays`"];
 
 
 (* ============================================ *)
