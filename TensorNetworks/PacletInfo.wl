@@ -7,15 +7,17 @@ PacletObject[
     "Creator" -> "Wolfram Research, Quantum Computation Framework team",
     "License" -> "MIT",
     "PublisherID" -> "Wolfram",
-    "Version" -> "1.0.11",
+    "Version" -> "1.1.0",
     "WolframVersion" -> "14.3+",
     "PrimaryContext" -> "Wolfram`TensorNetworks`",
-    (* 1.3.3 is a floor, not a preference: the IndexArray subcontext delegates
-       its shape and structural operations to this paclet, and two of its shape
-       rules were only settled there in 1.3.3 - the gradient of a rank-0 operand
-       under Inactive[D], and the shape of a list whose leaves are symbolic
-       containers.  Against 1.3.2 both come back wrong quietly. *)
-    "Dependencies" -> {{"Wolfram/Arrays", "1.3.3+"}},
+    (* 1.4.2 is a floor, not a preference: the IndexArray subcontext delegates
+       its shape and structural operations to this paclet, and three of its
+       shape rules were only settled there by 1.4.2 - the gradient of a rank-0
+       operand under Inactive[D], the shape of a list whose leaves are symbolic
+       containers, and a structural node over operands of symbolic size, such
+       as the transpose of an n x m ArraySymbol.  Against earlier versions they
+       come back wrong quietly. *)
+    "Dependencies" -> {{"Wolfram/Arrays", "1.4.2+"}},
     "Extensions" -> {
       {
         "Kernel",
