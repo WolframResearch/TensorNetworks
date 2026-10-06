@@ -61,37 +61,16 @@ $NetconHibernated = {
 };
 
 (* Examples whose notebooks are stale: each emits a deliberate validation
-   message that the stored notebook has no Message cell for, so the page
-   must be regenerated from its source (the .nb is a build output). An
-   entry holds the exact message names the example emits today; any other
-   outcome, including a pass, fails so the list cannot go stale.
-   TableauShape, TableauSize and YoungSymmetrize: the input reads
-   "Quiet FailureQ[...]" (Quiet times FailureQ[...]) where
-   "Quiet @ FailureQ[...]" was meant. TensorNetworkGraphQ, TensorNetworkQ,
-   YoungTableauQ: the message is intended, only the Message cell is missing
-   (and YoungTableauQ #13 stores True for a tableau YoungTableau now
-   rejects). *)
-$AwaitingRegeneration = <|
-  {"TableauShape", 7} -> {"TableauShape::noyt"},
-  {"TableauSize", 7} -> {"TableauSize::noyt"},
-  {"TableauSize", 13} -> {"YoungSymmetrize::rank"},
-  {"YoungSymmetrize", 8} -> {"YoungSymmetrize::rank"},
-  {"TensorNetworkGraphQ", 4} -> {"TensorNetworkGraphQ::msg2"},
-  {"TensorNetworkGraphQ", 10} -> {"TensorNetworkGraphQ::msg2"},
-  {"TensorNetworkGraphQ", 11} -> {"TensorNetworkGraphQ::msg3"},
-  {"TensorNetworkQ", 12} -> {"TensorNetwork::length"},
-  {"TensorNetworkQ", 13} -> {"TensorNetwork::shape"},
-  {"TensorNetworkQ", 14} -> {"TensorNetwork::dim"},
-  {"TensorNetworkQ", 15} -> {"TensorNetwork::output"},
-  {"TensorNetworkQ", 19} -> {"TensorNetwork::shape"},
-  {"YoungTableauQ", 3} -> {"YoungTableau::notslot"},
-  {"YoungTableauQ", 7} -> {"YoungTableau::notslot"},
-  {"YoungTableauQ", 8} -> {"YoungTableau::notslot"},
-  {"YoungTableauQ", 9} -> {"YoungTableau::notslot"},
-  {"YoungTableauQ", 10} -> {"YoungTableau::notslot"},
-  {"YoungTableauQ", 13} -> {"YoungTableau::notslot"},
-  {"YoungTableauQ", 16} -> {"YoungTableau::notslot"}
-|>;
+   message that the stored notebook has no Message cell for, so the page has
+   to be regenerated - its inputs evaluated again and its Output and Message
+   cells written anew.  An entry, {"Page", input} -> {"Sym::tag", ...}, holds
+   the exact message names the example emits today; any other outcome,
+   including a pass, fails, so the list cannot go stale.  It is empty: the 19
+   examples it held on TableauShape, TableauSize, YoungSymmetrize,
+   TensorNetworkGraphQ, TensorNetworkQ and YoungTableauQ were regenerated,
+   and the "Quiet FailureQ[...]" typo on the first three, a product where
+   "Quiet @ FailureQ[...]" was meant, corrected. *)
+$AwaitingRegeneration = <||>;
 
 (* Name "sym::tag" of a message recorded in $MessageList. *)
 messageName[HoldForm[MessageName[s_, t_String]]] := SymbolName[Unevaluated[s]] <> "::" <> t
