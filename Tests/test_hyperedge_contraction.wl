@@ -93,6 +93,41 @@ VerificationTest[
     TestID -> "Hyperedge_Oracle_InertTensorContract"
 ]
 
+(* The inert form of a step with batch indices carries a rank-3 delta per
+   batch index.  Densified into the tensor product, the deltas of a phase
+   oracle's steps made products too large to build - this network took more
+   than 15 s to activate - so ActivateTensors contracts them as an operand
+   set, the deltas never expanded. *)
+phaseOracle = BlockRandom[SeedRandom[3]; Module[{wires = Array[Subscript[w, #] &, 5], gates},
+    gates = Table[With[{s = Sort @ RandomSample[Range[5], RandomInteger[{1, 4}]]},
+        {ArrayReshape[ReplacePart[ConstantArray[1, 2^Length[s]], -1 -> -1], ConstantArray[2, Length[s]]], wires[[s]]}], 12];
+    TensorNetwork[
+        Prepend[gates[[All, 1]], ArrayReshape[Normalize[RandomComplex[{-1 - I, 1 + I}, 32]], ConstantArray[2, 5]]],
+        Prepend[gates[[All, 2]], wires],
+        wires
+    ]
+]];
+
+VerificationTest[
+    TimeConstrained[
+        Max @ Abs @ Flatten[ActivateTensors[TensorNetworkContraction[phaseOracle, GreedyContractionPath[phaseOracle]]] - TensorNetworkContract[phaseOracle]] < 10^-12,
+        10
+    ],
+    True,
+    TestID -> "ActivateTensors_BatchDeltas_ContractedNotExpanded"
+]
+
+(* Whatever ArrayContract keeps symbolic is given back dense, as the product
+   gave it: two deltas contracted make an explicit array. *)
+VerificationTest[
+    ActivateTensors[Inactive[TensorContract][
+        Inactive[TensorProduct][SymbolicDeltaProductArray[{2, 2, 2}, {{1, 2, 3}}], SymbolicDeltaProductArray[{2, 2, 2}, {{1, 2, 3}}]],
+        {{3, 4}}
+    ]],
+    Normal @ SymbolicDeltaProductArray[{2, 2, 2, 2}, {{1, 2, 3, 4}}],
+    TestID -> "ActivateTensors_DeltasOnly_Dense"
+]
+
 VerificationTest[
     oracleDisagreements[TensorNetworkContract[#, GreedyContractionPath[#], Method -> "Dot"] &, Range[80]],
     {},

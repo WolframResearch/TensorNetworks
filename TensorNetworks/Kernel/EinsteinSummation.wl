@@ -123,9 +123,103 @@ EinsteinSummation::dim = "Dimensions of contracted indices don't match";
 EinsteinSummation::output = "The uncontracted indices can't compose the desired output";
 
 
-ActivateTensors[expr_] := Activate[
+(* An inert contraction is the TensorContract of a TensorProduct.  The kernel
+   contracts an inert product of arrays without building it, so activating
+   TensorContract first and the product after is fast for a contraction of
+   arrays - but a symbolic delta has to be densified for that, and the inert
+   form of a step with batch indices carries a rank-3 delta per batch index:
+   a 7-qubit circuit's inert contraction took 3 s to activate, a 5-wire phase
+   oracle's more than 15 s.
+
+   So a contraction with a delta among its operands is handed to
+   Wolfram/Arrays' ArrayContract as an operand set: the operands are
+   contracted against each other, and the delta by identifying the indices it
+   ties, never expanded - 13 ms for that circuit, 5 ms for the oracle.  Every
+   other contraction goes through TensorContract of the inert product exactly
+   as before.  The contraction head is renamed and Activate evaluates the
+   expression bottom up, so a contraction sees its operands already evaluated
+   and a scoping construct such as an inert Table still binds its iterators
+   first; the renamed head holds its argument, so the product is seen before it
+   is built.
+
+   What ArrayContract gives is made what TensorContract of the product gave: a
+   machine number among the operands makes every entry one, a dense result is
+   packed where it can be, a SparseArray operand makes the result sparse, and
+   the deltas-only and diagonal results ArrayContract keeps symbolic or sparse
+   are made dense.  A delta outside a contraction is densified, as before.
+
+   Each level of a nested contraction costs the evaluator a few frames more
+   than TensorContract did, and a greedy path over a sequential circuit nests
+   one level per gate, so the recursion limit is raised for the activation:
+   2^14 frames carry some 2000 levels, where 1024 stopped at a few hundred,
+   and stay well inside the kernel's stack, which a plain recursion 30000
+   levels deep overflows. *)
+ActivateTensors[expr_] := Block[{$RecursionLimit = Max[$RecursionLimit, 2^14]},
     Activate[expr /. {
-        GeneralizedPower[TensorProduct, t_, n_Integer] :> Inactive[TensorProduct] @@ ConstantArray[Activate[t, TensorContract], n],
-        arr : _SymbolicIdentityArray | _SymbolicDeltaProductArray :> Normal[arr]
-    }, TensorContract]
+        d : _SymbolicDeltaProductArray | _SymbolicIdentityArray :> Inactive[deltaOperand][d],
+        Inactive[TensorContract] -> Inactive[inertContract]
+    }]
+]
+
+deltaOperand[d_] := Normal[d]
+
+SetAttributes[inertContract, HoldFirst]
+
+inertContract[TensorProduct[operands___], pairs_] := contractOperands[operandValues[operands], pairs]
+
+inertContract[operand_, pairs_] := With[{values = operandValues[operand]},
+    If[ MatchQ[values, {Except[_SymbolicDeltaProductArray | _SymbolicIdentityArray]}],
+        TensorContract[First[values], pairs],
+        contractOperands[values, pairs]
+    ]
+]
+
+(* A product's operands, nested products and powers flattened in order of
+   their levels, and a delta kept as the delta it is. *)
+SetAttributes[operandValues, HoldAll]
+
+operandValues[operands___] := Catenate[operandValue /@ Unevaluated[{operands}]]
+
+SetAttributes[operandValue, HoldAll]
+
+operandValue[deltaOperand[d_]] := {d}
+
+operandValue[TensorProduct[operands___]] := operandValues[operands]
+
+operandValue[GeneralizedPower[TensorProduct, t_, n_Integer]] := ConstantArray[t, n]
+
+operandValue[operand_] := {operand}
+
+contractOperands[operands_List, pairs_] := If[
+    MemberQ[operands, _SymbolicDeltaProductArray | _SymbolicIdentityArray] && AllTrue[operands, plainOperandQ],
+    Replace[
+        Quiet @ Wolfram`Arrays`ArrayContract[Inactive[TensorProduct] @@ operands, pairs],
+        {
+            r : _SymbolicDeltaProductArray | _SymbolicIdentityArray | _SymbolicOnesArray :> asProductContracted[Normal[r], operands],
+            r_ /; NumericQ[r] || MatchQ[r, _List | _SparseArray] && ArrayQ[r] :> asProductContracted[r, operands],
+            _ :> productContract[operands, pairs]
+        }
+    ],
+    productContract[operands, pairs]
+]
+
+plainOperandQ[t_] := NumericQ[t] || MatchQ[t, _SparseArray | _SymbolicDeltaProductArray | _SymbolicIdentityArray] || ListQ[t] && ArrayQ[t]
+
+productContract[operands_, pairs_] := Activate @ TensorContract[
+    Inactive[TensorProduct] @@ Replace[operands, d : _SymbolicDeltaProductArray | _SymbolicIdentityArray :> Normal[d], {1}],
+    pairs
+]
+
+asProductContracted[r_, operands_] := With[{
+    value = If[ Min[Precision /@ DeleteCases[operands, _SymbolicDeltaProductArray | _SymbolicIdentityArray]] === MachinePrecision &&
+            (NumericQ[r] || ArrayQ[r, _, NumericQ]),
+        N[r],
+        r
+    ]
+},
+    Which[
+        NumericQ[value], value,
+        MemberQ[operands, _SparseArray], SparseArray[value],
+        True, packedIfMachine[If[MatchQ[value, _SparseArray], Normal[value], value]]
+    ]
 ]

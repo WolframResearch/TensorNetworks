@@ -10,6 +10,8 @@ PackageExport[TensorNetworkContract]
 
 PackageExport[ContractionTree]
 
+PackageScope[packedIfMachine]
+
 
 
 Options[TensorNetworkFindContractionPath] = {"ReturnParameters" -> False, Method -> "Optimal"}
