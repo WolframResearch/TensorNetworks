@@ -22,7 +22,26 @@ If[ ! FileExistsQ[nbFile],
 
 Needs["DefinitionNotebookClient`"]
 
-If[! TrueQ[$CloudConnected], CloudConnect[]]
+(* The paclet is published under PublisherID "Wolfram", so it has to be
+   submitted from an account that is a member of that publisher; any other
+   login passes every client-side check, including the one below, and is then
+   refused by the repository with ResourceObject::apierr ("An unexpected
+   internal error occurred (ConfirmationFailed)"), which is what the stored
+   default login on a machine signed in to another account produces.
+   WOLFRAM_CLOUD_USER and WOLFRAM_CLOUD_PASSWORD, where both are set, name the
+   account to submit from; otherwise the stored login is used.  The password
+   is read from the environment and never printed. *)
+
+submitUser = Environment["WOLFRAM_CLOUD_USER"]
+
+If[ StringQ[submitUser] && StringQ[Environment["WOLFRAM_CLOUD_PASSWORD"]],
+    Quiet @ CloudConnect[submitUser, Environment["WOLFRAM_CLOUD_PASSWORD"]];
+    If[ $WolframID =!= submitUser,
+        Print["FATAL: could not connect as ", submitUser, " from WOLFRAM_CLOUD_USER."];
+        Exit[1]
+    ],
+    If[! TrueQ[$CloudConnected], CloudConnect[]]
+]
 
 If[ ! TrueQ[$CloudConnected],
     Print["FATAL: not cloud connected."];
