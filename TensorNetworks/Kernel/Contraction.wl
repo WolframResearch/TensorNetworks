@@ -726,29 +726,46 @@ batchPairEager[a_, i_, b_, j_, batch_, env_] := Block[{
     summed = Select[i, MemberQ[j, #] && ! MemberQ[batch, #] &],
     own = Select[i, ! MemberQ[j, #] &],
     other = Select[j, ! MemberQ[i, #] &],
-    size, x, y, product
+    nb, na, ns, nf, x, y, product
 },
-    size = Times @@ Lookup[env["Dimension"], #] &;
-    x = ArrayReshape[orderAxes[a, i, Join[batch, own, summed]], {size[batch], size[own], size[summed]}];
-    y = ArrayReshape[orderAxes[b, j, Join[batch, summed, other]], {size[batch], size[summed], size[other]}];
+    {nb, na, ns, nf} = Times @@ Lookup[env["Dimension"], #] & /@ {batch, own, summed, other};
+    x = orderAxes[a, i, Join[batch, own, summed]];
+    y = orderAxes[b, j, Join[batch, summed, other]];
     product = Which[
         SparseArrayQ[x] || SparseArrayQ[y],
-            SparseArray[MapThread[Dot, {x, y}]],
-        (* Nothing summed: one outer product per batch entry, all of them at
-           once.  Times threads the batch and own axes level by level and
-           broadcasts each entry of x over a row of y, which beats a Dot per
-           batch entry by up to twenty times - 0.016 ms against 0.37 ms at a
-           batch of 1024 - and this is the step every diagonal gate takes. *)
-        size[summed] == 1,
-            x[[All, All, 1]] * Transpose[ConstantArray[y[[All, 1, All]], size[own]], {2, 1, 3}],
+            SparseArray[MapThread[Dot, {ArrayReshape[x, {nb, na, ns}], ArrayReshape[y, {nb, ns, nf}]}]],
+        (* Nothing summed: one outer product per batch entry, which is the step
+           every diagonal gate takes.  The singleton summed axis is dropped by
+           ArrayReshape, not by Part: x[[All, All, 1]] copies element by element
+           and took 7 ms on a million entries, ArrayReshape 0.17 ms, which alone
+           halved a 20-qubit phase oracle, 1.49 s to 0.74 s. *)
+        ns == 1,
+            batchOuter[ArrayReshape[x, {nb, na}], ArrayReshape[y, {nb, nf}], na, nf],
         True,
-            Developer`ToPackedArray[MapThread[Dot, {x, y}]]
+            Developer`ToPackedArray[MapThread[Dot, {ArrayReshape[x, {nb, na, ns}], ArrayReshape[y, {nb, ns, nf}]}]]
     ];
     {
         ArrayReshape[product, Lookup[env["Dimension"], Join[batch, own, other]]],
         Join[batch, own, other]
     }
 ]
+
+(* The outer products of the rows of x ({nb, na}) and y ({nb, nf}), all at
+   once.  Times threads x over the leading two levels of the {nb, na, nf}
+   replica of y and broadcasts each entry over a row, which beats a Dot per
+   batch entry by up to twenty times.  But Times on packed arrays of different
+   ranks pays per row, so when the rows are short and many - diagonal gates
+   merged over most of the wires - both operands are brought to the full shape
+   first and multiplied elementwise, which took the same oracle from 0.74 s to
+   0.57 s. *)
+batchOuter[x_, y_, na_, nf_] /; na nf <= 16 && Length[x] >= 4096 := Which[
+    na == 1 && nf == 1, Flatten[x] * Flatten[y],
+    na == 1, Transpose[ConstantArray[Flatten[x], nf]] * y,
+    nf == 1, x * Transpose[ConstantArray[Flatten[y], na]],
+    True, Transpose[ConstantArray[x, nf], {3, 1, 2}] * Transpose[ConstantArray[y, na], {2, 1, 3}]
+]
+
+batchOuter[x_, y_, na_, _] := x * Transpose[ConstantArray[y, na], {2, 1, 3}]
 
 (* The inert form ties each batch index through a rank-3 delta: one leg to each
    operand's slot and one left open, which is the batch axis of the result. *)

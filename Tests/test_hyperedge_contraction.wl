@@ -187,6 +187,36 @@ VerificationTest[
     TestID -> "OmittedLabel_IsSummed"
 ]
 
+(* A step that sums nothing, over a batch of 4096 with short rows - diagonal
+   gates merged over most of a circuit's wires - multiplies its operands
+   brought to the full shape, with a branch for each of the two sides having
+   labels of its own or none.  Each is checked against the row-by-row outer
+   products. *)
+largeBatchCases = Catenate @ Table[
+    BlockRandom[SeedRandom[7]; With[{
+        batch = Array[Subscript[b, #] &, 12],
+        own = Array[Subscript[o, #] &, ownCount],
+        other = Array[Subscript[f, #] &, otherCount],
+        x = RandomInteger[{-9, 9}, ConstantArray[2, 12 + ownCount]],
+        y = RandomInteger[{-9, 9}, ConstantArray[2, 12 + otherCount]]
+    },
+        {
+            TensorNetwork[{x, y}, {Join[batch, own], Join[batch, other]}, Join[batch, own, other]],
+            ArrayReshape[
+                MapThread[Outer[Times, #1, #2] &, {ArrayReshape[x, {4096, 2^ownCount}], ArrayReshape[y, {4096, 2^otherCount}]}],
+                ConstantArray[2, 12 + ownCount + otherCount]
+            ]
+        }
+    ]],
+    {ownCount, 0, 1}, {otherCount, 0, 1}
+];
+
+VerificationTest[
+    TensorNetworkContract[First[#]] === Last[#] & /@ largeBatchCases,
+    {True, True, True, True},
+    TestID -> "LargeBatch_ShortRows_FullShapeProduct"
+]
+
 
 (* ------------------------------------------------------------------ *)
 (* Scalars                                                             *)
