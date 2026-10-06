@@ -525,8 +525,21 @@ packedIfMachine[t_] := With[{packed = Developer`ToPackedArray[t]},
    packing above this took a 14-qubit QFT circuit of exact gates acting on a
    machine-number state from 0.20 s to 0.02 s.  A network with no machine number
    anywhere is left exact, and so is one carrying any number of precision other
-   than machine precision. *)
-machinePrecisionLeaves[tensors_] := If[Min[Precision /@ tensors] === MachinePrecision, N[tensors], tensors]
+   than machine precision.
+
+   A leaf with a symbol in it is left as it is, though.  Its arithmetic is
+   symbolic either way, so N would gain nothing, and it would rewrite the exact
+   numbers inside the symbolic expressions: E^(I theta) became E^(1. I theta), which no
+   longer cancels against the same algebra done exactly.  QuantumFramework's
+   check that a circuit's contraction matches its operators' composition failed
+   on exactly that. *)
+machinePrecisionLeaves[tensors_] := If[
+    Min[Precision /@ tensors] === MachinePrecision,
+    Replace[tensors, t_ ? numericLeafQ :> N[t], {1}],
+    tensors
+]
+
+numericLeafQ[t_] := NumericQ[t] || ArrayQ[t, _, NumericQ]
 
 
 (* ---------------------------------------------------------------------------
@@ -1039,12 +1052,13 @@ greedyTreePath[data_, alternativeQ_] := With[{parameters = extractContractionPar
    a 20-qubit QFT, whose contraction takes 370 ms.
 
    The prices hold for this executor on machine numbers only: a product of
-   exact numbers has no BLAS rate, and a SparseArray kept sparse moves no dense
-   blocks.  Anywhere else the default path is taken, as before. *)
+   exact or symbolic entries has no BLAS rate, and a SparseArray kept sparse
+   moves no dense blocks.  Anywhere else the default path is taken, as before. *)
 alternativePathQ[tensors_, method_] :=
 	contractionMethodName[method] === "ArrayDot" &&
 		leafContainerAutomaticQ[method] &&
 		Min[Precision /@ tensors] === MachinePrecision &&
+		AllTrue[tensors, numericLeafQ] &&
 		AllTrue[tensors, ! MatchQ[#, _SparseArray] || #["Density"] >= $denseFill &]
 
 cheaperGreedyPath[parameters : {input_, _, sizes_}] := With[{default = GreedyContractionPath @@ parameters},

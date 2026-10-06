@@ -302,6 +302,15 @@ VerificationTest[
     TestID -> "Precision_ExactNetworkStaysExact"
 ]
 
+(* A leaf with a symbol in it keeps its exact numbers even beside a machine
+   number: its arithmetic is symbolic anyway, and E^(I theta) turned into
+   E^(1. I theta) no longer cancels against the same algebra done exactly. *)
+VerificationTest[
+    TensorNetworkContract[TensorNetwork[{{0.5, 0.25}, {1, Exp[I theta]}}, {{p}, {p}}, {p}]],
+    {0.5, 0.25 Exp[I theta]},
+    TestID -> "Precision_SymbolicLeafKeepsItsForm"
+]
+
 
 (* Transpose with a repeated level crashes the kernel on a SparseArray whose
    nonzeros all lie off that diagonal; a sparse leaf's diagonal is taken from its
