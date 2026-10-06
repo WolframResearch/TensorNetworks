@@ -10,7 +10,12 @@ PacletObject[
     "Version" -> "1.0.11",
     "WolframVersion" -> "14.3+",
     "PrimaryContext" -> "Wolfram`TensorNetworks`",
-    "Dependencies" -> {"Wolfram/Arrays"},
+    (* 1.3.3 is a floor, not a preference: the IndexArray subcontext delegates
+       its shape and structural operations to this paclet, and two of its shape
+       rules were only settled there in 1.3.3 - the gradient of a rank-0 operand
+       under Inactive[D], and the shape of a list whose leaves are symbolic
+       containers.  Against 1.3.2 both come back wrong quietly. *)
+    "Dependencies" -> {{"Wolfram/Arrays", "1.3.3+"}},
     "Extensions" -> {
       {
         "Kernel",
@@ -30,13 +35,7 @@ PacletObject[
           "Wolfram`TensorNetworks`ContractionTree",
           "Wolfram`TensorNetworks`EinsteinSummation",
           "Wolfram`TensorNetworks`GreedyContractionPath",
-          "Wolfram`TensorNetworks`IndexArray`ArrayContract",
-          "Wolfram`TensorNetworks`IndexArray`ArrayDimensions",
-          "Wolfram`TensorNetworks`IndexArray`ArrayName",
-          "Wolfram`TensorNetworks`IndexArray`ArrayPart",
-          "Wolfram`TensorNetworks`IndexArray`ArrayRank",
           "Wolfram`TensorNetworks`IndexArray`ArraySymmetry",
-          "Wolfram`TensorNetworks`IndexArray`ArrayTranspose",
           "Wolfram`TensorNetworks`IndexArray`Dimension",
           "Wolfram`TensorNetworks`IndexArray`DimensionQ",
           "Wolfram`TensorNetworks`IndexArray`IndexArray",
@@ -50,8 +49,6 @@ PacletObject[
           "Wolfram`TensorNetworks`IndexArray`MetricTensorQ",
           "Wolfram`TensorNetworks`IndexArray`Shape",
           "Wolfram`TensorNetworks`IndexArray`ShapeQ",
-          "Wolfram`TensorNetworks`IndexArray`SimplifyArray",
-          "Wolfram`TensorNetworks`IndexArray`ZeroArrayQ",
           "Wolfram`TensorNetworks`IndexedMultiply",
           "Wolfram`TensorNetworks`InitializeTensorNetwork",
           "Wolfram`TensorNetworks`MPSCanonicalForm",

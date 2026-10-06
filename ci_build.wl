@@ -22,6 +22,35 @@ If[ ! MemberQ[$Packages, "Wolfram`Arrays`"],
     Exit[1]
 ];
 
+(* The version floor is asserted here as well as declared in PacletInfo, because
+   nothing enforces "Dependencies" at load time: an older Wolfram/Arrays loads
+   without complaint and then answers two shape questions the IndexArray
+   subcontext depends on with a quietly wrong result - the gradient of a rank-0
+   operand under Inactive[D], and the shape of a list whose leaves are symbolic
+   containers.  Neither raises a message, so without this the build goes green
+   and the paclet ships broken.
+
+   The comparison is done on PARSED version numbers, deliberately, and not by
+   either of the two shorter spellings that look right and are not.
+   PacletFind["Wolfram/Arrays", "Version" -> "99.9.9+"] returns the installed
+   1.3.3 - the range is not applied as a filter, so that check can never fail -
+   and comparing the version STRINGS orders 1.10.0 before 1.3.3. *)
+requiredArraysVersion = "1.3.3";
+
+versionNumbers[v_String] := Replace[
+    Quiet @ Check[ToExpression /@ StringSplit[v, "."], $Failed],
+    Except[{___Integer}] :> {0}
+];
+versionNumbers[_] := {0};
+
+If[ ! OrderedQ[{versionNumbers[requiredArraysVersion], versionNumbers[PacletObject["Wolfram/Arrays"]["Version"]]}],
+    Print[
+        "FATAL: Wolfram/Arrays ", PacletObject["Wolfram/Arrays"]["Version"],
+        " is older than the required ", requiredArraysVersion, "."
+    ];
+    Exit[1]
+];
+
 PacletDirectoryLoad[FileNameJoin[{Directory[], "TensorNetworks"}]];
 
 name = "TensorNetworks";

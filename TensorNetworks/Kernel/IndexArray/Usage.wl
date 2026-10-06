@@ -1,57 +1,11 @@
 Package["Wolfram`TensorNetworks`IndexArray`"]
 
 
-ArrayContract::usage = "\!\(\*RowBox[{\"ArrayContract\", \"[\", RowBox[{StyleBox[\"t\", \"TI\"], \
-\",\", StyleBox[\"c\", \"TI\"]}], \"]\"}]\) contracts the index pairs c in \
-tensor t and simplifies the result. \
-\[Bullet]\n\!\(\*RowBox[{\"ArrayContract\", \"[\", RowBox[{RowBox[{\"{\", \
-RowBox[{SubscriptBox[StyleBox[\"t\", \"TI\"], \"1\"], \",\", \
-SubscriptBox[StyleBox[\"t\", \"TI\"], \"2\"], \",\", \"\[Ellipsis]\"}], \
-\"}\"}], \",\", StyleBox[\"c\", \"TI\"]}], \"]\"}]\) first forms an \
-Inactive[TensorProduct] of the listed tensors, then contracts the index pairs \
-c."
-
-
-
-ArrayDimensions::usage = "\!\(\*RowBox[{\"ArrayDimensions\", \"[\", StyleBox[\"t\", \"TI\"], \"]\"}]\) \
-returns the list of dimensions of the tensor t, tracking through \
-Inactive[TensorContract], Inactive[TensorProduct], Inactive[Transpose] and \
-Inactive[D]."
-
-
-
-ArrayName::usage = "\!\(\*RowBox[{\"ArrayName\", \"[\", StyleBox[\"t\", \"TI\"], \"]\"}]\) \
-returns the underlying symbol associated with the tensor t, or None when t is \
-not a symbolic array."
-
-
-
-ArrayPart::usage = "\!\(\*RowBox[{\"ArrayPart\", \"[\", RowBox[{StyleBox[\"t\", \"TI\"], \",\", \
-RowBox[{\"{\", RowBox[{SubscriptBox[StyleBox[\"i\", \"TI\"], \"1\"], \",\", \
-SubscriptBox[StyleBox[\"i\", \"TI\"], \"2\"], \",\", \"\[Ellipsis]\"}], \
-\"}\"}]}], \"]\"}]\) extracts the sub-array of t at the given positions, \
-propagating dimensional metadata for VectorSymbol, MatrixSymbol and \
-ArraySymbol."
-
-
-
-ArrayRank::usage = "\!\(\*RowBox[{\"ArrayRank\", \"[\", StyleBox[\"t\", \"TI\"], \"]\"}]\) \
-returns Length[ArrayDimensions[t]], i.e. the number of indices of the tensor \
-t."
-
-
 
 ArraySymmetry::usage = "\!\(\*RowBox[{\"ArraySymmetry\", \"[\", StyleBox[\"t\", \"TI\"], \"]\"}]\) \
 returns the symmetry declaration (Symmetric[\[Ellipsis]], \
 Antisymmetric[\[Ellipsis]] or ZeroSymmetric[\[Ellipsis]]) of t, or {} if \
 there is none."
-
-
-
-ArrayTranspose::usage = "\!\(\*RowBox[{\"ArrayTranspose\", \"[\", RowBox[{StyleBox[\"t\", \"TI\"], \
-\",\", StyleBox[\"perm\", \"TI\"]}], \"]\"}]\) permutes the axes of t \
-according to perm, simplifying the result and composing nested transposes \
-into a single permutation."
 
 
 
@@ -171,16 +125,3 @@ RowBox[{SubscriptBox[StyleBox[\"d\", \"TI\"], \"1\"], \",\", \
 RowBox[{SubscriptBox[StyleBox[\"n\", \"TI\"], \"1\"], \",\", \
 \"\[Ellipsis]\"}], \"}\"}], \"]\"}]\) pairs integer sizes with index names; a \
 negative name marks a lower index."
-
-
-
-SimplifyArray::usage = "\!\(\*RowBox[{\"SimplifyArray\", \"[\", StyleBox[\"expr\", \"TI\"], \
-\"]\"}]\) simplifies a nested array expression by removing empty \
-Inactive[TensorContract] calls, identity Inactive[Transpose] calls and \
-singleton Inactive[TensorProduct] calls."
-
-
-
-ZeroArrayQ::usage = "\!\(\*RowBox[{\"ZeroArrayQ\", \"[\", StyleBox[\"t\", \"TI\"], \"]\"}]\) \
-yields True if any dimension of the tensor t is zero, indicating an empty \
-tensor."

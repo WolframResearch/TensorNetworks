@@ -1,5 +1,7 @@
 Package["Wolfram`TensorNetworks`IndexArray`"]
 
+PackageImport["Wolfram`Arrays`"]
+
 PackageExport[IndexArrayQ]
 PackageExport[IndexArray]
 

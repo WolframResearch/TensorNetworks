@@ -84,23 +84,6 @@
     "SeeAlso" -> {"MetricTensor", "IndexTensor", "IndexTensorQ"}
   |>,
 
-  <|
-    "Symbol"   -> "ZeroArrayQ",
-    "Context"  -> "Wolfram`TensorNetworks`IndexArray`",
-    "Template" -> "PathQ",
-    "UsageBoxes" -> {
-      {RowBox[{"ZeroArrayQ", "[", StyleBox["t", "TI"], "]"}],
-       "yields True if any dimension of the tensor t is zero, indicating an empty tensor."}
-    },
-    "Examples" -> {
-      {"Test whether a tensor has a zero dimension:",
-       RowBox[{"ZeroArrayQ", "[", RowBox[{"{", RowBox[{"1", ",", "2", ",", "3"}], "}"}], "]"}],
-       RowBox[{"ZeroArrayQ", "[", RowBox[{"{", "}"}], "]"}],
-       RowBox[{"ZeroArrayQ", "[", RowBox[{"ConstantArray", "[", RowBox[{"0", ",", RowBox[{"{", RowBox[{"3", ",", "0", ",", "2"}], "}"}]}], "]"}], "]"}]}
-    },
-    "SeeAlso" -> {"ArrayDimensions", "ArrayRank", "IndexArrayQ"}
-  |>,
-
   (* ---------- Symmetry context ---------- *)
 
   <|

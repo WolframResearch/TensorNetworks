@@ -1,6 +1,7 @@
 Package["Wolfram`TensorNetworks`IndexArray`"]
 
 PackageImport["Wolfram`TensorNetworks`"]
+PackageImport["Wolfram`Arrays`"]
 
 PackageExport[IndexPart]
 PackageExport[IndexContract]
@@ -8,13 +9,22 @@ PackageExport[IndexJuggling]
 
 
 
+(* ArrayPart declines a structural tree that carries a symbolic container: there
+   is no slice rule for one and no materialization either, so it stays
+   unevaluated rather than handing back an operand of the node - which is what
+   Part on such a tree gives, silently and with the right shape.  That
+   unevaluated call must not be stored as the array of an IndexArray, where it
+   would pass IndexArrayQ as a rank-0 object carrying a foreign head, so
+   IndexPart declines with it. *)
+
 IndexPart[it : _IndexArray | _IndexTensor, {is__}] := Block[{
-    indices = it["Indices"], js, newArray
+    indices = it["Indices"], js, part, newArray
 },
     js = MapThread[If[MatchQ[#2, _Integer | All], #2, Lookup[#1, Key[#2]]] &, {Map[First] @* PositionIndex /@ Through[Take[indices, UpTo[Length[{is}]]]["Indices"]], {is}}];
+    part = ArrayPart[it["Array"], Replace[js, _Missing -> All, 1]];
     (
         newArray = IndexArray[
-            ArrayPart[it["Array"], Replace[js, _Missing -> All, 1]],
+            part,
             MapThread[
                 If[ IntegerQ[#2],
                     Dimension[#1, Mod[#2, #1["Dimension"], 1]],
@@ -28,7 +38,7 @@ IndexPart[it : _IndexArray | _IndexTensor, {is__}] := Block[{
             it["Parameters"], it["Assumptions"], it["Name"]
         ];
         If[IndexArrayQ[it], newArray, IndexTensor[newArray, it["Metrics"]]]
-     ) /; AnyTrue[js, IntegerQ]
+     ) /; AnyTrue[js, IntegerQ] && ! MatchQ[part, _ArrayPart]
 ]
 
 IndexPart[it_IndexTensor, {}] := it
