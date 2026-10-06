@@ -269,14 +269,33 @@ TensorNetworkProp[tn_, "SparseQ"] := AllTrue[tn["Tensors"], SparseArrayQ]
 
 BinaryTensorNetworkQ[tn_TensorNetwork ? TensorNetworkQ] := AllTrue[Counts[Catenate @ tn["Hyperedges"]], # <= 2 &]
 
-(* Helper function to avoid documentation introspection issues *)
-binaryTensorNetworkImpl[tn_] := Block[{hyperedges = tn["Hyperedges"], indexHyperedges, dimensions, spidersIndices},
+(* Helper function to avoid documentation introspection issues.
+
+   Every slot of a spidered index is renamed to a leg of its spider, so an
+   index the OUTPUT names would vanish from the network along with its slots,
+   and the rebuilt network would declare an output it no longer has - which is
+   how a free hyperedge used to fail with TensorNetwork::output.  The spider of
+   an output index therefore carries one more leg, under the index's own name,
+   and that leg is the free one.  The same holds for an output index only two
+   tensors share: binary by count, but not a bond, so it is spidered too. *)
+binaryTensorNetworkImpl[tn_] := Block[{
+    hyperedges = tn["Hyperedges"],
+    output = Replace[tn["Output"], Automatic -> {}],
+    indexHyperedges, dimensions, spidersIndices
+},
     indexHyperedges = Select[
         GroupBy[
             Catenate @ MapIndexed[List, hyperedges, {2}],
             First -> Last
         ],
         Length[#] > 2 &
+    ];
+    indexHyperedges = Join[
+        indexHyperedges,
+        KeySelect[
+            GroupBy[Catenate @ MapIndexed[List, hyperedges, {2}], First -> Last],
+            MemberQ[output, #] &
+        ] // Select[Length[#] == 2 &]
     ];
 
     If[Length[indexHyperedges] == 0, Return[tn]];
@@ -292,7 +311,7 @@ binaryTensorNetworkImpl[tn_] := Block[{hyperedges = tn["Hyperedges"], indexHyper
         Join[
             tn["Tensors"],
             KeyValueMap[
-                With[{rank = Length[#2]},
+                With[{rank = Length[#2] + Boole[MemberQ[output, #1]]},
                     SymbolicDeltaProductArray[ConstantArray[Lookup[dimensions, Key[#1]], rank], {Range[rank]}]
                 ] &,
                 indexHyperedges
@@ -303,11 +322,13 @@ binaryTensorNetworkImpl[tn_] := Block[{hyperedges = tn["Hyperedges"], indexHyper
                 hyperedges,
                 Catenate @ spidersIndices
             ],
-            Values /@ spidersIndices
+            MapThread[
+                Join[Values[#1], If[MemberQ[output, #2], {#2}, {}]] &,
+                {spidersIndices, Keys[indexHyperedges]}
+            ]
         ],
         tn["Output"]
     ]
-    
 ]
 
 BinaryTensorNetwork[tn_TensorNetwork ? TensorNetworkQ] := binaryTensorNetworkImpl[tn]

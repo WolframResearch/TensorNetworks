@@ -19,7 +19,9 @@ otherwise."
 BinaryTensorNetwork::usage = "\!\(\*RowBox[{\"BinaryTensorNetwork\", \"[\", StyleBox[\"tn\", \"TI\"], \
 \"]\"}]\) returns a binary (pairwise) tensor network equivalent to \
 \!\(\*StyleBox[\"tn\", \"TI\"]\), inserting a SymbolicDeltaProductArray \
-spider for every index that appears in three or more tensors."
+spider for every index that appears in three or more tensors, and for every \
+output index that two or more tensors share; the spider of an output index \
+keeps one free leg under the index's own name."
 
 
 
