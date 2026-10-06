@@ -212,25 +212,27 @@ EinsteinSummation[{{1, 2}, {2, 3, 4}, {3, 4, 5}, {3, 6}} -> {1, 5, 6}, {t1, t2, 
 
 In the lowering the $k$ contraction is the group `{4, 6, 9}`, a *three-element* group rather than a pair: slot 4 (`t2`'s $k$), slot 6 (`t3`'s $k$), slot 9 (`t4`'s $k$). `TensorContract` treats it as a generalized trace over all three slots at once. That is the global-slot convention's answer to a hyperedge: groups, not just pairs.
 
-The contraction-path machinery cannot use a three-way group, because a path is built from pairwise steps. It instead binarizes: it inserts an explicit delta "spider" tensor so the hyperedge becomes ordinary two-tensor bonds. Build the four-tensor network:
+A contraction path is still built from pairwise steps, and a hyperedge fits them without a three-way group: a step sums an index its two operands share only when no other tensor and no output still carries it, and otherwise keeps it, once, as a *batch* index of the result. The index rides along every step that still needs it and is summed by the last one. Build the four-tensor network:
 
 ```wl
 tnH = TensorNetwork[{t1, t2, t3, t4}, {{1, 2}, {2, 3, 4}, {3, 4, 5}, {3, 6}}]
 ```
 
-Its binarized form adds one spider, raising the operand count from four to five:
-
-```wl
-BinaryTensorNetwork[tnH]["Size"]
-```
-
-The greedy path then runs over that five-operand pool:
+The greedy path runs over its four tensors directly:
 
 ```wl
 GreedyContractionPath[tnH]
 ```
 
-The path `{{4,5},{1,2},{1,3},{1,2}}` has four steps over five operands. So a contracted hyperedge has two equivalent representations: one $n$-element group in the global-slot convention ([`TensorContract`]()), or an explicit delta spider plus pairwise bonds in the path convention.
+Three steps over four operands: whichever step first joins two of `t2`, `t3`, `t4` keeps $k$, because the third still carries it, and the step that brings in the third sums it.
+
+The other representation inserts an explicit delta "spider" tensor, so that the hyperedge becomes ordinary two-tensor bonds. [`BinaryTensorNetwork`]() builds it, raising the operand count from four to five:
+
+```wl
+BinaryTensorNetwork[tnH]["Size"]
+```
+
+A path planned over the binarized network has four steps over five operands, and it is still accepted: a path whose operand count is that of `BinaryTensorNetwork[tnH]` rather than of `tnH` runs on the binarized network. So a contracted hyperedge has three equivalent representations: one $n$-element group in the global-slot convention ([`TensorContract`]()), a batch index carried by the pairwise steps of a path, or an explicit delta spider plus pairwise bonds. The batch index is the one that scales: a spider's rank grows with the number of tensors on its index, so an index shared by two hundred tensors is a rank-200 delta, while a batch index never makes a step larger than its result.
 
 ## Where this leaves us
 
@@ -240,4 +242,4 @@ We built one network and read its indices in every convention the kernel uses:
 - The `TensorNetwork` data labels tag each leg with its tensor position and label; shared labels are bond groups, once-only labels are the free indices and set the output order.
 - A contraction path numbers operands and lists pairwise steps in order; reading the nested `ArrayDot` (or the [`ContractionTree`]()) gives the sequence, and the legs summed at a step are recovered from the data.
 - `ArrayDot` re-expresses a pairwise step in operand-local axes; `b`'s axis $bi$ is the global slot $\mathrm{rank}[a]+bi$.
-- A repeated index that survives to the output is a broadcast ([`IndexedMultiply`]()), not a contraction; a contracted index on three or more tensors is an $n$-element group or, for path execution, a binarized spider.
+- A repeated index that survives to the output is a broadcast ([`IndexedMultiply`]()), not a contraction; a contracted index on three or more tensors is an $n$-element group or, in a contraction path, a batch index each step keeps while another tensor still carries it ([`BinaryTensorNetwork`]() gives the explicit spider form instead).

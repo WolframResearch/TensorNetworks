@@ -196,32 +196,118 @@ OptimalContractionPath[
 	]
 ]
 
-(* Internal helper for parameter extraction *)
-extractContractionParameters[KeyValuePattern[{
-    "Dimensions" -> tensorDimensions_,
-    "Indices" -> tensorIndices_,
-    "Contractions" -> contractions_
-}]] := Enclose @ Block[{
-    dimensions, pairs, rules, indices, normalIndices, input, output
+(* A network with no index at all - scalars only - gives the optimizers nothing
+   to weigh, and their size table cannot be empty: every order contracts it the
+   same, so the path is any order. *)
+GreedyContractionPath[input : {{} ...}, {}, sizeDict_Association /; sizeDict === <||>, ___] :=
+    ConstantArray[{1, 2}, Max[Length[input] - 1, 0]]
+
+OptimalContractionPath[input : {{} ...}, {}, sizeDict_Association /; sizeDict === <||>, ___] :=
+    ConstantArray[{1, 2}, Max[Length[input] - 1, 0]]
+
+(* Internal helper for parameter extraction.
+
+   An index on three or more tensors - a hyperedge - is ONE index of the einsum,
+   which is how the Rust optimizers read it: it stays on every intermediate that
+   still needs it and is summed once nothing outside does.  So every member of a
+   group maps to one representative, whatever the group's size.  A pair maps its
+   first member to its second, as it always has, so the numbering - and with it
+   every path planned for a binary network - is unchanged.
+
+   Both rule sets are Dispatch tables.  As plain rule lists every index
+   occurrence was matched against every rule in turn, which made this the
+   quadratic step of path finding: 0.68 s of the 0.75 s GreedyContractionPath
+   spent on a 216-tensor circuit, of which the optimizer itself took 0.013 s.
+
+   The body is a Block, not Enclose or Module, and that is load-bearing.  Both of
+   those walk their held argument - Enclose to tag the Confirm calls in it,
+   Module to rename its locals - and the data bound by the pattern is spliced
+   into that argument, Association values included.  For a hyperedge network
+   "Contractions" spells each group out again at every slot of the group: two
+   million expressions for a circuit whose wires each sit on two hundred gates,
+   walked once per mention, a second per mention.  Block holds its body without
+   walking it, so the disagreeing-dimension check is an explicit Failure. *)
+extractContractionParameters[data : KeyValuePattern[{
+    "Dimensions" -> _,
+    "Indices" -> _,
+    "Contractions" -> _
+}]] := Block[{
+    tensorIndices = data["Indices"], dimensions, groups, rules, indices, normalIndices, input, output
 },
-    dimensions = AssociationThread[Catenate[tensorIndices], Catenate[tensorDimensions]];
-    pairs = Cases[Catenate[contractions], {_, _}];
-    rules = Rule @@@ pairs;
-    ConfirmAssert[AllTrue[Partition[Lookup[dimensions, Catenate[pairs]], 2], Apply[Equal]]];
-    dimensions = KeyMap[Replace[rules], dimensions];
-    indices = Replace[tensorIndices, rules, {2}];
-    normalIndices = Thread[# -> Range[Length[#]]] & [Union @@ indices];
-    input = Replace[indices, normalIndices, {2}];
-    output = Replace[Cases[Catenate[contractions], Except[{_, _}]], normalIndices, 1];
-    dimensions = KeyMap[Replace[normalIndices], dimensions];
-    {input, output, dimensions}
+    dimensions = AssociationThread[Catenate[tensorIndices], Catenate[data["Dimensions"]]];
+    groups = contractionGroups[data];
+    If[ AllTrue[groups, Equal @@ Lookup[dimensions, #] &],
+        rules = Dispatch @ Catenate[Thread[Most[#] -> Last[#]] & /@ groups];
+        dimensions = KeyMap[Replace[rules], dimensions];
+        indices = Replace[tensorIndices, rules, {2}];
+        normalIndices = Dispatch @ Thread[# -> Range[Length[#]]] & [Union @@ indices];
+        input = Replace[indices, normalIndices, {2}];
+        output = Replace[plannedOutput[data, rules], normalIndices, 1];
+        dimensions = KeyMap[Replace[normalIndices], dimensions];
+        {input, output, dimensions}
+        ,
+        Failure["DimensionMismatch", <|
+            "MessageTemplate" -> "The slots of contracted indices `1` do not all have the same dimension.",
+            "MessageParameters" -> {Select[groups, ! Equal @@ Lookup[dimensions, #] &]}
+        |>]
+    ]
+]
+
+(* The groups of index slots that are one index of the einsum.  Data that names
+   its indices by label - TensorNetworkData - is grouped by label, one pass over
+   the slots; reading the groups off its "Contractions" instead costs the square
+   of every group's size (see above).  Graph data names a bond only through its
+   contraction pairs, so it is read from those.  For a binary network both
+   readings give the same groups in the same order, so the numbering of its
+   indices does not depend on which one ran. *)
+contractionGroups[data_] := If[
+    KeyExistsQ[data, "Hyperedges"],
+    Select[Values[GroupBy[Catenate[data["Indices"]], Last]], Length[#] > 1 &],
+    DeleteDuplicates @ Cases[Catenate[data["Contractions"]], {_, __}]
+]
+
+(* The output a path is planned for.  For a network whose shared labels are all
+   plain bonds the free indices are exactly the slots no group claims, which is
+   how graph data and every binary network has always been read.  A network
+   that shares an OUTPUT label between tensors, or leaves a label of its own out
+   of its output to be summed, declares its output by label, and each label is
+   named through the representative its group maps to - so an output index that
+   several tensors carry is planned as one output index.
+
+   One definition, not two clauses: data that declares its output by label is
+   also data with "Contractions", so two clauses would be told apart only by the
+   order the kernel stores them in, and it does not keep the order they were
+   written in. *)
+plannedOutput[data_, rules_] := With[{
+    hyperedges = Lookup[data, "Hyperedges", None],
+    freeIndices = Lookup[data, "FreeIndices", None]
+},
+    If[ ListQ[hyperedges] && ListQ[freeIndices] && ! plainBondsQ[hyperedges, freeIndices],
+        Lookup[
+            Association[Last[#] -> Replace[#, rules] & /@ Catenate[data["Indices"]]],
+            freeIndices
+        ],
+        Cases[Catenate[data["Contractions"]], Except[_List]]
+    ]
+]
+
+(* Every shared label is a bond between exactly two slots and the output is
+   exactly the labels carried once: the network every route of this paclet was
+   first written for, and the one whose behaviour must not move. *)
+plainBondsQ[hyperedges_, freeIndices_] := With[{counts = Counts[Catenate[hyperedges]]},
+    AllTrue[counts, # <= 2 &] && Sort[freeIndices] === Sort[Keys[Select[counts, # == 1 &]]]
 ]
 
 extractContractionParameters[net_Graph ? TensorNetworkGraphQ] :=
     extractContractionParameters[TensorNetworkGraphData[net]]
 
+(* A network is planned over its OWN tensors, hyperedges included: the
+   optimizers take an index shared by any number of tensors, and the contraction
+   executor keeps such an index on every step that still needs it, so no delta
+   spider is inserted.  BinaryTensorNetwork remains the way to plan over the
+   binarized network explicitly. *)
 extractContractionParameters[net_TensorNetwork ? TensorNetworkQ] :=
-    extractContractionParameters[TensorNetworkData[BinaryTensorNetwork[net]]]
+    extractContractionParameters[TensorNetworkData[net]]
 
 (* `"FixedIndexing" -> True` puts the Rust path in SSA form (positions > input length).
    CanonicalPath assumes the opt_einsum convention and fails with `Delete::partw`

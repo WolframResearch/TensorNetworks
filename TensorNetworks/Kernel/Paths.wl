@@ -89,9 +89,10 @@ PathQ[___] := False
 
 PathToTreePath::indlen =
 	"Length of indices `1` does not match the path's required arity `2` " <>
-	"(= Count[path, {_, _}] + 1). For a TN with hyper-edges, the path is over " <>
-	"the binarized network — pass BinaryTensorNetwork[tn][\"Vertices\"] or omit " <>
-	"the indices argument to auto-derive them.";
+	"(= Count[path, {_, _}] + 1). A path of a TN is over its own tensors, hyper-edges " <>
+	"included; a path planned over BinaryTensorNetwork[tn] is over the binarized " <>
+	"network — pass BinaryTensorNetwork[tn][\"Vertices\"] for one, or omit the " <>
+	"indices argument to auto-derive them.";
 
 PathToTreePath[path_List ? PathQ, indices : _List | Automatic : Automatic] :=
 	With[{required = Count[path, {_, _}] + 1},
@@ -131,9 +132,9 @@ ContractIndices[i_, j_] := With[{c = Complement[Join[i, j], SymmetricDifference[
 
 PathIndexContractions::indlen =
 	"Length of indices `1` does not match the path's required arity `2` " <>
-	"(= Length[path] + 1). For a TN with hyper-edges, the path is over the " <>
-	"binarized network — pass BinaryTensorNetwork[tn][\"Indices\"] / [\"Hyperedges\"] " <>
-	"or use Automatic.";
+	"(= Length[path] + 1). A path of a TN is over its own tensors, hyper-edges " <>
+	"included; for a path planned over BinaryTensorNetwork[tn] pass that network's " <>
+	"[\"Indices\"] / [\"Hyperedges\"], or use Automatic.";
 
 PathIndexContractions[path : {{_Integer, _Integer} ...}, indices : {__List}] :=
 	With[{required = Length[path] + 1},

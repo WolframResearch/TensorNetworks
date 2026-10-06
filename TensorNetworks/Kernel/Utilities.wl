@@ -13,6 +13,7 @@ PackageScope[symbolicTensorRank]
 
 PackageScope[silentConstruct]
 PackageScope[arrayContainerQ]
+PackageScope[arrayExplicitQ]
 PackageScope[arrayContainerDimensions]
 PackageScope[arrayContainerMaterialize]
 PackageScope[arrayComputeNativeQ]
@@ -52,6 +53,10 @@ silentConstruct[expr_] := Quiet @ Check[expr, $Failed]
    (see PacletInfo.wl), so every route here calls it directly. *)
 
 arrayContainerQ[t_] := TrueQ @ ArrayContainerQ[t]
+
+(* An array with values to compute on now: neither a lazy form waiting for its
+   parameters nor a symbolic one that has none. *)
+arrayExplicitQ[t_] := TrueQ @ ArrayExplicitQ[t]
 
 arrayContainerDimensions[t_] := Replace[ArrayDimensions[t], Except[{___Integer}] :> {}]
 
@@ -117,6 +122,10 @@ symbolicTensorDimensions[Inactive[ArrayDot][a_, b_, indices : {{_Integer, _Integ
 	Delete[symbolicTensorDimensions[b], List /@ indices[[All, 2]]]
 ]
 symbolicTensorDimensions[SymbolicDeltaProductArray[dims_List, _]] := dims
+(* A contraction step with a rank-0 operand is a product with a scalar, written
+   Inactive[Times] so that activating it keeps the array's shape; it has the
+   shape of its array factor. *)
+symbolicTensorDimensions[Inactive[Times][factors__]] := Last @ SortBy[symbolicTensorDimensions /@ {factors}, Length]
 symbolicTensorDimensions[t_ ? TensorQ] := TensorDimensions[t]
 (* Transpose with Cycles permutation - permute dimensions accordingly *)
 symbolicTensorDimensions[HoldPattern[Transpose[a_, perm_Cycles]]] := Permute[symbolicTensorDimensions[a], perm]
