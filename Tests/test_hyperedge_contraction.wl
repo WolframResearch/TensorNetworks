@@ -297,10 +297,17 @@ VerificationTest[
     TestID -> "Fill_DensifiesFilledSparse"
 ]
 
-(* ... and never by coercing exact values: the coercing packers turn 1/2 into 0.5. *)
+(* ... but only when its values are machine numbers, which is what the packed
+   dense form computes fast with.  An exact array cannot pack, so densifying
+   it would only lose its zeros - which compound, a product of diagonal gates
+   being far emptier than any one of them: a 14-qubit QFT circuit of exact
+   gates contracted 40 times slower densified.  It stays sparse, and its
+   values stay exact: the coercing packers turn 1/2 into 0.5. *)
 VerificationTest[
-    TensorNetworkContract[TensorNetwork[{filled / 2, filled}, {{i, j}, {j, k}}]],
-    {{1/2, 2/2}, {3/2, 4/2}} . {{1, 2}, {3, 4}},
+    With[{result = TensorNetworkContract[TensorNetwork[{filled / 2, filled}, {{i, j}, {j, k}}]]},
+        {Head[result], Normal[result]}
+    ],
+    {SparseArray, {{1/2, 2/2}, {3/2, 4/2}} . {{1, 2}, {3, 4}}},
     TestID -> "Fill_KeepsExactValuesExact"
 ]
 

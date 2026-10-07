@@ -490,11 +490,19 @@ leafContainerAutomaticQ[spec_] := Lookup[contractionMethodOptions[spec], "LeafCo
    intermediates by far: never densifying a 30%-filled MPS took 2.5 s against
    0.04 s, a 60%-filled PEPS 14 s against 0.27 s, and a 14-qubit QFT circuit,
    93% filled, 0.27 s against 0.08 s.  Thresholds from 0.1 to 0.35 were within
-   noise of each other everywhere else. *)
+   noise of each other everywhere else.
+
+   What the dense form wins with is packed arithmetic, which only machine
+   numbers have, so only a SparseArray of machine numbers is densified - its
+   background numericized too, so that its zeros pack with its values.  An
+   exact array cannot pack and densifying it only loses its zeros, and those
+   compound: a controlled phase is a quarter full, a product of several is far
+   emptier, and the 14-qubit QFT circuit of exact gates contracted in 6.4 s
+   densified against 0.17 s kept sparse. *)
 
 $denseFill = 0.2
 
-computeRepresentation[t_SparseArray] /; t["Density"] >= $denseFill := packedIfMachine[Normal[t]]
+computeRepresentation[t_SparseArray] /; t["Density"] >= $denseFill && Precision[t] === MachinePrecision := packedIfMachine[Normal[N[t]]]
 
 computeRepresentation[t_List] /; ! Developer`PackedArrayQ[t] := packedIfMachine[t]
 
