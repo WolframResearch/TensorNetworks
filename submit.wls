@@ -22,15 +22,28 @@ If[ ! FileExistsQ[nbFile],
 
 Needs["DefinitionNotebookClient`"]
 
-(* The paclet is published under PublisherID "Wolfram", so it has to be
-   submitted from an account that is a member of that publisher; any other
-   login passes every client-side check, including the one below, and is then
-   refused by the repository with ResourceObject::apierr ("An unexpected
-   internal error occurred (ConfirmationFailed)"), which is what the stored
-   default login on a machine signed in to another account produces.
-   WOLFRAM_CLOUD_USER and WOLFRAM_CLOUD_PASSWORD, where both are set, name the
-   account to submit from; otherwise the stored login is used.  The password
-   is read from the environment and never printed. *)
+(* PacletTools has to be loaded before the definition notebook is scraped: the
+   scrape lists the files of the Documentation extension through
+   PacletTools`PacletExtensionFiles, and with the context not loaded that call
+   stays unevaluated, a Failure lands in the file listing, and the repository
+   refuses the request ("The content of the request contains disallowed
+   symbols: {System`Failure}"). *)
+Needs["PacletTools`"]
+
+(* The client turns any server response it cannot parse into "Unknown error",
+   so the status and body of every error response are printed first; the
+   condition always fails, and the client's own handling then runs as before. *)
+Needs["ResourceSystemClient`"]
+
+ResourceSystemClient`Private`handleError[head_, endpoint_, code_, chars_, params_, rbase_] /; (
+    Print["API error ", code, " from ", endpoint, ": ",
+        StringTake[Quiet @ Check[FromCharacterCode[chars], ToString[chars]], UpTo[1500]]];
+    False
+) := Null
+
+(* The account to submit from: WOLFRAM_CLOUD_USER and WOLFRAM_CLOUD_PASSWORD,
+   where both are set, as a CI job would be given them; otherwise the stored
+   login.  The password is read from the environment and never printed. *)
 
 submitUser = Environment["WOLFRAM_CLOUD_USER"]
 
@@ -48,7 +61,22 @@ If[ ! TrueQ[$CloudConnected],
     Exit[1]
 ]
 
-Print["submitting as ", $WolframID]
+(* The paclet is published under its PublisherID, "Wolfram", and the
+   repository checks that against $PublisherID, which is unset in a fresh
+   kernel: without it every client-side check passes and the submission is
+   then refused with ResourceObject::apierr ("An unexpected internal error
+   occurred (ConfirmationFailed)"). *)
+
+publisher = Get[FileNameJoin[{repoDir, "TensorNetworks", "PacletInfo.wl"}]]["PublisherID"]
+
+If[ ! StringQ[publisher],
+    Print["FATAL: cannot read the PublisherID from PacletInfo.wl."];
+    Exit[1]
+]
+
+$PublisherID = publisher
+
+Print["submitting as ", $WolframID, " for publisher ", $PublisherID]
 
 (* Two dialogs stand between a headless kernel and a submission: the
    proceed-or-cancel confirmation raised by any outstanding suggestion or
