@@ -1,27 +1,5 @@
 (* ci_build.wl - Build paclet for CI (no cloud upload) *)
 
-(* Install Runtime Dependencies.
-
-   The container ships no paclets beyond the base image, and declaring a
-   dependency in PacletInfo does not install one - it is a statement about
-   what the paclet needs, which something has to act on.  Without this the
-   kernel files' PackageImport of Wolfram`Arrays` finds no such context and
-   every symbol it exports resolves into TensorNetworks' own private context
-   instead, undefined: the container tests then fail with $Failed results
-   naming Wolfram`TensorNetworks`Utilities`PackagePrivate`ArrayMaterialize. *)
-Check[
-    PacletInstall["Wolfram/Arrays"],
-    Print["FATAL: could not install the Wolfram/Arrays dependency."];
-    Exit[1]
-];
-
-Needs["Wolfram`Arrays`"];
-
-If[ ! MemberQ[$Packages, "Wolfram`Arrays`"],
-    Print["FATAL: Wolfram`Arrays` did not load."];
-    Exit[1]
-];
-
 (* The version floor is asserted here as well as declared in PacletInfo, because
    nothing enforces "Dependencies" at load time: an older Wolfram/Arrays loads
    without complaint and then answers three shape questions the IndexArray
@@ -44,7 +22,41 @@ versionNumbers[v_String] := Replace[
 ];
 versionNumbers[_] := {0};
 
-If[ ! OrderedQ[{versionNumbers[requiredArraysVersion], versionNumbers[PacletObject["Wolfram/Arrays"]["Version"]]}],
+arraysCurrentQ[] := OrderedQ[{versionNumbers[requiredArraysVersion], versionNumbers[PacletObject["Wolfram/Arrays"]["Version"]]}];
+
+(* Install Runtime Dependencies.
+
+   The container ships no paclets beyond the base image, and declaring a
+   dependency in PacletInfo does not install one - it is a statement about
+   what the paclet needs, which something has to act on.  Without this the
+   kernel files' PackageImport of Wolfram`Arrays` finds no such context and
+   every symbol it exports resolves into TensorNetworks' own private context
+   instead, undefined: the container tests then fail with $Failed results
+   naming Wolfram`TensorNetworks`Utilities`PackagePrivate`ArrayMaterialize. *)
+Check[
+    PacletInstall["Wolfram/Arrays"],
+    Print["FATAL: could not install the Wolfram/Arrays dependency."];
+    Exit[1]
+];
+
+(* The paclet site can lag the Paclet Repository by days: two days after
+   Arrays 1.4.2 was published it still served 1.4.0.  When what it installed
+   is older than the floor, the release is installed from its repository
+   resource, which is current at once. *)
+If[ ! arraysCurrentQ[],
+    Print["Wolfram/Arrays ", PacletObject["Wolfram/Arrays"]["Version"], " from the paclet site is older than ",
+        requiredArraysVersion, "; installing from its repository resource."];
+    Quiet @ PacletInstall[ResourceObject["Wolfram/Arrays"]]
+];
+
+Needs["Wolfram`Arrays`"];
+
+If[ ! MemberQ[$Packages, "Wolfram`Arrays`"],
+    Print["FATAL: Wolfram`Arrays` did not load."];
+    Exit[1]
+];
+
+If[ ! arraysCurrentQ[],
     Print[
         "FATAL: Wolfram/Arrays ", PacletObject["Wolfram/Arrays"]["Version"],
         " is older than the required ", requiredArraysVersion, "."
