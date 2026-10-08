@@ -30,7 +30,32 @@ rustup component add rustfmt
 
 # Install cargo-wl (WolframResearch/wolfram-rust-library): builds LibraryLink
 # crates and generates their WL loader packages; used by build_all_targets.sh.
+#
+# cargo-wl links WSTP statically, and the build script of its wstp-sys
+# dependency finds the library through wolfram-app-discovery, which does not
+# find the Wolfram Engine of the CI container: every CI run since cargo-wl came
+# in failed here on "unable to get WSTP static library path: ... WSTP
+# CompilerAdditions directory".  So when a Wolfram system is installed in the
+# standard Linux place, its CompilerAdditions directory is named directly
+# through WSTP_COMPILER_ADDITIONS_DIRECTORY, the variable that error asks for.
+# Elsewhere - a macOS app, which discovery does find - nothing changes.
 if ! command -v cargo-wl &> /dev/null; then
+    if [ -z "${WSTP_COMPILER_ADDITIONS_DIRECTORY:-}" ]; then
+        case "$(uname -m)" in
+            x86_64) wstp_system_id="Linux-x86-64" ;;
+            aarch64) wstp_system_id="Linux-ARM64" ;;
+            *) wstp_system_id="" ;;
+        esac
+        if [ -n "$wstp_system_id" ]; then
+            wstp_dir=$(find /usr/local/Wolfram /opt/Wolfram -maxdepth 10 -type d \
+                -path "*/SystemFiles/Links/WSTP/DeveloperKit/$wstp_system_id/CompilerAdditions" \
+                -print -quit 2>/dev/null || true)
+            if [ -n "$wstp_dir" ] && [ -f "$wstp_dir/libWSTP64i4.a" ]; then
+                export WSTP_COMPILER_ADDITIONS_DIRECTORY="$wstp_dir"
+                echo "Using WSTP CompilerAdditions: $wstp_dir"
+            fi
+        fi
+    fi
     cargo install cargo-wl --locked
 fi
 
