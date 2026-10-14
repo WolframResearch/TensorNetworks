@@ -578,16 +578,46 @@ TensorNetworkContraction::netbatch = "The \"NetGraph\" method cannot contract th
 (* Every node of the fold is {tensor, labels, holders}: the array, the label of
    each of its axes, and how many leaves under the node carry each label.  A
    label stays on a node while that count is short of the number of leaves in
-   the whole network carrying it, or while the output names it. *)
+   the whole network carrying it, or while the output names it.
 
-contractTreePath[treePath_, leaves_Association, output_List, settings_Association] := Most @ contractTreeNode[
-    treePath,
-    Join[settings, <|
-        "Leaves" -> leaves,
+   The tree is taken as its steps in post-order (treeSteps), each folding its
+   operands in order - a leaf settled as its step takes it - into a slot of
+   its own, and dropping theirs, so an intermediate lives until the step that
+   consumes it.  The slots are an association: a list assigned in place is
+   scanned whole when next read.  A tree path that is a single leaf has no
+   step.  Walking the tree by recursion nested once per level, and a tree as
+   deep as the network has tensors - the sweep, or the greedy path over an
+   index that hundreds of tensors share - passed the recursion limit at 600. *)
+
+contractTreePath[treePath_, leaves_Association, output_List, settings_Association] := Module[{
+    env = Join[settings, <|
         "Holders" -> Counts[Catenate[DeleteDuplicates /@ Values[leaves][[All, 2]]]],
         "Output" -> AssociationThread[output, True],
         "Dimension" -> labelDimensions[Values[leaves]]
-    |>]
+    |>],
+    steps = treeSteps[treePath, AssociationThread[List /@ Keys[leaves], Range[Length[leaves]]]],
+    values = AssociationThread[Range[Length[leaves]], Values[leaves]],
+    next = Length[leaves]
+},
+    Which[
+        steps === $Failed,
+            netFail[],
+        steps === {},
+            Most @ settleLeaf[leaves[First[treePath]], env],
+        True,
+            Scan[
+                Function[operands,
+                    next++;
+                    values[next] = Fold[
+                        contractStep[#1, #2, env] &,
+                        If[# <= Length[leaves], settleLeaf[values[#], env], values[#]] & /@ operands
+                    ];
+                    KeyDropFrom[values, operands]
+                ],
+                steps
+            ];
+            Most @ values[next]
+    ]
 ]
 
 (* The dimension of an index is a constant of the network, so it is read off the
@@ -598,16 +628,6 @@ labelDimensions[leaves_List] := Association @ Catenate @ Map[
         If[Length[dims] == Length[Last[#]], Thread[Last[#] -> dims], {}]
     ] &,
     leaves
-]
-
-contractTreeNode[{v_}, env_] /; KeyExistsQ[env["Leaves"], v] := settleLeaf[env["Leaves"][v], env]
-
-contractTreeNode[{node_List}, env_] := contractTreeNode[node, env]
-
-contractTreeNode[nodes : {_, __}, env_] := Fold[
-    contractStep[#1, #2, env] &,
-    contractTreeNode[First[nodes], env],
-    contractTreeNode[#, env] & /@ Rest[nodes]
 ]
 
 keptLabelQ[label_, holders_, env_] := holders[label] < env["Holders"][label] || Lookup[env["Output"], label, False]

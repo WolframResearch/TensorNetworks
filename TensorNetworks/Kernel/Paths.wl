@@ -9,11 +9,22 @@ PackageExport[PathToTreePath]
 PackageExport[CanonicalPath]
 PackageExport[PathIndexContractions]
 
+PackageScope[treeSteps]
 
 
-TreePathQ[{}] := False
-TreePathQ[{_}] := True
-TreePathQ[nodes_List] := AllTrue[nodes, TreePathQ]
+
+(* A tree path is a nonempty list: a singleton - a leaf, or a wrapper of one
+   node, not looked into - or a node of tree paths.  It is checked a level at
+   a time, not by recursion, which nests once per level: the tree of a path
+   that absorbs one tensor at a time into a single product is as deep as the
+   network has tensors, and 600 levels passed the recursion limit. *)
+TreePathQ[tree_List] := Module[{level = {tree}},
+	While[ Length[level] > 0 && AllTrue[level, ListQ[#] && Length[#] > 0 &],
+		level = Catenate @ Select[level, Length[#] > 1 &]
+	];
+	Length[level] === 0
+]
+
 TreePathQ[___] := False
 
 TreePathToPath::indlen =
@@ -46,20 +57,75 @@ TreePathToPath[treePath_List ? TreePathQ] :=
    tensors, against 0.011 s.  Steps are taken in post-order, as before, and the
    path is the same one, step for step. *)
 
-doTreePathToPath[treePath_, indices_] := Module[{slotOf, next = Length[indices], visit, steps},
-	slotOf = AssociationThread[List /@ indices, Range[Length[indices]]];
-	visit[node_] := If[
-		KeyExistsQ[slotOf, node],
-		slotOf[node],
-		With[{children = visit /@ node}, Sow[children]; ++next]
-	];
-	steps = Reap[visit[treePath]][[2]];
-	If[ steps === {},
-		{},
-		TakeList[
-			stepPositions[Length /@ First[steps], Catenate[First[steps]], Length[indices]],
-			Length /@ First[steps]
+doTreePathToPath[treePath_, indices_] := With[{
+	steps = treeSteps[treePath, AssociationThread[List /@ indices, Range[Length[indices]]]]
+},
+	Which[
+		steps === $Failed,
+			$Failed,
+		steps === {},
+			{},
+		True,
+			TakeList[stepPositions[Length /@ steps, Catenate[steps], Length[indices]], Length /@ steps]
+	]
+]
+
+(* The steps of a tree path in post-order, each the slots of its operands: a
+   leaf's slot is the one slotOf gives it - slotOf is keyed by the singleton
+   {v} - and each step's the next after the leaves and the steps before it.  A
+   singleton that is no leaf wraps one node, and is a step of one operand.
+   $Failed if a node is no nonempty list.
+
+   The tree is walked with stacks of its own, not by recursion, which nests
+   once per level of the tree: one that absorbs one tensor at a time into a
+   single product - the sweep TensorNetworkContraction can choose, or the
+   greedy path over an index that hundreds of tensors share - is as deep as
+   the network has tensors, and 600 passed the recursion limit.  Popping a
+   node and pushing its operands meets the nodes in post-order reversed: a
+   leaf as its slot, a node as minus its operand count.  Read forwards, that
+   order is evaluated on a stack of slots, each node taking its operands from
+   the top (stepOperands).  The node stack is a linked list, {node, rest}: a
+   list of nodes assigned in place is scanned whole when next read, which made
+   the walk of 10^4 nodes take 0.32 s instead of 0.02 s. *)
+treeSteps[tree_, slotOf_Association] := Module[{stack = {tree, {}}, node, order, malformed = False},
+	order = First[Reap[
+		While[ Length[stack] > 0 && ! malformed,
+			{node, stack} = stack;
+			Which[
+				! ListQ[node] || Length[node] === 0,
+					malformed = True,
+				Length[node] === 1 && KeyExistsQ[slotOf, node],
+					Sow[slotOf[node]],
+				True,
+					Sow[-Length[node]];
+					Scan[(stack = {#, stack}) &, node]
+			]
 		]
+	][[2]], {}];
+	If[ malformed,
+		$Failed,
+		With[{forward = Reverse[order]},
+			TakeList[stepOperands[forward, Length[slotOf]], -Select[forward, Negative]]
+		]
+	]
+]
+
+(* The operands of every step, one list: the order read forwards on a stack
+   of slots. *)
+stepOperands = Compile[{{order, _Integer, 1}, {leafCount, _Integer}},
+	Module[{slots = Table[0, {Length[order]}], operands = Table[0, {Length[order]}], depth = 0, k = 0, next = leafCount},
+		Do[
+			If[ s > 0,
+				depth++;
+				slots[[depth]] = s,
+				Do[k++; operands[[k]] = slots[[depth + s + i]], {i, -s}];
+				depth += s + 1;
+				next++;
+				slots[[depth]] = next
+			],
+			{s, order}
+		];
+		Take[operands, k]
 	]
 ]
 

@@ -442,6 +442,43 @@ VerificationTest[
     TestID -> "CanonicalPath_RoundTripsThroughTree"
 ]
 
+(* A path that absorbs one tensor at a time into a single product makes a tree
+   as deep as the network has tensors.  Checking, canonicalizing and
+   contracting a tree each walked it by recursion, a level of nesting a level,
+   and 600 levels passed the recursion limit. *)
+deepTree = Fold[{#2, #1} &, {1}, List /@ Range[2, 3000]];
+
+VerificationTest[
+    {TreePathQ[deepTree], TreePathToPath[deepTree, Range[3000]] === Prepend[Table[{1, m}, {m, 2999, 2, -1}], {2, 1}]},
+    {True, True},
+    TestID -> "TreePath_DeepTreeCheckedAndCanonicalized"
+]
+
+(* A chain of rotations along the sweep: their product is the rotation by
+   the sum of their angles. *)
+VerificationTest[
+    With[{angles = Range[1500] / 10.^4},
+        Max @ Abs @ Flatten[
+            Normal[TensorNetworkContract[
+                TensorNetwork[RotationMatrix /@ angles, Table[{k, k + 1}, {k, 1500}], {1, 1501}],
+                Prepend[Table[{1, m}, {m, 1499, 2, -1}], {1, 2}]
+            ]] - RotationMatrix[Total[angles]]
+        ] < 10^-10
+    ],
+    True,
+    TestID -> "Contraction_DeepSweepPath"
+]
+
+(* An index that a thousand vectors and the output share: the greedy path
+   takes them one at a time into one product. *)
+VerificationTest[
+    With[{vectors = Table[{1., Exp[I k / 1000.]}, {k, 1000}]},
+        Max @ Abs[Normal[TensorNetworkContract[TensorNetwork[vectors, ConstantArray[{i}, 1000], {i}]]] - {1, Exp[I 1001 / 2.]}] < 10^-9
+    ],
+    True,
+    TestID -> "Contraction_IndexOnAThousandTensors"
+]
+
 
 (* The two routes may store the result differently - the binarized one carries
    a sparse spider - so the values are compared, not the containers. *)
