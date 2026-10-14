@@ -1,14 +1,4 @@
-(* Tests/test_hyperedge_contraction.wl
-
-   Contraction of networks whose indices are not all plain bonds: an index on
-   three or more tensors (a hyperedge), an output index two or more tensors
-   share, a label repeated within one tensor, and a label the output leaves out.
-   Such an index is kept, once, on every step that still needs it, so a
-   hyperedge is contracted without binarizing it into a delta spider.
-
-   Every value here is checked against an answer computed independently of the
-   paclet: an oracle that sums the network over every assignment of every label,
-   or the closed form a small case has. *)
+(* Hyperedges, shared outputs, repeated and omitted labels, against an oracle or closed forms *)
 
 Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
 
@@ -17,8 +7,7 @@ Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
 (* Oracle                                                              *)
 (* ------------------------------------------------------------------ *)
 
-(* The network summed term by term: every assignment of every label contributes
-   the product of the tensor entries it selects to the output entry it selects. *)
+(* Brute force: add each label assignment's product of entries to its output entry *)
 oracle[tensors_, labels_, out_, dims_] := Module[{all = Union @@ labels, acc = <||>},
     Scan[
         Function[assignment, With[{value = AssociationThread[all, assignment]},
@@ -34,10 +23,7 @@ oracle[tensors_, labels_, out_, dims_] := Module[{all = Union @@ labels, acc = <
     If[out === {}, Lookup[acc, Key[{}], 0], Array[Lookup[acc, Key[{##}], 0] &, Lookup[dims, out]]]
 ]
 
-(* Networks the plain-bond case never produces: labels on any number of tensors,
-   an output drawn from any of them, now and then a label repeated within a
-   tensor, and rank-0 tensors.  Entries are integers, so every route has to
-   agree with the oracle exactly. *)
+(* Random hyperedge networks with integer entries, so every route must match the oracle exactly *)
 randomNetwork[seed_] := BlockRandom[SeedRandom[seed]; Module[{labelCount, labelNames, dims, labels, out},
     labelCount = RandomInteger[{1, 5}];
     labelNames = Symbol["hx" <> ToString[#]] & /@ Range[labelCount];
@@ -67,7 +53,7 @@ oracleDisagreements[route_, seeds_] := Select[
 (* Random networks against the oracle                                  *)
 (* ------------------------------------------------------------------ *)
 
-(* The seeds whose result disagrees with the oracle, so a failure names them. *)
+(* Each test gives the seeds that disagree with the oracle *)
 
 VerificationTest[
     oracleDisagreements[TensorNetworkContract, Range[120]],
@@ -93,11 +79,7 @@ VerificationTest[
     TestID -> "Hyperedge_Oracle_InertTensorContract"
 ]
 
-(* The inert form of a step with batch indices carries a rank-3 delta per
-   batch index.  Densified into the tensor product, the deltas of a phase
-   oracle's steps made products too large to build - this network took more
-   than 15 s to activate - so ActivateTensors contracts them as an operand
-   set, the deltas never expanded. *)
+(* Phase oracle whose batch deltas are too large to densify: ActivateTensors must contract them *)
 phaseOracle = BlockRandom[SeedRandom[3]; Module[{wires = Array[Subscript[w, #] &, 5], gates},
     gates = Table[With[{s = Sort @ RandomSample[Range[5], RandomInteger[{1, 4}]]},
         {ArrayReshape[ReplacePart[ConstantArray[1, 2^Length[s]], -1 -> -1], ConstantArray[2, Length[s]]], wires[[s]]}], 12];
@@ -117,8 +99,7 @@ VerificationTest[
     TestID -> "ActivateTensors_BatchDeltas_ContractedNotExpanded"
 ]
 
-(* Whatever ArrayContract keeps symbolic is given back dense, as the product
-   gave it: two deltas contracted make an explicit array. *)
+(* What ArrayContract leaves symbolic comes back dense: two deltas give an explicit array *)
 VerificationTest[
     ActivateTensors[Inactive[TensorContract][
         Inactive[TensorProduct][SymbolicDeltaProductArray[{2, 2, 2}, {{1, 2, 3}}], SymbolicDeltaProductArray[{2, 2, 2}, {{1, 2, 3}}]],
@@ -148,10 +129,7 @@ VerificationTest[
 (* Closed forms                                                        *)
 (* ------------------------------------------------------------------ *)
 
-(* The shape a quantum circuit of diagonal gates takes: a state on three wires
-   and each gate given as its diagonal on the wires it acts on, so every wire is
-   an output index shared by the state and every gate on it.  This failed with
-   TensorNetwork::output while hyperedges were binarized. *)
+(* Diagonal-gate circuit: each wire is an output index shared by the state and its gates *)
 
 {psi, g12, g23, g13} = BlockRandom[SeedRandom[5];
     {RandomReal[1, {2, 2, 2}], RandomReal[1, {2, 2}], RandomReal[1, {2, 2}], RandomReal[1, {2, 2}]}];
@@ -172,7 +150,6 @@ VerificationTest[
     TestID -> "Hyperedge_DiagonalCircuit_GreedyPath"
 ]
 
-(* The output in another order is the same array transposed. *)
 VerificationTest[
     Max @ Abs @ Flatten[
         TensorNetworkContract[TensorNetwork[diagonalCircuit["Tensors"], diagonalCircuit["Hyperedges"], {w3, w1, w2}]] -
@@ -182,7 +159,7 @@ VerificationTest[
     TestID -> "Hyperedge_DiagonalCircuit_PermutedOutput"
 ]
 
-(* A path of a hyperedge network is over the network's own tensors. *)
+(* Three steps for four tensors: no spiders added *)
 VerificationTest[
     Length[GreedyContractionPath[diagonalCircuit]],
     3,
@@ -195,8 +172,7 @@ VerificationTest[
     TestID -> "Hyperedge_SummedOverThreeTensors"
 ]
 
-(* An output index exactly two tensors share is binary by count but not a bond:
-   it is an elementwise product, and used to be summed. *)
+(* An output index on exactly two tensors is an elementwise product, not a bond *)
 VerificationTest[
     TensorNetworkContract[TensorNetwork[{{1, 2, 3}, {4, 5, 6}}, {{i}, {i}}, {i}]],
     {4, 10, 18},
@@ -215,18 +191,13 @@ VerificationTest[
     TestID -> "RepeatedLabel_KeptIsDiagonal"
 ]
 
-(* A label of the network that an explicit output leaves out is summed. *)
 VerificationTest[
     TensorNetworkContract[TensorNetwork[{{{1, 2}, {3, 4}}, {{5, 6}, {7, 8}}}, {{i, j}, {j, k}}, {i}]],
     Total[{{1, 2}, {3, 4}} . {{5, 6}, {7, 8}}, {2}],
     TestID -> "OmittedLabel_IsSummed"
 ]
 
-(* A step that sums nothing, over a batch of 4096 with short rows - diagonal
-   gates merged over most of a circuit's wires - multiplies its operands
-   brought to the full shape, with a branch for each of the two sides having
-   labels of its own or none.  Each is checked against the row-by-row outer
-   products. *)
+(* Large sum-free batch step, each side with or without own labels, vs row-wise outer products *)
 largeBatchCases = Catenate @ Table[
     BlockRandom[SeedRandom[7]; With[{
         batch = Array[Subscript[b, #] &, 12],
@@ -257,8 +228,7 @@ VerificationTest[
 (* Scalars                                                             *)
 (* ------------------------------------------------------------------ *)
 
-(* TensorProduct[{1, 2}, 0] is the scalar 0, so a step that multiplied by an
-   exact zero through TensorProduct lost the shape of the result. *)
+(* TensorProduct[{1, 2}, 0] is the scalar 0, so an exact zero factor must not drop the shape *)
 
 zeroScalarNetwork = TensorNetwork[{0, {1, 2}}, {{}, {i}}, {i}];
 
@@ -274,7 +244,6 @@ VerificationTest[
     TestID -> "ExactZeroScalar_KeepsShapeInert"
 ]
 
-(* A network with no index at all still has a path, any order. *)
 VerificationTest[
     {GreedyContractionPath[TensorNetwork[{2, 3, 5}, {{}, {}, {}}, {}]], TensorNetworkContract[TensorNetwork[{2, 3, 5}, {{}, {}, {}}, {}]]},
     {{{1, 2}, {1, 2}}, 30},
@@ -288,21 +257,14 @@ VerificationTest[
 
 filled = SparseArray[{{1, 2}, {3, 4}}];
 
-(* A SparseArray at least a fifth full computes faster dense, so an evaluated
-   contraction with no container asked for densifies it - into a packed array
-   when its values are machine numbers ... *)
+(* A machine-number SparseArray at least a fifth full is densified to a packed array *)
 VerificationTest[
     Developer`PackedArrayQ @ TensorNetworkContract[TensorNetwork[{N[filled], N[filled]}, {{i, j}, {j, k}}]],
     True,
     TestID -> "Fill_DensifiesFilledSparse"
 ]
 
-(* ... but only when its values are machine numbers, which is what the packed
-   dense form computes fast with.  An exact array cannot pack, so densifying
-   it would only lose its zeros - which compound, a product of diagonal gates
-   being far emptier than any one of them: a 14-qubit QFT circuit of exact
-   gates contracted 40 times slower densified.  It stays sparse, and its
-   values stay exact: the coercing packers turn 1/2 into 0.5. *)
+(* An exact one stays sparse and exact: it cannot pack, so densifying only loses zeros *)
 VerificationTest[
     With[{result = TensorNetworkContract[TensorNetwork[{filled / 2, filled}, {{i, j}, {j, k}}]]},
         {Head[result], Normal[result]}
@@ -311,7 +273,6 @@ VerificationTest[
     TestID -> "Fill_KeepsExactValuesExact"
 ]
 
-(* A container asked for is a container kept. *)
 VerificationTest[
     Head @ TensorNetworkContract[
         TensorNetwork[{N[filled], N[filled]}, {{i, j}, {j, k}}],
@@ -322,9 +283,7 @@ VerificationTest[
     TestID -> "Fill_ExplicitContainerKept"
 ]
 
-(* A network holding a machine number anywhere contracts to machine numbers, so
-   its exact tensors are converted once, up front; the numeric diagonal of an
-   exact phase gate mixes Real and Complex entries and still packs, as Complex. *)
+(* Any machine number converts exact leaves up front; mixed Real and Complex packs as Complex *)
 
 phaseGate = {{1, 1}, {1, Exp[I Pi / 8]}};
 machineState = BlockRandom[SeedRandom[6]; RandomComplex[{-1 - I, 1 + I}, {2, 2}]];
@@ -337,16 +296,13 @@ VerificationTest[
     TestID -> "Precision_MixedNetworkComputesPacked"
 ]
 
-(* With no machine number anywhere the same network stays exact. *)
 VerificationTest[
     TensorNetworkContract[TensorNetwork[{{{2, 3}, {5, 7}}, phaseGate}, {{p, q}, {p, q}}, {p, q}]],
     {{2, 3}, {5, 7 Exp[I Pi / 8]}},
     TestID -> "Precision_ExactNetworkStaysExact"
 ]
 
-(* A leaf with a symbol in it keeps its exact numbers even beside a machine
-   number: its arithmetic is symbolic anyway, and E^(I theta) turned into
-   E^(1. I theta) no longer cancels against the same algebra done exactly. *)
+(* A symbolic leaf stays exact beside machine numbers: E^(1. I theta) would not cancel exactly *)
 VerificationTest[
     TensorNetworkContract[TensorNetwork[{{0.5, 0.25}, {1, Exp[I theta]}}, {{p}, {p}}, {p}]],
     {0.5, 0.25 Exp[I theta]},
@@ -354,10 +310,8 @@ VerificationTest[
 ]
 
 
-(* Transpose with a repeated level crashes the kernel on a SparseArray whose
-   nonzeros all lie off that diagonal; a sparse leaf's diagonal is taken from its
-   stored entries instead.  The leaf is 2% full, so it stays sparse and reaches
-   that path rather than being densified first. *)
+(* Transpose with a repeated level crashes the kernel on a SparseArray with all nonzeros
+   off the diagonal; this leaf, 2% full, stays sparse and so reaches that case *)
 offDiagonal = SparseArray[{{1, 2} -> 3., {2, 1} -> 4.}, {10, 10}];
 
 VerificationTest[
@@ -376,8 +330,7 @@ VerificationTest[
 (* The binarized network                                               *)
 (* ------------------------------------------------------------------ *)
 
-(* The spider of an output index carries one more leg, under the index's own
-   name, so the binarized network still has the output it declares. *)
+(* An output index's spider keeps an extra leg under the index's name, so the output survives *)
 VerificationTest[
     With[{binary = BinaryTensorNetwork[diagonalCircuit]},
         {TensorNetworkQ[binary], BinaryTensorNetworkQ[binary],
@@ -387,8 +340,7 @@ VerificationTest[
     TestID -> "BinaryTensorNetwork_FreeHyperedgeIsValid"
 ]
 
-(* A path planned over the binarized network - the frame a hyperedge network's
-   path had before - is recognized by its operand count and still runs. *)
+(* A path planned over the binarized network is recognized by its operand count and still runs *)
 hyperNetwork = BlockRandom[SeedRandom[8];
     TensorNetwork[RandomInteger[{-3, 3}, {3, 3}] & /@ Range[4], {{a, b}, {a, c}, {a, d}, {b, c}}]];
 
@@ -396,11 +348,7 @@ hyperNetwork = BlockRandom[SeedRandom[8];
 (* Canonical paths                                                     *)
 (* ------------------------------------------------------------------ *)
 
-(* Canonicalizing renumbers each step's operands by their positions in the
-   shrinking operand list.  It used to renumber every position after each step,
-   which is quadratic; it now counts live operands in a Fenwick tree.  The path
-   must be the same one, step for step, so the former renumbering is kept here
-   as the reference. *)
+(* Quadratic reference: renumber the shrinking operand list after every step *)
 referenceSteps[treePath_, indices_] := Block[{len, index, path = {}},
     len = Length[indices];
     index = AssociationThread[List /@ indices, Range[len]];
@@ -442,10 +390,7 @@ VerificationTest[
     TestID -> "CanonicalPath_RoundTripsThroughTree"
 ]
 
-(* A path that absorbs one tensor at a time into a single product makes a tree
-   as deep as the network has tensors.  Checking, canonicalizing and
-   contracting a tree each walked it by recursion, a level of nesting a level,
-   and 600 levels passed the recursion limit. *)
+(* One-at-a-time path: a tree as deep as the network, past $RecursionLimit if walked recursively *)
 deepTree = Fold[{#2, #1} &, {1}, List /@ Range[2, 3000]];
 
 VerificationTest[
@@ -454,8 +399,7 @@ VerificationTest[
     TestID -> "TreePath_DeepTreeCheckedAndCanonicalized"
 ]
 
-(* A chain of rotations along the sweep: their product is the rotation by
-   the sum of their angles. *)
+(* Rotations along a sweep multiply to the rotation by the summed angle *)
 VerificationTest[
     With[{angles = Range[1500] / 10.^4},
         Max @ Abs @ Flatten[
@@ -469,8 +413,7 @@ VerificationTest[
     TestID -> "Contraction_DeepSweepPath"
 ]
 
-(* An index that a thousand vectors and the output share: the greedy path
-   takes them one at a time into one product. *)
+(* An index on 1000 vectors and the output: greedy takes them one at a time into one product *)
 VerificationTest[
     With[{vectors = Table[{1., Exp[I k / 1000.]}, {k, 1000}]},
         Max @ Abs[Normal[TensorNetworkContract[TensorNetwork[vectors, ConstantArray[{i}, 1000], {i}]]] - {1, Exp[I 1001 / 2.]}] < 10^-9
@@ -480,8 +423,7 @@ VerificationTest[
 ]
 
 
-(* The two routes may store the result differently - the binarized one carries
-   a sparse spider - so the values are compared, not the containers. *)
+(* Compare values, not containers: the binarized route carries a sparse spider *)
 VerificationTest[
     Normal[TensorNetworkContract[hyperNetwork, GreedyContractionPath[BinaryTensorNetwork[hyperNetwork]]]] ===
         Normal[TensorNetworkContract[hyperNetwork]],
@@ -494,9 +436,7 @@ VerificationTest[
 (* Path choice                                                         *)
 (* ------------------------------------------------------------------ *)
 
-(* A brickwork circuit of random two-qubit gates on 16 wires, 8 layers deep,
-   is one whose half-weight greedy path is priced cheaper than the default, so
-   Automatic contracts along it.  The order changes, the value does not. *)
+(* Brickwork circuit on which Automatic picks the half-weight greedy path; same value *)
 brickwork = BlockRandom[SeedRandom[1]; Module[{v = ConstantArray[0, 16], w, tensors, edges},
     w[q_] := Subscript[x, q, v[[q]]];
     tensors = {ArrayReshape[Normalize[RandomComplex[{-1 - I, 1 + I}, 2^16]], ConstantArray[2, 16]]};
@@ -523,13 +463,8 @@ VerificationTest[
 (* Exact leaves as scaled integer arrays                               *)
 (* ------------------------------------------------------------------ *)
 
-(* An evaluated contraction takes an exact leaf whose values are rational
-   multiples of one of them as that value times integers.  The random networks
-   above, each tensor times a factor of its own - a radical, a fraction, a
-   sum of them - against the oracle, which multiplies the factors in as given.
-   The two sides may spell one algebraic number differently, so each is
-   evaluated to 30 digits and the two compared: the difference of two
-   spellings is a zero N cannot certify. *)
+(* Random networks, each tensor times an exact factor, vs the oracle; each side goes to
+   30 digits separately, since N cannot certify their symbolic difference is zero *)
 scaledNetwork[seed_] := BlockRandom[SeedRandom[seed + 1000]; Module[{tensors, labels, out, dims},
     {tensors, labels, out, dims} = randomNetwork[seed];
     {RandomChoice[{1/Sqrt[2], 2/3, Sqrt[3]/5, 1 + Sqrt[2], 1, -7/4}] # & /@ tensors, labels, out, dims}
@@ -565,9 +500,7 @@ VerificationTest[
     TestID -> "ExactLeaves_ScaledOracle_SparseLeaves"
 ]
 
-(* A leaf whose ratios are not all rational is left as it is - a phase gate
-   E^(I Pi/4) - and so is one with a symbol in it; the value is the product
-   all the same. *)
+(* Leaves with irrational ratios (E^(I Pi/4)) or a symbol are left unscaled; same value *)
 VerificationTest[
     {
         Normal[TensorNetworkContract[TensorNetwork[
@@ -582,7 +515,7 @@ VerificationTest[
     TestID -> "ExactLeaves_UnscaledLeavesKept"
 ]
 
-(* A network contracted to a number: the factors multiply the scalar. *)
+(* Fully contracted: the factors multiply the scalar *)
 VerificationTest[
     TensorNetworkContract[TensorNetwork[{{1, 0}, {{1, 1}, {1, -1}} / Sqrt[2], {{1, 1}, {1, -1}} / Sqrt[2], {1, 0}}, {{a}, {a, b}, {b, c}, {c}}, {}]],
     1,

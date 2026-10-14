@@ -96,18 +96,7 @@ jobs:
 
       - name: Build Paclet and Run Tests
         run: |
-          # The on-demand entitlement service intermittently refuses
-          # individual activation attempts with "No valid password found /
-          # Connection closed by WolframKernel" (exit 255), even though
-          # the entitlement itself is healthy. WolframResearch/build-paclet
-          # rides through this because PacletCICD spawns many parallel
-          # subkernels and only needs some to succeed.
-          #
-          # We have a single wolframscript invocation, so we mimic that
-          # pattern with a tight retry burst: each refused attempt exits
-          # in ~1 s, so up to 60 attempts at 1 s spacing burn at most ~2
-          # min if every single one is rejected. Real activations succeed
-          # quickly, after which we run the full build/test and exit.
+          # Exit 255 is a transient activation refusal ("No valid password found"): retry it fast
           set +e
           MAX_ATTEMPTS=60
           for attempt in $(seq 1 $MAX_ATTEMPTS); do

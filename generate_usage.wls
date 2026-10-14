@@ -1,20 +1,5 @@
 #!/usr/bin/env wolframscript
-(* Regenerate the Usage.wl files (one per paclet context) from the Usage
-   cells of every reference page.
-
-   Each doc symbol is routed to the context whose kernel sources define it
-   (detected by scanning Kernel/**/*.wl for the Package[...] header and
-   top-level symbol definitions). Three contexts are produced:
-
-       Wolfram`TensorNetworks`            -> Kernel/Usage.wl
-       Wolfram`TensorNetworks`IndexArray` -> Kernel/IndexArray/Usage.wl
-       Wolfram`TensorNetworks`Symmetry`   -> Kernel/Symmetry/Usage.wl
-
-   Formula cells (InlineFormula) are emitted in the canonical Wolfram
-   linear-box form so the kernel/FrontEnd renders bold function names and
-   italic argument slots - like native System` usage strings (cf. ?Map).
-   Mirrors GeneralUtilities`Code`PackagePrivate`asLinear and linearSlot,
-   the helpers SetUsage uses internally. *)
+(* Regenerate each context's Usage.wl from the reference pages' Usage cells *)
 
 $root = DirectoryName[ExpandFileName[If[$InputFileName === "", NotebookFileName[], $InputFileName]]];
 
@@ -28,7 +13,7 @@ $contextFiles = <|
 	"Wolfram`TensorNetworks`Symmetry`" -> FileNameJoin[{$kernelDir, "Symmetry", "Usage.wl"}]
 |>;
 
-(* ---- symbol -> context map, built by scanning kernel sources ---- *)
+(* Symbol -> context map from the kernel sources *)
 
 scanKernelFile[file_String] := Module[{text, ctx, syms},
 	text = Import[file, "Text"];
@@ -48,7 +33,7 @@ scanKernelFile[file_String] := Module[{text, ctx, syms},
 kernelFiles = Select[FileNames["*.wl", $kernelDir, Infinity], FileBaseName[#] =!= "Usage" &];
 $symContext = Association @@ Flatten[scanKernelFile /@ kernelFiles];
 
-(* ---- box-tree cleanup: strip link buttons, tags, decorations ---- *)
+(* Box cleanup *)
 
 cleanBoxes[ButtonBox[label_, ___]] := cleanBoxes[label]
 cleanBoxes[FormBox[x_, ___]] := cleanBoxes[x]
@@ -65,15 +50,13 @@ cleanBoxes[(h : RowBox | SubscriptBox | SuperscriptBox | SubsuperscriptBox |
 cleanBoxes[list_List] := cleanBoxes /@ list
 cleanBoxes[other_] := other
 
-(* ---- linear-box form: \!\(\*<inputform>\) ---- *)
+(* Linear-box form, so formulas render like System` usage messages *)
 
-(* When the cleaned formula is just a plain string (e.g. "True", "False",
-   "OptimalContractionPath"), drop the linear-box wrapper - the result
-   renders identically and the source stays readable. *)
+(* Plain strings render the same without the wrapper and stay readable *)
 asLinear[s_String] := s
 asLinear[expr_] := "\!\(\*" <> ToString[expr, InputForm] <> "\)"
 
-(* ---- TextData / Cell -> usage-string fragments ---- *)
+(* Cell -> usage-string fragments *)
 
 cellToString[s_String] := s
 cellToString[TextData[items_List]] := StringJoin[cellToString /@ items]
@@ -84,7 +67,7 @@ cellToString[Cell[BoxData[boxes_], ___]] := asLinear[cleanBoxes[boxes]]
 cellToString[Cell[content_, ___]] := cellToString[content]
 cellToString[other_] := ToString[other, InputForm]
 
-(* ---- post-process: collapse separators, one paragraph per line ---- *)
+(* Post-process: one paragraph per line *)
 
 formatUsage[raw_String] := Module[{s = raw, paragraphs},
 	s = StringReplace[s, "\[LineSeparator]" -> " "];
@@ -94,7 +77,7 @@ formatUsage[raw_String] := Module[{s = raw, paragraphs},
 	StringRiffle[paragraphs, "\n"]
 ];
 
-(* ---- per-file pipeline ---- *)
+(* Per-file pipeline *)
 
 processFile[file_String] := Module[{nb, cell, raw, text, name = FileBaseName[file], ctx},
 	nb = Get[file];
@@ -130,7 +113,7 @@ KeyValueMap[
 	grouped
 ];
 
-(* Make sure every context's file gets touched (in case a context has no symbols) *)
+(* Stub files for contexts without symbols *)
 KeyValueMap[
 	Function[{ctx, outFile},
 		If[! KeyExistsQ[grouped, ctx],

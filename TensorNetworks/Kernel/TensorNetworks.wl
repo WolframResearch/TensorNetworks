@@ -9,12 +9,8 @@ PackageScope[extractContractionParameters]
 
 ClearAll["Wolfram`TensorNetworks`*", "Wolfram`TensorNetworks`**`*"]
 
-(* The Rust optimizers are packaged by `cargo wl build` (cargo-wl, from
-   WolframResearch/wolfram-rust-library): it compiles the Cotengra cdylib,
-   reads the function manifest the #[export] macro embeds in the binary, and
-   writes the library together with a generated Functions.wl loader into
-   Binaries/Cotengra-<SystemID>/. Getting that Functions.wl yields
-   <|"name" -> function, ...|> with the WXF (de)serialization built in. *)
+(* Rust optimizers, built by `cargo wl build` into Binaries/Cotengra-<SystemID>/;
+   its generated Functions.wl gives <|"name" -> function, ...|> with WXF built in. *)
 
 libraryLoaderFile := FileNameJoin[{
 	PacletObject["Wolfram/TensorNetworks"]["Location"],
@@ -69,11 +65,8 @@ libraryFunctions := libraryFunctions = Replace[
 }
 ]
 
-(* WXF boundary helpers: the generated loader BinarySerializes the argument
-   list, and the Rust side reads Vec<u32> from a packed array (ByteArray[{}]
-   standing in for an empty one, which NumericArray cannot express), jagged
-   index lists flattened to (indices, lengths), and Option values in
-   wolfram-serialize's enum encoding. *)
+(* WXF boundary: Vec<u32> from a packed array (ByteArray[{}] when empty), jagged lists as
+   (indices, lengths), Option in wolfram-serialize's enum encoding. *)
 indexArray[{}] := ByteArray[{}]
 indexArray[list_List] := NumericArray[list, "UnsignedInteger32"]
 option[None] := "None"
@@ -196,9 +189,7 @@ OptimalContractionPath[
 	]
 ]
 
-(* A network with no index at all - scalars only - gives the optimizers nothing
-   to weigh, and their size table cannot be empty: every order contracts it the
-   same, so the path is any order. *)
+(* scalars only: any order will do, and the optimizers reject an empty size table *)
 GreedyContractionPath[input : {{} ...}, {}, sizeDict_Association /; sizeDict === <||>, ___] :=
     ConstantArray[{1, 2}, Max[Length[input] - 1, 0]]
 
@@ -206,27 +197,9 @@ OptimalContractionPath[input : {{} ...}, {}, sizeDict_Association /; sizeDict ==
     ConstantArray[{1, 2}, Max[Length[input] - 1, 0]]
 
 (* Internal helper for parameter extraction.
-
-   An index on three or more tensors - a hyperedge - is ONE index of the einsum,
-   which is how the Rust optimizers read it: it stays on every intermediate that
-   still needs it and is summed once nothing outside does.  So every member of a
-   group maps to one representative, whatever the group's size.  A pair maps its
-   first member to its second, as it always has, so the numbering - and with it
-   every path planned for a binary network - is unchanged.
-
-   Both rule sets are Dispatch tables.  As plain rule lists every index
-   occurrence was matched against every rule in turn, which made this the
-   quadratic step of path finding: 0.68 s of the 0.75 s GreedyContractionPath
-   spent on a 216-tensor circuit, of which the optimizer itself took 0.013 s.
-
-   The body is a Block, not Enclose or Module, and that is load-bearing.  Both of
-   those walk their held argument - Enclose to tag the Confirm calls in it,
-   Module to rename its locals - and the data bound by the pattern is spliced
-   into that argument, Association values included.  For a hyperedge network
-   "Contractions" spells each group out again at every slot of the group: two
-   million expressions for a circuit whose wires each sit on two hundred gates,
-   walked once per mention, a second per mention.  Block holds its body without
-   walking it, so the disagreeing-dimension check is an explicit Failure. *)
+   A hyperedge is one einsum index: each group maps to one representative.
+   Dispatch tables, not rule lists (quadratic). Block, not Module or Enclose: those walk
+   the spliced-in data, which for a hyperedge network repeats every group at every slot. *)
 extractContractionParameters[data : KeyValuePattern[{
     "Dimensions" -> _,
     "Indices" -> _,
@@ -253,31 +226,17 @@ extractContractionParameters[data : KeyValuePattern[{
     ]
 ]
 
-(* The groups of index slots that are one index of the einsum.  Data that names
-   its indices by label - TensorNetworkData - is grouped by label, one pass over
-   the slots; reading the groups off its "Contractions" instead costs the square
-   of every group's size (see above).  Graph data names a bond only through its
-   contraction pairs, so it is read from those.  For a binary network both
-   readings give the same groups in the same order, so the numbering of its
-   indices does not depend on which one ran. *)
+(* Slot groups that form one einsum index: by label for TensorNetworkData,
+   from contraction pairs for graph data; both agree on binary networks. *)
 contractionGroups[data_] := If[
     KeyExistsQ[data, "Hyperedges"],
     Select[Values[GroupBy[Catenate[data["Indices"]], Last]], Length[#] > 1 &],
     DeleteDuplicates @ Cases[Catenate[data["Contractions"]], {_, __}]
 ]
 
-(* The output a path is planned for.  For a network whose shared labels are all
-   plain bonds the free indices are exactly the slots no group claims, which is
-   how graph data and every binary network has always been read.  A network
-   that shares an OUTPUT label between tensors, or leaves a label of its own out
-   of its output to be summed, declares its output by label, and each label is
-   named through the representative its group maps to - so an output index that
-   several tensors carry is planned as one output index.
-
-   One definition, not two clauses: data that declares its output by label is
-   also data with "Contractions", so two clauses would be told apart only by the
-   order the kernel stores them in, and it does not keep the order they were
-   written in. *)
+(* Output a path is planned for: the unclaimed slots for plain bonds, else the declared
+   output by label via its group's representative. One definition: two clauses would
+   overlap, and the kernel doesn't keep their order. *)
 plannedOutput[data_, rules_] := With[{
     hyperedges = Lookup[data, "Hyperedges", None],
     freeIndices = Lookup[data, "FreeIndices", None]
@@ -291,9 +250,7 @@ plannedOutput[data_, rules_] := With[{
     ]
 ]
 
-(* Every shared label is a bond between exactly two slots and the output is
-   exactly the labels carried once: the network every route of this paclet was
-   first written for, and the one whose behaviour must not move. *)
+(* every shared label a two-slot bond, output = labels carried once *)
 plainBondsQ[hyperedges_, freeIndices_] := With[{counts = Counts[Catenate[hyperedges]]},
     AllTrue[counts, # <= 2 &] && Sort[freeIndices] === Sort[Keys[Select[counts, # == 1 &]]]
 ]
@@ -301,11 +258,8 @@ plainBondsQ[hyperedges_, freeIndices_] := With[{counts = Counts[Catenate[hypered
 extractContractionParameters[net_Graph ? TensorNetworkGraphQ] :=
     extractContractionParameters[TensorNetworkGraphData[net]]
 
-(* A network is planned over its OWN tensors, hyperedges included: the
-   optimizers take an index shared by any number of tensors, and the contraction
-   executor keeps such an index on every step that still needs it, so no delta
-   spider is inserted.  BinaryTensorNetwork remains the way to plan over the
-   binarized network explicitly. *)
+(* Planned over the network's own tensors, hyperedges included (no spiders);
+   use BinaryTensorNetwork to plan the binarized network. *)
 extractContractionParameters[net_TensorNetwork ? TensorNetworkQ] :=
     extractContractionParameters[TensorNetworkData[net]]
 

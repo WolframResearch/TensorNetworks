@@ -28,17 +28,8 @@ rustup target add \
 # Install rustfmt
 rustup component add rustfmt
 
-# Install cargo-wl (WolframResearch/wolfram-rust-library): builds LibraryLink
-# crates and generates their WL loader packages; used by build_all_targets.sh.
-#
-# cargo-wl links WSTP statically, and the build script of its wstp-sys
-# dependency finds the library through wolfram-app-discovery, which does not
-# find the Wolfram Engine of the CI container: every CI run since cargo-wl came
-# in failed here on "unable to get WSTP static library path: ... WSTP
-# CompilerAdditions directory".  So when a Wolfram system is installed in the
-# standard Linux place, its CompilerAdditions directory is named directly
-# through WSTP_COMPILER_ADDITIONS_DIRECTORY, the variable that error asks for.
-# Elsewhere - a macOS app, which discovery does find - nothing changes.
+# Install cargo-wl; its wstp-sys build can't discover the CI container's Wolfram Engine,
+# so name the engine's WSTP CompilerAdditions via WSTP_COMPILER_ADDITIONS_DIRECTORY
 if ! command -v cargo-wl &> /dev/null; then
     if [ -z "${WSTP_COMPILER_ADDITIONS_DIRECTORY:-}" ]; then
         case "$(uname -m)" in
@@ -59,9 +50,7 @@ if ! command -v cargo-wl &> /dev/null; then
     cargo install cargo-wl --locked
 fi
 
-# Configure Cargo linkers. For macOS targets, point zig cc at the macOS SDK
-# via -isysroot so the linker can resolve frameworks (CoreFoundation etc.) and
-# libiconv/libSystem stubs from the SDK.
+# Configure Cargo linkers; macOS frameworks and stubs come from the SDK
 mkdir -p "$CARGO_HOME"
 cat > "$CARGO_HOME/config.toml" << EOF
 [target.x86_64-apple-darwin]

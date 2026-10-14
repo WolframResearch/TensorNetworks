@@ -13,11 +13,8 @@ PackageScope[treeSteps]
 
 
 
-(* A tree path is a nonempty list: a singleton - a leaf, or a wrapper of one
-   node, not looked into - or a node of tree paths.  It is checked a level at
-   a time, not by recursion, which nests once per level: the tree of a path
-   that absorbs one tensor at a time into a single product is as deep as the
-   network has tensors, and 600 levels passed the recursion limit. *)
+(* Nonempty list: a singleton (leaf or wrapper, not inspected) or a node of tree paths.
+   Checked level by level: a sequential path's tree is too deep to recurse. *)
 TreePathQ[tree_List] := Module[{level = {tree}},
 	While[ Length[level] > 0 && AllTrue[level, ListQ[#] && Length[#] > 0 &],
 		level = Catenate @ Select[level, Length[#] > 1 &]
@@ -47,15 +44,8 @@ TreePathToPath[treePath_List ? TreePathQ, Automatic : Automatic] :=
 TreePathToPath[treePath_List ? TreePathQ] :=
 	doTreePathToPath[treePath, Sort[Cases[treePath, {x_} :> x, All]]]
 
-(* A path step names its operands by their positions in the current operand
-   list, from which each step removes its operands and to whose end it appends
-   its result.  An operand's position is therefore the number of live operands
-   created no later than it - the leaves first, in the order of indices, then
-   each step's result in turn - which a Fenwick tree over that creation order
-   answers in logarithmic time.  Renumbering every remaining position after each
-   step instead made canonicalizing quadratic: 1.6 s for a path over 2000
-   tensors, against 0.011 s.  Steps are taken in post-order, as before, and the
-   path is the same one, step for step. *)
+(* A step names operands by position in the shrinking operand list:
+   a Fenwick tree over creation order gives each position in log time. *)
 
 doTreePathToPath[treePath_, indices_] := With[{
 	steps = treeSteps[treePath, AssociationThread[List /@ indices, Range[Length[indices]]]]
@@ -70,23 +60,9 @@ doTreePathToPath[treePath_, indices_] := With[{
 	]
 ]
 
-(* The steps of a tree path in post-order, each the slots of its operands: a
-   leaf's slot is the one slotOf gives it - slotOf is keyed by the singleton
-   {v} - and each step's the next after the leaves and the steps before it.  A
-   singleton that is no leaf wraps one node, and is a step of one operand.
-   $Failed if a node is no nonempty list.
-
-   The tree is walked with stacks of its own, not by recursion, which nests
-   once per level of the tree: one that absorbs one tensor at a time into a
-   single product - the sweep TensorNetworkContraction can choose, or the
-   greedy path over an index that hundreds of tensors share - is as deep as
-   the network has tensors, and 600 passed the recursion limit.  Popping a
-   node and pushing its operands meets the nodes in post-order reversed: a
-   leaf as its slot, a node as minus its operand count.  Read forwards, that
-   order is evaluated on a stack of slots, each node taking its operands from
-   the top (stepOperands).  The node stack is a linked list, {node, rest}: a
-   list of nodes assigned in place is scanned whole when next read, which made
-   the walk of 10^4 nodes take 0.32 s instead of 0.02 s. *)
+(* Post-order steps of a tree path as operand slots (leaves per slotOf, steps after them);
+   a non-leaf singleton is a unary step; $Failed if malformed. Iterative with a linked-list
+   stack: a list assigned in place is rescanned on every read. *)
 treeSteps[tree_, slotOf_Association] := Module[{stack = {tree, {}}, node, order, malformed = False},
 	order = First[Reap[
 		While[ Length[stack] > 0 && ! malformed,
@@ -110,8 +86,7 @@ treeSteps[tree_, slotOf_Association] := Module[{stack = {tree, {}}, node, order,
 	]
 ]
 
-(* The operands of every step, one list: the order read forwards on a stack
-   of slots. *)
+(* operand slots of all steps, from the post-order *)
 stepOperands = Compile[{{order, _Integer, 1}, {leafCount, _Integer}},
 	Module[{slots = Table[0, {Length[order]}], operands = Table[0, {Length[order]}], depth = 0, k = 0, next = leafCount},
 		Do[

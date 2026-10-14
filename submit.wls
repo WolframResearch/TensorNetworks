@@ -1,15 +1,6 @@
 #!/usr/bin/env wolframscript
-(* Submit the Wolfram/TensorNetworks paclet to the Wolfram Paclet Repository.
-
-   The submission artifact is TensorNetworks/ResourceDefinition.nb, kept
-   beside PacletInfo.wl.  build_docs.wls regenerates it from a repo-root
-   ResourceDefinition.md when one exists; otherwise the notebook is edited
-   directly.
-
-   Run with:
-
-       wolframscript -f submit.wls
-*)
+(* Submit Wolfram/TensorNetworks to the Paclet Repository: wolframscript -f submit.wls
+   Artifact: TensorNetworks/ResourceDefinition.nb (build_docs.wls regenerates it from ResourceDefinition.md) *)
 
 repoDir = DirectoryName[$InputFileName]
 
@@ -22,17 +13,11 @@ If[ ! FileExistsQ[nbFile],
 
 Needs["DefinitionNotebookClient`"]
 
-(* PacletTools has to be loaded before the definition notebook is scraped: the
-   scrape lists the files of the Documentation extension through
-   PacletTools`PacletExtensionFiles, and with the context not loaded that call
-   stays unevaluated, a Failure lands in the file listing, and the repository
-   refuses the request ("The content of the request contains disallowed
-   symbols: {System`Failure}"). *)
+(* The notebook scrape calls PacletTools`PacletExtensionFiles; unloaded, it leaves a
+   Failure the repository refuses as "disallowed symbols: {System`Failure}" *)
 Needs["PacletTools`"]
 
-(* The client turns any server response it cannot parse into "Unknown error",
-   so the status and body of every error response are printed first; the
-   condition always fails, and the client's own handling then runs as before. *)
+(* Print API errors the client reduces to "Unknown error"; the condition always fails *)
 Needs["ResourceSystemClient`"]
 
 ResourceSystemClient`Private`handleError[head_, endpoint_, code_, chars_, params_, rbase_] /; (
@@ -41,9 +26,7 @@ ResourceSystemClient`Private`handleError[head_, endpoint_, code_, chars_, params
     False
 ) := Null
 
-(* The account to submit from: WOLFRAM_CLOUD_USER and WOLFRAM_CLOUD_PASSWORD,
-   where both are set, as a CI job would be given them; otherwise the stored
-   login.  The password is read from the environment and never printed. *)
+(* CI passes the account in the environment; otherwise use the stored login *)
 
 submitUser = Environment["WOLFRAM_CLOUD_USER"]
 
@@ -61,11 +44,8 @@ If[ ! TrueQ[$CloudConnected],
     Exit[1]
 ]
 
-(* The paclet is published under its PublisherID, "Wolfram", and the
-   repository checks that against $PublisherID, which is unset in a fresh
-   kernel: without it every client-side check passes and the submission is
-   then refused with ResourceObject::apierr ("An unexpected internal error
-   occurred (ConfirmationFailed)"). *)
+(* The repository checks the PublisherID against $PublisherID, unset in a fresh kernel;
+   without it the submission fails with ResourceObject::apierr (ConfirmationFailed) *)
 
 publisher = Get[FileNameJoin[{repoDir, "TensorNetworks", "PacletInfo.wl"}]]["PublisherID"]
 
@@ -78,18 +58,8 @@ $PublisherID = publisher
 
 Print["submitting as ", $WolframID, " for publisher ", $PublisherID]
 
-(* Two dialogs stand between a headless kernel and a submission: the
-   proceed-or-cancel confirmation raised by any outstanding suggestion or
-   warning, and, when the repository already holds an earlier version, the
-   dialog asking which version this update is.  DialogInput cannot run inside
-   kernel initialization, which is where a wolframscript file body runs, so
-   both are answered here instead.  The client's override registry loads
-   lazily and is empty at this point, so the dialog symbols are Blocked
-   directly at the call site below.
-
-   Errors never reach the confirmation: the check below exits on them first,
-   so this approves only what a human reading the printed issue list would.
-   The version answer is the one the paclet itself declares. *)
+(* Headless: answer the proceed and update-version dialogs here, Blocked at the call site
+   (the client's override registry loads lazily). Errors exit earlier; version from PacletInfo. *)
 
 version = Get[FileNameJoin[{repoDir, "TensorNetworks", "PacletInfo.wl"}]]["Version"]
 
@@ -100,9 +70,7 @@ If[ ! StringQ[version],
 
 Print["version from PacletInfo: ", version]
 
-(* The pre-submission check first: a submission with outstanding errors is
-   rejected by the repository anyway, so failing here is strictly cheaper.
-   Suggestions (such as PacletFilesChanged after a rebuild) do not block. *)
+(* Check first: errors would be rejected anyway; suggestions don't block *)
 
 check = UsingFrontEnd @ Block[{nb, r},
     nb = NotebookOpen[nbFile, Visible -> False];

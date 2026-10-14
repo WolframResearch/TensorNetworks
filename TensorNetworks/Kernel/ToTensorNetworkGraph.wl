@@ -486,10 +486,7 @@ TensorNetworkRemoveCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Grap
 
 
 
-(* Thin wrapper over the "NetGraph" contraction method of Contraction.wl: the
-   leaf lifting and the per-pair transpose / reshape / dot / reshape lowering
-   this function used to own now live in the einsumNetGraph handler, so a net is
-   just one more container that TensorNetworkContraction can produce. *)
+(* Thin wrapper over the "NetGraph" contraction method *)
 
 TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ] := TensorNetworkToNetGraph[net, OptimalContractionPath[net]]
 

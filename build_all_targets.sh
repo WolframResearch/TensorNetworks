@@ -1,19 +1,8 @@
 #!/bin/bash
 set -e
 
-# Cross-compilation build script.
-#
-# `cargo wl build` (cargo-wl, from WolframResearch/wolfram-rust-library)
-# compiles the Cotengra cdylib, reads the exported-function manifest embedded
-# in the host binary, and writes each platform's library together with its
-# generated Functions.wl loader into
-# TensorNetworks/Binaries/Cotengra-<SystemID>/ (see
-# [package.metadata.wl.pacletinfo] in TensorNetworks/Cotengra/Cargo.toml).
-#
-# The host platform is built by the first invocation; each cross target gets
-# its own invocation so SDKROOT can be set per target. Re-running for the
-# host inside the loop is a cached no-op, so the host appearing in TARGETS is
-# harmless on any machine.
+# Cross-compilation build script; one cargo-wl run per target so SDKROOT can differ.
+# The host's rerun in the loop is a cached no-op.
 
 TARGETS=(
     "MacOSX-x86-64:x86_64-apple-darwin"
@@ -46,10 +35,7 @@ for entry in "${TARGETS[@]}"; do
 
     case "$target" in
         *-apple-darwin)
-            # Override SDKROOT only when the CI cross-compile SDK is present
-            # (Linux container). On a macOS host, leave it unset so xcrun
-            # resolves the installed Xcode SDK — pointing it at a stale path
-            # makes clang exit with status 72.
+            # Use the CI SDK when present; on a macOS host a stale SDKROOT makes clang exit 72
             if [ -d "$MACOS_SDK" ]; then
                 export SDKROOT="$MACOS_SDK"
             else

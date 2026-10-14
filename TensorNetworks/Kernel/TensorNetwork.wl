@@ -270,14 +270,8 @@ TensorNetworkProp[tn_, "SparseQ"] := AllTrue[tn["Tensors"], SparseArrayQ]
 BinaryTensorNetworkQ[tn_TensorNetwork ? TensorNetworkQ] := AllTrue[Counts[Catenate @ tn["Hyperedges"]], # <= 2 &]
 
 (* Helper function to avoid documentation introspection issues.
-
-   Every slot of a spidered index is renamed to a leg of its spider, so an
-   index the OUTPUT names would vanish from the network along with its slots,
-   and the rebuilt network would declare an output it no longer has - which is
-   how a free hyperedge used to fail with TensorNetwork::output.  The spider of
-   an output index therefore carries one more leg, under the index's own name,
-   and that leg is the free one.  The same holds for an output index only two
-   tensors share: binary by count, but not a bond, so it is spidered too. *)
+   An output index's spider gets an extra free leg under the index's name, so the output
+   survives; an output index on two tensors is spidered too. *)
 binaryTensorNetworkImpl[tn_] := Block[{
     hyperedges = tn["Hyperedges"],
     output = Replace[tn["Output"], Automatic -> {}],

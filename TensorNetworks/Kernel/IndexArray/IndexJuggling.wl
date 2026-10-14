@@ -9,13 +9,7 @@ PackageExport[IndexJuggling]
 
 
 
-(* ArrayPart declines a structural tree that carries a symbolic container: there
-   is no slice rule for one and no materialization either, so it stays
-   unevaluated rather than handing back an operand of the node - which is what
-   Part on such a tree gives, silently and with the right shape.  That
-   unevaluated call must not be stored as the array of an IndexArray, where it
-   would pass IndexArrayQ as a rank-0 object carrying a foreign head, so
-   IndexPart declines with it. *)
+(* ArrayPart stays unevaluated on a tree holding a symbolic container; so does IndexPart *)
 
 IndexPart[it : _IndexArray | _IndexTensor, {is__}] := Block[{
     indices = it["Indices"], js, part, newArray

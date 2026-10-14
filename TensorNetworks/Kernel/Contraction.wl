@@ -204,18 +204,8 @@ einsumTableSum[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Bl
 
 
 (* ---------------------------------------------------------------------------
-   NetGraph container
-
-   Every method selects WHICH array container the contraction produces; the
-   "NetGraph" method produces a net.  Each leaf tensor is lifted to a layer and
-   each contracted pair becomes a transpose / reshape / dot / reshape block, so
-   the object threaded through the FixedPoint fold of TensorNetworkContraction
-   is itself a NetGraph.  TensorNetworkToNetGraph is a thin wrapper over this
-   path.
-
-   This method is NOT a member of $TensorNetworkContractionMethods: that list is
-   the set of interchangeable array engines, and a net is not an activatable
-   array expression.  It is a Method value all the same, named here.
+   NetGraph container: leaves lift to layers, each pair to transpose/reshape/dot/reshape.
+   Not in $TensorNetworkContractionMethods: a net is not an activatable array.
 --------------------------------------------------------------------------- *)
 
 $netGraphContractionMethod = "NetGraph"
@@ -232,25 +222,17 @@ netGraphMethodQ[method_] := method === $netGraphContractionMethod
 
 netGraphQ[x_] := MatchQ[x, _NetGraph]
 
-(* Failures raised while lowering to net layers unwind the whole contraction.
-   Enclose / Confirm cannot carry them: Enclose only catches Confirm calls that
-   occur inside its own argument, not ones raised by the handler functions the
-   contraction fold calls, so a private Throw tag is used instead.  Every net
-   failure is announced by one of the messages above before it unwinds. *)
+(* Net failures unwind through a private Throw tag: Enclose misses Confirm inside called handlers *)
 netFail[] := Throw[$Failed, netFailTag]
 
-(* NetExtract gives a bare integer for a rank-1 port and a type name such as
-   "Real" for a rank-0 one. *)
+(* NetExtract: an integer for a rank-1 port, a type name for rank 0 *)
 netTensorDimensions[net_] := Replace[NetExtract[net, "Output"], {d_Integer :> {d}, d : {___Integer} :> d, _ :> {}}]
 
 netPermutationList[perm_Cycles, n_Integer] := PermutationList[perm, n]
 
 netPermutationList[perm_List, n_Integer] := PermutationList[PermutationCycles[perm], n]
 
-(* PermutationList without the explicit length truncates at the largest moved
-   point, so a permutation that fixes trailing levels comes back shorter than
-   the rank; the length is always passed here so that a TransposeLayer can never
-   be built from a partially specified permutation. *)
+(* pass the length: PermutationList otherwise drops trailing fixed points *)
 netIdentityPermutationQ[perm_List] := perm === Range[Length[perm]]
 
 netLeafTensor[tensor_] := Block[{t, body, symbols, layer, reason, g},
@@ -330,9 +312,7 @@ netEvaluate[net_NetGraph] := Block[{ports = Information[net, "InputPorts"]},
 	]
 ]
 
-(* inactiveQ is part of the shared handler signature but has no meaning here: a
-   net has no inert head to wrap, so the pair lowering is always eager and the
-   net itself is the lazy form. *)
+(* inactiveQ unused: the net is already the lazy form *)
 einsumNetGraph[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
 	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
 	al, br, x, perm,
@@ -351,9 +331,7 @@ einsumNetGraph[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Bl
 	ad = Times @@ adim[[ac]];
 	bd = Times @@ bdim[[bc]];
 	reshape = Join[adim[[ai]], bdim[[bj]]];
-	(* A fully contracted pair gives a rank-0 result: the operands become vectors
-	   so that DotLayer produces the scalar directly, since ReshapeLayer[{}] is
-	   not a layer.  Every other case keeps the matrix form. *)
+	(* fully contracted pair: vectors, so DotLayer gives the scalar (there is no ReshapeLayer[{}]) *)
 	{reshapea, reshapeb} = If[ reshape === {},
 		{{ad}, {bd}},
 		{{Times @@ adim / ad, ad}, {bd, Times @@ bdim / bd}}
@@ -371,13 +349,8 @@ einsumNetGraph[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Bl
 
 
 (* ---------------------------------------------------------------------------
-   Leaf array containers
-
-   A method spec is either a method name or {name, subopts...}.  The submethod
-   "LeafContainer" -> type leaves the structural result exactly as the named
-   method produces it and converts every leaf tensor to the requested array
-   container type; the conversion goes through the Wolfram/Arrays route of
-   Utilities.wl, so any container that paclet admits later works here unchanged.
+   Leaf array containers: {method, "LeafContainer" -> type} converts every leaf
+   through the Wolfram/Arrays route of Utilities.wl.
 --------------------------------------------------------------------------- *)
 
 TensorNetworkContraction::leafname = "`1` is not a known array container type name."
@@ -388,14 +361,7 @@ contractionMethodName[spec_] := Replace[spec, {{name_, ___} :> name, name_ :> na
 
 contractionMethodOptions[spec_] := Replace[spec, {{_, subopts___} :> Flatten[{subopts}], _ :> {}}]
 
-(* THE NAME IS NOT A DISPATCH INTO System`.  Resolving an arbitrary string
-   through NameQ / Symbol and APPLYING the result to every leaf tensor makes a
-   mistyped container name run a kernel function on the data - "Print" prints
-   the tensors, "Quit" ends the session - and silentConstruct is Quiet@Check,
-   which suppresses the messages but not the side effects.  NameQ also accepts
-   string patterns, so "Sp*" would reach Symbol["System`Sp*"].  The name is
-   therefore checked against this list first; it is the set of array-container
-   heads Wolfram/Arrays admits, and a head admitted there later is added here. *)
+(* Allowlist, not NameQ/Symbol: a mistyped name ("Quit") would run a System function on the data *)
 
 $leafContainerNames = {
 	"List", "SparseArray", "NumericArray", "SymmetrizedArray", "StructuredArray",
@@ -447,8 +413,7 @@ convertLeafTensors[spec_, tensors_] := With[{
 },
 	If[ container === Automatic,
 		tensors,
-		(* The first leaf that cannot be converted stops the conversion, so one
-		   failed contraction reports one reason rather than one per leaf. *)
+		(* stop at the first failing leaf: one message per contraction *)
 		Catch[
 			Map[Replace[toArrayContainer[container, #], $Failed :> Throw[$Failed, leafFailTag]] &, tensors],
 			leafFailTag
@@ -456,15 +421,7 @@ convertLeafTensors[spec_, tensors_] := With[{
 	]
 ]
 
-(* With "Inactive" -> False the contraction is EVALUATED, so the leaf container
-   is a compute substrate rather than a storage format.  ArrayDot, Dot and
-   TensorContract have no rule for a storage-only container: handed a
-   NumericArray they leave their own head unevaluated, and TensorNetworkContract
-   - the eager entry point, whose callers Confirm an array - would return a
-   contraction expression with no message and no $Failed.  Storage-only leaves
-   are therefore materialized back before the engine runs; a compute-native
-   container (a plain List, a SparseArray, a QuantityArray) is kept, which is
-   the whole reason to ask for one on this path. *)
+(* Evaluated: storage-only containers (NumericArray, ...) are materialized, compute-native ones kept *)
 
 computableLeafTensors[tensors_] := Replace[
 	tensors,
@@ -474,31 +431,8 @@ computableLeafTensors[tensors_] := Replace[
 
 leafContainerAutomaticQ[spec_] := Lookup[contractionMethodOptions[spec], "LeafContainer", Automatic] === Automatic
 
-(* With no container asked for, an evaluated contraction is free to choose how
-   each array is stored, and it chooses by fill: a SparseArray at least
-   $denseFill full computes faster as a dense array, so leaves are converted
-   before the first step and every intermediate after its own.  The conversion
-   is Normal followed by packedIfMachine below, so machine-number arrays pack and
-   exact ones stay exact; a packer that coerces would turn 1/2 into 0.5.  The
-   policy belongs here rather than in Wolfram/Arrays, whose contract is that a
-   container survives an operation: only the contraction knows that the array
-   is an intermediate nobody asked to keep.
-
-   The threshold is measured, not chosen.  Below about a fifth, densifying a
-   leaf costs more than it saves (a PEPS of 10%-filled leaves contracts 50%
-   slower when they are densified); above it the dense form wins, and on
-   intermediates by far: never densifying a 30%-filled MPS took 2.5 s against
-   0.04 s, a 60%-filled PEPS 14 s against 0.27 s, and a 14-qubit QFT circuit,
-   93% filled, 0.27 s against 0.08 s.  Thresholds from 0.1 to 0.35 were within
-   noise of each other everywhere else.
-
-   What the dense form wins with is packed arithmetic, which only machine
-   numbers have, so only a SparseArray of machine numbers is densified - its
-   background numericized too, so that its zeros pack with its values.  An
-   exact array cannot pack and densifying it only loses its zeros, and those
-   compound: a controlled phase is a quarter full, a product of several is far
-   emptier, and the 14-qubit QFT circuit of exact gates contracted in 6.4 s
-   densified against 0.17 s kept sparse. *)
+(* Fill policy: machine-number SparseArrays at least $denseFill full go dense and packed
+   (measured crossover about a fifth). Exact arrays stay sparse: they can't pack. *)
 
 $denseFill = 0.2
 
@@ -508,17 +442,8 @@ computeRepresentation[t_List] /; ! Developer`PackedArrayQ[t] := packedIfMachine[
 
 computeRepresentation[t_] := t
 
-(* An array of machine numbers is stored packed.  The non-coercing packer
-   refuses one that mixes Real and Complex entries - the numeric diagonal of a
-   phase gate, {1., 1., 1., 0.98 + 0.2 I}, is one - and every product built from
-   such an array then stayed unpacked too: 74 of the 105 steps of a 14-qubit QFT
-   circuit ran on unpacked lists.  Promoting a machine Real to a machine Complex
-   loses nothing, unlike making an exact value inexact, so such an array packs
-   as Complex.  An array with an exact entry packs only as it already would on
-   its own - an integer array does - and is never made inexact here.  Plain
-   packing is tried first because it settles the common case, a uniform array,
-   without scanning the elements: 0.8 ms rather than 16 ms over the 216 leaves
-   of a phase-oracle circuit. *)
+(* Pack machine arrays, mixed Real/Complex as Complex; never make an exact entry inexact.
+   Plain packing first: it settles uniform arrays without a scan. *)
 packedIfMachine[t_] := With[{packed = Developer`ToPackedArray[t]},
     If[ Developer`PackedArrayQ[packed] || ! ArrayQ[t, _, MachineNumberQ],
         packed,
@@ -526,23 +451,8 @@ packedIfMachine[t_] := With[{packed = Developer`ToPackedArray[t]},
     ]
 ]
 
-(* A network holding a machine number anywhere contracts to machine numbers:
-   every term of every output entry is a product of one entry of EVERY tensor,
-   so each term carries a machine factor.  Its exact tensors are therefore
-   converted to machine numbers once, before the first step, rather than being
-   numericized again at every multiplication - and rather than having two exact
-   phases multiplied symbolically whenever two exact gates meet.  With the
-   packing above this took a 14-qubit QFT circuit of exact gates acting on a
-   machine-number state from 0.20 s to 0.02 s.  A network with no machine number
-   anywhere is left exact, and so is one carrying any number of precision other
-   than machine precision.
-
-   A leaf with a symbol in it is left as it is, though.  Its arithmetic is
-   symbolic either way, so N would gain nothing, and it would rewrite the exact
-   numbers inside the symbolic expressions: E^(I theta) became E^(1. I theta), which no
-   longer cancels against the same algebra done exactly.  QuantumFramework's
-   check that a circuit's contraction matches its operators' composition failed
-   on exactly that. *)
+(* One machine number makes every term machine: numericize exact numeric leaves once.
+   Leaves with symbols stay exact (N breaks cancellations such as E^(I theta)). *)
 machinePrecisionLeaves[tensors_] := If[
     Min[Precision /@ tensors] === MachinePrecision,
     Replace[tensors, t_ ? numericLeafQ :> N[t], {1}],
@@ -551,24 +461,8 @@ machinePrecisionLeaves[tensors_] := If[
 
 numericLeafQ[t_] := NumericQ[t] || ArrayQ[t, _, NumericQ]
 
-(* An exact leaf whose values are all rational multiples of one of them is
-   that value times an array of integers, and since a contraction is linear in
-   every leaf, the network's value is the product of those values times the
-   value of the network of integer arrays.  Integer arithmetic skips both the
-   normalization rational arithmetic does at every operation and the algebra
-   of radicals: a Hadamard gate is 1/Sqrt[2] times {{1, 1}, {1, -1}}.  Along
-   the greedy path QuantumFramework's 8-qubit Grover search of exact gates
-   contracted in 1.35 s against 12.9 s, the same value; its largest step took
-   0.02 s against 2.3 s, a quarter of that spent on stored zeros, which a
-   SparseArray rebuilt from the integers drops.  Integers overflowing machine
-   size become big integers in Dot, ArrayDot and TensorContract alike, exact.
-   integerScaledLeaves gives that product of values and the leaves, integer
-   where they could be made so.
-
-   A leaf of integers already, or one whose ratios are not all rational - the
-   phases of a QFT - is left as it is; the first values are looked at before
-   all of them are divided.  Machine numbers and symbols never reach the
-   division. *)
+(* Exact leaf whose values are rational multiples of one value c: contract its integers, multiply
+   c back in (linear in each leaf). Avoids rational normalization and radicals; exact on overflow. *)
 integerScaledLeaves[tensors_List] := With[{scaled = integerScaledLeaf /@ tensors},
     {Times @@ scaled[[All, 1]], scaled[[All, 2]]}
 ]
@@ -591,8 +485,7 @@ integerScaledLeaf[t_List] /; Precision[t] === Infinity && ArrayQ[t, _, NumericQ]
 
 integerScaledLeaf[t_] := {1, t}
 
-(* {c, q} with values == c q and q integers, or None when no such c is worth
-   taking out. *)
+(* {c, q} with values == c q, q integers; None if not worth it *)
 ratioScale[values_List] := With[{first = SelectFirst[values, # =!= 0 &, None]},
     If[ first === None || VectorQ[values, IntegerQ] || ! VectorQ[Take[values, UpTo[16]] / first, rationalQ],
         None,
@@ -609,41 +502,16 @@ rationalQ[x_] := MatchQ[x, _Integer | _Rational]
 
 
 (* ---------------------------------------------------------------------------
-   Executing a tree path
-
-   A tree path fixes WHICH tensors meet at each step; what a step sums is read
-   off the index labels.  A label the two operands share is summed when nothing
-   outside them still needs it - no tensor elsewhere in the network, no output
-   index - and kept, once, when something does.  The kept case is a BATCH index:
-   an index on three or more tensors, or an output index two tensors share,
-   rides along every step that still needs it and is summed by the last one.
-   That is how a hyperedge is contracted without binarizing it: no delta spider
-   is built, so none can grow with the number of tensors on the index.
-
-   A network whose every shared label is a plain bond between two tensors never
-   has a kept shared label, and each of its steps goes to the method's pair
-   handler exactly as it always has.
-
-   Before any step a leaf settles the labels that are its alone: a label it
-   carries twice is a diagonal, and a label no other tensor and no output
-   carries is summed out - a trace when it is both.
+   Executing a tree path. A shared label is summed once nothing else needs it, else kept
+   as a batch index (hyperedges, shared outputs): no delta spiders. A leaf first settles
+   its own labels: repeated -> diagonal, held by nothing else -> summed.
 --------------------------------------------------------------------------- *)
 
 TensorNetworkContraction::netbatch = "The \"NetGraph\" method cannot contract the indices `1`, which both operands carry and the rest of the network still needs; contract BinaryTensorNetwork of the network instead."
 
-(* Every node of the fold is {tensor, labels, holders}: the array, the label of
-   each of its axes, and how many leaves under the node carry each label.  A
-   label stays on a node while that count is short of the number of leaves in
-   the whole network carrying it, or while the output names it.
-
-   The tree is taken as its steps in post-order (treeSteps), each folding its
-   operands in order - a leaf settled as its step takes it - into a slot of
-   its own, and dropping theirs, so an intermediate lives until the step that
-   consumes it.  The slots are an association: a list assigned in place is
-   scanned whole when next read.  A tree path that is a single leaf has no
-   step.  Walking the tree by recursion nested once per level, and a tree as
-   deep as the network has tensors - the sweep, or the greedy path over an
-   index that hundreds of tensors share - passed the recursion limit at 600. *)
+(* Node = {tensor, labels, holders}; a label stays while other holders or the output need it.
+   Steps run in post-order (treeSteps), no recursion; intermediates in an association,
+   dropped once consumed. *)
 
 contractTreePath[treePath_, leaves_Association, output_List, settings_Association] := Module[{
     env = Join[settings, <|
@@ -676,9 +544,7 @@ contractTreePath[treePath_, leaves_Association, output_List, settings_Associatio
     ]
 ]
 
-(* The dimension of an index is a constant of the network, so it is read off the
-   leaves once rather than off intermediates, which may be inert expressions.  A
-   leaf of unknown shape names no dimension. *)
+(* index dimensions, read once off the leaves *)
 labelDimensions[leaves_List] := Association @ Catenate @ Map[
     With[{dims = tensorDimensions[First[#]]},
         If[Length[dims] == Length[Last[#]], Thread[Last[#] -> dims], {}]
@@ -695,10 +561,7 @@ contractStep[{a_, i_, ha_}, {b_, j_, hb_}, env_] := Block[{
     result = Which[
         batch =!= {},
             contractBatchPair[{a -> i, b -> j}, batch, env],
-        (* A step with a rank-0 operand is a product with a scalar, and Times
-           keeps the other operand's shape where the handlers' TensorProduct does
-           not: TensorProduct[{-2, -1}, 0] is the scalar 0, so a network holding
-           an exact zero lost its shape, evaluated or activated. *)
+        (* rank-0 operand: Times keeps the shape; TensorProduct[{-2, -1}, 0] is 0 *)
         ! netGraphMethodQ[env["Method"]] && (i === {} || j === {}),
             {If[env["Inactive"], Inactive[Times][a, b], a b], Join[i, j]},
         True,
@@ -727,8 +590,7 @@ settleLeaf[{t_, labels_List}, env_] := With[{
     ]
 ]
 
-(* A Transpose whose level list repeats an entry takes the diagonal of the
-   levels it merges, and Total over a range of levels sums them out. *)
+(* repeated Transpose levels take a diagonal; Total sums levels out *)
 settleLeafEager[t_, labels_, summed_, _] := With[{
     distinct = DeleteDuplicates[labels]
 }, {
@@ -744,11 +606,8 @@ settleLeafEager[t_, labels_, summed_, _] := With[{
     ]
 ]
 
-(* A SparseArray takes its diagonal from its stored entries instead: Transpose
-   with a repeated level crashes the kernel on a SparseArray whose nonzeros all
-   lie off that diagonal, as Transpose[SparseArray[{{1, 2} -> 3.}, {2, 2}],
-   {1, 1}] does.  An entry survives when its position agrees across every group
-   of merged levels, and the background stays the background. *)
+(* SparseArray diagonal from stored entries: Transpose with repeated levels can crash the kernel,
+   e.g. Transpose[SparseArray[{{1, 2} -> 3.}, {2, 2}], {1, 1}] *)
 diagonalOf[t_SparseArray, levels_] := With[{groups = Values[PositionIndex[levels]]},
     SparseArray[
         Map[
@@ -762,9 +621,7 @@ diagonalOf[t_SparseArray, levels_] := With[{groups = Values[PositionIndex[levels
 
 diagonalOf[t_, levels_] := Transpose[t, levels]
 
-(* The inert form contracts every slot of a settled label into one extra
-   operand: a delta over its slots - with one more leg left open when the label
-   is kept - or, for a single slot to sum, a vector of ones. *)
+(* inert form: a settled label contracts with a delta (one leg more if kept) or a ones vector *)
 settleLeafInactive[t_, labels_, summed_, env_] := Block[{
     rank = Length[labels], extras = {}, pairs = {}, open = {}, settledLabels = {}, base
 },
@@ -782,10 +639,7 @@ settleLeafInactive[t_, labels_, summed_, env_] := Block[{
                     AppendTo[extras, ConstantArray[1, d]];
                     AppendTo[pairs, {First[slots], base + 1}];
                     base += 1,
-                (* A plain trace contracts its two slots with each other and
-                   needs no delta at all, which also keeps a delta - and the
-                   unpacking of every packed array beside one - out of the
-                   commonest case. *)
+                (* a plain trace needs no delta *)
                 m == 2 && ! kept,
                     AppendTo[pairs, slots],
                 True,
@@ -817,10 +671,7 @@ contractBatchPair[{a_ -> i_, b_ -> j_}, batch_, env_] := Which[
         batchPairEager[a, i, b, j, batch, env]
 ]
 
-(* Both operands are laid out as [batch, own, summed] blocks and the pair is one
-   matrix product per batch entry.  With nothing summed each product is an outer
-   product, which is the elementwise case: a diagonal gate meeting the state it
-   acts on.  The batch axes lead the result. *)
+(* operands as [batch, own, summed] blocks: one matrix product per batch entry, batch axes first *)
 batchPairEager[a_, i_, b_, j_, batch_, env_] := Block[{
     summed = Select[i, MemberQ[j, #] && ! MemberQ[batch, #] &],
     own = Select[i, ! MemberQ[j, #] &],
@@ -833,11 +684,7 @@ batchPairEager[a_, i_, b_, j_, batch_, env_] := Block[{
     product = Which[
         SparseArrayQ[x] || SparseArrayQ[y],
             SparseArray[MapThread[Dot, {ArrayReshape[x, {nb, na, ns}], ArrayReshape[y, {nb, ns, nf}]}]],
-        (* Nothing summed: one outer product per batch entry, which is the step
-           every diagonal gate takes.  The singleton summed axis is dropped by
-           ArrayReshape, not by Part: x[[All, All, 1]] copies element by element
-           and took 7 ms on a million entries, ArrayReshape 0.17 ms, which alone
-           halved a 20-qubit phase oracle, 1.49 s to 0.74 s. *)
+        (* nothing summed: an outer product per batch entry; ArrayReshape, not Part, drops the axis *)
         ns == 1,
             batchOuter[ArrayReshape[x, {nb, na}], ArrayReshape[y, {nb, nf}], na, nf],
         True,
@@ -849,14 +696,8 @@ batchPairEager[a_, i_, b_, j_, batch_, env_] := Block[{
     }
 ]
 
-(* The outer products of the rows of x ({nb, na}) and y ({nb, nf}), all at
-   once.  Times threads x over the leading two levels of the {nb, na, nf}
-   replica of y and broadcasts each entry over a row, which beats a Dot per
-   batch entry by up to twenty times.  But Times on packed arrays of different
-   ranks pays per row, so when the rows are short and many - diagonal gates
-   merged over most of the wires - both operands are brought to the full shape
-   first and multiplied elementwise, which took the same oracle from 0.74 s to
-   0.57 s. *)
+(* Row-wise outer products of x {nb, na} and y {nb, nf} by broadcast Times;
+   many short rows: expand both to the full shape first. *)
 batchOuter[x_, y_, na_, nf_] /; na nf <= 16 && Length[x] >= 4096 := Which[
     na == 1 && nf == 1, Flatten[x] * Flatten[y],
     na == 1, Transpose[ConstantArray[Flatten[x], nf]] * y,
@@ -864,17 +705,14 @@ batchOuter[x_, y_, na_, nf_] /; na nf <= 16 && Length[x] >= 4096 := Which[
     True, Transpose[ConstantArray[x, nf], {3, 1, 2}] * Transpose[ConstantArray[y, na], {2, 1, 3}]
 ]
 
-(* A side with no labels of its own has a scalar for each row, which scales the
-   other side's row with no replica built: 1.7 to 6 times faster than the
-   replica, 6 ms against 38 ms on {262144, 32, 1}. *)
+(* a side with no own labels just scales the other's rows *)
 batchOuter[x_, y_, 1, _] := Flatten[x] * y
 
 batchOuter[x_, y_, _, 1] := x * Flatten[y]
 
 batchOuter[x_, y_, na_, _] := x * Transpose[ConstantArray[y, na], {2, 1, 3}]
 
-(* The inert form ties each batch index through a rank-3 delta: one leg to each
-   operand's slot and one left open, which is the batch axis of the result. *)
+(* inert form: a rank-3 delta per batch index, its open leg the result's batch axis *)
 batchPairInactive[a_, i_, b_, j_, batch_, env_] := Block[{
     ra = Length[i], rb = Length[j],
     summed = Select[i, MemberQ[j, #] && ! MemberQ[batch, #] &],
@@ -900,14 +738,7 @@ batchPairInactive[a_, i_, b_, j_, batch_, env_] := Block[{
 ]
 
 
-(* $TensorNetworkContractionMethods is the list of INTERCHANGEABLE ARRAY
-   ENGINES, and that is the invariant its documentation and every example that
-   loops over it rely on: each entry lowers a contraction to a different array
-   expression, and ActivateTensors of any two of them gives the same array.
-   "NetGraph" is a valid Method value but is NOT one of them - it returns a net,
-   not an activatable array expression - so it is listed separately and named in
-   the Method documentation instead.  Adding it to the engine list would turn
-   "compare all the engines" into a type mismatch. *)
+(* interchangeable array engines only; "NetGraph" returns a net, so it isn't listed *)
 
 $TensorNetworkContractionMethods = {"ArrayDotTranspose", "ArrayDot", "Dot", "TensorContract", "TableSum"}
 
@@ -930,14 +761,8 @@ Options[TensorNetworkContraction] = Join[Options[contractTensorPair], {"Transpos
 TensorNetworkContraction[net_Graph ? TensorNetworkGraphQ, args___] :=
     TensorNetworkContraction[TensorNetworkGraphData[net], args]
 
-(* The network a contraction of net runs on.  A path names operands by position,
-   so it belongs to the network it was planned for, and a network is planned
-   over its own tensors, hyperedges included.  A path whose operand count is
-   that of BinaryTensorNetwork[net] instead was planned over the binarized
-   network - the only frame a hyperedge network had before hyperedges were
-   contracted natively - and runs there, so such a path keeps working.  The
-   "NetGraph" method has no batch layer and always runs on the binarized
-   network. *)
+(* Network a path runs on: its own tensors, or the binarized one for a path over that
+   many operands and for "NetGraph" (no batch layer). *)
 contractionNetwork[net_, args_List] := Which[
     netGraphMethodQ[contractionMethodName[Lookup[Cases[args, _Rule | _RuleDelayed], Method, None]]],
         BinaryTensorNetwork[net],
@@ -1018,12 +843,7 @@ TensorNetworkContraction[
     perm = FindPermutation[tensorPath[[2]], freeIndices];
     If[ netGraphMethodQ[method]
         ,
-        (* The accumulated object is a net, and a net has no inert head to wrap:
-           the trailing transpose is a TransposeLayer appended to it and is
-           therefore always applied eagerly, with the default "TransposeFunction"
-           standing for that net-level transpose.  A network of a single tensor
-           never reaches a pair handler, so the leaf is lifted here.  "Inactive"
-           then selects the net itself (True) or its value (False). *)
+        (* net: trailing transpose as a TransposeLayer, always eager; a lone leaf is lifted here *)
         net = toNetTensor[tensorPath[[1]]];
         If[ perm =!= Cycles[{}],
             net = Replace[transposeFunction, Transpose -> netTranspose][net, perm]
@@ -1034,13 +854,7 @@ TensorNetworkContraction[
         ];
         If[TrueQ[OptionValue["Inactive"]], net, netEvaluate[net]]
         ,
-        (* The trailing transpose head must be SUBSTITUTED lexically, not looked
-           up: Inactive holds its argument, so a Block-local transposeFunction
-           inside Inactive[...] would survive into the returned expression as the
-           bare private symbol instead of Transpose (or the caller's
-           "TransposeFunction"), and the result would activate to an unevaluated
-           head wrapped around the un-transposed array.  Block is fine for every
-           other local here; only what goes inside Inactive needs the With. *)
+        (* With, not Block: Inactive holds its argument, so the head must be substituted *)
         If[ perm === Cycles[{}],
             tensorPath[[1]],
             With[{transposeHead = transposeFunction},
@@ -1059,28 +873,20 @@ TensorNetworkContraction[
 		"ContractionIndices" -> indices_,
         "FreeIndices" -> freeIndices_
 	}],
-	(* Except[_Rule] keeps an option given as the second argument out of the path
-	   slot, where it would otherwise be swallowed as an (ignored) path. *)
+	(* Except[_Rule]: an option in second position is not a path *)
 	path : Except[_Rule | _RuleDelayed] : Automatic,
 	opts : OptionsPattern[]
 ] := Which[
 	netGraphMethodQ[contractionMethodName[OptionValue[Method]]],
-		(* A net is built along a contraction path: the path-free EinsteinSummation
-		   route has no net form, so the default optimal path is used. *)
+		(* a net needs a path: use the optimal one *)
 		With[{optimalPath = OptimalContractionPath[data]},
 			If[ CanonicalPathQ[optimalPath],
 				TensorNetworkContraction[data, optimalPath, opts],
 				Message[TensorNetworkContraction::netpath]; $Failed
 			]
 		],
-	(* Automatic lets the contraction choose its order.  Evaluated, it follows the
-	   greedy path: EinsteinSummation hands the product of every leaf to a single
-	   TensorContract and so has no order at all, 3.3 s on a 216-tensor circuit
-	   whose greedy path contracts in 0.2 s.  Left inert, Automatic keeps the one
-	   EinsteinSummation expression, the compact symbolic form of the network.
-	   The greedy path is taken only where it applies - explicit leaves, an output
-	   naming each index once, the optimizer available - and EinsteinSummation
-	   is the route everywhere else, as it always was. *)
+	(* Automatic: evaluated and plannable -> a planned path; otherwise EinsteinSummation,
+	   which keeps the compact inert form but has no contraction order. *)
 	! TrueQ[OptionValue["Inactive"]] && path === Automatic && greedyPlannableQ[data],
 		With[{plan = automaticPlan[data, OptionValue[Method]]},
 			If[ MatchQ[plan, {_Association, _ ? TreePathQ}],
@@ -1103,12 +909,7 @@ einsteinSummationContraction[tensors_, indices_, freeIndices_, methodSpec_, inac
 		]
 	]
 
-(* The optimizer's own path goes straight to a tree.  A canonical path is the
-   same tree with its steps renumbered, and renumbering is quadratic in the
-   number of tensors - a third of the planning time on a 216-tensor circuit - so
-   a path that is only ever executed is not canonicalized.  An Automatic plan is
-   a network - the one given, or the one diagonal reduction makes of it - and a
-   tree path over it. *)
+(* Automatic plan: {network (given or reduced), tree path}; not canonicalized (quadratic) *)
 automaticPlan[data_, method_] := With[{parameters = extractContractionParameters[data]},
 	If[ MatchQ[parameters, {_List, _List, _Association}],
 		Replace[cheapestPlan[data, parameters, method], {
@@ -1119,53 +920,9 @@ automaticPlan[data_, method_] := With[{parameters = extractContractionParameters
 	]
 ]
 
-(* The default plan is the greedy optimizer's path over the network as given.
-   Where that path is expensive enough for more planning to be cheap beside it,
-   other plans are made too, all are priced in what this executor pays, and the
-   cheapest is contracted:
-
-   - The half-weight greedy path.  The default weighs a step's result against
-     its operands one to one, which keeps intermediates small and suits a
-     circuit simulated gate by gate: weighing the operands half as much makes a
-     20-qubit QFT five times slower.  But on a 20-qubit Trotter circuit, a
-     20-qubit brickwork of 4 layers or an MPS overlap of bond dimension 128 the
-     half-weight path moves less data and contracts 1.3 to 3.8 times faster.
-
-   - The sweep: every tensor absorbed, in the order given, into one product.
-     A network built step by step - a circuit gate by gate - keeps one state
-     that each step acts on, where the greedy optimizer joins small tensors
-     first; along it the 8-qubit Grover search QuantumFramework contracts, of
-     exact tensors, takes 0.21 s against 12.5 s along the greedy path.
-
-   - The same plans over the diagonal-reduced network (DiagonalReduction.wl),
-     whose tensors are smaller - a diagonal gate on k wires holds 2^k entries
-     there, not 4^k.  Its indices are shared by three tensors and more, and the
-     greedy optimizer misjudges those: it scores two gates on either side of a
-     diagonal, which share its index, as free to join (the product is as large
-     as the two together), joins such pairs along every wire before reaching
-     the diagonal, and builds products that carry every wire's indices - 2^35
-     entries on that Grover search, where the network as given peaks at 2^16.
-     So the reduced network is never contracted unpriced.  Reduced, the
-     20-qubit Trotter quench QuantumFramework contracts - ZZ rotations, 4-leg
-     diagonals, between X rotations - priced 2^20.4 against 2^28.3 and
-     contracted in 0.07 s against 3.8 s.
-
-   The price is the elements each step moves - both operands and the result,
-   twice over for an array of more than 2^20 elements, which has left the
-   cache - plus its multiply-adds at a seventieth, the rate of a BLAS product
-   against a move.  No plan whose largest intermediate is more than four times
-   the default's is taken, which keeps a mispriced one from becoming a memory
-   blowup.  The prices were measured on machine numbers; on exact ones they
-   rank the same way - on that Grover search the sweep priced 2^20.8 against
-   the greedy path's 2^25.5 - and since an exact element costs a hundred times
-   a machine one to compute, planning starts from a lower price there.  Of 46
-   circuits, MPS, lattices, random regular graphs and brickworks of machine
-   numbers, the half-weight path took 8, seven of them 1.3 to 3.8 times faster
-   and the eighth even, the sweep took two lattices, 1.3 and 1.5 times faster,
-   and the rest stayed within timing noise of the default, planning included.
-   The half-weight path is planned on machine numbers only,
-   as it was measured; every plan here, on the default engine with the leaf
-   containers left to it, which the prices describe. *)
+(* Default: greedy over the given network. If that's expensive, also price half-weight greedy,
+   the sweep and, on machine numbers, both over the diagonal-reduced network; take the cheapest
+   with its largest intermediate within 4x. Price: elements moved (x2 past 2^20) + flops/70. *)
 cheapestPlan[data_, parameters : {input_, _, sizes_}, method_] := With[{default = GreedyContractionPath @@ parameters},
 	Which[
 		! fullPathQ[default, input],
@@ -1175,14 +932,10 @@ cheapestPlan[data_, parameters : {input_, _, sizes_}, method_] := With[{default 
 		True,
 			With[{costInput = pathCostInput[parameters]},
 				With[{defaultCost = pathCost[default, costInput]},
-					(* Further plans cost about as much as the first; they are made
-					   only when the contraction they may shorten outweighs them
-					   many times. *)
+					(* plan more only when the contraction dwarfs the planning *)
 					If[ First[defaultCost] <= planningThreshold[data["Tensors"]] Length[input],
 						{data, default},
-						(* Ordering, not MinimalBy, whose first use in a kernel
-						   loads for a quarter of a second; the first of equal
-						   prices is the default. *)
+						(* Ordering, not MinimalBy (slow first load); ties keep the default *)
 						With[{plans = Select[
 							Join[
 								{{data, default, defaultCost}},
@@ -1199,9 +952,7 @@ cheapestPlan[data_, parameters : {input_, _, sizes_}, method_] := With[{default 
 	]
 ]
 
-(* The priced plans of one network, {network, path, {price, largest}}: its
-   sweep, its half-weight greedy path on machine numbers, and with
-   includeDefault its default greedy path. *)
+(* {network, path, {price, largest}}: sweep, half-weight on machine numbers, default if asked *)
 formPlans[form_, parameters : {input_, _, _}, costInput_, method_, includeDefault_] :=
 	{form, #, pathCost[#, costInput]} & /@ Select[
 		Join[
@@ -1212,12 +963,8 @@ formPlans[form_, parameters : {input_, _, _}, costInput_, method_, includeDefaul
 		fullPathQ[#, input] &
 	]
 
-(* The plans of the diagonal-reduced network, when anything in it reduces -
-   on machine numbers only.  Its indices shared by three tensors and more are
-   contracted in batch steps, which on machine numbers are dense products the
-   prices describe, but on exact ones are a product per batch entry of
-   SparseArrays the prices do not see: the reduced form of the exact 14-qubit
-   QFT priced cheaper and contracted in 210 ms against 141 ms. *)
+(* plans over the diagonal-reduced network; machine numbers only, since exact batch steps
+   cost per entry in ways the price doesn't see *)
 reducedPlans[data_, method_] := With[{
 	reduction = If[
 		ListQ[data["Hyperedges"]] && Min[Precision /@ data["Tensors"]] === MachinePrecision && AllTrue[data["Tensors"], numericLeafQ],
@@ -1238,9 +985,7 @@ reducedPlans[data_, method_] := With[{
 	]
 ]
 
-(* The sweep in the optimizer's format, where each step removes its operands
-   and appends their product: the first two tensors, then the first remaining
-   one with that product, last in the list. *)
+(* sweep in optimizer format: fold each next tensor into the running product *)
 sweepPath[n_Integer] := Prepend[Table[{1, m}, {m, n - 1, 2, -1}], {1, 2}]
 
 fullPathQ[path_, input_] := PathQ[path] && Count[path, {_, _}] + 1 === Length[input]
@@ -1256,9 +1001,7 @@ alternativePathQ[tensors_, method_] :=
 		AllTrue[tensors, numericLeafQ] &&
 		AllTrue[tensors, ! MatchQ[#, _SparseArray] || #["Density"] >= $denseFill &]
 
-(* The labels of each leaf as dense integers, without the labels its settling
-   sums - those only it carries that the output lacks - with each label's
-   dimension, whether the output keeps it, and how many leaves hold it. *)
+(* per leaf: label ids minus self-summed ones; label dims, output flags, holder counts *)
 pathCostInput[{input_, output_, sizes_}] := Module[{
 	ids = AssociationThread[Keys[sizes], Range[Length[sizes]]], leaves, labels, holders, kept, settled
 },
@@ -1275,12 +1018,8 @@ pathCost[path_, {labels_, lengths_, dims_, kept_, holders_}] := pathCostCompiled
 	labels, lengths, path[[All, 1]], Replace[path, {{_} -> 0, {_, j_} :> j}, {1}], dims, kept, holders
 ]
 
-(* {price, largest intermediate} of a path in the optimizer's format, where each
-   step removes its operands from the list and appends its result.  An
-   operand's position is then the rank of its node among the live ones in
-   creation order, which a Fenwick tree answers in logarithmic time, as in
-   stepPositions.  A step keeps a label that another node or the output still
-   holds, as the executor does, and sums the rest. *)
+(* {price, largest} of an optimizer-format path; positions via a Fenwick tree,
+   labels kept as the executor keeps them *)
 pathCostCompiled = Compile[{
 	{labels, _Integer, 1}, {lengths, _Integer, 1}, {first, _Integer, 1}, {second, _Integer, 1},
 	{dims, _Real, 1}, {output, _Integer, 1}, {holders0, _Integer, 1}

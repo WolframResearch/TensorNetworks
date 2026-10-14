@@ -6,11 +6,7 @@ name = "TensorNetworks"
 PacletDirectoryLoad[name]
 paclet = PacletObject[StringTemplate["``/``"][pub, name]]
 
-(* Build the host Rust library with cargo-wl (WolframResearch/
-   wolfram-rust-library): it compiles the Cotengra cdylib and writes it,
-   together with its generated Functions.wl loader, into
-   TensorNetworks/Binaries/Cotengra-<SystemID>/ per the
-   [package.metadata.wl.pacletinfo] table in Cotengra/Cargo.toml. *)
+(* Build the host Rust library and its WL loader into Binaries/Cotengra-<SystemID>/ *)
 run = RunProcess[
     {"cargo", "wl", "build", "--release"},
     ProcessDirectory -> FileNameJoin[{paclet["Location"], "Cotengra"}]

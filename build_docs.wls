@@ -1,15 +1,11 @@
 #!/usr/bin/env wolframscript
-(* Build the TensorNetworks paclet documentation from the structured markdown
-   in docs/, writing each notebook into the standard paclet layout under
-   Documentation/English/. Modeled on AccessibleColors/build.wls
-   (https://github.com/sw1sh/AccessibleColors/blob/main/build.wls). *)
+(* Build the paclet documentation notebooks from the markdown in docs/ *)
 
 print[args___] := WriteString["stdout", StringJoin[ToString /@ {args}], "\n"]
 
 pacletDir = DirectoryName[ExpandFileName[If[$InputFileName === "", NotebookFileName[], $InputFileName]]]
 
-(* MarkdownToNotebook is not on the public Function Repository yet, so use
-   its public cloud deployment. *)
+(* MarkdownToNotebook is not in the public Function Repository yet *)
 mtn = ResourceFunction[ResourceObject["https://www.wolframcloud.com/obj/nikm/DeployedResources/Function/MarkdownToNotebook"]]
 
 (* load the paclet so example cells resolve its symbols during evaluation *)

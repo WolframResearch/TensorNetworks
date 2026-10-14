@@ -1,19 +1,15 @@
-(* Setup *)
 Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
 
-(* Pin RNG seed so the parity numbers are reproducible across runs. *)
 SeedRandom[11];
 
 randomTensor[d__] := RandomReal[{-1, 1}, {d}]
 
 makeNet[tensors_, indices_] := ToTensorNetworkGraph[TensorNetwork[tensors, indices]]
 
-(* Nets carry Real32 weights, so parity with the Real64 array contraction is
-   float-precision, not exact. *)
+(* Nets compute in Real32, so parity is to float precision *)
 netTolerance = 10^-6
 
-(* Leaf-container routes agree with the plain route to machine precision, not
-   exactly: the conversion reorders the arithmetic. *)
+(* Container routes match the plain route to machine precision: conversion reorders arithmetic *)
 containerTolerance = 10^-10
 
 netParity[net_, path_] := Block[{ref, g},
@@ -31,8 +27,7 @@ netParity[net_, path_] := Block[{ref, g},
 containerHeads[expr_] :=
     DeleteDuplicates[Head /@ Cases[expr, _NumericArray | _SparseArray | _SymmetrizedArray, All, Heads -> True]]
 
-(* The leaf containers are materialized back so that only the structure of the
-   contraction expression is compared with the one the plain method gives. *)
+(* Leaves back to lists, so only the expression structure is compared *)
 materializeLeaves[expr_] :=
     expr /. {c_NumericArray :> Normal[c], c_SparseArray :> Normal[c], c_SymmetrizedArray :> Normal[c]}
 
@@ -54,10 +49,7 @@ singleNet = makeNet[{randomTensor[2, 3]}, {{1, 2}}];
 (* "NetGraph" method registration                                      *)
 (* ------------------------------------------------------------------ *)
 
-(* $TensorNetworkContractionMethods is the list of INTERCHANGEABLE ARRAY
-   ENGINES: every entry has to activate to the same array, which is what the
-   reference page example and any user code that loops over the list rely on.
-   "NetGraph" returns a net, so it is a Method value but not a member. *)
+(* The methods list is interchangeable array engines; "NetGraph" gives a net, so is not listed *)
 
 VerificationTest[
     {$TensorNetworkContractionMethods, MemberQ[$TensorNetworkContractionMethods, "NetGraph"]},
@@ -85,13 +77,8 @@ VerificationTest[
 (* The trailing transpose keeps its head                               *)
 (* ------------------------------------------------------------------ *)
 
-(* This path leaves the free indices in the wrong order, so the result carries a
-   trailing transpose - the one place the "TransposeFunction" option is spliced
-   into the returned inactive expression.  Inactive HOLDS its argument, so a head
-   that is looked up rather than substituted lexically survives as a private
-   symbol, and the expression then activates to that unevaluated head wrapped
-   around the UN-transposed array, with no message and no $Failed.  The whole
-   engine list is checked, since the splice happens once for all of them. *)
+(* This path ends in a transpose, the one place "TransposeFunction" is spliced in;
+   Inactive holds, so a head not substituted lexically survives as a private symbol *)
 
 transposePath = {{1, 2}, {1, 2}};
 
@@ -110,17 +97,13 @@ VerificationTest[
     TestID -> "TransposeFunction_ActivatesToContractedValue"
 ]
 
-(* A caller-supplied "TransposeFunction" reaches the result rather than being
-   silently discarded. *)
 VerificationTest[
     Head @ TensorNetworkContraction[chainNet, transposePath, "TransposeFunction" -> myTranspose],
     Inactive[myTranspose],
     TestID -> "TransposeFunction_CustomHeadIsKept"
 ]
 
-(* The trailing transpose is a node of the contraction tree; a head that failed
-   to substitute matches no node rule, falls through to the leaf rule and
-   collapses the whole tree to a rank-0 leaf. *)
+(* An unsubstituted transpose head would collapse the tree to a rank-0 leaf *)
 VerificationTest[
     With[{tree = ContractionTree[TensorNetworkContraction[chainNet, transposePath]]},
         {TreeSize[tree] > 2, MatchQ[TreeData[tree], ArraySymbol["T", {_Integer, _Integer}]]}
@@ -152,9 +135,7 @@ VerificationTest[
     TestID -> "NetGraphParity_Rank3TwoContractedIndices"
 ]
 
-(* The contracted indices sit at positions 1 and 3 of the first tensor, so the
-   pre-dot permutation fixes the trailing level; a PermutationList without the
-   explicit rank would come back too short here. *)
+(* Contracted legs 1 and 3 leave the last level fixed: PermutationList needs the explicit rank *)
 VerificationTest[
     netParity[interleavedNet, {{1, 2}}] < netTolerance,
     True,
@@ -182,8 +163,7 @@ VerificationTest[
     TestID -> "NetGraphParity_TwoPathsAgree"
 ]
 
-(* A fully contracted network has a rank-0 result, where the pair lowering has
-   to dot vectors instead of reshaping to matrices. *)
+(* Rank-0 result: the pair lowering dots vectors instead of reshaping to matrices *)
 VerificationTest[
     Block[{g = TensorNetworkContraction[scalarNet, {{1, 2}}, Method -> "NetGraph"]},
         Head[g] === NetGraph && Abs[g[] - TensorNetworkContract[scalarNet, {{1, 2}}]] < netTolerance
@@ -200,16 +180,14 @@ VerificationTest[
     TestID -> "NetGraphParity_FullyContractedPair"
 ]
 
-(* A single-tensor network never reaches a pair handler: the leaf is lifted by
-   the trailing step. *)
+(* One tensor: no pair step; the trailing step lifts the leaf *)
 VerificationTest[
     netParity[singleNet, {}] < netTolerance,
     True,
     TestID -> "NetGraphParity_SingleTensor"
 ]
 
-(* Free indices in a different order than the contraction leaves them exercise
-   the trailing transpose, which for a net is an appended TransposeLayer. *)
+(* Reordered free indices: the net gets an appended TransposeLayer *)
 VerificationTest[
     NetExtract[TensorNetworkContraction[rank3Net, {{1, 2}}, Method -> "NetGraph"], "Output"],
     Dimensions[N @ Normal @ TensorNetworkContract[rank3Net, {{1, 2}}]],
@@ -332,17 +310,14 @@ VerificationTest[
     TestID -> "LeafContainer_ListLeavesAreLists"
 ]
 
-(* The path-free EinsteinSummation route converts its leaves too. *)
+(* The path-free EinsteinSummation route converts leaves too *)
 VerificationTest[
     containerHeads @ TensorNetworkContraction[pairNet, Method -> {"TensorContract", "LeafContainer" -> "NumericArray"}],
     {NumericArray},
     TestID -> "LeafContainer_NoPathRoute"
 ]
 
-(* Compute-native containers still activate to the same value.  Agreement is
-   to a tolerance, not bit for bit: routing the leaves through a different
-   container reorders the arithmetic, and a sparse Dot lands on a different
-   last bit from a dense one on some platforms. *)
+(* Compute-native containers activate to the same value, to a tolerance: containers reorder arithmetic *)
 VerificationTest[
     Table[
         Max @ Abs @ Flatten[
@@ -355,12 +330,7 @@ VerificationTest[
     TestID -> "LeafContainer_ActivatedValue"
 ]
 
-(* TensorNetworkContract is the EAGER entry point and must return an array for
-   every engine and every leaf container.  A storage-only container such as
-   NumericArray has no ArrayDot, Dot or TensorContract rule, so without
-   materializing the leaves back the contraction expression comes out
-   unevaluated - head ArrayDot, ArrayQ False - with no message and no $Failed,
-   and a caller that Confirms an array propagates a symbolic expression. *)
+(* An array for every container: NumericArray has no ArrayDot rule, so leaves are materialized *)
 VerificationTest[
     Table[
         With[{value = TensorNetworkContract[pairNet, {{1, 2}}, Method -> {method, "LeafContainer" -> container}]},
@@ -415,12 +385,7 @@ VerificationTest[
     TestID -> "LeafContainerFailure_UnknownTypeName"
 ]
 
-(* THE NAME IS NOT A DISPATCH INTO System`.  "Sow", "Print" and "Quit" resolve
-   through NameQ / Symbol exactly as a container name does, and applying one to
-   every leaf tensor has a side effect that silentConstruct - Quiet@Check -
-   suppresses the messages of but not the effect.  "Sow" makes that observable:
-   a Reap around the contraction collects nothing, so no leaf was ever handed to
-   the resolved symbol. *)
+(* A container name is not a dispatch into System`: Sow must never see a leaf *)
 VerificationTest[
     Reap[{
         TensorNetworkContraction[pairNet, {{1, 2}}, Method -> {"ArrayDot", "LeafContainer" -> "Sow"}],
@@ -431,8 +396,7 @@ VerificationTest[
     TestID -> "LeafContainerFailure_NameIsNotADispatchIntoSystem"
 ]
 
-(* NameQ also accepts string PATTERNS, so a name with a metacharacter would
-   reach Symbol["System`Sp*"]; a literal-membership check is what stops it. *)
+(* NameQ accepts string patterns, so "Sp*" needs a literal membership check *)
 VerificationTest[
     {
         TensorNetworkContraction[pairNet, {{1, 2}}, Method -> {"ArrayDot", "LeafContainer" -> "Sp*"}],
@@ -460,12 +424,7 @@ VerificationTest[
 
 
 
-(* A fully contracted leaf is a scalar, and the materialization route is called
-   on it.  ArrayMaterialize answers for containers and is left unevaluated by
-   anything else, so an unguarded call leaves an inert ArrayMaterialize[...] in
-   the value, which then poisons every expression built from it - QuantumFramework
-   state preparation returned Re[Sqrt[ArrayMaterialize[...] Conjugate[...]]]
-   instead of a fidelity of 1. *)
+(* A fully contracted leaf is a scalar: materializing it must not leave an inert ArrayMaterialize *)
 VerificationTest[
     arrayContainerMaterialize[0.5 - 0.25 I],
     0.5 - 0.25 I,

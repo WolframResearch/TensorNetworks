@@ -359,14 +359,7 @@ MetricTensor[name : _String[___]] := MetricTensor[name, {}]
 
 MetricTensor[{name_String, params___}, args___] := MetricTensor[name[params], args]
 
-(* squareMatrixQ reads its shape from Wolfram/Arrays, so it now holds for the
-   explicit containers whose shape is introspectable but on which Inverse and
-   Det do not evaluate - NumericArray, ByteArray, Tabular and the other storage
-   wrappers.  Admitting one and keeping it wrapped built a MetricTensor that
-   satisfied MetricTensorQ but whose "MatrixRepresentation" and "Determinant"
-   came back as unevaluated Inverse and Det heads, so such a container is
-   materialized into the metric it stands for.  Structured arrays and symbolic
-   heads are left alone: they invert and take determinants natively. *)
+(* Storage wrappers can't Inverse or Det: materialize them. Structured and symbolic arrays stay. *)
 
 MetricTensor[matrix_ ? squareMatrixQ] /; ArrayExplicitQ[matrix] && ! ArrayQ[matrix] :=
     MetricTensor[ArrayMaterialize[matrix]]

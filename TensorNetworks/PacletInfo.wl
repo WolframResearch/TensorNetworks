@@ -10,13 +10,7 @@ PacletObject[
     "Version" -> "1.1.0",
     "WolframVersion" -> "14.3+",
     "PrimaryContext" -> "Wolfram`TensorNetworks`",
-    (* 1.4.2 is a floor, not a preference: the IndexArray subcontext delegates
-       its shape and structural operations to this paclet, and three of its
-       shape rules were only settled there by 1.4.2 - the gradient of a rank-0
-       operand under Inactive[D], the shape of a list whose leaves are symbolic
-       containers, and a structural node over operands of symbolic size, such
-       as the transpose of an n x m ArraySymbol.  Against earlier versions they
-       come back wrong quietly. *)
+    (* 1.4.2 floor: earlier versions give IndexArray wrong shapes, silently *)
     "Dependencies" -> {{"Wolfram/Arrays", "1.4.2+"}},
     "Extensions" -> {
       {

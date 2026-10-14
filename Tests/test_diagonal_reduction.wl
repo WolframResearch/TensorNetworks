@@ -1,10 +1,4 @@
-(* Tests/test_diagonal_reduction.wl
-
-   Diagonal reduction (Kernel/DiagonalReduction.wl): a tensor whose entries
-   vanish wherever two of its legs differ loses one of the two, and their labels
-   become one.  A reduced network is checked against the network it came from,
-   and the plans Automatic contraction now chooses between - the network as
-   given or reduced, along the greedy path or the sweep - against closed forms. *)
+(* Diagonal reduction: a tensor zero wherever two legs differ drops one, merging their labels *)
 
 Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
 
@@ -13,8 +7,7 @@ Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
 (* The reduction                                                       *)
 (* ------------------------------------------------------------------ *)
 
-(* A CZ gate between Hadamards, legs out1, out2, in1, in2: each wire's two
-   labels become one, and the gate keeps its diagonal on the two wires. *)
+(* CZ between Hadamards (legs out1, out2, in1, in2) reduces to its diagonal on the two wires *)
 cz = ArrayReshape[DiagonalMatrix[{1, 1, 1, -1}], {2, 2, 2, 2}];
 hadamard = {{1, 1}, {1, -1}};
 czTensors = {{1, 0}, {1, 0}, hadamard, hadamard, cz, hadamard};
@@ -41,14 +34,12 @@ VerificationTest[
     TestID -> "DiagonalReduction_SparseAndMachineAgree"
 ]
 
-(* Two labels the output names both cannot become one. *)
 VerificationTest[
     diagonalReduction[{DiagonalMatrix[{1, 2}]}, {{x, y}}, {x, y}],
     None,
     TestID -> "DiagonalReduction_OutputPairRefused"
 ]
 
-(* When one of them is in the output, it names the merged label. *)
 VerificationTest[
     diagonalReduction[{DiagonalMatrix[{1, 2}], {3, 4}}, {{x, y}, {x}}, {y}],
     {{{1, 2}, {3, 4}}, {{y}, {y}}},
@@ -67,8 +58,7 @@ VerificationTest[
     TestID -> "DiagonalReduction_ThreeLegDelta"
 ]
 
-(* A wire of phase gates whose two ends the output names: every gate but one
-   reduces, the one that keeps both ends apart. *)
+(* Phase gates on a wire whose ends are both output: all but one gate reduce *)
 phase[t_] := DiagonalMatrix[{1, Exp[I t]}];
 
 VerificationTest[
@@ -79,9 +69,7 @@ VerificationTest[
     TestID -> "DiagonalReduction_OperatorWireKeepsOneGate"
 ]
 
-(* Three thousand gates on one wire, each listing its new label first, as a
-   circuit does: every merge can put the wire's class under a new root, and a
-   recursive union-find nested once per gate. *)
+(* 3000 gates on one wire, new label first: union-find must not recurse once per gate *)
 longWire = Table[N @ phase[k / 3000], {k, 3000}];
 
 VerificationTest[
@@ -103,9 +91,7 @@ VerificationTest[
     TestID -> "DiagonalReduction_LongStateWire"
 ]
 
-(* Columns of nonzero positions are gathered by their sums weighted by row
-   before they are compared: legs 1, 3, 4 and 5 here share a sum, but only
-   1 and 5, and 3 and 4, are equal. *)
+(* Legs 1, 3, 4, 5 share a row-weighted column sum, but only 1 = 5 and 3 = 4 *)
 collision = SparseArray[
     {{1, 2, 1, 1, 1, 2}, {1, 1, 2, 2, 1, 1}, {1, 2, 2, 2, 1, 2}, {2, 2, 2, 2, 2, 2}, {2, 2, 1, 1, 2, 2}} -> {2, 3, 5, 7, 11},
     ConstantArray[2, 6]
@@ -119,9 +105,7 @@ VerificationTest[
     TestID -> "DiagonalReduction_WeightedSumCollision"
 ]
 
-(* Random networks of sparse integer tensors, some of whose legs are planted
-   equal, with an output drawn from their labels: the reduced network has the
-   value the network has. *)
+(* Random sparse integer networks with planted equal legs: reduction keeps the value *)
 plantedNetwork[seed_] := BlockRandom[SeedRandom[seed]; Module[{names, dims, labels, tensors, out},
     names = Symbol["dr" <> ToString[#]] & /@ Range[6];
     dims = AssociationThread[names, RandomChoice[{2, 3}, 6]];
@@ -161,14 +145,8 @@ VerificationTest[
 (* Automatic plans                                                     *)
 (* ------------------------------------------------------------------ *)
 
-(* Grover search on n wires for the all-ones item, r rounds, built the way
-   QuantumFramework builds it: Hadamards on |0...0>, then the oracle - a
-   diagonal on every wire - and the diffusion, H X CZ X H, with the
-   multi-controlled Z a second diagonal.  A diagonal is given either as a
-   2n-leg gate between the wires' old and new labels, or on the wires' labels
-   themselves.  The marked amplitude after r rounds is
-   (-1)^r Sin[(2 r + 1) ArcSin[2^(-n/2)]]: H X CZ X H is minus the textbook
-   diffusion. *)
+(* Grover for the all-ones item, diagonals as 2n-leg gates or on the wire labels;
+   H X CZ X H is minus the textbook diffusion, hence the (-1)^r *)
 grover[n_, r_, onWireLabels_, numeric_] := Module[{v = ConstantArray[0, n], w, tensors = {}, labels = {}, layer, diagonal},
     w[q_] := Subscript[gw, q, v[[q]]];
     layer[m_] := Do[With[{old = w[q]}, v[[q]]++; AppendTo[tensors, numeric[m]]; AppendTo[labels, {w[q], old}]], {q, n}];
@@ -197,43 +175,35 @@ grover[n_, r_, onWireLabels_, numeric_] := Module[{v = ConstantArray[0, n], w, t
 
 markedAmplitude[n_, r_] := (-1)^r Sin[(2 r + 1) ArcSin[2^(-n / 2)]]
 
-(* What a plan that went wrong would do is run out of memory, so each
-   contraction is bounded, and gives $Failed instead. *)
+(* A bad plan runs out of memory, so each contraction is bounded to $Failed *)
 boundedAmplitude[net_, n_] := TimeConstrained[
     MemoryConstrained[Normal[TensorNetworkContract[net]][[Sequence @@ ConstantArray[2, n]]], 2 10^9, $Failed],
     60,
     $Failed
 ]
 
-(* On the wires' labels every gate between two diagonals shares a label with
-   the gate across from it, and the greedy optimizer, scoring such a join
-   free, makes products that carry every wire: 2^35 entries for 8 wires and
-   12 rounds, which TensorNetworks 1.1.0 ran out of memory on.  The sweep
-   keeps one state of 2^8 entries. *)
+(* On wire labels greedy builds products over every wire; the sweep keeps one 2^n state *)
 VerificationTest[
     Abs[boundedAmplitude[grover[8, 12, True, Identity], 8] - markedAmplitude[8, 12]] < 10^-12,
     True,
     TestID -> "AutomaticPlan_GroverOnWireLabels_Exact"
 ]
 
-(* As 2n-leg gates of machine numbers the diagonals reduce, to the network on
-   the wires' labels. *)
+(* Machine-number 2n-leg diagonals reduce to the wire-label network *)
 VerificationTest[
     Abs[boundedAmplitude[grover[8, 3, False, N], 8] - markedAmplitude[8, 3]] < 10^-12,
     True,
     TestID -> "AutomaticPlan_GroverReduced_Machine"
 ]
 
-(* Exact ones are not reduced, and are swept. *)
+(* Exact ones are not reduced, but swept *)
 VerificationTest[
     Abs[boundedAmplitude[grover[8, 12, False, Identity], 8] - markedAmplitude[8, 12]] < 10^-12,
     True,
     TestID -> "AutomaticPlan_GroverSwept_Exact"
 ]
 
-(* Along the greedy path, which the sweep replaced above, the exact Grover
-   search runs through products of 2^16 entries; as rational multiples of
-   radicals they took 41 s, as integers times one factor per leaf 2 s. *)
+(* Exact Grover along the greedy path: fast only with leaves as scaled integer arrays *)
 VerificationTest[
     With[{net = grover[8, 12, False, Identity]},
         Abs[

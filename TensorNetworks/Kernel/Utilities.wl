@@ -30,20 +30,14 @@ toTensor[t_ ? TensorQ] := t
 toTensor[t_] := {t}
 
 
-(* Array containers that TensorDimensions does not know (NumericArray and the
-   wrapper containers) fall back to the container route below, which prefers
-   Wolfram/Arrays when that paclet is present. *)
+(* containers TensorDimensions doesn't know fall back to the container route below *)
 tensorDimensions[t_] := Replace[TensorDimensions[t], Except[_List] :> If[arrayContainerQ[t], arrayContainerDimensions[t], {}]]
 
 
 tensorRank[t_] := Length @ tensorDimensions[t]
 
 
-(* Constructors of nets and of array containers report low-level errors
-   (FunctionLayer::compilerr, NumericArray::nonnum, ...) that name none of the
-   objects the caller of this paclet passed in.  Construction goes through
-   silentConstruct so that every failure surfaces as a paclet-level message
-   naming the offending tensor and the reason instead. *)
+(* construct quietly: failures become paclet messages naming the tensor *)
 SetAttributes[silentConstruct, HoldFirst]
 
 silentConstruct[expr_] := Quiet @ Check[expr, $Failed]
@@ -54,23 +48,15 @@ silentConstruct[expr_] := Quiet @ Check[expr, $Failed]
 
 arrayContainerQ[t_] := TrueQ @ ArrayContainerQ[t]
 
-(* An array with values to compute on now: neither a lazy form waiting for its
-   parameters nor a symbolic one that has none. *)
+(* has values now: neither lazy nor symbolic *)
 arrayExplicitQ[t_] := TrueQ @ ArrayExplicitQ[t]
 
 arrayContainerDimensions[t_] := Replace[ArrayDimensions[t], Except[{___Integer}] :> {}]
 
-(* ArrayMaterialize answers for containers and is left unevaluated by anything
-   else, so a scalar handed to it survives into arithmetic as an inert
-   ArrayMaterialize[...] and poisons every expression built from it.  This
-   route is called on tensors that may already be scalars - a fully contracted
-   leaf is one - so it is total by construction, as the Normal fallback it
-   replaced was. *)
+(* non-containers (scalars too) pass through: ArrayMaterialize would stay unevaluated on them *)
 arrayContainerMaterialize[t_] := If[arrayContainerQ[t], ArrayMaterialize[t], t]
 
-(* Compute-nativeness - does the container run Dot and elementwise arithmetic
-   without materializing - is what decides whether a leaf container can be
-   handed to an evaluated contraction at all. *)
+(* compute-native: runs Dot and elementwise arithmetic without materializing *)
 arrayComputeNativeQ[t_] := TrueQ @ ArrayComputeNativeQ[t]
 
 
@@ -122,9 +108,7 @@ symbolicTensorDimensions[Inactive[ArrayDot][a_, b_, indices : {{_Integer, _Integ
 	Delete[symbolicTensorDimensions[b], List /@ indices[[All, 2]]]
 ]
 symbolicTensorDimensions[SymbolicDeltaProductArray[dims_List, _]] := dims
-(* A contraction step with a rank-0 operand is a product with a scalar, written
-   Inactive[Times] so that activating it keeps the array's shape; it has the
-   shape of its array factor. *)
+(* a rank-0 step operand gives Inactive[Times], shaped like its array factor *)
 symbolicTensorDimensions[Inactive[Times][factors__]] := Last @ SortBy[symbolicTensorDimensions /@ {factors}, Length]
 symbolicTensorDimensions[t_ ? TensorQ] := TensorDimensions[t]
 (* Transpose with Cycles permutation - permute dimensions accordingly *)

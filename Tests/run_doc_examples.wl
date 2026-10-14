@@ -45,10 +45,7 @@ Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`IndexArray`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 
-(* Pre-warm the cotengrust library. The first call into a Rust-backed
-   function (e.g. GreedyContractionPath) lazily loads the prebuilt library
-   package from Binaries/Cotengra-<SystemID>/. Triggering the lazy load now
-   keeps the per-input timeouts honest. *)
+(* Load the Rust library now, so its lazy load does not eat into an example's timeout *)
 GreedyContractionPath[{{1}}, {}, <|1 -> 2|>];
 
 (* Netcon C++ LibraryLink is in hibernation per user directive (2026-05-05).
@@ -60,16 +57,8 @@ $NetconHibernated = {
   "TensorNetworkFindContractionPath"     (* deprecated; internally calls Netcon *)
 };
 
-(* Examples whose notebooks are stale: each emits a deliberate validation
-   message that the stored notebook has no Message cell for, so the page has
-   to be regenerated - its inputs evaluated again and its Output and Message
-   cells written anew.  An entry, {"Page", input} -> {"Sym::tag", ...}, holds
-   the exact message names the example emits today; any other outcome,
-   including a pass, fails, so the list cannot go stale.  It is empty: the 19
-   examples it held on TableauShape, TableauSize, YoungSymmetrize,
-   TensorNetworkGraphQ, TensorNetworkQ and YoungTableauQ were regenerated,
-   and the "Quiet FailureQ[...]" typo on the first three, a product where
-   "Quiet @ FailureQ[...]" was meant, corrected. *)
+(* Stale examples, {"Page", input} -> {"Sym::tag", ...}, the exact messages each emits;
+   any other outcome, even a pass, fails, so the list cannot go stale *)
 $AwaitingRegeneration = <||>;
 
 (* Name "sym::tag" of a message recorded in $MessageList. *)

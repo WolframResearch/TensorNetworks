@@ -7,9 +7,7 @@ set -e
 ZIG_VERSION="0.13.0"
 MACOS_SDK_VERSION="12.3"
 
-# Primary then fallback mirrors. ziglang.org is sometimes very slow from the
-# Wolfram Engine container in GitHub Actions, so we try a community mirror
-# (machengine.org / hryx.net) before giving up.
+# ziglang.org can be very slow from CI; fall back to community mirrors
 ZIG_TARBALL="zig-linux-x86_64-${ZIG_VERSION}.tar.xz"
 ZIG_URLS=(
     "https://ziglang.org/download/${ZIG_VERSION}/${ZIG_TARBALL}"
@@ -21,10 +19,7 @@ MACOS_SDK_URLS=(
     "https://github.com/joseluisq/macosx-sdks/releases/download/${MACOS_SDK_VERSION}/MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz"
 )
 
-# Robust download: bail out on stalled connections, fall through to mirrors.
-# --max-time caps the whole transfer; --speed-limit/--speed-time aborts if
-# the download trickles below 100 KB/s for 30 s. Failures fall through to the
-# next URL.
+# Try each URL in turn, aborting stalled transfers
 fetch() {
     local dest="$1"
     shift
@@ -49,14 +44,14 @@ fetch /tmp/zig.tar.xz "${ZIG_URLS[@]}"
 tar -xJ -C /opt/zig --strip-components=1 -f /tmp/zig.tar.xz
 rm -f /tmp/zig.tar.xz
 
-# Download macOS SDK (provides Frameworks/* and usr/lib/libiconv.tbd, libSystem.tbd, ...)
+# Download macOS SDK (frameworks and libiconv/libSystem stubs)
 echo "Downloading macOS SDK ${MACOS_SDK_VERSION}..."
 mkdir -p /opt/macos-sdk
 fetch /tmp/macos-sdk.tar.xz "${MACOS_SDK_URLS[@]}"
 tar -xJ -C /opt/macos-sdk -f /tmp/macos-sdk.tar.xz
 rm -f /tmp/macos-sdk.tar.xz
 
-# The tarball extracts to MacOSX${VERSION}.sdk/. Symlink to a stable name.
+# Stable SDK path for the build scripts
 ln -sfn "/opt/macos-sdk/MacOSX${MACOS_SDK_VERSION}.sdk" /opt/macos-sdk/MacOSX.sdk
 
 echo "Cross-compilation setup complete!"
