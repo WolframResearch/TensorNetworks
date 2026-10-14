@@ -10,7 +10,7 @@ env:
 jobs:
   Submit:
     name: Submit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: wolframresearch/wolframengine:latest
       options: --user root
@@ -20,7 +20,7 @@ jobs:
     # - run: apt-get update && apt-get install -y git-lfs
     - name: Checkout
       id: checkout-code-step
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
       with:
         lfs: false
     - name: Submit

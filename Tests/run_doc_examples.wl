@@ -57,6 +57,11 @@ $NetconHibernated = {
   "TensorNetworkFindContractionPath"     (* deprecated; internally calls Netcon *)
 };
 
+(* Inputs that need a front end, skipped where TN_DOC_EXAMPLES_FRONTEND is 0, as in CI:
+   the "Hypergraph" property loads WolframInstitute/Hypergraph, which starts one *)
+$frontEndQ = Environment["TN_DOC_EXAMPLES_FRONTEND"] =!= "0";
+frontEndBoxQ[box_] := ! $frontEndQ && ! FreeQ[box, s_String /; StringContainsQ[s, "Hypergraph"]]
+
 (* Stale examples, {"Page", input} -> {"Sym::tag", ...}, the exact messages each emits;
    any other outcome, even a pass, fails, so the list cannot go stale *)
 $AwaitingRegeneration = <||>;
@@ -84,6 +89,8 @@ $pageContextPath = DeleteCases[$ContextPath, "Global`"];
 
 (* Outcome of evaluating one input box. Messages the example emits must be
    among the ones documented after its Input cell. *)
+evalInput[box_, documented_List, issueQ_] /; frontEndBoxQ[box] := <|"Outcome" -> "NoFrontEnd", "Messages" -> {}|>
+
 evalInput[box_, documented_List, issueQ_] := Block[{expr, parseMsgs, val, msgs},
   {expr, parseMsgs} = Block[{$MessageList = {}, $Messages = {}},
     {ToExpression[box, StandardForm, HoldComplete], DeleteDuplicates[messageName /@ $MessageList]}
@@ -111,7 +118,7 @@ evalInput[box_, documented_List, issueQ_] := Block[{expr, parseMsgs, val, msgs},
 evalCell[{boxes_List, documented_List, issueQ_}] := With[
   {results = evalInput[#, documented, issueQ] & /@ boxes},
   With[{missing = Complement[documented, Union @@ Lookup[results, "Messages"]]},
-    If[missing === {} || Last[results]["Outcome"] =!= "OK",
+    If[missing === {} || Last[results]["Outcome"] =!= "OK" || MemberQ[Lookup[results, "Outcome"], "NoFrontEnd"],
       results,
       Append[Most[results],
         <|Last[results], "Outcome" -> "DocumentedMessageNotEmitted: " <> ToString[missing]|>]
@@ -162,7 +169,7 @@ evalPage[nbPath_String] := Block[
   ];
   failures = MapIndexed[
     Function[{outcome, idx},
-      If[MatchQ[outcome, "OK" | "Regenerate"], Nothing,
+      If[MatchQ[outcome, "OK" | "Regenerate" | "NoFrontEnd"], Nothing,
         <|"InputIndex" -> idx[[1]], "Outcome" -> outcome|>]
     ],
     results
@@ -172,6 +179,7 @@ evalPage[nbPath_String] := Block[
     "Failed" -> Length[failures],
     "Failures" -> failures,
     "Regenerate" -> Flatten[Position[results, "Regenerate"]],
+    "NoFrontEnd" -> Count[results, "NoFrontEnd"],
     "Skipped" -> False|>
 ];
 
@@ -190,12 +198,14 @@ skipped       = Count[reports, _?(#["Skipped"] === True &)];
 failedPages   = Select[reports, #["Failed"] > 0 &];
 stalePages    = Select[reports, Length[Lookup[#, "Regenerate", {}]] > 0 &];
 totalStale    = Total[Length[Lookup[#, "Regenerate", {}]] & /@ reports];
+totalNoFE     = Total[Lookup[#, "NoFrontEnd", 0] & /@ reports];
 
 Print[""];
 printHeader["Summary"];
 Print[bold, "  Pages:     ", totalPages, reset];
 Print[bold, "  Examples:  ", totalExamples, reset];
-Print[green, "  Passed:    ", totalExamples - totalFailed - totalStale, reset];
+Print[green, "  Passed:    ", totalExamples - totalFailed - totalStale - totalNoFE, reset];
+If[totalNoFE > 0, Print[yellow, "  Skipped:   ", totalNoFE, " (need a front end)", reset]];
 If[totalStale > 0,
   Print[yellow, "  Awaiting regeneration: ", totalStale, " (documented message missing from the stored notebook)", reset];
   Scan[Print[yellow, "    ", #["Page"], " inputs ", #["Regenerate"], reset] &, stalePages]
@@ -217,8 +227,12 @@ If[totalFailed > 0,
     failedPages
   ];
   Quit[1],
-  printSuccess[If[totalStale > 0,
-    "No failures; " <> ToString[totalStale] <> " of " <> ToString[totalExamples] <> " examples await regeneration of their pages.",
-    "All " <> ToString[totalExamples] <> " examples passed."]];
+  printSuccess[Which[
+    totalStale > 0,
+      "No failures; " <> ToString[totalStale] <> " of " <> ToString[totalExamples] <> " examples await regeneration of their pages.",
+    totalNoFE > 0,
+      "No failures; " <> ToString[totalNoFE] <> " of " <> ToString[totalExamples] <> " examples skipped for want of a front end.",
+    True,
+      "All " <> ToString[totalExamples] <> " examples passed."]];
   Quit[0]
 ]
