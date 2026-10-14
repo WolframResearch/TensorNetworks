@@ -1,46 +1,33 @@
 #!/usr/bin/env wolframscript
-(* Build the paclet documentation notebooks from the markdown in docs/ *)
+(* Build the documentation notebooks from the markdown in docs/ with PacletPage's
+   BuildPacletDocumentation: wolframscript -f build_docs.wls [docs/....md ...]
+   Needs a front end, so it runs locally; CI runs the pages' examples instead *)
 
-print[args___] := WriteString["stdout", StringJoin[ToString /@ {args}], "\n"]
+repo = DirectoryName[ExpandFileName[$InputFileName]]
 
-pacletDir = DirectoryName[ExpandFileName[If[$InputFileName === "", NotebookFileName[], $InputFileName]]]
+(* PacletPage's public paclet resource; it converts with MarkdownToNotebook's public deployment,
+   which installs Wolfram/Parser for LaTeX itself *)
+pacletPage = ResourceObject["https://www.wolframcloud.com/obj/wolframinstitute/DeployedResources/Paclet/WolframInstitute/PacletPage"]
 
-(* MarkdownToNotebook is not in the public Function Repository yet *)
-mtn = ResourceFunction[ResourceObject["https://www.wolframcloud.com/obj/nikm/DeployedResources/Function/MarkdownToNotebook"]]
+If[ FailureQ[PacletInstall[pacletPage]] || FailureQ[PacletInstall["Wolfram/Arrays"]],
+    Print["FATAL: cannot install PacletPage or Wolfram/Arrays"]; Exit[1]
+]
+Needs["WolframInstitute`PacletPage`"]
 
-(* load the paclet so example cells resolve its symbols during evaluation *)
-PacletDirectoryLoad[FileNameJoin[{pacletDir, "TensorNetworks"}]]
-Needs["Wolfram`TensorNetworks`"]
-Needs["Wolfram`TensorNetworks`IndexArray`"]
-Needs["Wolfram`TensorNetworks`Symmetry`"]
+files = ExpandFileName /@ Rest[$ScriptCommandLine]
 
-subdir["Symbol"] = {"Documentation", "English", "ReferencePages", "Symbols"}
-subdir["Guide"] = {"Documentation", "English", "Guides"}
-subdir["TechNote"] = {"Documentation", "English", "Tutorials"}
-
-buildDoc[srcFile_String] := Block[{info, tmpl, name, dir, out},
-    info = mtn[srcFile, "Association"];
-    tmpl = info["Template"];
-    name = info["Metadata"]["Name"];
-    If[ Head[subdir[tmpl]] === subdir,
-        print["  [skip] ", FileNameTake[srcFile], " - unknown Template: ", tmpl];
-        Return[Null]
-    ];
-    dir = FileNameJoin[Prepend[subdir[tmpl], FileNameJoin[{pacletDir, "TensorNetworks"}]]];
-    Quiet @ CreateDirectory[dir, CreateIntermediateDirectories -> True];
-    out = FileNameJoin[{dir, name <> ".nb"}];
-    mtn[srcFile, out];
-    print["  ", FileNameTake[srcFile], " -> TensorNetworks/", FileNameJoin[subdir[tmpl]], "/", name, ".nb"]
+result = BuildPacletDocumentation[FileNameJoin[{repo, "TensorNetworks"}],
+    "Source" -> FileNameJoin[{repo, "docs"}],
+    (* the committed ResourceDefinition.nb is the definition *)
+    "Definition" -> None,
+    "Files" -> If[files === {}, All, files],
+    (* code the examples run, part of their cache key *)
+    "Dependencies" -> {"Wolfram/Arrays"}
 ]
 
-print["building TensorNetworks documentation"]
-Scan[buildDoc, Sort @ FileNames["*.md", FileNameJoin[{pacletDir, "docs"}], Infinity]]
-
-(* paclet-repository submission notebook at the paclet root *)
-rd = FileNameJoin[{pacletDir, "ResourceDefinition.md"}]
-If[ FileExistsQ[rd],
-    mtn[rd, FileNameJoin[{pacletDir, "TensorNetworks", "ResourceDefinition.nb"}]];
-    print["  ResourceDefinition.md -> TensorNetworks/ResourceDefinition.nb"]
+If[ ! AssociationQ[result] || result["Failed"] =!= {},
+    Print["FATAL: pages did not convert: ", If[AssociationQ[result], result["Failed"], result]];
+    Exit[1]
 ]
 
-print["done"]
+Print["done: ", Short[KeyDrop[result, "Failed"], 3]]
