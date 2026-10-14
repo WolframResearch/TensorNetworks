@@ -5,6 +5,7 @@ Package["Wolfram`TensorNetworks`"]
 PackageExport[TensorNetwork]
 PackageExport[TensorNetworkQ]
 PackageExport[TensorNetworkData]
+PackageScope[tensorNetworkData]
 PackageExport[TensorNetworkSize]
 PackageExport[TensorNetworkContractions]
 
@@ -218,11 +219,10 @@ TensorNetworkProp[tn_, "Contractions"] := TensorNetworkContractions[tn]
 
 TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ, key_String] := tn["Data"][key]
 
-TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := With[{
-    tensors = tn["Tensors"],
-    hyperedges = tn["Hyperedges"],
-    freeIndices = tn["FreeIndices"]
-}, {
+TensorNetworkData[tn_TensorNetwork ? TensorNetworkQ] := tensorNetworkData[tn["Tensors"], tn["Hyperedges"], tn["FreeIndices"]]
+
+(* a network's data from its parts, without constructing the network *)
+tensorNetworkData[tensors_List, hyperedges_List, freeIndices_] := With[{
     indices = MapIndexed[Thread[Superscript[First[#2], #1]] &, hyperedges],
     dimensions = tensorDimensions /@ tensors
 }, {

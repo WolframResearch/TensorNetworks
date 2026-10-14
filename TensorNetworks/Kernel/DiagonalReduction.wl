@@ -1,13 +1,24 @@
 Package["Wolfram`TensorNetworks`"]
 
 PackageScope[diagonalReduction]
+PackageScope[diagonalReductionGroups]
+PackageScope[applyDiagonalReduction]
 
 
 (* Diagonal reduction (cotengra's diagonal_reduce): legs a tensor is diagonal in share one label.
    diagonalReduction[tensors, labels, output] gives {tensors, labels}, or None if nothing reduces.
    Two output labels are never merged. *)
 
-diagonalReduction[tensors_List, labels_List, output_List] := Module[{
+diagonalReduction[tensors_List, labels_List, output_List] := Replace[diagonalReductionGroups[tensors, labels, output], {
+    {groups_, reducedLabels_} :> {applyDiagonalReduction[tensors, groups], reducedLabels},
+    _ -> None
+}]
+
+diagonalReduction[___] := None
+
+(* {leg groups per tensor, reduced labels}, or None: the reduction without its tensors,
+   to apply again to new values with the same nonzero patterns *)
+diagonalReductionGroups[tensors_List, labels_List, output_List] := Module[{
     groups, distinct, labelIds, outputIds, classes, representative
 },
     groups = MapThread[diagonalGroups, {tensors, labels}];
@@ -29,17 +40,14 @@ diagonalReduction[tensors_List, labels_List, output_List] := Module[{
     representative = Range[Length[distinct]];
     Scan[(representative[[#]] = First[Join[Intersection[#, outputIds], #]]) &, classes];
 
-    Transpose @ MapThread[
-        Function[{tensor, tensorIds, tensorGroups},
-            With[{kept = keptLegs[Length[tensorIds], tensorGroups]},
-                {
-                    If[tensorGroups === {}, tensor, diagonalTensor[tensor, tensorGroups, kept]],
-                    distinct[[representative[[tensorIds[[kept]]]]]]
-                }
-            ]
-        ],
-        {tensors, labelIds, groups}
-    ]
+    {groups, MapThread[distinct[[representative[[#1[[keptLegs[Length[#1], #2]]]]]]] &, {labelIds, groups}]}
+]
+
+diagonalReductionGroups[___] := None
+
+applyDiagonalReduction[tensors_List, groups_List] := MapThread[
+    If[#2 === {}, #1, diagonalTensor[#1, #2, keptLegs[ArrayDepth[#1], #2]]] &,
+    {tensors, groups}
 ]
 
 (* Label classes: connected components of the labels each group joins *)
@@ -129,4 +137,3 @@ diagonalTensor[tensor_, groups_, kept_] := With[{
     Transpose[tensor, position[Lookup[representative, #, #]] & /@ Range[ArrayDepth[tensor]]]
 ]
 
-diagonalReduction[___] := None

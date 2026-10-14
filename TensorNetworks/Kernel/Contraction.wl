@@ -909,8 +909,18 @@ einsteinSummationContraction[tensors_, indices_, freeIndices_, methodSpec_, inac
 		]
 	]
 
-(* Automatic plan: {network (given or reduced), tree path}; not canonicalized (quadratic) *)
-automaticPlan[data_, method_] := With[{parameters = extractContractionParameters[data]},
+(* Automatic plan: {network (given or reduced), tree path}; not canonicalized (quadratic).
+   Cached by shape, so a network applied to new values replans only when its shape changes;
+   a reduced plan is kept as its leg groups and labels, reapplied to the new values. *)
+automaticPlan[data_, method_] := With[{key = planKey[data, method]},
+	Replace[Lookup[$planCache, Key[key], Missing[]], {
+		{"Given", tree_} :> {data, tree},
+		{"Reduced", groups_, labels_, tree_} :> {reducedForm[data, groups, labels], tree},
+		_ :> With[{plan = freshPlan[data, method]}, If[ListQ[plan], rememberPlan[key, plan]]; plan]
+	}]
+]
+
+freshPlan[data_, method_] := With[{parameters = extractContractionParameters[data]},
 	If[ MatchQ[parameters, {_List, _List, _Association}],
 		Replace[cheapestPlan[data, parameters, method], {
 			{form_Association, raw_} :> {form, PathToTreePath[raw, form["Vertices"]]},
@@ -919,6 +929,27 @@ automaticPlan[data_, method_] := With[{parameters = extractContractionParameters
 		$Failed
 	]
 ]
+
+$planCache = <||>
+
+rememberPlan[key_, {form_, tree_}] := (
+	$planCache[key] = If[KeyExistsQ[form, "Reduction"], {"Reduced", form["Reduction"], form["Hyperedges"], tree}, {"Given", tree}];
+	If[Length[$planCache] > 64, $planCache = Rest[$planCache]]
+)
+
+reducedForm[data_, groups_, labels_] :=
+	Append[tensorNetworkData[applyDiagonalReduction[data["Tensors"], groups], labels, data["FreeIndices"]], "Reduction" -> groups]
+
+(* all a plan depends on: labels, output, method, and per leaf its shape, container, precision
+   and nonzero pattern; the patterns as hashes *)
+planKey[data_, method_] := {method, data["Hyperedges"], data["FreeIndices"], leafSignature /@ data["Tensors"]}
+
+(* a SparseArray's pattern is its stored CSR structure, canonical, and ~100x faster to hash than its positions *)
+leafSignature[t_SparseArray] := {SparseArray, Dimensions[t], Precision[t], numericLeafQ[t], t["Background"], Hash[{t["RowPointers"], t["ColumnIndices"]}]}
+
+leafSignature[t_List] := {List, Dimensions[t], Precision[t], numericLeafQ[t], If[ArrayQ[t, _, NumericQ], Hash[Unitize[t]], None]}
+
+leafSignature[t_] := {Head[t], Quiet[Dimensions[t]], Precision[t], numericLeafQ[t]}
 
 (* Default: greedy over the given network. If that's expensive, also price half-weight greedy,
    the sweep and, on machine numbers, both over the diagonal-reduced network; take the cheapest
@@ -968,13 +999,13 @@ formPlans[form_, parameters : {input_, _, _}, costInput_, method_, includeDefaul
 reducedPlans[data_, method_] := With[{
 	reduction = If[
 		ListQ[data["Hyperedges"]] && Min[Precision /@ data["Tensors"]] === MachinePrecision && AllTrue[data["Tensors"], numericLeafQ],
-		diagonalReduction[data["Tensors"], data["Hyperedges"], data["FreeIndices"]],
+		diagonalReductionGroups[data["Tensors"], data["Hyperedges"], data["FreeIndices"]],
 		None
 	]
 },
 	If[ reduction === None,
 		{},
-		With[{form = Quiet @ TensorNetworkData[TensorNetwork[First[reduction], Last[reduction], data["FreeIndices"]]]},
+		With[{form = reducedForm[data, First[reduction], Last[reduction]]},
 			With[{parameters = If[AssociationQ[form], extractContractionParameters[form], $Failed]},
 				If[ MatchQ[parameters, {_List, _List, _Association}] && AllTrue[Values[Last[parameters]], IntegerQ],
 					formPlans[form, parameters, pathCostInput[parameters], method, True],

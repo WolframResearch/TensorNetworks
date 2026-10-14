@@ -217,3 +217,26 @@ VerificationTest[
     True,
     TestID -> "ExactLeaves_GroverGreedyPath"
 ]
+
+(* Plans are cached by shape: new diagonal values reuse the reduced plan; a new initial state, or
+   a diagonal gate made dense, replans. Each must match the explicit greedy path, which bypasses
+   the cache - a reduction reused on the dense gate would take only its diagonal *)
+VerificationTest[
+    With[{net = grover[8, 3, False, N]},
+        TensorNetworkContract[net];
+        With[{
+            reweighted = TensorNetwork[
+                BlockRandom[SeedRandom[7]; If[ArrayDepth[#] == 16, # RandomReal[{0.5, 1.5}, Dimensions[#]], #] & /@ net["Tensors"]],
+                net["Hyperedges"], net["Output"]],
+            restated = TensorNetwork[Replace[net["Tensors"], {1., 0.} -> {0.6, 0.8}, {1}], net["Hyperedges"], net["Output"]],
+            densified = TensorNetwork[
+                ReplacePart[net["Tensors"], First[Position[ArrayDepth /@ net["Tensors"], 16]] -> BlockRandom[SeedRandom[8]; RandomReal[{-1, 1}, ConstantArray[2, 16]]]],
+                net["Hyperedges"], net["Output"]]
+        },
+            Max[Abs[Flatten[Normal[TensorNetworkContract[#]] - Normal[TensorNetworkContract[#, GreedyContractionPath[#]]]]]] < 10^-10 & /@
+                {reweighted, restated, densified}
+        ]
+    ],
+    {True, True, True},
+    TestID -> "AutomaticPlan_CachedByShape"
+]
