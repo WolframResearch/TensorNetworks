@@ -4,6 +4,7 @@ Name: TableauRows
 Context: Wolfram`TensorNetworks`Symmetry`
 Paclet: Wolfram/TensorNetworks
 URI: Wolfram/TensorNetworks/ref/TableauRows
+NewIn: 1.0
 Keywords: [Young tableau, rows, symmetry, partition]
 SeeAlso: [TableauColumns, TableauShape, TableauSize, YoungTableau]
 RelatedGuides: [TensorNetworks]

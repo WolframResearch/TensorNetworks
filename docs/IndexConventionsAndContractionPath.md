@@ -5,6 +5,7 @@ Title: Index conventions and contraction path
 Context: Wolfram`TensorNetworks`
 Paclet: Wolfram/TensorNetworks
 URI: Wolfram/TensorNetworks/tutorial/IndexConventionsAndContractionPath
+NewIn: 1.0
 Keywords: [index conventions, contraction path, einsum, EinsteinSummation, TensorContract, ArrayDot, operand, leg, bond, hyperedge, broadcasting, IndexedMultiply, ContractionTree]
 RelatedGuides: [TensorNetworks]
 RelatedTutorials: [ContractionPathsAndExecution]

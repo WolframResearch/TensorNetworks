@@ -4,6 +4,7 @@ Name: TableauColumns
 Context: Wolfram`TensorNetworks`Symmetry`
 Paclet: Wolfram/TensorNetworks
 URI: Wolfram/TensorNetworks/ref/TableauColumns
+NewIn: 1.0
 Keywords: [Young tableau, columns, symmetry, partition, transpose]
 SeeAlso: [TableauRows, TableauShape, TransposePartition, YoungTableau]
 RelatedGuides: [TensorNetworks]
