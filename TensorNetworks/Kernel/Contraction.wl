@@ -1022,9 +1022,9 @@ TensorNetworkContraction[
 	   naming each index once, the optimizer available - and EinsteinSummation
 	   is the route everywhere else, as it always was. *)
 	! TrueQ[OptionValue["Inactive"]] && path === Automatic && greedyPlannableQ[data],
-		With[{treePath = greedyTreePath[data, alternativePathQ[tensors, OptionValue[Method]]]},
-			If[ TreePathQ[treePath],
-				TensorNetworkContraction[data, treePath, opts],
+		With[{plan = automaticPlan[data, OptionValue[Method]]},
+			If[ MatchQ[plan, {_Association, _ ? TreePathQ}],
+				TensorNetworkContraction[First[plan], Last[plan], opts],
 				einsteinSummationContraction[tensors, indices, freeIndices, OptionValue[Method], TrueQ[OptionValue["Inactive"]]]
 			]
 		],
@@ -1046,76 +1046,155 @@ einsteinSummationContraction[tensors_, indices_, freeIndices_, methodSpec_, inac
 (* The optimizer's own path goes straight to a tree.  A canonical path is the
    same tree with its steps renumbered, and renumbering is quadratic in the
    number of tensors - a third of the planning time on a 216-tensor circuit - so
-   a path that is only ever executed is not canonicalized. *)
-greedyTreePath[data_, alternativeQ_] := With[{parameters = extractContractionParameters[data]},
+   a path that is only ever executed is not canonicalized.  An Automatic plan is
+   a network - the one given, or the one diagonal reduction makes of it - and a
+   tree path over it. *)
+automaticPlan[data_, method_] := With[{parameters = extractContractionParameters[data]},
 	If[ MatchQ[parameters, {_List, _List, _Association}],
-		With[{raw = If[alternativeQ, cheaperGreedyPath[parameters], GreedyContractionPath @@ parameters]},
-			If[ PathQ[raw] && Count[raw, {_, _}] + 1 === Length[data["Vertices"]],
-				PathToTreePath[raw, data["Vertices"]],
-				$Failed
-			]
-		],
+		Replace[cheapestPlan[data, parameters, method], {
+			{form_Association, raw_} :> {form, PathToTreePath[raw, form["Vertices"]]},
+			_ -> $Failed
+		}],
 		$Failed
 	]
 ]
 
-(* The greedy optimizer's default weighs a step's result against its operands
-   one to one, which keeps intermediates small and suits a circuit simulated
-   gate by gate: weighing the operands half as much makes a 20-qubit QFT five
-   times slower.  It does not suit everything.  On a 20-qubit Trotter circuit,
-   a 20-qubit brickwork of 4 layers or an MPS overlap of bond dimension 128, the
-   half-weight path moves less data and contracts 1.3 to 3.8 times faster, and
-   no fixed weight is right for both kinds.
+(* The default plan is the greedy optimizer's path over the network as given.
+   Where that path is expensive enough for more planning to be cheap beside it,
+   other plans are made too, all are priced in what this executor pays, and the
+   cheapest is contracted:
 
-   So where the default path is expensive enough for a second plan to be cheap
-   beside it, the half-weight path is planned too, and both are priced in what
-   this executor pays: the elements a step moves - both operands and the
-   result, twice over for an array of more than 2^20 elements, which has left
-   the cache - plus its multiply-adds at a seventieth, the rate of a BLAS
-   product against a move.  The cheaper is contracted, but never one whose
-   largest intermediate is more than four times the default's, which keeps a
-   mispriced path from becoming a memory blowup.  Of 46 circuits, MPS,
-   lattices, random regular graphs and brickworks, 8 took the half-weight path,
-   seven of them 1.3 to 3.8 times faster and the eighth even, and the rest were
-   within timing noise of the default, planning included: the set took 11.8 s
-   against 13.5 s.  The second plan and both prices add 4 ms to the planning of
-   a 20-qubit QFT, whose contraction takes 370 ms.
+   - The half-weight greedy path.  The default weighs a step's result against
+     its operands one to one, which keeps intermediates small and suits a
+     circuit simulated gate by gate: weighing the operands half as much makes a
+     20-qubit QFT five times slower.  But on a 20-qubit Trotter circuit, a
+     20-qubit brickwork of 4 layers or an MPS overlap of bond dimension 128 the
+     half-weight path moves less data and contracts 1.3 to 3.8 times faster.
 
-   The prices hold for this executor on machine numbers only: a product of
-   exact or symbolic entries has no BLAS rate, and a SparseArray kept sparse
-   moves no dense blocks.  Anywhere else the default path is taken, as before. *)
+   - The sweep: every tensor absorbed, in the order given, into one product.
+     A network built step by step - a circuit gate by gate - keeps one state
+     that each step acts on, where the greedy optimizer joins small tensors
+     first; along it the 8-qubit Grover search QuantumFramework contracts, of
+     exact tensors, takes 0.21 s against 12.5 s along the greedy path.
+
+   - The same plans over the diagonal-reduced network (DiagonalReduction.wl),
+     whose tensors are smaller - a diagonal gate on k wires holds 2^k entries
+     there, not 4^k.  Its indices are shared by three tensors and more, and the
+     greedy optimizer misjudges those: it scores two gates on either side of a
+     diagonal, which share its index, as free to join (the product is as large
+     as the two together), joins such pairs along every wire before reaching
+     the diagonal, and builds products that carry every wire's indices - 2^35
+     entries on that Grover search, where the network as given peaks at 2^16.
+     So the reduced network is never contracted unpriced.  Reduced, the
+     20-qubit Trotter quench QuantumFramework contracts - ZZ rotations, 4-leg
+     diagonals, between X rotations - priced 2^20.4 against 2^28.3 and
+     contracted in 0.07 s against 3.8 s.
+
+   The price is the elements each step moves - both operands and the result,
+   twice over for an array of more than 2^20 elements, which has left the
+   cache - plus its multiply-adds at a seventieth, the rate of a BLAS product
+   against a move.  No plan whose largest intermediate is more than four times
+   the default's is taken, which keeps a mispriced one from becoming a memory
+   blowup.  The prices were measured on machine numbers; on exact ones they
+   rank the same way - on that Grover search the sweep priced 2^20.8 against
+   the greedy path's 2^25.5 - and since an exact element costs a hundred times
+   a machine one to compute, planning starts from a lower price there.  Of 46
+   circuits, MPS, lattices, random regular graphs and brickworks of machine
+   numbers, the half-weight path took 8, seven of them 1.3 to 3.8 times faster
+   and the eighth even, the sweep took two lattices, 1.3 and 1.5 times faster,
+   and the rest stayed within timing noise of the default, planning included.
+   The half-weight path is planned on machine numbers only,
+   as it was measured; every plan here, on the default engine with the leaf
+   containers left to it, which the prices describe. *)
+cheapestPlan[data_, parameters : {input_, _, sizes_}, method_] := With[{default = GreedyContractionPath @@ parameters},
+	Which[
+		! fullPathQ[default, input],
+			$Failed,
+		Length[input] < 8 || ! AllTrue[Values[sizes], IntegerQ] || ! plannedEngineQ[method],
+			{data, default},
+		True,
+			With[{costInput = pathCostInput[parameters]},
+				With[{defaultCost = pathCost[default, costInput]},
+					(* Further plans cost about as much as the first; they are made
+					   only when the contraction they may shorten outweighs them
+					   many times. *)
+					If[ First[defaultCost] <= planningThreshold[data["Tensors"]] Length[input],
+						{data, default},
+						(* Ordering, not MinimalBy, whose first use in a kernel
+						   loads for a quarter of a second; the first of equal
+						   prices is the default. *)
+						With[{plans = Select[
+							Join[
+								{{data, default, defaultCost}},
+								formPlans[data, parameters, costInput, method, False],
+								reducedPlans[data, method]
+							],
+							Last[Last[#]] <= 4 Last[defaultCost] &
+						]},
+							Most @ plans[[First @ Ordering[plans[[All, 3, 1]], 1]]]
+						]
+					]
+				]
+			]
+	]
+]
+
+(* The priced plans of one network, {network, path, {price, largest}}: its
+   sweep, its half-weight greedy path on machine numbers, and with
+   includeDefault its default greedy path. *)
+formPlans[form_, parameters : {input_, _, _}, costInput_, method_, includeDefault_] :=
+	{form, #, pathCost[#, costInput]} & /@ Select[
+		Join[
+			If[includeDefault, {GreedyContractionPath @@ parameters}, {}],
+			If[alternativePathQ[form["Tensors"], method], {GreedyContractionPath[Sequence @@ parameters, "MemoryWeight" -> 0.5]}, {}],
+			{sweepPath[Length[input]]}
+		],
+		fullPathQ[#, input] &
+	]
+
+(* The plans of the diagonal-reduced network, when anything in it reduces -
+   on machine numbers only.  Its indices shared by three tensors and more are
+   contracted in batch steps, which on machine numbers are dense products the
+   prices describe, but on exact ones are a product per batch entry of
+   SparseArrays the prices do not see: the reduced form of the exact 14-qubit
+   QFT priced cheaper and contracted in 210 ms against 141 ms. *)
+reducedPlans[data_, method_] := With[{
+	reduction = If[
+		ListQ[data["Hyperedges"]] && Min[Precision /@ data["Tensors"]] === MachinePrecision && AllTrue[data["Tensors"], numericLeafQ],
+		diagonalReduction[data["Tensors"], data["Hyperedges"], data["FreeIndices"]],
+		None
+	]
+},
+	If[ reduction === None,
+		{},
+		With[{form = Quiet @ TensorNetworkData[TensorNetwork[First[reduction], Last[reduction], data["FreeIndices"]]]},
+			With[{parameters = If[AssociationQ[form], extractContractionParameters[form], $Failed]},
+				If[ MatchQ[parameters, {_List, _List, _Association}] && AllTrue[Values[Last[parameters]], IntegerQ],
+					formPlans[form, parameters, pathCostInput[parameters], method, True],
+					{}
+				]
+			]
+		]
+	]
+]
+
+(* The sweep in the optimizer's format, where each step removes its operands
+   and appends their product: the first two tensors, then the first remaining
+   one with that product, last in the list. *)
+sweepPath[n_Integer] := Prepend[Table[{1, m}, {m, n - 1, 2, -1}], {1, 2}]
+
+fullPathQ[path_, input_] := PathQ[path] && Count[path, {_, _}] + 1 === Length[input]
+
+plannedEngineQ[method_] := contractionMethodName[method] === "ArrayDot" && leafContainerAutomaticQ[method]
+
+planningThreshold[tensors_] := If[Min[Precision /@ tensors] === MachinePrecision, 2.^16, 2.^10]
+
 alternativePathQ[tensors_, method_] :=
 	contractionMethodName[method] === "ArrayDot" &&
 		leafContainerAutomaticQ[method] &&
 		Min[Precision /@ tensors] === MachinePrecision &&
 		AllTrue[tensors, numericLeafQ] &&
 		AllTrue[tensors, ! MatchQ[#, _SparseArray] || #["Density"] >= $denseFill &]
-
-cheaperGreedyPath[parameters : {input_, _, sizes_}] := With[{default = GreedyContractionPath @@ parameters},
-	If[ ! PathQ[default] || Length[input] < 8 || ! AllTrue[Values[sizes], IntegerQ],
-		default,
-		With[{costInput = pathCostInput[parameters]},
-			With[{defaultCost = pathCost[default, costInput]},
-				(* A second plan costs about as much as the first; it is made only
-				   when the contraction it may shorten outweighs it many times. *)
-				If[ First[defaultCost] <= 2.^16 Length[input],
-					default,
-					With[{alternative = GreedyContractionPath[Sequence @@ parameters, "MemoryWeight" -> 0.5]},
-						If[ PathQ[alternative] && Length[alternative] === Length[default],
-							With[{alternativeCost = pathCost[alternative, costInput]},
-								If[ First[alternativeCost] < First[defaultCost] && Last[alternativeCost] <= 4 Last[defaultCost],
-									alternative,
-									default
-								]
-							],
-							default
-						]
-					]
-				]
-			]
-		]
-	]
-]
 
 (* The labels of each leaf as dense integers, without the labels its settling
    sums - those only it carries that the output lacks - with each label's
