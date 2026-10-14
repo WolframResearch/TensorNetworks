@@ -81,10 +81,9 @@ The two layers compose. `YoungSymmetrize` is two `Symmetrize` calls (`Symmetric 
 
 ## Setup
 
-Load the paclet and pull the Symmetry functions into scope; both `Needs` are assumed in every subsequent cell. The `tol` constant sets the numerical tolerance for "is this tensor identity satisfied?" checks throughout.
+Pull the paclet's functions into scope; both `Needs` are assumed in every subsequent cell. The `tol` constant sets the numerical tolerance for "is this tensor identity satisfied?" checks throughout.
 
 ```wl
-PacletDirectoryLoad["/path/to/TensorNetworks"];
 Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 

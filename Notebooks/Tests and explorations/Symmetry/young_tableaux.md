@@ -22,10 +22,9 @@ Four concrete payoffs land in later sections, each one phrased here in language 
 
 These four are not separate tricks. They are *one* construction (replace an $n$-qubit problem with one independent problem per Young-diagram block) read with four different physical questions in mind. The rest of this note builds the machinery in the order each payoff needs it: partitions and diagrams (the language), hook-length and hook-content formulas (the block sizes), projection operators built from a single tableau (how to land a state in one block), and worked quantum-state examples that realize each of the four payoffs above.
 
-Load the paclet and pull the Symmetry subcontext into scope; both `Needs` are assumed in every subsequent cell.
+Pull the Symmetry subcontext into scope; both `Needs` are assumed in every subsequent cell.
 
 ```wl
-PacletDirectoryLoad["/path/to/TensorNetworks"];
 Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 ```

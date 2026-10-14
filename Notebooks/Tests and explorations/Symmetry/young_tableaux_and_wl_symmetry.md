@@ -4,10 +4,9 @@ A Young tableau in the paclet's `` Wolfram`TensorNetworks`Symmetry` `` subcontex
 
 ## Loading the symmetry subcontext
 
-The Young-tableau symbols live in a subcontext of the TensorNetworks paclet, so we load the paclet and pull both contexts into scope. Every later cell assumes these three lines have run.
+The Young-tableau symbols live in a subcontext of the TensorNetworks paclet, so we pull both contexts into scope. Every later cell assumes these two lines have run.
 
 ```wl
-PacletDirectoryLoad["/path/to/TensorNetworks"];
 Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 ```

@@ -27,7 +27,6 @@ Load the paclet and the Symmetry subcontext. The Symmetry subcontext exports
 `TableauDimension`, `YoungSymmetrize`, and `YoungProject`.
 
 ```wolfram
-PacletDirectoryLoad["/path/to/TensorNetworks"];
 Needs["Wolfram`TensorNetworks`"];
 Needs["Wolfram`TensorNetworks`Symmetry`"];
 ```
