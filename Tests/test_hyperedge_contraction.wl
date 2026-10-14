@@ -517,3 +517,74 @@ VerificationTest[
     True,
     TestID -> "Automatic_HalfWeightPath_SameValue"
 ]
+
+
+(* ------------------------------------------------------------------ *)
+(* Exact leaves as scaled integer arrays                               *)
+(* ------------------------------------------------------------------ *)
+
+(* An evaluated contraction takes an exact leaf whose values are rational
+   multiples of one of them as that value times integers.  The random networks
+   above, each tensor times a factor of its own - a radical, a fraction, a
+   sum of them - against the oracle, which multiplies the factors in as given.
+   The two sides may spell one algebraic number differently, so each is
+   evaluated to 30 digits and the two compared: the difference of two
+   spellings is a zero N cannot certify. *)
+scaledNetwork[seed_] := BlockRandom[SeedRandom[seed + 1000]; Module[{tensors, labels, out, dims},
+    {tensors, labels, out, dims} = randomNetwork[seed];
+    {RandomChoice[{1/Sqrt[2], 2/3, Sqrt[3]/5, 1 + Sqrt[2], 1, -7/4}] # & /@ tensors, labels, out, dims}
+]];
+
+scaledDisagreements[route_, seeds_] := Select[
+    seeds,
+    Function[seed, Module[{tensors, labels, out, dims, value},
+        {tensors, labels, out, dims} = scaledNetwork[seed];
+        value = Quiet @ Check[Normal[route[TensorNetwork[tensors, labels, out]]], $Failed];
+        ! TrueQ[value =!= $Failed && Max[Abs[Flatten[{N[value, 30] - N[oracle[tensors, labels, out, dims], 30]}]]] < 10^-25]
+    ]]
+]
+
+VerificationTest[
+    scaledDisagreements[TensorNetworkContract, Range[120]],
+    {},
+    TestID -> "ExactLeaves_ScaledOracle_Automatic"
+]
+
+VerificationTest[
+    scaledDisagreements[TensorNetworkContract[#, GreedyContractionPath[#]] &, Range[120]],
+    {},
+    TestID -> "ExactLeaves_ScaledOracle_GreedyPath"
+]
+
+VerificationTest[
+    scaledDisagreements[
+        TensorNetworkContract[TensorNetwork[If[ArrayQ[#], SparseArray[#], #] & /@ #["Tensors"], #["Hyperedges"], #["Output"]]] &,
+        Range[80]
+    ],
+    {},
+    TestID -> "ExactLeaves_ScaledOracle_SparseLeaves"
+]
+
+(* A leaf whose ratios are not all rational is left as it is - a phase gate
+   E^(I Pi/4) - and so is one with a symbol in it; the value is the product
+   all the same. *)
+VerificationTest[
+    {
+        Normal[TensorNetworkContract[TensorNetwork[
+            {{1, 1} / Sqrt[2], DiagonalMatrix[{1, Exp[I Pi / 4]}], {{1, 1}, {1, -1}} / Sqrt[2]},
+            {{a}, {b, a}, {c, b}},
+            {c}
+        ]]] - {{1, 1}, {1, -1}} . DiagonalMatrix[{1, Exp[I Pi / 4]}] . {1, 1} / 2 // Simplify,
+        Normal[TensorNetworkContract[TensorNetwork[{{{p, q}, {r, s}}, {{1, 1}, {1, -1}} / Sqrt[2]}, {{a, b}, {b, c}}, {a, c}]]] -
+            {{p, q}, {r, s}} . {{1, 1}, {1, -1}} / Sqrt[2] // Simplify
+    },
+    {{0, 0}, {{0, 0}, {0, 0}}},
+    TestID -> "ExactLeaves_UnscaledLeavesKept"
+]
+
+(* A network contracted to a number: the factors multiply the scalar. *)
+VerificationTest[
+    TensorNetworkContract[TensorNetwork[{{1, 0}, {{1, 1}, {1, -1}} / Sqrt[2], {{1, 1}, {1, -1}} / Sqrt[2], {1, 0}}, {{a}, {a, b}, {b, c}, {c}}, {}]],
+    1,
+    TestID -> "ExactLeaves_ScalarResult"
+]

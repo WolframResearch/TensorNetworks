@@ -230,3 +230,20 @@ VerificationTest[
     True,
     TestID -> "AutomaticPlan_GroverSwept_Exact"
 ]
+
+(* Along the greedy path, which the sweep replaced above, the exact Grover
+   search runs through products of 2^16 entries; as rational multiples of
+   radicals they took 41 s, as integers times one factor per leaf 2 s. *)
+VerificationTest[
+    With[{net = grover[8, 12, False, Identity]},
+        Abs[
+            TimeConstrained[
+                MemoryConstrained[Normal[TensorNetworkContract[net, GreedyContractionPath[net]]][[Sequence @@ ConstantArray[2, 8]]], 2 10^9, $Failed],
+                60,
+                $Failed
+            ] - markedAmplitude[8, 12]
+        ] < 10^-12
+    ],
+    True,
+    TestID -> "ExactLeaves_GroverGreedyPath"
+]
