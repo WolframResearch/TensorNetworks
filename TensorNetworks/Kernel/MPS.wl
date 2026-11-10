@@ -27,7 +27,8 @@ Options[svdTruncate] = {"MaxBond" -> Infinity, "Tolerance" -> 0}
 svdTruncate[matrix_, OptionsPattern[]] := Block[{
     u, s, v, svals, maxBond, tol, keep, error, normSq
 },
-    {u, s, v} = SingularValueDecomposition[matrix];
+    (* reduced factors: the full u of a tall matrix is square and mostly discarded *)
+    {u, s, v} = SingularValueDecomposition[matrix, Min[Dimensions[matrix]]];
     svals = Diagonal[s];
     maxBond = OptionValue["MaxBond"];
     tol = OptionValue["Tolerance"];
@@ -115,7 +116,7 @@ mpsLeftCanonical[mps_, opts___] := Block[{
                 matrix = Transpose[newTensors[[i]]];  (* {physical, bond} -> {bond, physical} for SVD *)
                 {u, s, vt, err} = svdTruncate[matrix, opts];
                 newTensors[[i]] = Transpose[u];  (* Back to {bond_new, physical} *)
-                residual = DiagonalMatrix[s] . vt
+                residual = s vt
                 ,
                 (* Bulk tensor: left × right × physical (based on MPS structure) *)
                 (* Reshape to (left × physical) × right *)
@@ -131,7 +132,7 @@ mpsLeftCanonical[mps_, opts___] := Block[{
                     ArrayReshape[u, {leftDim, physDim, Length[s]}],
                     {1, 3, 2}  (* back to left, right, physical *)
                 ];
-                residual = DiagonalMatrix[s] . vt
+                residual = s vt
             ]
             ,
             (* Last tensor - just absorb residual *)
@@ -187,7 +188,7 @@ mpsRightCanonical[mps_, opts___] := Block[{
     output = mps["Output"],
     n, newTensors, residual, t, dims, mat, i,
     u, svals, vt, err, k,
-    leftDim, rightDim, physDim, absorbed
+    leftDim, rightDim, physDim
 },
     n = Length[tensors];
     newTensors = tensors;
@@ -207,11 +208,7 @@ mpsRightCanonical[mps_, opts___] := Block[{
                 t = Transpose[residual] . t,
                 (* Bulk tensor {left, right, phys}: absorb on right index *)
                 (* residual is {old_right, new_right}, t is {left, old_right, phys} *)
-                absorbed = EinsteinSummation[
-                    {{"a", "r", "d"}, {"r", "k"}} -> {"a", "k", "d"},
-                    {t, residual}
-                ];
-                t = ActivateTensors[absorbed]
+                t = Transpose[Transpose[t, {1, 3, 2}] . residual, {1, 3, 2}]
             ];
             newTensors[[i]] = t;
             dims = Dimensions[t]
@@ -227,7 +224,7 @@ mpsRightCanonical[mps_, opts___] := Block[{
                 k = Length[svals];
                 newTensors[[i]] = vt;
                 (* residual = U . S has shape {left, k} *)
-                residual = u . DiagonalMatrix[svals],
+                residual = Transpose[svals Transpose[u]],
                 
                 (* Bulk tensor {left, right, phys}: SVD decomposition *)
                 leftDim = dims[[1]];
@@ -240,7 +237,7 @@ mpsRightCanonical[mps_, opts___] := Block[{
                 (* V† has shape {k, right*phys}, reshape to {k, right, phys} *)
                 newTensors[[i]] = ArrayReshape[vt, {k, rightDim, physDim}];
                 (* residual = U . S has shape {left, k} *)
-                residual = u . DiagonalMatrix[svals]
+                residual = Transpose[svals Transpose[u]]
             ]
         ]
     ];
@@ -283,7 +280,7 @@ mpsLeftCanonicalUpTo[mps_, k_, opts___] := Block[{
                 matrix = Transpose[newTensors[[i]]];
                 {u, s, vt, err} = svdTruncate[matrix, opts];
                 newTensors[[i]] = Transpose[u];
-                residual = DiagonalMatrix[s] . vt
+                residual = s vt
                 ,
                 leftDim = dims[[1]];
                 physDim = dims[[-1]];
@@ -297,7 +294,7 @@ mpsLeftCanonicalUpTo[mps_, k_, opts___] := Block[{
                     ArrayReshape[u, {leftDim, physDim, Length[s]}],
                     {1, 3, 2}
                 ];
-                residual = DiagonalMatrix[s] . vt
+                residual = s vt
             ]
             ,
             (* At site k, just absorb residual but don't SVD *)
@@ -334,7 +331,7 @@ mpsRightCanonicalFrom[mps_, k_, opts___] := Block[{
                 matrix = newTensors[[i]];
                 {u, s, vt, err} = svdTruncate[Transpose[matrix], opts];
                 newTensors[[i]] = Transpose[u];
-                residual = Transpose[DiagonalMatrix[s] . vt]
+                residual = Transpose[s vt]
                 ,
                 leftDim = dims[[1]];
                 rightDim = dims[[2]];
@@ -342,7 +339,7 @@ mpsRightCanonicalFrom[mps_, k_, opts___] := Block[{
                 matrix = ArrayReshape[newTensors[[i]], {leftDim, rightDim * physDim}];
                 {u, s, vt, err} = svdTruncate[Transpose[matrix], opts];
                 newTensors[[i]] = ArrayReshape[Transpose[u], {Length[s], rightDim, physDim}];
-                residual = Transpose[DiagonalMatrix[s] . vt]
+                residual = Transpose[s vt]
             ]
             ,
             (* At site k, absorb residual *)
@@ -461,15 +458,41 @@ isRightIsometry[tensor_, tol_] := Block[{
 (* MPS Overlap (Inner Product)                 *)
 (* ============================================ *)
 
-MPSOverlap[mps1_TensorNetwork ? TensorNetworkQ, mps2_TensorNetwork ? TensorNetworkQ] := Block[{
+MPSOverlap[mps1_TensorNetwork ? TensorNetworkQ, mps2_TensorNetwork ? TensorNetworkQ] /;
+    Length[mps1["Tensors"]] != Length[mps2["Tensors"]] := (Message[MPSOverlap::length]; $Failed)
+
+(* explicit arrays: the transfer matrix moves site by site as two matrix products *)
+MPSOverlap[mps1_TensorNetwork ? TensorNetworkQ, mps2_TensorNetwork ? TensorNetworkQ] /;
+    AllTrue[Join[mps1["Tensors"], mps2["Tensors"]], ArrayQ[#] && 2 <= ArrayDepth[#] <= 3 &] :=
+    Replace[
+        Fold[transferStep, firstTransfer[First[mps1["Tensors"]], Conjugate[First[mps2["Tensors"]]]], Transpose[{Rest[mps1["Tensors"]], Conjugate /@ Rest[mps2["Tensors"]]}]],
+        {{x_}} :> x
+    ]
+
+MPSOverlap[mps1_TensorNetwork ? TensorNetworkQ, mps2_TensorNetwork ? TensorNetworkQ] := mpsOverlapInert[mps1, mps2]
+
+(* first site {bond, physical}: T[b, b'] = sum_d t[b, d] c[b', d] *)
+firstTransfer[t_ ? MatrixQ, c_] := t . Transpose[c]
+
+(* first site {left, right, physical}: its left bond is summed with the bra's *)
+firstTransfer[t_, c_] := ArrayReshape[Transpose[t, {2, 1, 3}], {Dimensions[t][[2]], Times @@ Dimensions[t][[{1, 3}]]}] .
+    ArrayReshape[Transpose[c, {1, 3, 2}], {Times @@ Dimensions[c][[{1, 3}]], Dimensions[c][[2]]}]
+
+(* bulk site {left, right, physical}: X[a', b, d] = T^T . t, then sum a' and d against the bra *)
+transferStep[transfer_, {t_, c_}] /; ArrayDepth[t] == 3 := With[{x = Transpose[transfer] . t},
+    ArrayReshape[Transpose[x, {2, 1, 3}], {Dimensions[x][[2]], Times @@ Dimensions[x][[{1, 3}]]}] .
+        ArrayReshape[Transpose[c, {1, 3, 2}], {Times @@ Dimensions[c][[{1, 3}]], Dimensions[c][[2]]}]
+]
+
+(* last site {left, physical}: the full sum *)
+transferStep[transfer_, {t_, c_}] := Total[(Transpose[transfer] . t) c, 2]
+
+mpsOverlapInert[mps1_, mps2_] := Block[{
     tensors1 = mps1["Tensors"],
     tensors2 = mps2["Tensors"],
     n, transfer, t1, t2, dims1
 },
     n = Length[tensors1];
-    If[n != Length[tensors2],
-        Message[MPSOverlap::length]; Return[$Failed]
-    ];
     
     (* First tensor: {right_bond, physical} - contract over physical *)
     t1 = tensors1[[1]];

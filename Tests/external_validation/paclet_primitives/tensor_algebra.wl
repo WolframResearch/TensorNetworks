@@ -232,17 +232,13 @@ WithCapability[{"EinsteinSummation", "ActivateTensors"}, "paclet-tensor-A12-mult
             SeedRandom[37];
             t = RandomReal[{-1, 1}, {3, 3, 3, 3, 3}];
             (* Trace pairs (a,e) and (c,b) -> result indexed by d *)
-            traced = contract[{{"a", "b", "c", "b", "a"}} -> {"d"}, {t}];
-            (* Wait — confusion. Let me rebuild more carefully.
-               quimb's t.trace(["a","c"],["e","b"]) traces a<->e and c<->b. *)
-            traced = contract[{{"a", "b", "c", "d", "a"}} -> {"d"}, {Total[t, {-1}]}];
-            (* Simpler: full sum over (a=e) AND (c=b), leaving d free *)
+            (* Sum over a = e and b = c, leaving d free *)
             expected = Table[
                 Sum[t[[a, b, c, d, a]] * KroneckerDelta[b, c],
                     {a, 3}, {b, 3}, {c, 3}],
                 {d, 3}
             ];
-            (* contract uses repeated indices to denote contraction *)
+            (* repeated labels a and b are summed *)
             traced = contract[{{"a", "b", "b", "d", "a"}} -> {"d"}, {t}];
             ValidationClose[traced, expected, 1.*^-12]
         ],

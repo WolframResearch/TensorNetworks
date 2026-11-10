@@ -99,7 +99,8 @@ Do[
                 results = report["TestResults"];
 
                 succeeded = Select[Values[results], #["Outcome"] === "Success" &];
-                failed = Select[Values[results], #["Outcome"] === "Failure" &];
+                (* An unexpected message or an evaluation error counts as a failure. *)
+                failed = Select[Values[results], MemberQ[{"Failure", "MessagesFailure", "Error"}, #["Outcome"]] &];
 
                 fileRNG = $ValidationRNGSkipped;
                 fileMissing = $ValidationMissingSkipped;
@@ -123,7 +124,7 @@ Do[
                       "  ", red, "errors: ", Length[fileErrors], reset];
 
                 Scan[Function[v,
-                    Print["        ", red, "FAIL ", v["TestID"], reset];
+                    Print["        ", red, "FAIL ", v["TestID"], " (", v["Outcome"], ")", reset];
                     Print["          expected: ", v["ExpectedOutput"]];
                     Print["          actual:   ", Short[v["ActualOutput"], 100]];
                 ], failed];

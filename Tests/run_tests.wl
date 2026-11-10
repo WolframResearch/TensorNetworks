@@ -55,6 +55,9 @@ filesToRun = Select[filesToRun,
 PacletDirectoryLoad[FileNameJoin[{root, "TensorNetworks"}]];
 Needs["Wolfram`TensorNetworks`"];
 
+(* A test that ends in an unexpected message or an evaluation error is a failure too. *)
+$failedOutcomes = {"Failure", "MessagesFailure", "Error"};
+
 totalPassed = 0;
 totalFailed = 0;
 totalAborted = 0;
@@ -81,7 +84,7 @@ Do[
     ];
     
     filePassed = Count[results, _?(#["Outcome"] === "Success" &)];
-    fileFailed = Count[results, _?(#["Outcome"] === "Failure" &)];
+    fileFailed = Count[results, _?(MemberQ[$failedOutcomes, #["Outcome"]] &)];
     fileAborted = Count[results, _?(#["Outcome"] === "Aborted" &)]; (* Simplified check *)
     
     (* Update Totals *)
@@ -92,8 +95,8 @@ Do[
     If[fileFailed > 0,
         Scan[
             Function[{testObj},
-                If[testObj["Outcome"] === "Failure",
-                   id = testObj["TestID"];
+                If[MemberQ[$failedOutcomes, testObj["Outcome"]],
+                   id = testObj["TestID"] <> " (" <> testObj["Outcome"] <> ")";
                    actual = testObj["ActualOutput"];
                    expected = testObj["ExpectedOutput"];
                    printFailure[ToString[id]];

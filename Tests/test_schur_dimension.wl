@@ -464,7 +464,8 @@ If[failures > 0,
         ],
         {r, results}
     ];
-    Exit[1];
+    (* Exit only when this file is the script being run, not when a runner loads it. *)
+    If[StringEndsQ[First[$ScriptCommandLine, ""], "test_schur_dimension.wl"], Exit[1]];
 ];
 
 Print["All ", Length[results], " tests passed."];

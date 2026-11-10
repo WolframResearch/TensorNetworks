@@ -28,15 +28,21 @@ TensorNetworkFindContractionPath[net_, opts : OptionsPattern[]] := (
     ]
 )
 
+(* labels summed in a pair: those both operands carry, unless an explicit output keeps them.
+   Select, not DeleteElements: ~20x faster on short label lists. *)
+contractedLabels[i_, j_, Automatic] := Select[DeleteDuplicates[i], MemberQ[j, #] &]
+
+contractedLabels[i_, j_, out_] := DeleteElements[DeleteDuplicates @ Join[i, j], out]
+
 einsumArrayDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
-	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
+	c = contractedLabels[i, j, out],
 	k, perm,
 	al, br, x, y,
 	aIndex = First /@ PositionIndex[i], bIndex = First /@ PositionIndex[j],
 	inactive = If[inactiveQ, Function[f, Inactive[f][##] &], Identity]
 },
-	al = DeleteElements[i, c];
-	br = DeleteElements[j, c];
+	al = Select[i, ! MemberQ[c, #] &];
+	br = Select[j, ! MemberQ[c, #] &];
 	k = Length[c];
 	If[ k == 0
 		,
@@ -53,13 +59,13 @@ einsumArrayDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Bl
 ]
 
 einsumArrayDotTranspose[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
-	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
+	c = contractedLabels[i, j, out],
 	k, perm,
 	al, br, x, y,
 	inactive = If[inactiveQ, Function[f, Inactive[f][##] &], Identity]
 },
-	al = DeleteElements[i, c];
-	br = DeleteElements[j, c];
+	al = Select[i, ! MemberQ[c, #] &];
+	br = Select[j, ! MemberQ[c, #] &];
 	k = Length[c];
 	If[ k == 0
 		,
@@ -80,14 +86,14 @@ einsumArrayDotTranspose[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : Fal
 ]
 
 einsumTensorContract[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
-	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
+	c = contractedLabels[i, j, out],
 	k, perm,
 	al, br, x,
 	aIndex = First /@ PositionIndex[i], bIndex = First /@ PositionIndex[j],
 	inactive = If[inactiveQ, Function[f, Inactive[f][##] &], Identity]
 },
-	al = DeleteElements[i, c];
-	br = DeleteElements[j, c];
+	al = Select[i, ! MemberQ[c, #] &];
+	br = Select[j, ! MemberQ[c, #] &];
 	k = Length[c];
 	If[ k == 0
 		,
@@ -109,7 +115,7 @@ einsumTensorContract[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False]
 ]
 
 einsumDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
-	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
+	c = contractedLabels[i, j, out],
 	k, perm,
 	al, br, x, y,
 	inactive = If[inactiveQ, Function[f, Inactive[f][##] &], Identity],
@@ -118,8 +124,8 @@ einsumDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
 	reshape
 },
 	reshape[t_, newShape_] := If[symbolicTensorDimensions[t] === newShape, t, inactive[ArrayReshape][t, newShape]];
-	al = DeleteElements[i, c];
-	br = DeleteElements[j, c];
+	al = Select[i, ! MemberQ[c, #] &];
+	br = Select[j, ! MemberQ[c, #] &];
 	k = Length[c];
 	If[ k == 0,
 		x = inactive[TensorProduct][a, b]
@@ -147,7 +153,7 @@ einsumDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
 ]
 
 einsumTableSum[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
-	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
+	c = contractedLabels[i, j, out],
 	k, perm,
 	al, br, x, y,
 	inactive = If[inactiveQ, Function[f, Inactive[f][##] &], Identity],
@@ -155,8 +161,8 @@ einsumTableSum[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Bl
 	aDim = symbolicTensorDimensions[a], bDim = symbolicTensorDimensions[b]
 },
 	
-	al = DeleteElements[i, c];
-	br = DeleteElements[j, c];
+	al = Select[i, ! MemberQ[c, #] &];
+	br = Select[j, ! MemberQ[c, #] &];
 	k = Length[c];
 	
 	(* a and b are inlined directly into Part[a, ...] / Part[b, ...]; the previous
@@ -314,12 +320,12 @@ netEvaluate[net_NetGraph] := Block[{ports = Information[net, "InputPorts"]},
 
 (* inactiveQ unused: the net is already the lazy form *)
 einsumNetGraph[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
-	c = DeleteElements[DeleteDuplicates @ Join[i, j], Replace[out, Automatic :> SymmetricDifference[i, j]]],
+	c = contractedLabels[i, j, out],
 	al, br, x, perm,
 	neta, netb, adim, bdim, ac, bc, ai, bj, ad, bd, reshape, reshapea, reshapeb, perma, permb
 },
-	al = DeleteElements[i, c];
-	br = DeleteElements[j, c];
+	al = Select[i, ! MemberQ[c, #] &];
+	br = Select[j, ! MemberQ[c, #] &];
 	neta = toNetTensor[a];
 	netb = toNetTensor[b];
 	adim = netTensorDimensions[neta];
@@ -517,7 +523,8 @@ contractTreePath[treePath_, leaves_Association, output_List, settings_Associatio
     env = Join[settings, <|
         "Holders" -> Counts[Catenate[DeleteDuplicates /@ Values[leaves][[All, 2]]]],
         "Output" -> AssociationThread[output, True],
-        "Dimension" -> labelDimensions[Values[leaves]]
+        "Dimension" -> labelDimensions[Values[leaves]],
+        "MatrixSteps" -> ! settings["Inactive"] && MemberQ[{"ArrayDot", "Dot"}, settings["Method"]]
     |>],
     steps = treeSteps[treePath, AssociationThread[List /@ Keys[leaves], Range[Length[leaves]]]],
     values = AssociationThread[Range[Length[leaves]], Values[leaves]],
@@ -554,16 +561,20 @@ labelDimensions[leaves_List] := Association @ Catenate @ Map[
 
 keptLabelQ[label_, holders_, env_] := holders[label] < env["Holders"][label] || Lookup[env["Output"], label, False]
 
+(* shared labels found once per step; the batch test and the matrix step reuse them *)
 contractStep[{a_, i_, ha_}, {b_, j_, hb_}, env_] := Block[{
-    holders = Merge[{ha, hb}, Total], batch, result
+    holders = Merge[{ha, hb}, Total], shared, batch, result
 },
-    batch = Select[i, MemberQ[j, #] && keptLabelQ[#, holders, env] &];
+    shared = Select[i, KeyExistsQ[hb, #] &];
+    batch = Select[shared, keptLabelQ[#, holders, env] &];
     result = Which[
         batch =!= {},
             contractBatchPair[{a -> i, b -> j}, batch, env],
         (* rank-0 operand: Times keeps the shape; TensorProduct[{-2, -1}, 0] is 0 *)
         ! netGraphMethodQ[env["Method"]] && (i === {} || j === {}),
             {If[env["Inactive"], Inactive[Times][a, b], a b], Join[i, j]},
+        env["MatrixSteps"] && matrixOperandQ[a] && matrixOperandQ[b],
+            If[shared === {}, {TensorProduct[a, b], Join[i, j]}, matrixPair[a, i, b, j, shared]],
         True,
             contractTensorPair[{a -> i, b -> j}, env["PairOptions"]]
     ];
@@ -573,6 +584,54 @@ contractStep[{a_, i_, ha_}, {b_, j_, hb_}, env_] := Block[{
 orderAxes[t_, from_, to_] := With[{perm = FindPermutation[from, to]},
     If[perm === Cycles[{}], t, Transpose[t, perm]]
 ]
+
+
+(* --- an evaluated step as one matrix product --- *)
+
+(* Dot reaches the dense, sparse and exact-integer matrix products only for matrix
+   operands, and ArrayDot rearranges its operands one entry at a time; so each operand
+   is ordered [own, summed] / [summed, other] and reshaped to a matrix. Labels here are
+   unique: settleLeaf and the batch branch have taken repeated and shared-kept ones.
+   Whether a step may use it (evaluated, "ArrayDot" or "Dot") is settled once per contraction. *)
+matrixOperandQ[t_] := (ListQ[t] || SparseArrayQ[t]) && ArrayQ[t]
+
+matrixPair[a_, i_, b_, j_, summed_] := Block[{
+    (* Select, not DeleteElements: ~20x faster on short label lists *)
+    own = Select[i, ! MemberQ[summed, #] &],
+    other = Select[j, ! MemberQ[summed, #] &],
+    da = AssociationThread[i, Dimensions[a]],
+    db = AssociationThread[j, Dimensions[b]],
+    product
+},
+    product = matrixProduct[
+        ArrayReshape[orderAxes[a, i, Join[own, summed]], {Times @@ Lookup[da, own], Times @@ Lookup[da, summed]}],
+        ArrayReshape[orderAxes[b, j, Join[summed, other]], {Times @@ Lookup[db, summed], Times @@ Lookup[db, other]}]
+    ];
+    {
+        If[ own === {} && other === {},
+            product[[1, 1]],
+            ArrayReshape[product, Join[Lookup[da, own], Lookup[db, other]]]
+        ],
+        Join[own, other]
+    }
+]
+
+(* Real times complex: Dot would make the real side complex (four real products per term).
+   Stack the complex side's real and imaginary parts into one real product and recombine;
+   below a summed length of 16 the recombination costs more than it saves. *)
+$splitComplexLength = 16
+
+matrixProduct[x_, y_] /; Length[y] >= $splitComplexLength && Developer`PackedArrayQ[x, Real] && Developer`PackedArrayQ[y, Complex] :=
+    With[{w = x . Join[Re[y], Im[y], 2], n = Last[Dimensions[y]]},
+        w[[All, ;; n]] + I w[[All, n + 1 ;;]]
+    ]
+
+matrixProduct[x_, y_] /; Length[y] >= $splitComplexLength && Developer`PackedArrayQ[x, Complex] && Developer`PackedArrayQ[y, Real] :=
+    With[{w = Join[Re[x], Im[x]] . y, n = Length[x]},
+        w[[;; n]] + I w[[n + 1 ;;]]
+    ]
+
+matrixProduct[x_, y_] := x . y
 
 
 (* --- a leaf's own labels --- *)
@@ -687,6 +746,9 @@ batchPairEager[a_, i_, b_, j_, batch_, env_] := Block[{
         (* nothing summed: an outer product per batch entry; ArrayReshape, not Part, drops the axis *)
         ns == 1,
             batchOuter[ArrayReshape[x, {nb, na}], ArrayReshape[y, {nb, nf}], na, nf],
+        (* tiny blocks: one Dot per entry costs more than one broadcast multiply and sum *)
+        na ns nf <= $batchBroadcastSize,
+            batchBroadcast[ArrayReshape[x, {nb, na, ns}], ArrayReshape[y, {nb, ns, nf}], na, nf],
         True,
             Developer`ToPackedArray[MapThread[Dot, {ArrayReshape[x, {nb, na, ns}], ArrayReshape[y, {nb, ns, nf}]}]]
     ];
@@ -703,6 +765,15 @@ batchOuter[x_, y_, na_, nf_] /; na nf <= 16 && Length[x] >= 4096 := Which[
     na == 1, Transpose[ConstantArray[Flatten[x], nf]] * y,
     nf == 1, x * Transpose[ConstantArray[Flatten[y], na]],
     True, Transpose[ConstantArray[x, nf], {3, 1, 2}] * Transpose[ConstantArray[y, na], {2, 1, 3}]
+]
+
+(* x {nb, na, ns} and y {nb, ns, nf} broadcast to {nb, na, ns, nf}, summed over ns;
+   measured faster than per-entry Dot up to blocks of 16 entries *)
+$batchBroadcastSize = 16
+
+batchBroadcast[x_, y_, na_, nf_] := Total[
+    Transpose[ConstantArray[x, nf], {4, 1, 2, 3}] * Transpose[ConstantArray[y, na], {2, 1, 3, 4}],
+    {3}
 ]
 
 (* a side with no own labels just scales the other's rows *)
@@ -952,8 +1023,9 @@ leafSignature[t_List] := {List, Dimensions[t], Precision[t], numericLeafQ[t], If
 leafSignature[t_] := {Head[t], Quiet[Dimensions[t]], Precision[t], numericLeafQ[t]}
 
 (* Default: greedy over the given network. If that's expensive, also price half-weight greedy,
-   the sweep and, on machine numbers, both over the diagonal-reduced network; take the cheapest
-   with its largest intermediate within 4x. Price: elements moved (x2 past 2^20) + flops/70. *)
+   the sweep, randomized greedy trials and, on machine numbers, the same over the
+   diagonal-reduced network. Take the cheapest whose largest intermediate is within 4x of
+   greedy's, preferring those that fit in memory. Price: elements moved (x2 past 2^20) + flops/70. *)
 cheapestPlan[data_, parameters : {input_, _, sizes_}, method_] := With[{default = GreedyContractionPath @@ parameters},
 	Which[
 		! fullPathQ[default, input],
@@ -966,16 +1038,16 @@ cheapestPlan[data_, parameters : {input_, _, sizes_}, method_] := With[{default 
 					(* plan more only when the contraction dwarfs the planning *)
 					If[ First[defaultCost] <= planningThreshold[data["Tensors"]] Length[input],
 						{data, default},
-						(* Ordering, not MinimalBy (slow first load); ties keep the default *)
-						With[{plans = Select[
-							Join[
-								{{data, default, defaultCost}},
-								formPlans[data, parameters, costInput, method, False],
-								reducedPlans[data, method]
-							],
-							Last[Last[#]] <= 4 Last[defaultCost] &
-						]},
-							Most @ plans[[First @ Ordering[plans[[All, 3, 1]], 1]]]
+						With[{budget = memoryBudget[data["Tensors"]]},
+							Most @ affordablePlan[
+								Join[
+									{{data, default, defaultCost}},
+									formPlans[data, parameters, costInput, method, False, First[defaultCost], budget],
+									reducedPlans[data, method, budget]
+								],
+								Last[defaultCost],
+								budget
+							]
 						]
 					]
 				]
@@ -983,9 +1055,32 @@ cheapestPlan[data_, parameters : {input_, _, sizes_}, method_] := With[{default 
 	]
 ]
 
-(* {network, path, {price, largest}}: sweep, half-weight on machine numbers, default if asked *)
-formPlans[form_, parameters : {input_, _, _}, costInput_, method_, includeDefault_] :=
-	{form, #, pathCost[#, costInput]} & /@ Select[
+(* Cheapest plan within 4x of greedy's largest intermediate, among those under the memory
+   budget if any are; with none under it, the one with the smallest intermediate (cheapest
+   among equals).
+   So the plan is never priced above greedy when greedy fits the budget; when it doesn't,
+   a pricier plan that fits is preferred to running out of memory. The budget follows the
+   memory free at planning time, and the plan cache keeps whichever plan was chosen.
+   Ordering, not MinimalBy (slow first load); ties keep the first, the default. *)
+affordablePlan[plans_, defaultLargest_, budget_] := With[{
+	near = Select[plans, Last[Last[#]] <= 4 defaultLargest &]
+}, {
+	fitting = Select[near, Last[Last[#]] <= budget &]
+},
+	If[ fitting =!= {},
+		fitting[[First @ Ordering[fitting[[All, 3, 1]], 1]]],
+		plans[[First @ Ordering[Reverse /@ plans[[All, 3]], 1]]]
+	]
+]
+
+(* largest intermediate, in entries, that may take a quarter of the memory now available:
+   a step holds both operands, their reordered copies and the result *)
+memoryBudget[tensors_] := MemoryAvailable[] / (4 If[AnyTrue[tensors, Developer`PackedArrayQ[#, Complex] &], 16, 8])
+
+(* {network, path, {price, largest}}: sweep, half-weight on machine numbers, default if asked,
+   then randomized greedy trials measured against the cheapest of those and startPrice *)
+formPlans[form_, parameters : {input_, _, _}, costInput_, method_, includeDefault_, startPrice_ : Infinity, budget_ : Infinity] := With[{
+	fixed = {form, #, pathCost[#, costInput]} & /@ Select[
 		Join[
 			If[includeDefault, {GreedyContractionPath @@ parameters}, {}],
 			If[alternativePathQ[form["Tensors"], method], {GreedyContractionPath[Sequence @@ parameters, "MemoryWeight" -> 0.5]}, {}],
@@ -993,10 +1088,55 @@ formPlans[form_, parameters : {input_, _, _}, costInput_, method_, includeDefaul
 		],
 		fullPathQ[#, input] &
 	]
+},
+	Join[
+		fixed,
+		Prepend[form] /@ randomGreedyPlans[parameters, costInput, Min[startPrice, fixed[[All, 3, 1]]], Min[fixed[[All, 3, 2]]], budget]
+	]
+]
+
+
+(* Randomized greedy: greedy with a random cost weight (log-uniform in [0.1, 4]) and
+   temperature (log-uniform in [0.001, 1]), trial k seeded by k so plans are reproducible.
+   Rounds of 16, 32, 64, ... trials run while their estimated time stays within a tenth of
+   the best plan's estimated contraction time, or while no plan's largest intermediate is
+   within the memory budget; at most 4096 trials. The two rates are
+   measured on 50-72 tensor PEPS norms: about 1 ns per price unit, 11 us per trial per tensor. *)
+$secondsPerPrice = 1.*^-9
+$secondsPerTrialPerTensor = 1.1*^-5
+$maxGreedyTrials = 4096
+
+randomGreedyPlans[parameters : {input_, _, _}, costInput_, startPrice_, startLargest_, budget_] := NestWhile[
+	Function[state, With[{
+		trials = Select[
+			{#, pathCost[#, costInput]} & /@ Map[randomGreedyTrial[parameters, #] &, Range[state["Done"] + 1, state["Done"] + state["Round"]]],
+			fullPathQ[First[#], input] &
+		]
+	},
+		<|
+			"Done" -> state["Done"] + state["Round"],
+			"Round" -> Min[2 state["Round"], $maxGreedyTrials - state["Done"] - state["Round"]],
+			"Best" -> Min[state["Best"], trials[[All, 2, 1]]],
+			"Smallest" -> Min[state["Smallest"], trials[[All, 2, 2]]],
+			"Plans" -> Join[state["Plans"], trials]
+		|>
+	]],
+	<|"Done" -> 0, "Round" -> 16, "Best" -> startPrice, "Smallest" -> startLargest, "Plans" -> {}|>,
+	#["Round"] > 0 && (
+		(#["Done"] + #["Round"]) Length[input] $secondsPerTrialPerTensor <= #["Best"] $secondsPerPrice / 10 ||
+		#["Smallest"] > budget
+	) &
+]["Plans"]
+
+randomGreedyTrial[parameters_, k_] := With[{
+	settings = BlockRandom[SeedRandom[k]; Exp[{RandomReal[Log[{0.1, 4.}]], RandomReal[Log[{0.001, 1.}]]}]]
+},
+	GreedyContractionPath[Sequence @@ parameters, "MemoryWeight" -> First[settings], "Temperature" -> Last[settings], "RandomSeed" -> k]
+]
 
 (* plans over the diagonal-reduced network; machine numbers only, since exact batch steps
    cost per entry in ways the price doesn't see *)
-reducedPlans[data_, method_] := With[{
+reducedPlans[data_, method_, budget_] := With[{
 	reduction = If[
 		ListQ[data["Hyperedges"]] && Min[Precision /@ data["Tensors"]] === MachinePrecision && AllTrue[data["Tensors"], numericLeafQ],
 		diagonalReductionGroups[data["Tensors"], data["Hyperedges"], data["FreeIndices"]],
@@ -1008,7 +1148,7 @@ reducedPlans[data_, method_] := With[{
 		With[{form = reducedForm[data, First[reduction], Last[reduction]]},
 			With[{parameters = If[AssociationQ[form], extractContractionParameters[form], $Failed]},
 				If[ MatchQ[parameters, {_List, _List, _Association}] && AllTrue[Values[Last[parameters]], IntegerQ],
-					formPlans[form, parameters, pathCostInput[parameters], method, True],
+					formPlans[form, parameters, pathCostInput[parameters], method, True, Infinity, budget],
 					{}
 				]
 			]
@@ -1021,12 +1161,12 @@ sweepPath[n_Integer] := Prepend[Table[{1, m}, {m, n - 1, 2, -1}], {1, 2}]
 
 fullPathQ[path_, input_] := PathQ[path] && Count[path, {_, _}] + 1 === Length[input]
 
-plannedEngineQ[method_] := contractionMethodName[method] === "ArrayDot" && leafContainerAutomaticQ[method]
+plannedEngineQ[method_] := MemberQ[{"ArrayDot", "Dot"}, contractionMethodName[method]] && leafContainerAutomaticQ[method]
 
 planningThreshold[tensors_] := If[Min[Precision /@ tensors] === MachinePrecision, 2.^16, 2.^10]
 
 alternativePathQ[tensors_, method_] :=
-	contractionMethodName[method] === "ArrayDot" &&
+	MemberQ[{"ArrayDot", "Dot"}, contractionMethodName[method]] &&
 		leafContainerAutomaticQ[method] &&
 		Min[Precision /@ tensors] === MachinePrecision &&
 		AllTrue[tensors, numericLeafQ] &&
