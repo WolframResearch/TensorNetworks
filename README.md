@@ -8,6 +8,10 @@ This paclet is a byproduct of Wolfram quantum efforts and is designed with quant
 
 Full documentation, with every symbol's reference page rendered for the web, lives at the Wolfram Paclet Repository: [resources.wolframcloud.com/PacletRepository/resources/Wolfram/TensorNetworks](https://resources.wolframcloud.com/PacletRepository/resources/Wolfram/TensorNetworks/). This README is a guided tour; the doc pages carry every calling form and option.
 
+## Performance audit
+
+The [performance audit suite](Benchmarks/performance/README.md) covers PEPS path quality and memory feasibility, small contractions, and plan-cache costs. It includes comparisons with cotengra, opt_einsum, and ITensorMPS using shared binary inputs. The [PEPS study](Benchmarks/performance/workloads/peps-2026-10-26/analysis.md) identifies the current workload priorities. Kernel functions remain unchanged.
+
 ## Installation
 
 Install the development version from a single paclet URL:

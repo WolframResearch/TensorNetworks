@@ -1,0 +1,33 @@
+{
+  "independent_rounds": 3,
+  "last_independent_verdict": "OPEN ISSUES: 1",
+  "last_independent_finding": "Python booleans accepted as numeric timing/error evidence.",
+  "resolution": "Reject bool and nonfinite measurements/statistics/errors, require actual integer batch counts, and add field-by-field plus full-runner regression coverage.",
+  "final_fix_independently_reviewed": false,
+  "review_limit": "Three independent review rounds reached. Final Python validator fix was self-tested; WL worker is unchanged from round 3.",
+  "regression_tests": {
+    "command": "Benchmarks/performance/.venv/bin/python -m unittest discover -s Benchmarks/performance/tests -v",
+    "exit_code": 0,
+    "tests": 9
+  },
+  "malformed_payload_direct_validation": "rejected: invalid timing samples",
+  "malformed_payload_full_runner": {
+    "exit_code": 1,
+    "status": "failed",
+    "error": "ValueError: invalid timing samples"
+  },
+  "final_full_run": {
+    "exit_code": 0,
+    "status": "ok",
+    "rows": {
+      "tn": 138,
+      "python": 82,
+      "julia": 40
+    },
+    "samples_per_row": 5,
+    "max_normalized_error": 4.544493684584411e-15,
+    "kernel_unchanged": true,
+    "suite_unchanged": true,
+    "run_json_sha256": "9f4d092e35220808ab74e5536b466305fe4fdcae9037bebf13faaa382a72fd25"
+  }
+}

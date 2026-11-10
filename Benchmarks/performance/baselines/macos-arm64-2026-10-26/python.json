@@ -1,0 +1,1720 @@
+{
+  "schema_version": 1,
+  "corpus_sha256": "4d64a094ef2581c78215a93936b6fadc4f8d26506c0db9add8d0fa34156ebd84",
+  "backend": "python",
+  "metadata": {
+    "python": "3.14.0 (v3.14.0:ebf955df7a8, Oct  7 2025, 08:20:14) [Clang 16.0.0 (clang-1600.0.26.6)]",
+    "platform": "macOS-14.2-arm64-arm-64bit-Mach-O",
+    "numpy_build_config": {
+      "Compilers": {
+        "c": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "cc"
+        },
+        "cython": {
+          "name": "cython",
+          "linker": "cython",
+          "version": "3.3.0",
+          "commands": "cython"
+        },
+        "c++": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "c++"
+        }
+      },
+      "Machine Information": {
+        "host": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        },
+        "build": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        }
+      },
+      "Build Dependencies": {
+        "blas": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        },
+        "lapack": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        }
+      },
+      "Python Information": {
+        "path": "/private/var/folders/s6/5hzmn6lx4dz5nxs7k_0slzph0000gn/T/build-env-buaiw__1/bin/python",
+        "version": "3.14"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "NEON",
+          "NEON_FP16",
+          "NEON_VFPV4",
+          "ASIMD"
+        ],
+        "found": [
+          "ASIMDHP",
+          "ASIMDDP"
+        ],
+        "not found": [
+          "ASIMDFHM"
+        ]
+      }
+    },
+    "requested_threads": 1,
+    "thread_environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1"
+    },
+    "packages": {
+      "numpy": "2.5.4",
+      "opt_einsum": "3.4.0",
+      "cotengra": "0.8.3",
+      "autoray": "0.11.0",
+      "threadpoolctl": "3.7.0"
+    },
+    "threadpools": [],
+    "effective_blas_threads": null,
+    "thread_observability": "Effective BLAS thread count unavailable: threadpoolctl detected no supported BLAS pool. Environment settings are requested controls, not verified counts."
+  },
+  "records": [
+    {
+      "case": "harness",
+      "implementation": "python",
+      "task": "harness.noop",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        9.39788818359375e-08,
+        5.5132568359375006e-08,
+        1.775103759765625e-08,
+        1.7730712890625e-08,
+        1.7822265625e-08
+      ],
+      "iterations_per_sample": 16384,
+      "median_seconds": 1.7822265625e-08,
+      "min_seconds": 1.7730712890625e-08,
+      "max_seconds": 9.39788818359375e-08
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        1.0777730224609376e-05,
+        8.595377441406251e-06,
+        8.671793457031251e-06,
+        9.45149755859375e-06,
+        1.4045440673828125e-05
+      ],
+      "iterations_per_sample": 4096,
+      "median_seconds": 9.45149755859375e-06,
+      "min_seconds": 8.595377441406251e-06,
+      "max_seconds": 1.4045440673828125e-05
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        7.287892822265626e-06,
+        8.513315917968751e-06,
+        1.1498189208984376e-05,
+        8.26959228515625e-06,
+        6.412739990234376e-06
+      ],
+      "iterations_per_sample": 4096,
+      "median_seconds": 8.26959228515625e-06,
+      "min_seconds": 6.412739990234376e-06,
+      "max_seconds": 1.1498189208984376e-05
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        7.879552246093751e-06,
+        7.217341064453126e-06,
+        7.644312622070312e-06,
+        9.541208984375e-06,
+        7.4404042968750006e-06
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 7.644312622070312e-06,
+      "min_seconds": 7.217341064453126e-06,
+      "max_seconds": 9.541208984375e-06
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        6.945775268554688e-06,
+        6.264373779296875e-06,
+        6.911397338867188e-06,
+        6.570856689453125e-06,
+        7.564600585937501e-06
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 6.911397338867188e-06,
+      "min_seconds": 6.264373779296875e-06,
+      "max_seconds": 7.564600585937501e-06
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        2.395731640625e-05,
+        2.71536865234375e-05,
+        1.588926171875e-05,
+        2.0725321777343752e-05,
+        1.839385986328125e-05
+      ],
+      "iterations_per_sample": 2048,
+      "median_seconds": 2.0725321777343752e-05,
+      "min_seconds": 1.588926171875e-05,
+      "max_seconds": 2.71536865234375e-05
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        3.6506475219726566e-06,
+        4.178136169433594e-06,
+        3.850237487792969e-06,
+        3.429649353027344e-06,
+        3.610956787109375e-06
+      ],
+      "iterations_per_sample": 16384,
+      "median_seconds": 3.6506475219726566e-06,
+      "min_seconds": 3.429649353027344e-06,
+      "max_seconds": 4.178136169433594e-06
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        4.345903991699219e-06,
+        4.875951171875001e-06,
+        4.221150756835938e-06,
+        3.847114562988282e-06,
+        3.6612091064453127e-06
+      ],
+      "iterations_per_sample": 16384,
+      "median_seconds": 4.221150756835938e-06,
+      "min_seconds": 3.6612091064453127e-06,
+      "max_seconds": 4.875951171875001e-06
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        3.655644714355469e-06,
+        3.7082239990234377e-06,
+        4.589894592285157e-06,
+        3.967803955078126e-06,
+        4.300361633300782e-06
+      ],
+      "iterations_per_sample": 16384,
+      "median_seconds": 3.967803955078126e-06,
+      "min_seconds": 3.655644714355469e-06,
+      "max_seconds": 4.589894592285157e-06
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        8.850759277343751e-07,
+        1.0882847900390625e-06,
+        1.0280177001953127e-06,
+        9.801763305664063e-07,
+        6.62017822265625e-07
+      ],
+      "iterations_per_sample": 16384,
+      "median_seconds": 9.801763305664063e-07,
+      "min_seconds": 6.62017822265625e-07,
+      "max_seconds": 1.0882847900390625e-06
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        8.416732788085938e-06,
+        1.1728846313476563e-05,
+        9.365381958007812e-06,
+        1.0564854858398439e-05,
+        1.0590621948242187e-05
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 1.0564854858398439e-05,
+      "min_seconds": 8.416732788085938e-06,
+      "max_seconds": 1.1728846313476563e-05,
+      "plan_stats": {
+        "scalar_product_terms": 8,
+        "largest_intermediate_elements": 4
+      }
+    },
+    {
+      "case": "chain-n2-d2-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        9.548945190429689e-06,
+        7.819086791992188e-06,
+        7.186406494140626e-06,
+        7.519302368164063e-06,
+        8.962346435546876e-06
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 7.819086791992188e-06,
+      "min_seconds": 7.186406494140626e-06,
+      "max_seconds": 9.548945190429689e-06,
+      "plan_stats": {
+        "scalar_product_terms": 8,
+        "largest_intermediate_elements": 4
+      }
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        1.1818267822265626e-05,
+        1.158040380859375e-05,
+        1.0048970703125e-05,
+        1.0227610351562501e-05,
+        1.1075856445312501e-05
+      ],
+      "iterations_per_sample": 4096,
+      "median_seconds": 1.1075856445312501e-05,
+      "min_seconds": 1.0048970703125e-05,
+      "max_seconds": 1.1818267822265626e-05
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        9.029306884765626e-06,
+        8.514445068359376e-06,
+        9.23627734375e-06,
+        1.0103820800781251e-05,
+        8.894155029296876e-06
+      ],
+      "iterations_per_sample": 4096,
+      "median_seconds": 9.029306884765626e-06,
+      "min_seconds": 8.514445068359376e-06,
+      "max_seconds": 1.0103820800781251e-05
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        8.981501220703126e-06,
+        1.0042246459960938e-05,
+        9.911158203125e-06,
+        1.0078328369140626e-05,
+        8.407933593750001e-06
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 9.911158203125e-06,
+      "min_seconds": 8.407933593750001e-06,
+      "max_seconds": 1.0078328369140626e-05
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        8.744374633789063e-06,
+        1.0797805786132814e-05,
+        9.927612304687501e-06,
+        1.0982233642578125e-05,
+        8.420338989257813e-06
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 9.927612304687501e-06,
+      "min_seconds": 8.420338989257813e-06,
+      "max_seconds": 1.0982233642578125e-05
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        2.070914697265625e-05,
+        1.763881396484375e-05,
+        1.572642041015625e-05,
+        1.929441357421875e-05,
+        1.680106591796875e-05
+      ],
+      "iterations_per_sample": 2048,
+      "median_seconds": 1.763881396484375e-05,
+      "min_seconds": 1.572642041015625e-05,
+      "max_seconds": 2.070914697265625e-05
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        5.212493896484375e-06,
+        5.025665283203126e-06,
+        4.6459808349609375e-06,
+        6.1825460205078125e-06,
+        5.246871948242188e-06
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 5.212493896484375e-06,
+      "min_seconds": 4.6459808349609375e-06,
+      "max_seconds": 6.1825460205078125e-06
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        5.364690185546876e-06,
+        6.323348999023438e-06,
+        4.487126708984376e-06,
+        6.0662587890625e-06,
+        5.5618337402343755e-06
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 5.5618337402343755e-06,
+      "min_seconds": 4.487126708984376e-06,
+      "max_seconds": 6.323348999023438e-06
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        6.04891455078125e-06,
+        5.805953979492188e-06,
+        4.571111083984375e-06,
+        5.046351196289063e-06,
+        5.109975219726563e-06
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 5.109975219726563e-06,
+      "min_seconds": 4.571111083984375e-06,
+      "max_seconds": 6.04891455078125e-06
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        1.1729939575195313e-06,
+        1.1640625000000001e-06,
+        1.1107305297851562e-06,
+        1.108856201171875e-06,
+        1.4201431274414063e-06
+      ],
+      "iterations_per_sample": 16384,
+      "median_seconds": 1.1640625000000001e-06,
+      "min_seconds": 1.108856201171875e-06,
+      "max_seconds": 1.4201431274414063e-06
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        9.39642333984375e-06,
+        1.4420237304687501e-05,
+        1.2081583740234376e-05,
+        1.1775980712890625e-05,
+        1.1842010498046876e-05
+      ],
+      "iterations_per_sample": 4096,
+      "median_seconds": 1.1842010498046876e-05,
+      "min_seconds": 9.39642333984375e-06,
+      "max_seconds": 1.4420237304687501e-05,
+      "plan_stats": {
+        "scalar_product_terms": 4096,
+        "largest_intermediate_elements": 256
+      }
+    },
+    {
+      "case": "chain-n2-d16-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        6.329798461914063e-06,
+        1.0091929077148439e-05,
+        7.929356811523438e-06,
+        8.792841552734376e-06,
+        7.1894836425781255e-06
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 7.929356811523438e-06,
+      "min_seconds": 6.329798461914063e-06,
+      "max_seconds": 1.0091929077148439e-05,
+      "plan_stats": {
+        "scalar_product_terms": 4096,
+        "largest_intermediate_elements": 256
+      }
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 1.67332063676967e-16,
+      "samples_seconds": [
+        2.404038525390625e-05,
+        2.5973754882812503e-05,
+        2.160296630859375e-05,
+        2.2132955078125003e-05,
+        2.60409140625e-05
+      ],
+      "iterations_per_sample": 2048,
+      "median_seconds": 2.404038525390625e-05,
+      "min_seconds": 2.160296630859375e-05,
+      "max_seconds": 2.60409140625e-05
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 1.67332063676967e-16,
+      "samples_seconds": [
+        3.4803914550781255e-05,
+        3.3455566406250004e-05,
+        2.8211710937500003e-05,
+        2.4958150390625003e-05,
+        2.8839599609375002e-05
+      ],
+      "iterations_per_sample": 2048,
+      "median_seconds": 2.8839599609375002e-05,
+      "min_seconds": 2.4958150390625003e-05,
+      "max_seconds": 3.4803914550781255e-05
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 1.67332063676967e-16,
+      "samples_seconds": [
+        1.97205810546875e-05,
+        1.9067423828125003e-05,
+        2.0891235351562502e-05,
+        1.9890706542968752e-05,
+        2.234147119140625e-05
+      ],
+      "iterations_per_sample": 2048,
+      "median_seconds": 1.9890706542968752e-05,
+      "min_seconds": 1.9067423828125003e-05,
+      "max_seconds": 2.234147119140625e-05
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 1.7107394753173564e-16,
+      "samples_seconds": [
+        2.518341064453125e-05,
+        2.56661171875e-05,
+        2.2900614257812503e-05,
+        2.4373291015625e-05,
+        2.037762451171875e-05
+      ],
+      "iterations_per_sample": 2048,
+      "median_seconds": 2.4373291015625e-05,
+      "min_seconds": 2.037762451171875e-05,
+      "max_seconds": 2.56661171875e-05
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        4.57598876953125e-05,
+        4.14490556640625e-05,
+        3.5557942382812504e-05,
+        4.1093994140625e-05,
+        3.83369541015625e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 4.1093994140625e-05,
+      "min_seconds": 3.5557942382812504e-05,
+      "max_seconds": 4.57598876953125e-05
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        1.2690989257812502e-05,
+        8.674662353515626e-06,
+        7.86600732421875e-06,
+        8.360147949218751e-06,
+        8.629740478515625e-06
+      ],
+      "iterations_per_sample": 4096,
+      "median_seconds": 8.629740478515625e-06,
+      "min_seconds": 7.86600732421875e-06,
+      "max_seconds": 1.2690989257812502e-05
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        8.148854736328126e-06,
+        9.873413085937501e-06,
+        1.0503285644531251e-05,
+        7.786234619140625e-06,
+        1.5563913818359375e-05
+      ],
+      "iterations_per_sample": 4096,
+      "median_seconds": 9.873413085937501e-06,
+      "min_seconds": 7.786234619140625e-06,
+      "max_seconds": 1.5563913818359375e-05
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        1.0265803100585937e-05,
+        8.724904296875e-06,
+        9.4287109375e-06,
+        9.21412158203125e-06,
+        1.2659917114257813e-05
+      ],
+      "iterations_per_sample": 8192,
+      "median_seconds": 9.4287109375e-06,
+      "min_seconds": 8.724904296875e-06,
+      "max_seconds": 1.2659917114257813e-05
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        2.485819519042969e-06,
+        2.334528564453125e-06,
+        2.3202769165039064e-06,
+        2.4584884643554687e-06,
+        2.7569427490234376e-06
+      ],
+      "iterations_per_sample": 16384,
+      "median_seconds": 2.4584884643554687e-06,
+      "min_seconds": 2.3202769165039064e-06,
+      "max_seconds": 2.7569427490234376e-06
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 2.1968712992328734e-16,
+      "samples_seconds": [
+        5.3300701171875005e-05,
+        5.3890056640625005e-05,
+        5.2418539062500006e-05,
+        5.1230794921875004e-05,
+        5.4982501953125e-05
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 5.3300701171875005e-05,
+      "min_seconds": 5.1230794921875004e-05,
+      "max_seconds": 5.4982501953125e-05,
+      "plan_stats": {
+        "scalar_product_terms": 1536,
+        "largest_intermediate_elements": 64
+      }
+    },
+    {
+      "case": "chain-n4-d8-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 1.8427779977815805e-16,
+      "samples_seconds": [
+        4.278098583984375e-05,
+        2.91666259765625e-05,
+        3.435028076171875e-05,
+        3.700675439453125e-05,
+        4.1993550781250004e-05
+      ],
+      "iterations_per_sample": 2048,
+      "median_seconds": 3.700675439453125e-05,
+      "min_seconds": 2.91666259765625e-05,
+      "max_seconds": 4.278098583984375e-05,
+      "plan_stats": {
+        "scalar_product_terms": 1536,
+        "largest_intermediate_elements": 64
+      }
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        7.9057453125e-05,
+        6.560270117187501e-05,
+        5.9452880859375e-05,
+        7.357560156250001e-05,
+        7.5827392578125e-05
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 7.357560156250001e-05,
+      "min_seconds": 5.9452880859375e-05,
+      "max_seconds": 7.9057453125e-05
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        9.404809570312501e-05,
+        8.492488671875001e-05,
+        6.591023828125001e-05,
+        8.62826328125e-05,
+        0.00010206127929687501
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 8.62826328125e-05,
+      "min_seconds": 6.591023828125001e-05,
+      "max_seconds": 0.00010206127929687501
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        8.4611572265625e-05,
+        8.501045703125e-05,
+        7.47256669921875e-05,
+        9.482238769531251e-05,
+        7.56077880859375e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 8.4611572265625e-05,
+      "min_seconds": 7.47256669921875e-05,
+      "max_seconds": 9.482238769531251e-05
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        8.139843750000001e-05,
+        6.57652177734375e-05,
+        7.571818066406251e-05,
+        8.24918623046875e-05,
+        8.118754101562501e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 8.118754101562501e-05,
+      "min_seconds": 6.57652177734375e-05,
+      "max_seconds": 8.24918623046875e-05
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.000153418865234375,
+        0.00015600309375000002,
+        0.000127210287109375,
+        0.00014292724609375,
+        0.00011434228515625001
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00014292724609375,
+      "min_seconds": 0.00011434228515625001,
+      "max_seconds": 0.00015600309375000002
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        5.0914428710937505e-05,
+        4.7790893554687506e-05,
+        3.9346557617187504e-05,
+        4.29698896484375e-05,
+        4.39452314453125e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 4.39452314453125e-05,
+      "min_seconds": 3.9346557617187504e-05,
+      "max_seconds": 5.0914428710937505e-05
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        4.2286580078125e-05,
+        4.04885654296875e-05,
+        4.82076416015625e-05,
+        4.3102213867187504e-05,
+        4.2776000976562505e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 4.2776000976562505e-05,
+      "min_seconds": 4.04885654296875e-05,
+      "max_seconds": 4.82076416015625e-05
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        6.03717451171875e-05,
+        5.4629394531250004e-05,
+        5.6650146484375006e-05,
+        5.0924356445312504e-05,
+        3.8498372070312504e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 5.4629394531250004e-05,
+      "min_seconds": 3.8498372070312504e-05,
+      "max_seconds": 6.03717451171875e-05
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        1.1210174560546876e-05,
+        1.4692464111328126e-05,
+        1.2191111328125001e-05,
+        1.246258544921875e-05,
+        1.2320790527343751e-05
+      ],
+      "iterations_per_sample": 4096,
+      "median_seconds": 1.2320790527343751e-05,
+      "min_seconds": 1.1210174560546876e-05,
+      "max_seconds": 1.4692464111328126e-05
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 5.296387474476079e-16,
+      "samples_seconds": [
+        0.000184386310546875,
+        0.00018189729882812502,
+        0.00018800545312500002,
+        0.00019044547460937502,
+        0.0001630228671875
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.000184386310546875,
+      "min_seconds": 0.0001630228671875,
+      "max_seconds": 0.00019044547460937502,
+      "plan_stats": {
+        "scalar_product_terms": 45056,
+        "largest_intermediate_elements": 256
+      }
+    },
+    {
+      "case": "chain-n12-d16-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 5.296597464939297e-16,
+      "samples_seconds": [
+        0.000118178384765625,
+        0.000111342853515625,
+        9.2140787109375e-05,
+        0.00011780834960937501,
+        0.00011254101562500001
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00011254101562500001,
+      "min_seconds": 9.2140787109375e-05,
+      "max_seconds": 0.000118178384765625,
+      "plan_stats": {
+        "scalar_product_terms": 45056,
+        "largest_intermediate_elements": 256
+      }
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        7.6767578125e-05,
+        7.088378906250001e-05,
+        6.470825195312501e-05,
+        7.1789998046875e-05,
+        7.181477832031251e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 7.1789998046875e-05,
+      "min_seconds": 6.470825195312501e-05,
+      "max_seconds": 7.6767578125e-05
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        9.7131509765625e-05,
+        9.572615429687501e-05,
+        8.8510986328125e-05,
+        0.00011351969335937501,
+        0.0001038785
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 9.7131509765625e-05,
+      "min_seconds": 8.8510986328125e-05,
+      "max_seconds": 0.00011351969335937501
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.00010315437890625001,
+        0.00012716015625,
+        0.000153466876953125,
+        9.9935140625e-05,
+        0.00011794669531250001
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00011794669531250001,
+      "min_seconds": 9.9935140625e-05,
+      "max_seconds": 0.000153466876953125
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.0001152142734375,
+        9.3338296875e-05,
+        0.00011324853515625001,
+        0.000138004802734375,
+        0.00012325992773437502
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.0001152142734375,
+      "min_seconds": 9.3338296875e-05,
+      "max_seconds": 0.000138004802734375
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.00015084318164062502,
+        0.000122751708984375,
+        0.000175106283203125,
+        0.000126076416015625,
+        0.00012001448632812501
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.000126076416015625,
+      "min_seconds": 0.00012001448632812501,
+      "max_seconds": 0.000175106283203125
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        6.6111166015625e-05,
+        6.72784423828125e-05,
+        6.3527669921875e-05,
+        6.42248125e-05,
+        6.13979091796875e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 6.42248125e-05,
+      "min_seconds": 6.13979091796875e-05,
+      "max_seconds": 6.72784423828125e-05
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        7.533837890625e-05,
+        6.37765703125e-05,
+        6.915095996093751e-05,
+        6.973811816406251e-05,
+        7.1317830078125e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 6.973811816406251e-05,
+      "min_seconds": 6.37765703125e-05,
+      "max_seconds": 7.533837890625e-05
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        6.1271646484375e-05,
+        6.1087078125e-05,
+        6.7636392578125e-05,
+        7.172762109375e-05,
+        7.0774658203125e-05
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 6.7636392578125e-05,
+      "min_seconds": 6.1087078125e-05,
+      "max_seconds": 7.172762109375e-05
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        4.2751994140625e-05,
+        3.8024983398437505e-05,
+        3.63046875e-05,
+        3.80428056640625e-05,
+        3.65986328125e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 3.8024983398437505e-05,
+      "min_seconds": 3.63046875e-05,
+      "max_seconds": 4.2751994140625e-05
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 1.2695462117825255e-15,
+      "samples_seconds": [
+        0.00017610563085937502,
+        0.0001810974921875,
+        0.00015720703125,
+        0.000139112142578125,
+        0.000144460125
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00015720703125,
+      "min_seconds": 0.000139112142578125,
+      "max_seconds": 0.0001810974921875,
+      "plan_stats": {
+        "scalar_product_terms": 2883584,
+        "largest_intermediate_elements": 4096
+      }
+    },
+    {
+      "case": "chain-n12-d64-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 1.2351297804668846e-15,
+      "samples_seconds": [
+        9.1087564453125e-05,
+        0.000135161783203125,
+        8.8442138671875e-05,
+        0.0001015712890625,
+        0.00010466487500000001
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.0001015712890625,
+      "min_seconds": 8.8442138671875e-05,
+      "max_seconds": 0.000135161783203125,
+      "plan_stats": {
+        "scalar_product_terms": 2883584,
+        "largest_intermediate_elements": 4096
+      }
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        6.4751138671875e-05,
+        7.832454296875e-05,
+        9.827148437500001e-05,
+        9.253808593750001e-05,
+        8.901513671875001e-05
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 8.901513671875001e-05,
+      "min_seconds": 6.4751138671875e-05,
+      "max_seconds": 9.827148437500001e-05
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.0026958060000000002,
+        0.0012213580625,
+        0.0017115703125000002,
+        0.0021244205937500002,
+        0.00223991796875
+      ],
+      "iterations_per_sample": 32,
+      "median_seconds": 0.0021244205937500002,
+      "min_seconds": 0.0012213580625,
+      "max_seconds": 0.0026958060000000002
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.00161441015625,
+        0.0017279179687500002,
+        0.00211324871875,
+        0.0015211328125000001,
+        0.0012219830625
+      ],
+      "iterations_per_sample": 32,
+      "median_seconds": 0.00161441015625,
+      "min_seconds": 0.0012219830625,
+      "max_seconds": 0.00211324871875
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.001370219390625,
+        0.00156886196875,
+        0.0017871022031250002,
+        0.0017502447968750002,
+        0.0013860481875
+      ],
+      "iterations_per_sample": 64,
+      "median_seconds": 0.00156886196875,
+      "min_seconds": 0.001370219390625,
+      "max_seconds": 0.0017871022031250002
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.00011500244140625,
+        0.000137270345703125,
+        0.00012472273828125,
+        0.000159998779296875,
+        0.000126665689453125
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.000126665689453125,
+      "min_seconds": 0.00011500244140625,
+      "max_seconds": 0.000159998779296875
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.0016105312500000002,
+        0.0017209179687500001,
+        0.0016834570312500002,
+        0.0016787551875000002,
+        0.0011820963437500001
+      ],
+      "iterations_per_sample": 32,
+      "median_seconds": 0.0016787551875000002,
+      "min_seconds": 0.0011820963437500001,
+      "max_seconds": 0.0017209179687500001
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.001379046875,
+        0.0025358932187500003,
+        0.00170053775,
+        0.0016164088437500002,
+        0.001237934875
+      ],
+      "iterations_per_sample": 32,
+      "median_seconds": 0.0016164088437500002,
+      "min_seconds": 0.001237934875,
+      "max_seconds": 0.0025358932187500003
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.0011869179687500001,
+        0.0012645625,
+        0.00136248175,
+        0.00120026040625,
+        0.0012615481875
+      ],
+      "iterations_per_sample": 32,
+      "median_seconds": 0.0012615481875,
+      "min_seconds": 0.0011869179687500001,
+      "max_seconds": 0.00136248175
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.001193708328125,
+        0.0011956360625,
+        0.00121341015625,
+        0.0012495123750000002,
+        0.001192869140625
+      ],
+      "iterations_per_sample": 64,
+      "median_seconds": 0.0011956360625,
+      "min_seconds": 0.001192869140625,
+      "max_seconds": 0.0012495123750000002
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 2.4065735673659226e-15,
+      "samples_seconds": [
+        0.00019317016601562502,
+        0.00021441796875,
+        0.00022591414453125002,
+        0.000197715658203125,
+        0.00020524446679687501
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00020524446679687501,
+      "min_seconds": 0.00019317016601562502,
+      "max_seconds": 0.00022591414453125002,
+      "plan_stats": {
+        "scalar_product_terms": 184549376,
+        "largest_intermediate_elements": 65536
+      }
+    },
+    {
+      "case": "chain-n12-d256-real",
+      "implementation": "cotengra.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 2.401327405507525e-15,
+      "samples_seconds": [
+        0.00011152189062500001,
+        0.00011148348046875001,
+        0.00010479866601562501,
+        0.00010785253906250001,
+        0.000116405517578125
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00011148348046875001,
+      "min_seconds": 0.00010479866601562501,
+      "max_seconds": 0.000116405517578125,
+      "plan_stats": {
+        "scalar_product_terms": 184549376,
+        "largest_intermediate_elements": 65536
+      }
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 6.402788795058034e-16,
+      "samples_seconds": [
+        7.666284179687501e-05,
+        7.094580078125e-05,
+        7.72861328125e-05,
+        7.54547119140625e-05,
+        7.120271875e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 7.54547119140625e-05,
+      "min_seconds": 7.094580078125e-05,
+      "max_seconds": 7.72861328125e-05
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 6.402788795058034e-16,
+      "samples_seconds": [
+        0.00010686962890625,
+        0.00015965812109375,
+        0.000128228759765625,
+        0.0001253544921875,
+        9.635034179687501e-05
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.0001253544921875,
+      "min_seconds": 9.635034179687501e-05,
+      "max_seconds": 0.00015965812109375
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 6.402788795058034e-16,
+      "samples_seconds": [
+        0.00012502294921875,
+        9.62822265625e-05,
+        0.00010110156250000001,
+        0.00010924617382812501,
+        9.172509765625001e-05
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00010110156250000001,
+      "min_seconds": 9.172509765625001e-05,
+      "max_seconds": 0.00012502294921875
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 6.455650127537064e-16,
+      "samples_seconds": [
+        8.2974529296875e-05,
+        0.000132631103515625,
+        0.00011739916992187501,
+        0.000100961099609375,
+        0.00011996118164062501
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00011739916992187501,
+      "min_seconds": 8.2974529296875e-05,
+      "max_seconds": 0.000132631103515625
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "cotengra.numpy",
+      "task": "chain.prepare.expression.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        0.00012284301757812502,
+        0.000132933919921875,
+        0.00017252303125,
+        0.00014548315429687502,
+        0.00019673844335937502
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00014548315429687502,
+      "min_seconds": 0.00012284301757812502,
+      "max_seconds": 0.00019673844335937502
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        5.5498006835937506e-05,
+        6.6888875e-05,
+        7.924548339843751e-05,
+        5.65233974609375e-05,
+        6.208264160156251e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 6.208264160156251e-05,
+      "min_seconds": 5.5498006835937506e-05,
+      "max_seconds": 7.924548339843751e-05
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.new_values",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        7.23640947265625e-05,
+        6.637243652343751e-05,
+        6.3504353515625e-05,
+        6.21695966796875e-05,
+        7.305273437500001e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 6.637243652343751e-05,
+      "min_seconds": 6.21695966796875e-05,
+      "max_seconds": 7.305273437500001e-05
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "cotengra.numpy",
+      "task": "chain.execute.changed_support",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        7.369409179687501e-05,
+        8.14901123046875e-05,
+        6.471826171875001e-05,
+        5.8176675781250003e-05,
+        6.384639453125001e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 6.471826171875001e-05,
+      "min_seconds": 5.8176675781250003e-05,
+      "max_seconds": 8.14901123046875e-05
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "numpy",
+      "task": "chain.execute.fixed_path",
+      "mode": "prepared",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        2.6255045410156252e-05,
+        3.3498291015625e-05,
+        3.228350830078125e-05,
+        3.0179626464843753e-05,
+        3.0685058593750005e-05
+      ],
+      "iterations_per_sample": 2048,
+      "median_seconds": 3.0685058593750005e-05,
+      "min_seconds": 2.6255045410156252e-05,
+      "max_seconds": 3.3498291015625e-05
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "opt_einsum.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 6.847074006404049e-16,
+      "samples_seconds": [
+        0.00015668310546875002,
+        0.00014803369140625,
+        0.00015452604296875002,
+        0.00018114933203125,
+        0.00017001416015625
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00015668310546875002,
+      "min_seconds": 0.00014803369140625,
+      "max_seconds": 0.00018114933203125,
+      "plan_stats": {
+        "scalar_product_terms": 45056,
+        "largest_intermediate_elements": 256
+      }
+    },
+    {
+      "case": "chain-n12-d16-complex",
+      "implementation": "cotengra.numpy",
+      "task": "chain.plan.greedy",
+      "mode": "search",
+      "status": "ok",
+      "normalized_error": 7.177997378018615e-16,
+      "samples_seconds": [
+        0.00010352416992187501,
+        0.00015154223632812502,
+        9.9983478515625e-05,
+        0.000107070150390625,
+        0.00010025252148437501
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00010352416992187501,
+      "min_seconds": 9.9983478515625e-05,
+      "max_seconds": 0.00015154223632812502,
+      "plan_stats": {
+        "scalar_product_terms": 45056,
+        "largest_intermediate_elements": 256
+      }
+    },
+    {
+      "case": "mps-n6-d4-real",
+      "implementation": "opt_einsum.numpy",
+      "task": "mps.overlap",
+      "mode": "prepared_generic_network",
+      "status": "ok",
+      "normalized_error": 2.7078610356711135e-16,
+      "samples_seconds": [
+        7.47414150390625e-05,
+        6.66949873046875e-05,
+        7.69976806640625e-05,
+        8.771057128906251e-05,
+        6.47151689453125e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 7.47414150390625e-05,
+      "min_seconds": 6.47151689453125e-05,
+      "max_seconds": 8.771057128906251e-05
+    },
+    {
+      "case": "mps-n6-d4-real",
+      "implementation": "cotengra.numpy",
+      "task": "mps.overlap",
+      "mode": "prepared_generic_network",
+      "status": "ok",
+      "normalized_error": 0.0,
+      "samples_seconds": [
+        7.84437255859375e-05,
+        8.455342675781251e-05,
+        6.705802441406251e-05,
+        8.959106445312501e-05,
+        6.5344279296875e-05
+      ],
+      "iterations_per_sample": 1024,
+      "median_seconds": 7.84437255859375e-05,
+      "min_seconds": 6.5344279296875e-05,
+      "max_seconds": 8.959106445312501e-05
+    },
+    {
+      "case": "mps-n8-d8-complex",
+      "implementation": "opt_einsum.numpy",
+      "task": "mps.overlap",
+      "mode": "prepared_generic_network",
+      "status": "ok",
+      "normalized_error": 1.1823851944553183e-16,
+      "samples_seconds": [
+        0.00010085172460937501,
+        0.00011796557617187501,
+        0.0001319478359375,
+        0.00012066837695312501,
+        0.00013582869531250001
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00012066837695312501,
+      "min_seconds": 0.00010085172460937501,
+      "max_seconds": 0.00013582869531250001
+    },
+    {
+      "case": "mps-n8-d8-complex",
+      "implementation": "cotengra.numpy",
+      "task": "mps.overlap",
+      "mode": "prepared_generic_network",
+      "status": "ok",
+      "normalized_error": 1.1810883240693154e-16,
+      "samples_seconds": [
+        0.00014208634375000002,
+        0.00010180314062500001,
+        0.000131413900390625,
+        0.00019154402539062502,
+        0.00015783992578125
+      ],
+      "iterations_per_sample": 512,
+      "median_seconds": 0.00014208634375000002,
+      "min_seconds": 0.00010180314062500001,
+      "max_seconds": 0.00019154402539062502
+    }
+  ]
+}

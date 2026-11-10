@@ -1,0 +1,24 @@
+ROUND: 3/3
+
+VERDICT
+The ordinary real-backend focus audit passes; one malformed-evidence acceptance defect remains.
+
+REPRODUCED
+- Read all eleven source artifacts, suite README, repository performance link, and required TN/private helper definitions. No applicable AGENTS.md was found in the repository or ancestors. No executable/source artifacts were edited.
+- Unit command: `Benchmarks/performance/.venv/bin/python -m unittest discover -s Benchmarks/performance/tests -v`. Exit 0; Ran 9 tests in 2.113s, OK. Covers binary layout and independent numeric references, deterministic selection, corruption, wrong shape/NaN, backend/corpus identity, incomplete rows, invalid paths, source guard, and process timeout.
+- Clean real-backend command (escalated for Wolfram WSTP): `Benchmarks/performance/.venv/bin/python Benchmarks/performance/run.py --profile focus --out Benchmarks/performance/results/focus-verified-round3 --arrays-directory Benchmarks/performance/.dependencies/Arrays/Arrays --julia /opt/homebrew/bin/julia`. Exit 0; TN 138 + Python 82 + Julia 40 = 260 validated rows, all with five raw samples, zero failed rows; maximum normalized error 4.544493684584411e-15. TN/Python/Julia process wall times 58.875/32.208/46.242 seconds include startup; row timing scopes exclude loading, warm-up and validation.
+- Every matrix-chain case reproduced same-support key reuse, changed-support and reversed-output invalidation, counts [1,1,1,2,3], and numeric outputs. Prepared paths use supplied left folds; Automatic is independently labeled. Sources clear WL caches once per case and localize plan caches correctly. Fixed-plan, preparation, greedy, component, new-value/support, and MPS rows match each requested backend's required coverage.
+- Native TN/ITensorMPS MPS overlap and full-state reconstruction after canonicalization passed for real and complex cases. TN also checks numerical left isometries; ITensorMPS checks the documented orthogonality-center state. The decomposition differences are labeled.
+- API signatures/options verified against installed cotengra/opt_einsum/ITensorMPS source and repository TN definitions, and exercised by the real run. Versions: Wolfram 15.0.1, Arrays 1.4.2 isolated in-process, NumPy 2.5.4, opt_einsum 3.4.0, cotengra 0.8.3, autoray 0.11.0, threadpoolctl 3.7.0, Julia 1.12.6, ITensors 0.9.32, ITensorMPS 0.4.2, JSON3 1.14.3.
+- Dependency metadata, Julia manifest, source/corpus hashes, requested/readback thread controls, bounded raw records, memory methods and caveats retained. NumPy identifies Accelerate and explicitly records version unknown and unavailable BLAS thread readback. Independent current snapshots still equal saved kernel/suite snapshots; git diff shows no kernel changes. Five raw trials and representative min/max variance are retained in verification-summary.json. No universal ranking or equal-optimizer-quality claim is made.
+- Timing claims are local to this host. Setup from a fresh environment and alternative hardware are not claimed reproduced. Native BLAS thread count/version remain explicitly unavailable by design, not inferred from environment variables.
+
+FINDINGS
+[P2] common.py:124-135 accepts JSON booleans as numeric evidence. `isinstance(True, (int,float))` and `isinstance(True,int)` are true; Python comparisons also equate True with 1 and False with 0. A complete correctly identified Python payload with every samples_seconds=[true,true,true,true,true], median/min/max=true, iterations_per_sample=true and normalized_error=false passes validate_result. The complete runner exits 0 and writes status ok with all 12 rows called validated.
+
+Exact end-to-end command (escalated only because macOS /usr/bin/time needs sysctl): `Benchmarks/performance/.venv/bin/python Benchmarks/performance/run.py --profile focus --cases chain-n2-d2-real --backends python --python Benchmarks/performance/results/focus-verified-round3/supplemental/fake-python --out Benchmarks/performance/results/focus-verified-round3/supplemental/boolean-run-escalated`. Exit 0, output `ok: /Users/mohammadb/Documents/GitHub/TensorNetworks/Benchmarks/performance/results/focus-verified-round3/supplemental/boolean-run-escalated/summary.md`. The unmodified fake-python, source boolean-payload.json, accepted python.json, run.json, CSV and summary are saved under supplemental. A preliminary sandbox launch failed due to /usr/bin/time sysctl permission, and is retained separately as boolean-run; this is not a second product finding.
+
+RECOMMENDED FIXES
+Reject bool explicitly for sample/statistic/error fields, require `type(iterations_per_sample) is int`, and require finite int/float statistics before median/range comparisons. Add a regression test that runs this boolean payload through validate_result (and ideally the runner) and expects rejection/nonzero status.
+
+OPEN ISSUES: 1
