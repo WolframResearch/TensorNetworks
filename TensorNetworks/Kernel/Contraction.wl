@@ -1249,9 +1249,11 @@ formPlans[form_, parameters : {input_, _, _}, costInput_, method_, includeDefaul
 
 (* Randomized greedy: greedy with a random cost weight (log-uniform in [0.1, 4]) and
    temperature (log-uniform in [0.001, 1]), trial k seeded by k so plans are reproducible.
-   Rounds of 16, 32, 64, ... trials run while their estimated time stays within a tenth of
-   the best plan's estimated contraction time, or while no plan's largest intermediate is
-   within the memory budget; at most 4096 trials. The two rates are
+   Rounds of 16, 32, 64, ... trials run while their estimated time stays within the best
+   plan's estimated contraction time, or while no plan's largest intermediate is within the
+   memory budget; at most 4096 trials. Searching for no longer than the contraction it may
+   shorten keeps a first call within about twice the time without search, while the plan
+   found (cached for later calls) can be many times faster. The two rates are
    measured on 50-72 tensor PEPS norms: about 1 ns per price unit, 11 us per trial per tensor. *)
 $secondsPerPrice = 1.*^-9
 $secondsPerTrialPerTensor = 1.1*^-5
@@ -1274,7 +1276,7 @@ randomGreedyPlans[parameters : {input_, _, _}, costInput_, startPrice_, startLar
 	]],
 	<|"Done" -> 0, "Round" -> 16, "Best" -> startPrice, "Smallest" -> startLargest, "Plans" -> {}|>,
 	#["Round"] > 0 && (
-		(#["Done"] + #["Round"]) Length[input] $secondsPerTrialPerTensor <= #["Best"] $secondsPerPrice / 10 ||
+		(#["Done"] + #["Round"]) Length[input] $secondsPerTrialPerTensor <= #["Best"] $secondsPerPrice ||
 		#["Smallest"] > budget
 	) &
 ]["Plans"]

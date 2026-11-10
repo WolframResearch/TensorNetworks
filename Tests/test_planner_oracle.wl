@@ -355,6 +355,26 @@ VerificationTest[
     TestID -> "PlanQuality_NoWorseThanGreedy"
 ]
 
+(* the planner's own policy on the networks whose plain greedy plan is expensive enough to
+   search: within 8x of the best of the 384 trials run here. Trials stop once they would cost
+   more than the plan they have found, so one round of 16 may be all a small network gets; it
+   lands about 6x from the best on the 4x4 PEPS with chi 3. A search allowed only a tenth of
+   the contraction's time ran no trials there and kept a plan about 90x the best. Lists the
+   networks that miss, with the ratio. *)
+VerificationTest[
+    Select[
+        Map[
+            Function[name, With[{plan = poPinned[poAutomaticPlan[$poQualityData[name]]]},
+                name -> First[poTreePrice @@ plan] / First[$poReference[name, "Best"]]
+            ]],
+            Select[Keys[$poQualityData], First[$poReference[#, "Greedy"]] > 2.^16 Length[$poQualityData[#]["Tensors"]] &]
+        ],
+        Last[#] > 8 &
+    ],
+    {},
+    TestID -> "PlanQuality_OwnPolicyNearBestTrial"
+]
+
 (* the search itself, given time (trials always within the allowance, at most 496): within
    2x of the best of the 384 trials run here *)
 VerificationTest[
