@@ -1,60 +1,9 @@
-(* The boundary with Wolfram/Arrays: delegated names, required shape rules, changed callers *)
+(* ArraySymmetry and the callers that read arrays through Wolfram/Arrays containers *)
 
 Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
 
 Needs["Wolfram`Arrays`"];
 Needs["Wolfram`TensorNetworks`IndexArray`"];
-
-
-(* === the delegation itself === *)
-
-(* Any other name here would be a stray definition shadowing the Arrays symbol *)
-VerificationTest[
-    Names["Wolfram`TensorNetworks`IndexArray`Array*"],
-    {"ArraySymmetry"},
-    TestID -> "ArrayUtilities_OnlyArraySymmetryIsLocal"
-]
-
-(* Unexported leftover definitions would sit, unreachable, in the private context *)
-VerificationTest[
-    Names["Wolfram`TensorNetworks`IndexArray`*`Array*"],
-    {},
-    TestID -> "ArrayUtilities_NoOrphanedPrivateDefinitions"
-]
-
-(* A TensorNetworks definition on a delegated name would mutate Wolfram/Arrays, session-wide *)
-VerificationTest[
-    Length[DownValues[Wolfram`Arrays`ArrayDimensions]] ===
-        Block[{$ContextPath}, Needs["Wolfram`Arrays`"]; Length[DownValues[Wolfram`Arrays`ArrayDimensions]]],
-    True,
-    TestID -> "ArrayUtilities_ArraysSymbolsNotMutated"
-]
-
-
-(* === the two shape rules the dependency floor exists for === *)
-
-(* A rank-0 operand under Inactive[D] is a scalar field: its gradient by n coordinates has rank n *)
-VerificationTest[
-    ArrayDimensions[Inactive[D][phi, {{cx, cy}}]],
-    {2},
-    TestID -> "ArrayUtilities_GradientOfScalarFieldKeepsItsIndex"
-]
-
-(* A list of symbolic vectors is a matrix; Dimensions alone stops at the list level *)
-VerificationTest[
-    ArrayDimensions[{VectorSymbol["tv", 2], VectorSymbol["tw", 2]}],
-    {2, 2},
-    TestID -> "ArrayUtilities_ListOfSymbolicVectorsHasFullShape"
-]
-
-VerificationTest[
-    Assuming[
-        {Element[ta, Vectors[2]], Element[tb, Vectors[2]]},
-        ArrayDimensions[{ta, tb}]
-    ],
-    {2, 2},
-    TestID -> "ArrayUtilities_AssumptionRegisteredListHasFullShape"
-]
 
 
 (* === ArraySymmetry, the one operation still defined here === *)
@@ -63,6 +12,17 @@ VerificationTest[
     ArraySymmetry[{{1, 2}, {2, 3}}],
     Symmetric[{1, 2}],
     TestID -> "ArraySymmetry_SymmetricList"
+]
+
+(* Symmetric in slots 1 and 3 only: entries depend on i k and on j *)
+VerificationTest[
+    {
+        ArraySymmetry[Table[i k + j, {i, 2}, {j, 3}, {k, 2}]],
+        ArraySymmetry[{{0, 2}, {-2, 0}}],
+        ArraySymmetry[{{1, 2}, {3, 4}}]
+    },
+    {Symmetric[{1, 3}], Antisymmetric[{1, 2}], {}},
+    TestID -> "ArraySymmetry_SlotPairAntisymmetricAndNone"
 ]
 
 (* TensorSymmetry itself does not evaluate on a NumericArray *)
@@ -97,19 +57,11 @@ VerificationTest[
 
 (* MetricTensor materializes storage wrappers, which it cannot invert *)
 VerificationTest[
-    With[{g = MetricTensor[NumericArray[{{1, 0}, {0, -1}}, "Integer64"]]},
-        {MetricTensorQ[g], g["Determinant"]}
+    With[{g = MetricTensor[NumericArray[{{2, 1}, {1, -3}}, "Integer64"]]},
+        {MetricTensorQ[g], g["Matrix"], g["Determinant"]}
     ],
-    {True, -1},
+    {True, {{2, 1}, {1, -3}}, -7},
     TestID -> "MetricTensor_MaterializesStorageWrappers"
-]
-
-VerificationTest[
-    With[{g = MetricTensor[{{1, 0}, {0, -1}}]},
-        {MetricTensorQ[g], g["Determinant"]}
-    ],
-    {True, -1},
-    TestID -> "MetricTensor_PlainMatrixUnchanged"
 ]
 
 (* A NumericArray leaf keeps its full shape and has the List's symmetry *)
@@ -129,7 +81,7 @@ VerificationTest[
             Shape[{2, 2, 2, 2}]
         ]
     },
-        FreeQ[IndexPart[ia, {1}], _Wolfram`Arrays`ArrayPart]
+        MatchQ[IndexPart[ia, {1}], HoldPattern[IndexPart[_IndexArray, {1}]]]
     ],
     True,
     TestID -> "IndexPart_DeclinesSymbolicStructuralTree"

@@ -1,14 +1,22 @@
 (* Tests/external_validation/paclet_primitives/tn_canonical_states.wl
 
-Tier-2 direct-validation tests for TensorNetwork-based expectation values on
-canonical quantum states (Bell, GHZ, W). Every test cites a specific
-numerical value from the catalog (quimb / ITensorMPS / TeNPy) and asserts
-the paclet's TensorNetwork contraction reproduces it.
+Entangled states prepared by small circuits written as tensor networks (one tensor per
+gate, |0> inputs), contracted with TensorNetworkContract and checked against values
+worked out by hand or by dense matrix products:
+
+- T1, T3: the state itself against its closed form. The circuits are chosen so the
+  state is not symmetric under exchanging qubits, and T3 asks for the qubits in every
+  order, so a swapped control and target, a gate on the wrong wire, or a misordered
+  output changes the answer.
+- T2, T4: expectation values as bra-operator-ket sandwiches (bra gates conjugated)
+  against hand-computed closed forms that differ between qubit pairs.
+- T5: a brickwork of complex random two-qubit unitaries against the state vector
+  obtained by multiplying the Kronecker-embedded matrices.
+- T6: quimb's 3x3 PEPS norm and local Z values from a fixture (unchanged).
 
 Sources:
-- quimb test_circuit.py:559-568 (Bell state expectations)
-- quimb test_circuit.py:142-146 (GHZ-3 simulate_counts only on 000/111)
-- ITensorMPS test_mps.jl:69-89 (product state <Sz_j> = +/- 0.5 pattern)
+- quimb test_circuit.py:559-568 (Bell state expectations), 142-146 (GHZ-3)
+- quimb PEPS.rand(3,3,seed=42) (fixture quimb_peps_3x3_seed42.json)
 *)
 
 Module[{worktreeRoot},
@@ -24,140 +32,145 @@ Module[{worktreeRoot},
 ];
 ClearValidationRecords[];
 
-(* Single-qubit states *)
-upState = N @ {1, 0};
-dnState = N @ {0, 1};
-plusState = N @ {1, 1}/Sqrt[2.];
-minusState = N @ {1, -1}/Sqrt[2.];
+(* agreement to 1e-10 relative to the size of the reference *)
+tcsClose[x_, y_] := TrueQ[Dimensions[x] === Dimensions[y] && Max[Abs[Flatten[{x - y}]]] <= 1.*^-10 Max[1, Max[Abs[Flatten[{y}]]]]];
 
-(* Pauli matrices (operator level - 2x2 each) *)
-sigmaX = N @ {{0, 1}, {1, 0}};
-sigmaY = N @ {{0, -I}, {I, 0}};
-sigmaZ = N @ {{1, 0}, {0, -1}};
+tcsX = {{0., 1.}, {1., 0.}};
+tcsY = {{0., -I}, {I, 0.}};
+tcsZ = {{1., 0.}, {0., -1.}};
+tcsH = {{1., 1.}, {1., -1.}} / Sqrt[2.];
+tcsS = {{1., 0.}, {0., I}};
+tcsT = {{1., 0.}, {0., Exp[I Pi / 4.]}};
+(* rows (control', target'), columns (control, target) *)
+tcsCNOT = {{1., 0., 0., 0.}, {0., 1., 0., 0.}, {0., 0., 0., 1.}, {0., 0., 1., 0.}};
 
-buildTNExpect[siteStates_, opSite_, op_] := Module[
-    {L = Length[siteStates], allTensors, allInds, tn},
-    allTensors = Append[Join[siteStates, siteStates], op];
-    allInds = Join[
-        Table[{"k_" <> ToString[i]}, {i, L}],
-        Table[
-            If[i === opSite, {"b_" <> ToString[opSite]}, {"k_" <> ToString[i]}]
-        , {i, L}],
-        {{"k_" <> ToString[opSite], "b_" <> ToString[opSite]}}
-    ];
-    tn = TensorNetwork[allTensors, allInds];
-    TensorNetworkContract[tn]
+(* A circuit on n qubits as a network: |0> on every wire, then one tensor per gate
+   {matrix, qubits}; a k-qubit gate has slots (outputs..., inputs...). Wire q carries
+   label tag<>"q<q>t<m>" after its m-th gate. Returns {tensors, legs, final labels}. *)
+tcsCircuitNet[n_, gates_, tag_] := Module[{time = ConstantArray[0, n], lab, tensors, legs},
+    lab[q_, t_] := tag <> "q" <> ToString[q] <> "t" <> ToString[t];
+    {tensors, legs} = Transpose @ Join[
+        Table[{{1., 0.}, {lab[q, 0]}}, {q, n}],
+        Map[
+            Function[g, With[{qs = g[[2]]},
+                With[{inLegs = lab[#, time[[#]]] & /@ qs},
+                    Scan[(time[[#]] += 1) &, qs];
+                    {ArrayReshape[g[[1]], ConstantArray[2, 2 Length[qs]]], Join[lab[#, time[[#]]] & /@ qs, inLegs]}]]],
+            gates]];
+    {tensors, legs, Table[lab[q, time[[q]]], {q, n}]}
 ];
 
-(* ----- T1: Bell state |Phi+> = (|00> + |11>)/sqrt(2)
-   Build as state-sum of 2 product states. <Z_1> = 0 (mixed |0|0> and |1|1>). *)
+(* state tensor with the qubits in the order given *)
+tcsState[n_, gates_, order_] := With[{net = tcsCircuitNet[n, gates, ""]},
+    TensorNetworkContract[TensorNetwork[net[[1]], net[[2]] -> net[[3]][[order]]]]];
+
+(* <psi| O_1 x O_2 x ... |psi> with ops = {qubit -> matrix, ...}; matrix rows on the bra side *)
+tcsExpectation[n_, gates_, ops_] := With[{ket = tcsCircuitNet[n, gates, ""], bra = tcsCircuitNet[n, gates, "x"]},
+    With[{rename = Thread[bra[[3]][[Complement[Range[n], Keys[ops]]]] -> ket[[3]][[Complement[Range[n], Keys[ops]]]]]},
+        TensorNetworkContract[TensorNetwork[
+            Join[ket[[1]], Conjugate[bra[[1]]], Values[ops]],
+            Join[ket[[2]], Replace[bra[[2]], rename, {2}], {bra[[3]][[#]], ket[[3]][[#]]} & /@ Keys[ops]] -> {}]]]];
+
+(* dense simulation: each gate on adjacent qubits as a Kronecker product with identities *)
+tcsEmbed[n_, {m_, qs_}] := KroneckerProduct @@ Join[
+    Table[IdentityMatrix[2], First[qs] - 1], {m}, Table[IdentityMatrix[2], n - Last[qs]]];
+tcsDense[n_, gates_] := Fold[tcsEmbed[n, #2] . #1 &, UnitVector[2^n, 1], gates];
+
+(* X on qubit 2, H on 1, CNOT 1 -> 2, S on 1: (|01> + i |10>) / Sqrt[2] *)
+tcsBellGates = {{tcsX, {2}}, {tcsH, {1}}, {tcsCNOT, {1, 2}}, {tcsS, {1}}};
+(* X on 3, H on 1, CNOT 1 -> 2, CNOT 2 -> 3, T on 3: (E^(I Pi/4) |001> + |110>) / Sqrt[2] *)
+tcsGHZGates = {{tcsX, {3}}, {tcsH, {1}}, {tcsCNOT, {1, 2}}, {tcsCNOT, {2, 3}}, {tcsT, {3}}};
+
+(* ----- T1: the Bell-type circuit gives (|01> + i |10>) / Sqrt[2], i.e. the 2 x 2
+   amplitude array {{0, 1}, {i, 0}} / Sqrt[2] indexed by (qubit 1, qubit 2). *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "paclet-tn-canonical-T1-bellPhi-Z1-zero",
-    "quimb test_circuit.py:559-568 (Bell state expectations)",
+    "paclet-tn-canonical-T1-bell-circuit-state",
+    "quimb test_circuit.py:559-568 (Bell state); closed form",
     VerificationTest[
-        Module[{state00, state11, ovrl, expectZ1, norm},
-            (* For |Phi+> = (|00> + |11>)/sqrt(2):
-                 <Phi+|Z_1|Phi+> = (1/2)[<00|Z_1|00> + <11|Z_1|11>
-                                          + <00|Z_1|11> + <11|Z_1|00>]
-                 = (1/2)[1 + (-1) + 0 + 0] = 0  *)
-            state00 = {upState, upState};
-            state11 = {dnState, dnState};
-            (* <00|Z_1|00> = +1, <11|Z_1|11> = -1; cross terms zero. *)
-            expectZ1 = (1/2.) (
-                buildTNExpect[state00, 1, sigmaZ] +
-                buildTNExpect[state11, 1, sigmaZ]
-            );
-            ValidationClose[expectZ1, 0.0, 1.*^-12]
-        ],
+        tcsClose[tcsState[2, tcsBellGates, {1, 2}], {{0, 1}, {I, 0}} / Sqrt[2.]],
         True,
-        TestID -> "paclet-tn-canonical-T1-bellPhi-Z1-zero"
+        TestID -> "paclet-tn-canonical-T1-bell-circuit-state"
     ]
 ];
 
-(* ----- T2: <Z_1 Z_2> on Bell state |Phi+> = +1
-   For |Phi+>: <ZZ> = (1/2)[<00|ZZ|00> + <11|ZZ|11>] = (1/2)[(+1) + (+1)] = 1.
-   Source: quimb test_circuit.py local_expectation patterns. *)
+(* ----- T2: on (|01> + i |10>) / Sqrt[2], <Y1 X2> = 1 and <X1 Y2> = -1 (Y x X maps the
+   state to itself and X x Y to minus itself), <Z1> = 0 and <Z1 Z2> = -1. *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "paclet-tn-canonical-T2-bellPhi-ZZ-plus1",
-    "quimb test_circuit.py local_expectation([XX,YY,ZZ]) Bell pattern",
+    "paclet-tn-canonical-T2-bell-correlators",
+    "quimb test_circuit.py local_expectation Bell pattern; closed form",
     VerificationTest[
-        Module[{state00, state11, expectZZ, zz1, zz2},
-            state00 = {upState, upState};
-            state11 = {dnState, dnState};
-            (* <00|Z_1|00> * <00|Z_2|00> = (+1)(+1) = +1 (since states are product) *)
-            zz1 = (state00[[1]] . sigmaZ . state00[[1]]) *
-                  (state00[[2]] . sigmaZ . state00[[2]]);
-            zz2 = (state11[[1]] . sigmaZ . state11[[1]]) *
-                  (state11[[2]] . sigmaZ . state11[[2]]);
-            expectZZ = (1/2.) (zz1 + zz2);
-            ValidationClose[expectZZ, 1.0, 1.*^-12]
+        tcsClose[
+            {
+                tcsExpectation[2, tcsBellGates, {1 -> tcsY, 2 -> tcsX}],
+                tcsExpectation[2, tcsBellGates, {1 -> tcsX, 2 -> tcsY}],
+                tcsExpectation[2, tcsBellGates, {1 -> tcsZ}],
+                tcsExpectation[2, tcsBellGates, {1 -> tcsZ, 2 -> tcsZ}]
+            },
+            {1., -1., 0., -1.}
         ],
         True,
-        TestID -> "paclet-tn-canonical-T2-bellPhi-ZZ-plus1"
+        TestID -> "paclet-tn-canonical-T2-bell-correlators"
     ]
 ];
 
-(* ----- T3: GHZ-3 state (|000> + |111>)/sqrt(2), <Z_2> = 0
-   Source: quimb test_circuit.py:142-146 (GHZ samples only 000 or 111).
-   Same logic as T1: cross terms zero, diagonal contributions cancel. *)
+(* ----- T3: the GHZ-type circuit gives (E^(I Pi/4) |001> + |110>) / Sqrt[2]; asked for in
+   each of the six qubit orders, the state equals the closed form with its slots in
+   that order. *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "paclet-tn-canonical-T3-ghz3-Z2-zero",
-    "quimb test_circuit.py:142-146 (GHZ-3 prepare)",
+    "paclet-tn-canonical-T3-ghz-circuit-state",
+    "quimb test_circuit.py:142-146 (GHZ-3 prepare); closed form",
     VerificationTest[
-        Module[{stateAllUp, stateAllDn, expectZ2},
-            stateAllUp = {upState, upState, upState};
-            stateAllDn = {dnState, dnState, dnState};
-            expectZ2 = (1/2.) (
-                buildTNExpect[stateAllUp, 2, sigmaZ] +
-                buildTNExpect[stateAllDn, 2, sigmaZ]
-            );
-            ValidationClose[expectZ2, 0.0, 1.*^-12]
+        With[{closed = Normal @ SparseArray[{{1, 1, 2} -> Exp[I Pi / 4.] / Sqrt[2.], {2, 2, 1} -> 1 / Sqrt[2.]}, {2, 2, 2}]},
+            AllTrue[Permutations[{1, 2, 3}],
+                tcsClose[tcsState[3, tcsGHZGates, #], Transpose[closed, Ordering[#]]] &]
         ],
         True,
-        TestID -> "paclet-tn-canonical-T3-ghz3-Z2-zero"
+        TestID -> "paclet-tn-canonical-T3-ghz-circuit-state"
     ]
 ];
 
-(* ----- T4: GHZ-3 <Z_1 Z_3> = +1
-   Same calculation: (1/2)[<000|ZZ|000> + <111|ZZ|111>] = (1/2)[(+1)(+1) + (-1)(-1)] = 1. *)
+(* ----- T4: on a |001> + b |110> with a = E^(I Pi/4) / Sqrt[2], b = 1 / Sqrt[2]:
+   <X1 X2 X3> = 2 Re(Conjugate[a] b) = Cos[Pi/4], <Y1 X2 X3> = -2 Im(a Conjugate[b]) = -Sin[Pi/4],
+   <Z1 Z2> = 1, <Z2 Z3> = -1, <Z1 Z3> = -1. *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "paclet-tn-canonical-T4-ghz3-Z1Z3-plus1",
-    "quimb test_circuit.py:142-146 (GHZ correlations)",
+    "paclet-tn-canonical-T4-ghz-correlators",
+    "quimb test_circuit.py:142-146 (GHZ correlations); closed form",
     VerificationTest[
-        Module[{stateAllUp, stateAllDn, zz1, zz2, expect},
-            stateAllUp = {upState, upState, upState};
-            stateAllDn = {dnState, dnState, dnState};
-            zz1 = (stateAllUp[[1]] . sigmaZ . stateAllUp[[1]]) *
-                  (stateAllUp[[3]] . sigmaZ . stateAllUp[[3]]);
-            zz2 = (stateAllDn[[1]] . sigmaZ . stateAllDn[[1]]) *
-                  (stateAllDn[[3]] . sigmaZ . stateAllDn[[3]]);
-            expect = (1/2.) (zz1 + zz2);
-            ValidationClose[expect, 1.0, 1.*^-12]
+        tcsClose[
+            {
+                tcsExpectation[3, tcsGHZGates, {1 -> tcsX, 2 -> tcsX, 3 -> tcsX}],
+                tcsExpectation[3, tcsGHZGates, {1 -> tcsY, 2 -> tcsX, 3 -> tcsX}],
+                tcsExpectation[3, tcsGHZGates, {1 -> tcsZ, 2 -> tcsZ}],
+                tcsExpectation[3, tcsGHZGates, {2 -> tcsZ, 3 -> tcsZ}],
+                tcsExpectation[3, tcsGHZGates, {1 -> tcsZ, 3 -> tcsZ}]
+            },
+            {Cos[Pi / 4.], -Sin[Pi / 4.], 1., -1., -1.}
         ],
         True,
-        TestID -> "paclet-tn-canonical-T4-ghz3-Z1Z3-plus1"
+        TestID -> "paclet-tn-canonical-T4-ghz-correlators"
     ]
 ];
 
-(* ----- T5: Product state |Up,Dn,Up,Dn> -> per-site <Sz_j> = +/-0.5
-   Direct value from ITensorMPS test_mps.jl:69-89. The catalog records
-   "Checks <psi|Sz_j|psi> = +/-1/2" for the alternating pattern.
-   This test exercises the paclet's TensorNetwork to perform the bra-op-ket
-   contraction (rather than the simpler vector-arithmetic in baselines/). *)
+(* ----- T5: four complex random two-qubit unitaries in a brickwork on three qubits after
+   H on every qubit: the state (qubit order 2, 3, 1) equals the dense simulation, and
+   <Y1 Z2 X3> equals Conjugate[v] . (Y x Z x X) . v. *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "paclet-tn-canonical-T5-product-Sz-pattern",
-    "ITensorMPS test/base/test_mps.jl:69-89 (alternating Sz)",
+    "paclet-tn-canonical-T5-random-brickwork",
+    "dense state-vector simulation",
     VerificationTest[
-        Module[{L, sites, expectations, expected, Sz},
-            L = 4;
-            Sz = sigmaZ / 2;  (* spin-1/2 operator *)
-            sites = Table[If[OddQ[i], upState, dnState], {i, L}];
-            expectations = Table[buildTNExpect[sites, j, Sz], {j, L}];
-            expected = Table[If[OddQ[i], 0.5, -0.5], {i, L}];
-            ValidationClose[expectations, N @ expected, 1.*^-12]
+        Module[{unitaries, gates, v},
+            unitaries = BlockRandom[SeedRandom[801];
+                Table[First @ QRDecomposition[RandomComplex[{-1 - I, 1 + I}, {4, 4}]], 4]];
+            gates = Join[
+                Table[{tcsH, {q}}, {q, 3}],
+                {{unitaries[[1]], {1, 2}}, {unitaries[[2]], {2, 3}}, {unitaries[[3]], {1, 2}}, {unitaries[[4]], {2, 3}}}];
+            v = tcsDense[3, gates];
+            tcsClose[tcsState[3, gates, {2, 3, 1}], Transpose[ArrayReshape[v, {2, 2, 2}], {3, 1, 2}]] &&
+                tcsClose[tcsExpectation[3, gates, {1 -> tcsY, 2 -> tcsZ, 3 -> tcsX}],
+                    Conjugate[v] . KroneckerProduct[tcsY, tcsZ, tcsX] . v]
         ],
         True,
-        TestID -> "paclet-tn-canonical-T5-product-Sz-pattern"
+        TestID -> "paclet-tn-canonical-T5-random-brickwork"
     ]
 ];
 

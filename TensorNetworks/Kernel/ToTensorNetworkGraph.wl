@@ -280,14 +280,31 @@ ToTensorNetworkGraph[g_ /; DirectedGraphQ[g] && AcyclicGraphQ[g], opts : Options
         Replace[#2, {$Failed | Automatic :> #1, Interpretation[_, label_] :> label}] &,
         AssociationThread[vs, AnnotationValue[{g, vs}, VertexLabels]]
     ];
-    Block[{in = Cases[_Subscript] /@ indices, out = Cases[_Superscript] /@ indices, outIdx, inIdx},
+    (* An edge whose tag already names an outgoing leg of its source and an incoming leg of its
+       target keeps it. The remaining edges take free legs: the same slot number when there is
+       one, the first free leg otherwise. *)
+    Block[{
+        in = Cases[_Subscript] /@ indices, out = Cases[_Superscript] /@ indices, outIdx, inIdx,
+        taggedQ = Function[edge,
+            Length[edge] === 3 && MatchQ[edge[[3]], {o_Superscript, i_Subscript} /;
+                MemberQ[indices[edge[[1]]], o] && MemberQ[indices[edge[[2]]], i]]
+        ],
+        tagged
+    },
+        tagged = Select[edges, taggedQ];
+        tagged = If[DuplicateFreeQ[Catenate[tagged[[All, 3]]]], tagged, {}];
+        out = DeleteElements[#, tagged[[All, 3, 1]]] & /@ out;
+        in = DeleteElements[#, tagged[[All, 3, 2]]] & /@ in;
         edges = Table[
-            {outIdx, inIdx} = FirstCase[#, {_[_, x_], _[_, x_]}, First[#]] & @ Tuples[{Lookup[out, edge[[1]]], Lookup[in, edge[[2]]]}];
-            out[edge[[1]]] //= DeleteCases[outIdx];
-            in[edge[[2]]] //= DeleteCases[inIdx];
-            Append[edge[[;; 2]], {outIdx, inIdx}]
+            If[ MemberQ[tagged, edge],
+                edge,
+                {outIdx, inIdx} = FirstCase[#, {_[_, x_], _[_, x_]}, First[#]] & @ Tuples[{Lookup[out, edge[[1]]], Lookup[in, edge[[2]]]}];
+                out[edge[[1]]] //= DeleteCases[outIdx];
+                in[edge[[2]]] //= DeleteCases[inIdx];
+                Append[edge[[;; 2]], {outIdx, inIdx}]
+            ]
             ,
-            {edge, Catenate @ Lookup[GroupBy[edges, First], vs, {}]}   
+            {edge, Catenate @ Lookup[GroupBy[edges, First], vs, {}]}
         ]
     ];
 	Graph[
@@ -425,10 +442,17 @@ ToTensorNetworkGraph[tensors_List, hyperedges : {___List}, opts : OptionsPattern
     ]
 ]
 
+(* The vertices keep their names, which the leg names refer to. The new cup and cap vertices
+   take integers above every integer vertex name and every vertex named in a leg, so their legs
+   cannot collide with existing ones. *)
 TensorNetworkRemoveCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Graph]] := Enclose @ Block[{
-    net = IndexGraph[inputNet], cycles, id, q, r, edge, tag, cup, cap, cupIndex, capIndex, dim
+    net = inputNet, cycles, id, q, r, edge, tag, cup, cap, cupIndex, capIndex, dim
 },
-	id = Max[VertexList[net], 0] + 1;
+	id = Max[
+        0,
+        Cases[VertexList[net], _Integer],
+        Cases[Join[EdgeTags[net], Replace[AnnotationValue[{net, #}, "Index"], Except[_List] -> {}] & /@ VertexList[net]], (Superscript | Subscript)[v_Integer, _] :> v, Infinity]
+    ] + 1;
 	{q, r} = MinMax[EdgeTags[net][[All, All, 2]]];
     q = Min[q, 1];
     r = Max[r, 1];
@@ -439,7 +463,7 @@ TensorNetworkRemoveCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Grap
 
         q--;
 		edge = cycles[[1, -1]];
-        tag = If[Length[edge] == 3 && MatchQ[edge[[3]], {Superscript[_Integer, _Integer], Subscript[_Integer, _Integer]}],
+        tag = If[Length[edge] == 3 && MatchQ[edge[[3]], {Superscript[_, _Integer], Subscript[_, _Integer]}],
             edge[[3]],
             None
         ];

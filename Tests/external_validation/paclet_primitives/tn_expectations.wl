@@ -1,12 +1,18 @@
 (* Tests/external_validation/paclet_primitives/tn_expectations.wl
 
-Paclet-primitive tests for TensorNetwork-based expectation values on simple
-states. Uses paclet's TensorNetwork[...] + TensorNetworkContract[...] to
-compute <psi|O|psi> on product states.
+Expectation values computed as tensor-network sandwiches <psi| O |psi> with
+TensorNetwork + TensorNetworkContract, checked against the dense state vector.
+
+F5 and F6 use an entangled complex random MPS with unequal physical and bond
+dimensions. The dense vector psi is the explicit sum over the bond indices (written in
+this file); the references are Conjugate[phi] . psi, and Conjugate[psi] . K . psi with
+K the Kronecker product of the operator with identities. Operators are complex random
+(not Hermitian), so a transposed operator leg or a missing conjugation changes the value.
+F7 compares with quimb's values from a fixture.
 
 Sources:
-- ITensorNetworks #15 (2x2 GHZ <Sz>=0)
 - ITensorMPS expect (test_mps.jl:880-935 pattern)
+- quimb MatrixProductState (fixture quimb_random_mps_seed42.json)
 *)
 
 Module[{candidates, found},
@@ -27,62 +33,94 @@ Module[{candidates, found},
 ];
 ClearValidationRecords[];
 
-(* Single-site states *)
-upState = N @ {1, 0};
-dnState = N @ {0, 1};
-sigmaZ = N @ {{1, 0}, {0, -1}};
+(* agreement to 1e-10 relative to the size of the reference *)
+tneClose[x_, y_] := TrueQ[Dimensions[x] === Dimensions[y] && Max[Abs[Flatten[{x - y}]]] <= 1.*^-10 Max[1, Max[Abs[Flatten[{y}]]]]];
 
-(* ----- F5: TensorNetwork product-state norm = 1
-   Build |Up,Dn,Up,Dn> as paclet TensorNetwork; close ket-bra via shared phys
-   indices. Result = <psi|psi> = 1. *)
+(* open-boundary MPS on 5 sites: physical dimensions 2, 3, 2, 2, 3; bonds 3, 2, 4, 2 *)
+tnePhys = {2, 3, 2, 2, 3};
+tneBonds = {3, 2, 4, 2};
+tneLength = Length[tnePhys];
+tneKetLegs = Table[
+    Which[
+        k === 1, {"b1", "p1"},
+        k === tneLength, {"b" <> ToString[k - 1], "p" <> ToString[k]},
+        True, {"b" <> ToString[k - 1], "b" <> ToString[k], "p" <> ToString[k]}],
+    {k, tneLength}];
+(* bra bonds are separate labels; physical legs are shared unless an operator sits there *)
+tneBraLegs[opSites_List] := Map[
+    Function[l, Which[
+        StringStartsQ[l, "b"], "c" <> StringDrop[l, 1],
+        MemberQ[opSites, ToExpression[StringDrop[l, 1]]], "q" <> StringDrop[l, 1],
+        True, l]],
+    tneKetLegs, {2}];
+tneRandomMPS[seed_] := BlockRandom[SeedRandom[seed];
+    Table[RandomComplex[{-1 - I, 1 + I},
+        Which[
+            k === 1, {tneBonds[[1]], tnePhys[[1]]},
+            k === tneLength, {tneBonds[[k - 1]], tnePhys[[k]]},
+            True, {tneBonds[[k - 1]], tneBonds[[k]], tnePhys[[k]]}]],
+        {k, tneLength}]];
+
+(* dense state psi[s1, ..., s5] as an explicit sum over the four bond indices, flattened *)
+tneDense[tensors_] := Flatten @ Table[
+    Sum[
+        tensors[[1]][[b1, s1]] tensors[[2]][[b1, b2, s2]] tensors[[3]][[b2, b3, s3]] tensors[[4]][[b3, b4, s4]] tensors[[5]][[b4, s5]],
+        {b1, tneBonds[[1]]}, {b2, tneBonds[[2]]}, {b3, tneBonds[[3]]}, {b4, tneBonds[[4]]}],
+    {s1, tnePhys[[1]]}, {s2, tnePhys[[2]]}, {s3, tnePhys[[3]]}, {s4, tnePhys[[4]]}, {s5, tnePhys[[5]]}];
+
+(* Kronecker product of identities with op acting on consecutive sites starting at first *)
+tneEmbed[op_, first_, count_] := KroneckerProduct @@ Join[
+    IdentityMatrix /@ tnePhys[[;; first - 1]],
+    {op},
+    IdentityMatrix /@ tnePhys[[first + count ;;]]];
+
+(* ----- F5: <phi|psi> and <psi|psi> for two different complex random MPS: the sandwich
+   network with conjugated bra tensors equals Conjugate[phi] . psi of the dense vectors. *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "paclet-tn-F5-product-state-norm",
-    "quimb docs/tensor/tensor-1d.ipynb (MPS norm)",
+    "paclet-tn-F5-mps-overlap-dense",
+    "quimb docs/tensor/tensor-1d.ipynb (MPS overlap); dense state vector",
     VerificationTest[
-        Module[{L, ketTensors, braTensors, allTensors, allInds, tn, result},
-            L = 4;
-            ketTensors = Table[If[OddQ[i], upState, dnState], {i, L}];
-            braTensors = ketTensors;
-            allTensors = Join[ketTensors, braTensors];
-            allInds = Join[
-                Table[{"p_" <> ToString[i]}, {i, L}],
-                Table[{"p_" <> ToString[i]}, {i, L}]
-            ];
-            tn = TensorNetwork[allTensors, allInds];
-            result = TensorNetworkContract[tn];
-            ValidationClose[result, 1.0, 1.*^-12]
+        Module[{psi, phi, sandwich},
+            psi = tneRandomMPS[701];
+            phi = tneRandomMPS[702];
+            sandwich[bra_, ket_] := TensorNetworkContract[
+                TensorNetwork[Join[ket, Conjugate[bra]], Join[tneKetLegs, tneBraLegs[{}]] -> {}]];
+            tneClose[sandwich[phi, psi], Conjugate[tneDense[phi]] . tneDense[psi]] &&
+                tneClose[sandwich[psi, psi], Conjugate[tneDense[psi]] . tneDense[psi]]
         ],
         True,
-        TestID -> "paclet-tn-F5-product-state-norm"
+        TestID -> "paclet-tn-F5-mps-overlap-dense"
     ]
 ];
 
-(* ----- F6: TensorNetwork Sz expectation on product state
-   <psi|Z_2|psi> for |Up,Dn,Up,Dn> at site 2 = -1. *)
+(* ----- F6: <psi|O_k|psi> for a complex random operator on each site k, and for a
+   complex random two-site operator on sites 2 and 3 (stored with its slots reordered),
+   equal Conjugate[psi] . K . psi with K the operator embedded by Kronecker products. *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "paclet-tn-F6-tn-sz-expectation",
-    "ITensorMPS expect (test_mps.jl:880-935 pattern)",
+    "paclet-tn-F6-mps-local-and-two-site-expectations",
+    "ITensorMPS expect (test_mps.jl:880-935 pattern); dense state vector",
     VerificationTest[
-        Module[{L, ketTensors, braTensors, allTensors, allInds, tn, result},
-            L = 4;
-            ketTensors = Table[If[OddQ[i], upState, dnState], {i, L}];
-            braTensors = ketTensors;
-            allTensors = Append[Join[ketTensors, braTensors], sigmaZ];
-            allInds = Join[
-                (* ket: site i has phys ind p_i *)
-                Table[{"p_" <> ToString[i]}, {i, L}],
-                (* bra: site 2 uses q_2 (joins op output); other sites use p_i *)
-                Table[
-                    If[i === 2, {"q_2"}, {"p_" <> ToString[i]}]
-                , {i, L}],
-                {{"p_2", "q_2"}}  (* operator connects ket-p_2 to bra-q_2 *)
-            ];
-            tn = TensorNetwork[allTensors, allInds];
-            result = TensorNetworkContract[tn];
-            ValidationClose[result, -1.0, 1.*^-12]
+        Module[{psi, v, ops, two, local, pair},
+            psi = tneRandomMPS[703];
+            v = tneDense[psi];
+            ops = BlockRandom[SeedRandom[704]; RandomComplex[{-1 - I, 1 + I}, {#, #}] & /@ tnePhys];
+            two = BlockRandom[SeedRandom[705]; RandomComplex[{-1 - I, 1 + I}, {6, 6}]];
+            local = Table[
+                TensorNetworkContract[TensorNetwork[
+                    Join[psi, Conjugate[psi], {ops[[k]]}],
+                    Join[tneKetLegs, tneBraLegs[{k}], {{"q" <> ToString[k], "p" <> ToString[k]}}] -> {}]],
+                {k, tneLength}];
+            pair = TensorNetworkContract[TensorNetwork[
+                (* rows (s2', s3'), columns (s2, s3); slots stored as (s3', s2', s3, s2) *)
+                Join[psi, Conjugate[psi], {Transpose[ArrayReshape[two, {3, 2, 3, 2}], {2, 1, 4, 3}]}],
+                Join[tneKetLegs, tneBraLegs[{3, 2}], {{"q3", "q2", "p3", "p2"}}] -> {}]];
+            And[
+                AllTrue[Range[tneLength], tneClose[local[[#]], Conjugate[v] . tneEmbed[ops[[#]], #, 1] . v] &],
+                tneClose[pair, Conjugate[v] . tneEmbed[two, 2, 2] . v]
+            ]
         ],
         True,
-        TestID -> "paclet-tn-F6-tn-sz-expectation"
+        TestID -> "paclet-tn-F6-mps-local-and-two-site-expectations"
     ]
 ];
 

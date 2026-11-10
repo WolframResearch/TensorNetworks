@@ -1,16 +1,28 @@
 (* Tests/external_validation/paclet_primitives/contraction_paths.wl
 
-Paclet-primitive tests: contraction-path parity vs cotengra. The paclet's
-OptimalContractionPath / GreedyContractionPath should match cotengra's path
-structure on canonical small cases. Exact FLOP-count matching is treated as a
-soft check because cotengra's cost convention ("ops = real_flops/2") may differ
-from the paclet's; structural tests (path length, equivalence to dense, etc.)
-are exact.
+Contraction paths and the values contracted along them, each checked against an
+answer computed here without the paclet:
+
+- the value of a network: an explicit sum over every index assignment
+  (cpOracle), on complex random tensors with unequal dimensions;
+- the flops of a path (sum over steps of the product of the dimensions of both
+  operands' labels) and its largest intermediate, by walking the path (cpPathCosts);
+- the optimal flops and the optimal largest intermediate, by exhaustive search over
+  every order of pairwise contractions (cpBest) or, for 12 tensors, by dynamic
+  programming over connected subsets (cpSubsetBest); like the paclet's search, both
+  exclude outer products unless asked;
+- the greedy path: the same greedy rule as cotengra's (contract the sharing pair with
+  the smallest signed log of size(ab)/w - w (size(a) + size(b))), run here with every
+  tie-break (cpGreedyCosts), so the paclet's path must cost one of those amounts;
+- the price the Automatic planner gives a path, from its documented rule (cpPrice).
+
+Kept unchanged: B2, B3, B6 (values against plain Dot and an explicit sum), Bcost1 and
+Bcost2 (hand-computed optimal costs).
 
 Sources:
 - cotengra docs/basics.ipynb (4-tensor demo)
-- cotengra tests/test_paths_basic.py:194-205 (lattice [4,5] optimal)
-- cotengra tests/test_paths_basic.py:221-243 (edgesort chain)
+- cotengra tests/test_optimizers.py:139-167 (fixture cotengra_hyperopt_bound.json)
+- cotengra tests/test_paths_basic.py:97-110, 221-243
 - quimb tests/test_tensor_core.py:1095-1101 (chain of (8,8) tensors)
 *)
 
@@ -31,35 +43,160 @@ Module[{candidates, found},
 ];
 ClearValidationRecords[];
 
-contract = ActivateTensors @* EinsteinSummation;
+(* ===================== Independent references ===================== *)
 
-(* ----- B1: 4-tensor demo path structure (cotengra docs/basics.ipynb)
-   Inputs: T1[a,b,x], T2[b,c,d], T3[c,e,y], T4[e,a,d] with output (x,y).
-   cotengra's path is ((0,1),(1,2),(0,1)) — three pair contractions, opt_einsum
-   convention. Translate to paclet's 1-indexed: {{1,2},{2,3},{1,2}}. *)
-WithCapability[{"OptimalContractionPath", "TensorNetwork"}, "paclet-paths-B1-4tensor-path",
-    "cotengra docs/basics.ipynb (4-tensor demo)",
+(* agreement to 1e-10 relative to the size of the reference, same dimensions *)
+cpClose[x_, y_] := TrueQ[Dimensions[x] === Dimensions[y] && Max[Abs[Flatten[{x - y}]]] <= 1.*^-10 Max[1, Max[Abs[Flatten[{y}]]]]];
+(* explicit index sum *)
+cpSizes[ts_, shapes_] := Association @ Catenate @ MapThread[Thread[#2 -> Dimensions[#1]] &, {ts, shapes}];
+cpEntry[ts_, shapes_, val_] := Times @@ MapThread[Extract[#1, Lookup[val, #2]] &, {ts, shapes}];
+cpOracle[ts_, shapes_, out_] := Block[{sd = cpSizes[ts, shapes], internal, tuples, labels, sumAt},
+    internal = Complement[DeleteDuplicates[Catenate[shapes]], out];
+    tuples = Tuples[Range /@ Lookup[sd, internal]];
+    labels = Join[out, internal];
+    sumAt[o_List] := Total[cpEntry[ts, shapes, AssociationThread[labels, Join[o, #]]] & /@ tuples];
+    If[out === {}, sumAt[{}], Array[sumAt[{##}] &, Lookup[sd, out]]]
+];
+cpKept[a_, b_, rest_, out_] := Select[Union[a, b], Function[l, MemberQ[out, l] || AnyTrue[rest, MemberQ[#, l] &]]];
+cpPathCosts[shapes_, out_, sd_, path_] := Module[{state = Union /@ shapes, flops = 0, largest = 0, a, b, rest, k},
+    Scan[Function[step,
+        a = state[[step[[1]]]]; b = state[[step[[2]]]]; rest = Delete[state, List /@ step];
+        k = cpKept[a, b, rest, out];
+        flops += Times @@ Lookup[sd, Union[a, b]];
+        largest = Max[largest, Times @@ Lookup[sd, k]];
+        state = Append[rest, k]], path];
+    {flops, largest}
+];
+cpBest[shapes_, out_, sd_, objective_, outerQ_ : False] := Module[{rec},
+    rec[state_] := rec[state] = If[Length[state] == 1, 0,
+        Min @ Map[
+            Function[p, With[{a = state[[p[[1]]]], b = state[[p[[2]]]], rest = Delete[state, List /@ p]},
+                With[{k = cpKept[a, b, rest, out]},
+                    If[objective === "flops",
+                        Times @@ Lookup[sd, Union[a, b]] + rec[Sort[Append[rest, k]]],
+                        Max[Times @@ Lookup[sd, k], rec[Sort[Append[rest, k]]]]]]]],
+            Select[Subsets[Range[Length[state]], {2}], outerQ || IntersectingQ[state[[#[[1]]]], state[[#[[2]]]]] &]]];
+    rec[Sort[Union /@ shapes]]
+];
+(* Rust scores log(sab/w - w(sa+sb)) as a signed log in single precision; a difference
+   within rounding of zero can come out at either extreme, so it is marked ambiguous *)
+cpGreedyScore[sa_, sb_, sab_, w_] := With[{d = sab / w - w (sa + sb)},
+    Which[Abs[d] <= 1.*^-5 (sab / w + w (sa + sb)), None, d > 0, Log[d], True, -Log[-d]]];
+cpGreedyCosts[shapes_, out_, sd_, w_] := Module[{rec, size},
+    size[l_] := Times @@ Lookup[sd, l];
+    rec[state_] := rec[state] = If[Length[state] == 1, {0},
+        With[{cands = Map[
+                Function[p, With[{a = state[[p[[1]]]], b = state[[p[[2]]]], rest = Delete[state, List /@ p]},
+                    With[{k = cpKept[a, b, rest, out]},
+                        {cpGreedyScore[size[a], size[b], size[k], w], size[Union[a, b]], Sort[Append[rest, k]]}]]],
+                Select[Subsets[Range[Length[state]], {2}], IntersectingQ[state[[#[[1]]]], state[[#[[2]]]]] &]]},
+            With[{definite = Select[cands, NumericQ[First[#]] &], ambiguous = Select[cands, First[#] === None &]},
+                With[{best = If[definite === {}, None, Min[definite[[All, 1]]]]},
+                    Union @@ Map[Function[c, c[[2]] + rec[c[[3]]]],
+                        Join[ambiguous, If[best === None, {}, Select[definite, #[[1]] <= best + 1.*^-5 Max[1, Abs[best]] &]]]]]]]];
+    rec[Sort[Union /@ shapes]]
+];
+
+(* the kernel's plan price, from its documented rule: per step the elements of both operands
+   and the result (each doubled past 2^20) plus the flops over 70; a leaf first drops labels
+   only it holds; a label survives a step while another tensor or the output holds it *)
+cpPrice[shapes_, out_, sd_, path_] := Module[{holders, state, price = 0, largest = 0, w, a, b, k, c},
+    holders = Counts[Catenate[DeleteDuplicates /@ shapes]];
+    state = Select[DeleteDuplicates[#], Function[l, holders[l] > 1 || MemberQ[out, l]]] & /@ shapes;
+    w[s_] := If[s > 2.^20, 2 s, s];
+    Scan[Function[step,
+        a = state[[step[[1]]]]; b = state[[step[[2]]]];
+        k = {};
+        Scan[Function[l,
+            c = Boole[MemberQ[a, l]] + Boole[MemberQ[b, l]];
+            If[holders[l] > c || MemberQ[out, l], holders[l] += 1 - c; AppendTo[k, l], holders[l] -= c]],
+            DeleteDuplicates[Join[a, b]]];
+        price += w[Times @@ Lookup[sd, a]] + w[Times @@ Lookup[sd, b]] + w[Times @@ Lookup[sd, k]] +
+            (Times @@ Lookup[sd, Union[a, b]]) / 70.;
+        largest = Max[largest, Times @@ Lookup[sd, k]];
+        state = Append[Delete[state, List /@ step], k]], path];
+    {price, largest}
+];
+
+(* exact optimum by dynamic programming over connected subsets (no outer products) *)
+cpSubsetBest[shapes_, out_, sd_] := Module[{n = Length[shapes], legsets = Union /@ shapes, legsOf, best = <||>, all, cost},
+    all = 2^n - 1;
+    legsOf[s_] := legsOf[s] = With[{inside = Union @@ legsets[[Flatten @ Position[Reverse @ IntegerDigits[s, 2, n], 1]]],
+            outside = Union @@ Append[legsets[[Flatten @ Position[Reverse @ IntegerDigits[s, 2, n], 0]]], {}]},
+        Select[inside, MemberQ[outside, #] || MemberQ[out, #] &]];
+    Scan[(best[2^(# - 1)] = 0) &, Range[n]];
+    Scan[Function[s,
+        Module[{m = s, a, b, v = Infinity},
+            a = BitAnd[s - 1, s];
+            While[a > 0,
+                b = BitXor[s, a];
+                If[a < b && KeyExistsQ[best, a] && KeyExistsQ[best, b] && IntersectingQ[legsOf[a], legsOf[b]],
+                    v = Min[v, best[a] + best[b] + Times @@ Lookup[sd, Union[legsOf[a], legsOf[b]]]]];
+                a = BitAnd[a - 1, s]];
+            If[v < Infinity, best[s] = v]]],
+        SortBy[Select[Range[all], DigitCount[#, 2, 1] >= 2 &], DigitCount[#, 2, 1] &]];
+    best[all]
+];
+
+(* seeded random connected network: spanning tree + extra bonds, optional 3-tensor
+   hyperedges, open legs; every open leg is in the output, in random order *)
+cpRandomNetwork[seed_, n_, extra_, hyper_, open_, maxTotal_ : 200000] := Module[{try = seed, net},
+    While[True,
+        net = BlockRandom[SeedRandom[try];
+            Module[{legs = ConstantArray[{}, n], k = 0, sd = <||>, add, out = {}},
+                add[label_, members_, d_] := (sd[label] = d; Scan[(legs[[#]] = Append[legs[[#]], label]) &, members]);
+                Do[add["e" <> ToString[++k], {t, RandomInteger[{1, t - 1}]}, RandomInteger[{2, 4}]], {t, 2, n}];
+                Do[add["e" <> ToString[++k], RandomSample[Range[n], 2], RandomInteger[{2, 4}]], {extra}];
+                Do[add["h" <> ToString[m], RandomSample[Range[n], 3], RandomInteger[{2, 3}]], {m, hyper}];
+                Do[add["o" <> ToString[m], {RandomInteger[{1, n}]}, RandomInteger[{2, 3}]]; AppendTo[out, "o" <> ToString[m]], {m, open}];
+                {RandomSample[#] & /@ legs, RandomSample[out], sd}]];
+        If[DuplicateFreeQ[Sort /@ net[[1]]] && Times @@ Values[net[[3]]] <= maxTotal && AllTrue[net[[1]], Length[#] <= 5 &],
+            Return[net]];
+        try += 1000]
+];
+
+(* ===================== Networks ===================== *)
+
+(* cotengra's 4-tensor demo, output (x, y) *)
+cpDemoShapes = {{"a", "b", "x"}, {"b", "c", "d"}, {"c", "e", "y"}, {"e", "a", "d"}};
+cpDemoSizes = <|"a" -> 4, "b" -> 5, "c" -> 6, "d" -> 7, "e" -> 8, "x" -> 2, "y" -> 3|>;
+
+(* 5 tensors with a loop, unequal bonds, one open leg *)
+cpFiveShapes = {{"a", "b"}, {"b", "c", "d"}, {"d", "e"}, {"e", "a", "f"}, {"c", "f", "g"}};
+cpFiveSizes = <|"a" -> 2, "b" -> 3, "c" -> 4, "d" -> 5, "e" -> 2, "f" -> 3, "g" -> 2|>;
+
+(* 6 tensors where the flops-optimal path is not size-optimal: its largest intermediate
+   is 96 while the size optimum is 72 (exhaustive search) *)
+cpSplitShapes = {{"e8", "e1", "o1"}, {"o2", "e2", "e1", "e7", "e4"}, {"e2", "e6", "e3"}, {"e3"},
+    {"e6", "e7", "e5", "e4"}, {"e5", "e8"}};
+cpSplitOut = {"o1", "o2"};
+cpSplitSizes = <|"e1" -> 2, "e2" -> 3, "e3" -> 4, "e4" -> 4, "e5" -> 3, "e6" -> 2, "e7" -> 3,
+    "e8" -> 4, "o1" -> 3, "o2" -> 2|>;
+
+cpRandomComplex[sd_, shapes_, seed_] := BlockRandom[SeedRandom[seed];
+    RandomComplex[{-1 - I, 1 + I}, Lookup[sd, #]] & /@ shapes];
+
+(* ----- B1: on the 4-tensor demo the "flops" path costs the exhaustive minimum, and the
+   default path (Method -> "size") has the smallest possible largest intermediate. *)
+WithCapability[{"OptimalContractionPath", "TensorNetwork"}, "paclet-paths-B1-4tensor-exhaustive",
+    "cotengra docs/basics.ipynb (4-tensor demo); exhaustive search over orders",
     VerificationTest[
-        Module[{tn, path, sd, shapes, ts},
-            sd = <|"a" -> 4, "b" -> 5, "c" -> 6, "d" -> 7, "e" -> 8, "x" -> 2, "y" -> 3|>;
-            shapes = {{"a", "b", "x"}, {"b", "c", "d"}, {"c", "e", "y"}, {"e", "a", "d"}};
-            SeedRandom[101];
-            ts = MapThread[RandomReal[{-1, 1}, sd /@ #] &, {shapes}];
-            tn = TensorNetwork[ts, shapes];
-            path = OptimalContractionPath[tn, Method -> "flops"];
-            (* Path length must be 3 (4 tensors -> 1) and each step must be a
-               pair of distinct positions. The cotengra reference path on this
-               network is {{1,2},{2,3},{1,2}} but the symmetry T1<->T3, T2<->T4
-               permits equivalent permutations; we don't pin a specific path. *)
-            Length[path] === 3 &&
-                AllTrue[path, MatchQ[#, {_Integer, _Integer}] && #[[1]] != #[[2]] &]
+        Module[{tn},
+            tn = TensorNetwork[ConstantArray[1., Lookup[cpDemoSizes, #]] & /@ cpDemoShapes, cpDemoShapes -> {"x", "y"}];
+            {
+                First @ cpPathCosts[cpDemoShapes, {"x", "y"}, cpDemoSizes, OptimalContractionPath[tn, Method -> "flops"]],
+                Last @ cpPathCosts[cpDemoShapes, {"x", "y"}, cpDemoSizes, OptimalContractionPath[tn]]
+            } === {
+                cpBest[cpDemoShapes, {"x", "y"}, cpDemoSizes, "flops"],
+                cpBest[cpDemoShapes, {"x", "y"}, cpDemoSizes, "size"]
+            }
         ],
         True,
-        TestID -> "paclet-paths-B1-4tensor-path"
+        TestID -> "paclet-paths-B1-4tensor-exhaustive"
     ]
 ];
 
-(* ----- B2: chain of 3 (8,8) matrices — width and cost (quimb test_tensor_core.py:1095-1101)
+(* ----- B2: chain of 3 (8,8) matrices, width and cost (quimb test_tensor_core.py:1095-1101)
    a-b-c where each is (8,8); shared bonds. Optimal path has length 2.
    The contracted scalar should equal Tr[a.b.c] for a closed chain or a.b.c for open. *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContract"},
@@ -109,63 +246,56 @@ WithCapability[{"GreedyContractionPath", "TensorNetwork", "TensorNetworkContract
     ]
 ];
 
-(* ----- B4: 4×5 lattice path validity (cotengra tests/test_paths_basic.py:194-205)
-   2D grid 4×5; path should have length n-1 = 19. Costs comparable to
-   cotengra's reported flops=1464 (with d_max=3) — we test path validity, not
-   exact cost-match (cost convention may differ). *)
+(* ----- B4: a 2x3 lattice of complex random tensors with unequal bonds and open legs on
+   two corners, output in reversed order: the "flops" path costs the exhaustive minimum,
+   and the values along that path and by default equal the explicit index sum. *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContract"},
-    "paclet-paths-B4-lattice45-path",
-    "cotengra tests/test_paths_basic.py:194-205 (lattice[4,5])",
+    "paclet-paths-B4-lattice23",
+    "cotengra tests/test_paths_basic.py:194-205 (lattice), shrunk to 2x3 for an exact reference",
     VerificationTest[
-        Module[{Lx, Ly, dim, sd, shapes, ts, tn, path, contracted},
-            Lx = 4; Ly = 5; dim = 3;
-            SeedRandom[109];
-            (* For each site (i,j), tensor has indices for adjacent edges. *)
-            shapes = Flatten[Table[
-                Module[{site = {i, j}, edges = {}},
-                    If[i < Lx, AppendTo[edges, "h_" <> ToString[i] <> "_" <> ToString[j]]];
-                    If[i > 1, AppendTo[edges, "h_" <> ToString[i - 1] <> "_" <> ToString[j]]];
-                    If[j < Ly, AppendTo[edges, "v_" <> ToString[i] <> "_" <> ToString[j]]];
-                    If[j > 1, AppendTo[edges, "v_" <> ToString[i] <> "_" <> ToString[j - 1]]];
-                    edges
-                ],
-                {i, Lx}, {j, Ly}], 1];
-            ts = Map[RandomReal[{-1, 1}, ConstantArray[dim, Length[#]]] &, shapes];
-            tn = TensorNetwork[ts, shapes];
+        Module[{shapes, sd, out, ts, tn, path, ref},
+            shapes = {{"h11", "v1", "p11"}, {"h11", "h12", "v2"}, {"h12", "v3"},
+                {"v1", "h21"}, {"h21", "h22", "v2"}, {"h22", "v3", "p23"}};
+            sd = <|"h11" -> 2, "h12" -> 3, "h21" -> 4, "h22" -> 2, "v1" -> 3, "v2" -> 2, "v3" -> 4,
+                "p11" -> 2, "p23" -> 3|>;
+            out = {"p23", "p11"};
+            ts = cpRandomComplex[sd, shapes, 109];
+            tn = TensorNetwork[ts, shapes -> out];
             path = OptimalContractionPath[tn, Method -> "flops"];
-            contracted = TensorNetworkContract[tn];
-            (* Path length = n_tensors - 1; result is a scalar (closed network). *)
-            Length[path] === Lx * Ly - 1 && NumericQ[contracted]
+            ref = cpOracle[ts, shapes, out];
+            First[cpPathCosts[shapes, out, sd, path]] === cpBest[shapes, out, sd, "flops"] &&
+                cpClose[TensorNetworkContract[tn, path], ref] &&
+                cpClose[TensorNetworkContract[tn], ref]
         ],
         True,
-        TestID -> "paclet-paths-B4-lattice45-path"
+        TestID -> "paclet-paths-B4-lattice23"
     ]
 ];
 
-(* ----- B5: greedy vs optimal — both correct, optimal cost <= greedy
-   on a small random hypergraph. *)
-WithCapability[{"OptimalContractionPath", "GreedyContractionPath",
-    "TensorNetwork", "TensorNetworkContract"},
-    "paclet-paths-B5-greedy-vs-optimal",
-    "cotengra tests/test_optimizers.py (random regular contraction)",
+(* ----- B5: on the 5-tensor loop, contracting along the greedy, "flops" and "size" paths,
+   by the named methods and by default all give the explicit index sum. *)
+WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetwork", "TensorNetworkContract"},
+    "paclet-paths-B5-paths-match-index-sum",
+    "contraction value is independent of the order (explicit index sum)",
     VerificationTest[
-        Module[{ts, shapes, sd, tn, pGreedy, pOptimal, cGreedy, cOptimal},
-            sd = <|"a" -> 3, "b" -> 4, "c" -> 2, "d" -> 5, "e" -> 3, "f" -> 4|>;
-            shapes = {{"a", "b"}, {"b", "c", "d"}, {"d", "e"}, {"e", "f", "a"}, {"f", "c"}};
-            SeedRandom[113];
-            ts = MapThread[RandomReal[{-1, 1}, sd /@ #] &, {shapes}];
-            tn = TensorNetwork[ts, shapes];
-            pGreedy = GreedyContractionPath[tn];
-            pOptimal = OptimalContractionPath[tn, Method -> "flops"];
-            (* Both must produce the same numeric answer. *)
-            cGreedy = TensorNetworkContract[tn];
-            cOptimal = TensorNetworkContract[tn];
-            Length[pGreedy] === Length[shapes] - 1 &&
-                Length[pOptimal] === Length[shapes] - 1 &&
-                ValidationClose[cGreedy, cOptimal, 1.*^-10]
+        Module[{ts, tn, ref},
+            ts = cpRandomComplex[cpFiveSizes, cpFiveShapes, 113];
+            tn = TensorNetwork[ts, cpFiveShapes -> {"g"}];
+            ref = cpOracle[ts, cpFiveShapes, {"g"}];
+            AllTrue[
+                {
+                    TensorNetworkContract[tn, GreedyContractionPath[tn]],
+                    TensorNetworkContract[tn, OptimalContractionPath[tn, Method -> "flops"]],
+                    TensorNetworkContract[tn, OptimalContractionPath[tn, Method -> "size"]],
+                    TensorNetworkContract[tn, "Greedy"],
+                    TensorNetworkContract[tn, "flops"],
+                    TensorNetworkContract[tn]
+                },
+                cpClose[#, ref] &
+            ]
         ],
         True,
-        TestID -> "paclet-paths-B5-greedy-vs-optimal"
+        TestID -> "paclet-paths-B5-paths-match-index-sum"
     ]
 ];
 
@@ -193,117 +323,99 @@ WithCapability[{"TensorNetwork", "TensorNetworkContract"},
     ]
 ];
 
-(* B7 (was: "skip - exact FLOP count comparison") removed: the cost convention
-   was audited and confirmed identical between cotengra `total_flops(dtype=None)`
-   and the paclet's per-step compute_flops. Direct flop-count matches are now
-   pinned by tests Bcost1, Bcost2 below (chain cost = 64, triangle cost = 30). *)
-
-(* ----- B8: paclet optimal cost is bounded above by cotengra HyperOptimizer cost
-   The original "exact path match" formulation was infeasible (HyperOptimizer is
-   stochastic), but the reframed assertion is stronger: paclet's exhaustive
-   OptimalContractionPath must find a path whose cost is <= any heuristic. We
-   load the cost cotengra HyperOptimizer reports on a randreg(n=12,reg=3,seed=11)
-   network and check the paclet doesn't exceed it. *)
+(* ----- B8: on cotengra's 12-tensor random regular network the "flops" path costs the
+   exact optimum found here by dynamic programming over connected subsets, which is
+   also within cotengra's HyperOptimizer cost. *)
 WithCapability[{"TensorNetwork", "OptimalContractionPath"},
     "paclet-paths-B8-hyperoptimizer-comparison",
-    "cotengra tests/test_optimizers.py:139-167 (reframed; fixture: external_oracles/fixtures/cotengra_hyperopt_bound.json)",
+    "cotengra tests/test_optimizers.py:139-167 (fixture: external_oracles/fixtures/cotengra_hyperopt_bound.json)",
     VerificationTest[
-        Module[{fixture, shapes, sd, ts, tn, path, pacletCost, bound},
+        Module[{fixture, shapes, sd, out, tn, cost, best},
             fixture = Import[OracleFixturePath["cotengra_hyperopt_bound.json"], "RawJSON"];
             shapes = fixture["inputs"];
             sd = Association @ KeyValueMap[Rule, fixture["size_dict"]];
-            ts = MapThread[ConstantArray[1.0, sd /@ #] &, {shapes}];
-            tn = TensorNetwork[ts, shapes];
-            path = OptimalContractionPath[tn, Method -> "flops"];
-            pacletCost = pathCost[shapes, sd, path];
-            bound = fixture["hyperopt_cost"];
-            pacletCost <= bound
+            out = Keys @ Select[Counts[Catenate[shapes]], # === 1 &];
+            tn = TensorNetwork[ConstantArray[1., Lookup[sd, #]] & /@ shapes, shapes];
+            cost = First @ cpPathCosts[shapes, out, sd, OptimalContractionPath[tn, Method -> "flops"]];
+            best = cpSubsetBest[shapes, out, sd];
+            cost === best && cost <= fixture["hyperopt_cost"]
         ],
         True,
         TestID -> "paclet-paths-B8-hyperoptimizer-comparison"
     ]
 ];
 
-(* ===== Path-cost extraction tests =====
-   Compute the FLOP cost of a path manually by walking it: at each pair (i,j),
-   the cost is product over distinct dimensions in (Idx_i union Idx_j). The
-   paclet's optimal path should yield total cost <= greedy path's cost. *)
-
-(* pathCost helper now lives in Helpers/ValidationHelpers.wl so other tier
-   files can use it without re-running this file's tests via Get[]. *)
-
-(* ----- B9: optimal path cost <= greedy path cost on a 5-tensor random hypergraph *)
-WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetwork"},
-    "paclet-paths-B9-optimal-le-greedy",
-    "cotengra tests/test_optimizers.py (speedup invariant)",
+(* ----- B9: GreedyContractionPath follows the greedy rule for the default weight and for
+   "MemoryWeight" 0.1, 0.5, 2 and 4: each path costs an amount the rule can produce.
+   The weights 1 and 4 lead to disjoint costs on this network, so a weight that is
+   ignored is seen. *)
+WithCapability[{"GreedyContractionPath", "TensorNetwork"},
+    "paclet-paths-B9-greedy-rule-and-memory-weight",
+    "cotengra greedy (cotengrust optimize_greedy) rule, replayed here",
     VerificationTest[
-        Module[{sd, shapes, ts, tn, pGreedy, pOptimal, costGreedy, costOptimal},
-            sd = <|"a" -> 4, "b" -> 5, "c" -> 3, "d" -> 6, "e" -> 2, "f" -> 4|>;
-            shapes = {{"a", "b", "c"}, {"b", "d"}, {"c", "d", "e"}, {"e", "f"}, {"f", "a"}};
-            SeedRandom[131];
-            ts = MapThread[RandomReal[{-1, 1}, sd /@ #] &, {shapes}];
-            tn = TensorNetwork[ts, shapes];
-            pGreedy = GreedyContractionPath[tn];
-            pOptimal = OptimalContractionPath[tn, Method -> "flops"];
-            costGreedy = pathCost[shapes, sd, pGreedy];
-            costOptimal = pathCost[shapes, sd, pOptimal];
-            (* Optimal must be no worse than greedy *)
-            costOptimal <= costGreedy
+        Module[{tn, costOf, allowed},
+            tn = TensorNetwork[ConstantArray[1., Lookup[cpFiveSizes, #]] & /@ cpFiveShapes, cpFiveShapes -> {"g"}];
+            costOf[path_] := First @ cpPathCosts[cpFiveShapes, {"g"}, cpFiveSizes, path];
+            allowed[w_] := cpGreedyCosts[cpFiveShapes, {"g"}, cpFiveSizes, w];
+            And[
+                Intersection[allowed[1.], allowed[4.]] === {},
+                MemberQ[allowed[1.], costOf[GreedyContractionPath[tn]]],
+                AllTrue[{0.1, 0.5, 2., 4.},
+                    MemberQ[allowed[#], costOf[GreedyContractionPath[tn, "MemoryWeight" -> #]]] &]
+            ]
         ],
         True,
-        TestID -> "paclet-paths-B9-optimal-le-greedy"
+        TestID -> "paclet-paths-B9-greedy-rule-and-memory-weight"
     ]
 ];
 
-(* ----- B10: path validity — each step references valid positions in the
-   working list. opt_einsum convention: list shrinks by 1 each step (remove 2,
-   append 1). *)
+(* ----- B10: "AllowOuterProducts" -> True: a rank-4 tensor with three vectors on its
+   short legs and one long open leg is cheapest by first multiplying the vectors
+   together (an outer product). The paclet must find the exhaustive minimum both with
+   and without outer products, and the two minima differ. *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork"},
-    "paclet-paths-B10-path-bijective",
-    "Path-data structural invariant",
+    "paclet-paths-B10-outer-products",
+    "exhaustive search with and without outer products",
     VerificationTest[
-        Module[{tn, ts, shapes, sd, path, n, listLen, allValid},
-            sd = <|"a" -> 3, "b" -> 4, "c" -> 5, "d" -> 2, "e" -> 6|>;
-            shapes = {{"a", "b"}, {"b", "c"}, {"c", "d"}, {"d", "e"}, {"e", "a"}};
-            n = Length[shapes];
-            SeedRandom[137];
-            ts = MapThread[RandomReal[{-1, 1}, sd /@ #] &, {shapes}];
-            tn = TensorNetwork[ts, shapes];
-            path = OptimalContractionPath[tn, Method -> "flops"];
-            listLen = n;
-            allValid = And @@ Table[
-                Module[{p1, p2, ok},
-                    {p1, p2} = path[[step]];
-                    ok = (1 <= p1 <= listLen) && (1 <= p2 <= listLen) && p1 =!= p2;
-                    listLen = listLen - 1;
-                    ok
-                ]
-            , {step, Length[path]}];
-            allValid && Length[path] === n - 1
+        Module[{shapes, sd, tn, with, without},
+            shapes = {{"a", "b", "c", "o"}, {"a"}, {"b"}, {"c"}};
+            sd = <|"a" -> 3, "b" -> 3, "c" -> 3, "o" -> 20|>;
+            tn = TensorNetwork[ConstantArray[1., Lookup[sd, #]] & /@ shapes, shapes -> {"o"}];
+            with = cpBest[shapes, {"o"}, sd, "flops", True];
+            without = cpBest[shapes, {"o"}, sd, "flops"];
+            with < without &&
+                First[cpPathCosts[shapes, {"o"}, sd, OptimalContractionPath[tn, Method -> "flops", "AllowOuterProducts" -> True]]] === with &&
+                First[cpPathCosts[shapes, {"o"}, sd, OptimalContractionPath[tn, Method -> "flops"]]] === without
         ],
         True,
-        TestID -> "paclet-paths-B10-path-bijective"
+        TestID -> "paclet-paths-B10-outer-products"
     ]
 ];
 
-(* ----- B11: contraction along OptimalContractionPath equals greedy result.
-   Different paths but same numeric answer (associativity/commutativity). *)
-WithCapability[{"OptimalContractionPath", "GreedyContractionPath", "TensorNetworkContract", "TensorNetwork"},
-    "paclet-paths-B11-paths-give-same-result",
-    "cotengra contract correctness invariant",
+(* ----- B11: every contraction engine gives the explicit index sum, on a 4-tensor loop
+   with three open legs requested in a cyclically permuted order and on its closed
+   version (a scalar). *)
+WithCapability[{"TensorNetwork", "TensorNetworkContract"},
+    "paclet-paths-B11-engines-match-index-sum",
+    "explicit index sum; $TensorNetworkContractionMethods",
     VerificationTest[
-        Module[{tn, ts, shapes, sd, resultDefault, resultExplicit},
-            sd = <|"a" -> 3, "b" -> 4, "c" -> 2, "d" -> 5, "e" -> 3, "f" -> 4|>;
-            shapes = {{"a", "b"}, {"b", "c", "d"}, {"d", "e"}, {"e", "f", "a"}, {"f", "c"}};
-            SeedRandom[139];
-            ts = MapThread[RandomReal[{-1, 1}, sd /@ #] &, {shapes}];
-            tn = TensorNetwork[ts, shapes];
-            resultDefault = TensorNetworkContract[tn];
-            resultExplicit = TensorNetworkContract[tn];  (* default uses optimal *)
-            ValidationClose[resultDefault, resultExplicit, 1.*^-10]
+        Module[{openShapes, closedShapes, sd, out, tsOpen, tsClosed, refOpen, refClosed, tnOpen, tnClosed},
+            openShapes = {{"i", "j", "o1"}, {"j", "k", "o2", "l"}, {"k", "i", "m"}, {"l", "m", "o3"}};
+            closedShapes = DeleteCases[openShapes, "o1" | "o2" | "o3", {2}];
+            sd = <|"i" -> 2, "j" -> 3, "k" -> 4, "l" -> 2, "m" -> 3, "o1" -> 2, "o2" -> 3, "o3" -> 4|>;
+            out = {"o3", "o1", "o2"};
+            tsOpen = cpRandomComplex[sd, openShapes, 139];
+            tsClosed = cpRandomComplex[sd, closedShapes, 140];
+            refOpen = cpOracle[tsOpen, openShapes, out];
+            refClosed = cpOracle[tsClosed, closedShapes, {}];
+            tnOpen = TensorNetwork[tsOpen, openShapes -> out];
+            tnClosed = TensorNetwork[tsClosed, closedShapes -> {}];
+            AllTrue[{"ArrayDotTranspose", "ArrayDot", "Dot", "TensorContract", "TableSum"},
+                cpClose[TensorNetworkContract[tnOpen, Method -> #], refOpen] &&
+                    cpClose[TensorNetworkContract[tnClosed, Method -> #], refClosed] &]
         ],
         True,
-        TestID -> "paclet-paths-B11-paths-give-same-result"
+        TestID -> "paclet-paths-B11-engines-match-index-sum"
     ]
 ];
 
@@ -364,52 +476,98 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"},
     ]
 ];
 
-(* ----- B-cost3: paclet's MM-wrapper default is "size", NOT "flops".
-   Documents the behavior gap with cotengra (which defaults to "flops"). For a
-   network where flops-optimal and size-optimal paths differ, the wrapper's
-   default invocation should match Method -> "size", not Method -> "flops". *)
+(* ----- B-cost3: the default OptimalContractionPath minimizes the largest intermediate
+   ("size"), on a network where the flops-optimal path does not. *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork"},
-    "paclet-paths-Bcost3-wrapper-default-is-size",
-    "paclet TensorNetworks.wl:112-118 (Method -> size override)",
+    "paclet-paths-Bcost3-default-is-size-optimal",
+    "exhaustive search over orders (largest intermediate)",
     VerificationTest[
-        Module[{tn, ts, shapes, sd, pDefault, pSize, pFlops},
-            (* Pick a network where flops and size give different paths. The
-               4-tensor demo from cotengra basics works: shapes have varied dims. *)
-            sd = <|"a" -> 4, "b" -> 5, "c" -> 6, "d" -> 7, "e" -> 8, "x" -> 2, "y" -> 3|>;
-            shapes = {{"a", "b", "x"}, {"b", "c", "d"}, {"c", "e", "y"}, {"e", "a", "d"}};
-            ts = MapThread[ConstantArray[1.0, sd /@ #] &, {shapes}];
-            tn = TensorNetwork[ts, shapes];
-            pDefault = OptimalContractionPath[tn];                  (* uses Method -> "size" *)
-            pSize = OptimalContractionPath[tn, Method -> "size"];
-            (* Default must match explicit "size", not explicit "flops". *)
-            pDefault === pSize
+        Module[{tn, sizeBest, flopsPathLargest},
+            tn = TensorNetwork[ConstantArray[1., Lookup[cpSplitSizes, #]] & /@ cpSplitShapes, cpSplitShapes -> cpSplitOut];
+            sizeBest = cpBest[cpSplitShapes, cpSplitOut, cpSplitSizes, "size"];
+            flopsPathLargest = Last @ cpPathCosts[cpSplitShapes, cpSplitOut, cpSplitSizes, OptimalContractionPath[tn, Method -> "flops"]];
+            flopsPathLargest > sizeBest &&
+                Last[cpPathCosts[cpSplitShapes, cpSplitOut, cpSplitSizes, OptimalContractionPath[tn]]] === sizeBest
         ],
         True,
-        TestID -> "paclet-paths-Bcost3-wrapper-default-is-size"
+        TestID -> "paclet-paths-Bcost3-default-is-size-optimal"
     ]
 ];
 
-(* ----- B12: Method->"size" minimizes peak intermediate size, not flops.
-   On a network where flop-optimal differs from size-optimal, both should still
-   give same numeric answer but different paths. *)
+(* ----- B12: on the same network, Method -> "flops" reaches the flops minimum and
+   Method -> "size" the largest-intermediate minimum of the exhaustive search, and both
+   paths contract complex random tensors to the explicit index sum. *)
 WithCapability[{"OptimalContractionPath", "TensorNetwork", "TensorNetworkContract"},
     "paclet-paths-B12-method-flops-vs-size",
-    "paclet OptimalContractionPath Method options",
+    "exhaustive search over orders; explicit index sum",
     VerificationTest[
-        Module[{tn, ts, shapes, sd, pFlops, pSize, result},
-            sd = <|"a" -> 5, "b" -> 6, "c" -> 7, "d" -> 4, "e" -> 3|>;
-            shapes = {{"a", "b"}, {"b", "c"}, {"c", "d"}, {"d", "e"}};
-            SeedRandom[149];
-            ts = MapThread[RandomReal[{-1, 1}, sd /@ #] &, {shapes}];
-            tn = TensorNetwork[ts, shapes];
+        Module[{ts, tn, pFlops, pSize, ref},
+            ts = cpRandomComplex[cpSplitSizes, cpSplitShapes, 149];
+            tn = TensorNetwork[ts, cpSplitShapes -> cpSplitOut];
             pFlops = OptimalContractionPath[tn, Method -> "flops"];
             pSize = OptimalContractionPath[tn, Method -> "size"];
-            (* Both paths exist and have the right length; the contracted result is identical *)
-            result = TensorNetworkContract[tn];
-            Length[pFlops] === Length[shapes] - 1 && Length[pSize] === Length[shapes] - 1 &&
-                Dimensions[result] === {sd["a"], sd["e"]}
+            ref = cpOracle[ts, cpSplitShapes, cpSplitOut];
+            First[cpPathCosts[cpSplitShapes, cpSplitOut, cpSplitSizes, pFlops]] === cpBest[cpSplitShapes, cpSplitOut, cpSplitSizes, "flops"] &&
+                Last[cpPathCosts[cpSplitShapes, cpSplitOut, cpSplitSizes, pSize]] === cpBest[cpSplitShapes, cpSplitOut, cpSplitSizes, "size"] &&
+                cpClose[TensorNetworkContract[tn, pFlops], ref] &&
+                cpClose[TensorNetworkContract[tn, pSize], ref]
         ],
         True,
         TestID -> "paclet-paths-B12-method-flops-vs-size"
+    ]
+];
+
+(* ----- B13: greedy paths drawn with "Temperature" and "RandomSeed" are valid orders that
+   contract to the explicit index sum and cost no less than the exhaustive minimum. *)
+WithCapability[{"GreedyContractionPath", "TensorNetwork", "TensorNetworkContract"},
+    "paclet-paths-B13-tempered-greedy",
+    "explicit index sum; exhaustive search over orders",
+    VerificationTest[
+        Module[{ts, tn, ref, best},
+            ts = cpRandomComplex[cpFiveSizes, cpFiveShapes, 151];
+            tn = TensorNetwork[ts, cpFiveShapes -> {"g"}];
+            ref = cpOracle[ts, cpFiveShapes, {"g"}];
+            best = cpBest[cpFiveShapes, {"g"}, cpFiveSizes, "flops"];
+            AllTrue[Range[8],
+                Function[seed, With[{path = GreedyContractionPath[tn, "Temperature" -> 0.5, "RandomSeed" -> seed]},
+                    PathValidQ[path, Length[cpFiveShapes]] &&
+                        First[cpPathCosts[cpFiveShapes, {"g"}, cpFiveSizes, path]] >= best &&
+                        cpClose[TensorNetworkContract[tn, path], ref]]]]
+        ],
+        True,
+        TestID -> "paclet-paths-B13-tempered-greedy"
+    ]
+];
+
+(* ----- Bprice: the price the Automatic planner puts on a path (the private pathCost of
+   Contraction.wl, which ranks candidate plans) equals the documented rule computed here:
+   per step, the elements of both operands and of the result plus the flops over 70, and
+   the largest result. Checked on several paths of the 5-tensor loop and of a network
+   with a hyperedge, a leg only one tensor holds, and a hyperedge kept in the output. *)
+WithCapability[{"TensorNetwork", "GreedyContractionPath", "OptimalContractionPath"},
+    "paclet-paths-Bprice-plan-price",
+    "Contraction.wl cheapestPlan price rule, recomputed",
+    VerificationTest[
+        Module[{priceOf, check, tn, hyperShapes, hyperSizes, hyperOut, tnHyper},
+            priceOf[net_, path_] := With[{params = Wolfram`TensorNetworks`PackageScope`extractContractionParameters[net]},
+                Wolfram`TensorNetworks`Contraction`PackagePrivate`pathCost[path,
+                    Wolfram`TensorNetworks`Contraction`PackagePrivate`pathCostInput[params]]];
+            check[net_, shapes_, out_, sd_, path_] := With[{got = priceOf[net, path], want = cpPrice[shapes, out, sd, path]},
+                Abs[First[got] - First[want]] <= 1.*^-12 First[want] && Last[got] == Last[want]];
+            tn = TensorNetwork[ConstantArray[1., Lookup[cpFiveSizes, #]] & /@ cpFiveShapes, cpFiveShapes -> {"g"}];
+            hyperShapes = {{"a", "x", "s"}, {"x", "b"}, {"x", "c", "a"}, {"b", "c", "o"}};
+            hyperSizes = <|"a" -> 3, "x" -> 2, "s" -> 4, "b" -> 5, "c" -> 2, "o" -> 3|>;
+            hyperOut = {"o", "x"};
+            tnHyper = TensorNetwork[ConstantArray[1., Lookup[hyperSizes, #]] & /@ hyperShapes, hyperShapes -> hyperOut];
+            And[
+                AllTrue[{GreedyContractionPath[tn], OptimalContractionPath[tn, Method -> "flops"],
+                        {{1, 2}, {1, 2}, {1, 2}, {1, 2}}, {{4, 5}, {2, 3}, {1, 2}, {1, 2}}},
+                    check[tn, cpFiveShapes, {"g"}, cpFiveSizes, #] &],
+                AllTrue[{{{1, 2}, {1, 2}, {1, 2}}, {{3, 4}, {1, 2}, {1, 2}}, {{2, 4}, {1, 3}, {1, 2}}},
+                    check[tnHyper, hyperShapes, hyperOut, hyperSizes, #] &]
+            ]
+        ],
+        True,
+        TestID -> "paclet-paths-Bprice-plan-price"
     ]
 ];

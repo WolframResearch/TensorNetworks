@@ -124,7 +124,7 @@ MetricTensor["Schwarzschild"[M_ : M], {t_ : t, r_ : r, theta_ : theta, phi_ : ph
     MetricTensor[
         DiagonalMatrix[{ - (1 - (2 * M) / r), 1 / (1 - (2 * M) / r), r ^ 2, r ^ 2 * Sin[theta] ^ 2}],
         {t, r, theta, phi},
-        {r > 0, M > 2 r, 0 < theta < Pi},
+        {M > 0, r > 2 M, 0 < theta < Pi},
         args
     ]
 
@@ -137,7 +137,7 @@ MetricTensor["IsotropicSchwarzschild"[M_ : M], {t_ : t, x_ : x, y_ : y, z_ : z},
     MetricTensor[
         DiagonalMatrix[Prepend[ - (1 - M / 2 / r) ^ 2 / (1 + M / 2 / r) ^ 2] @ ConstantArray[(1 + M / 2 / r) ^ 4, 3]],
         {t, x, y, z},
-        {r > 0, M > 2 r},
+        {M > 0, r > M / 2},
         args
     ]
 ]
@@ -264,7 +264,7 @@ MetricTensor["Kerr"[M_ : M, J_ : J], {t_ : t, r_ : r, theta_ : theta, phi_ : phi
                 (r ^ 2 + J ^ 2 / M ^ 2 + (2 * r * J ^ 2 * Sin[theta] ^ 2) / rho / M) * Sin[theta] ^ 2}
         },
         {t, r, theta, phi},
-        {M > 0, J > 0, r > 0, rho > 0, 0 < theta < Pi / 2},
+        {M > 0, J > 0, J < M ^ 2, r > M + Sqrt[M ^ 2 - J ^ 2 / M ^ 2], rho > 0, 0 < theta < Pi},
         args
     ]
 ]
@@ -333,8 +333,28 @@ MetricTensor["FLRW"[k_ : k, a_ : a], {t_ : t, r_ : r, theta_ : theta, phi_ : phi
 
 (* Mutation *)
 
-MetricTensor[mt_MetricTensor, coordinates_List, {i_ ? BooleanQ, j_ ? BooleanQ}, assumptions_List, name_] :=
-    MetricTensor[IndexTensor[MetricTensor[mt["Matrix"], padCoordinates[coordinates, mt["Dimension"]], i, j, assumptions, name]["IndexTensor"], mt["IndexArray"]["Indices"]]]
+(* The components g_{mu nu}: the stored matrix of a covariant metric, the inverse of a
+   contravariant one *)
+
+covariantMatrix[mt_] := If[mt["Indices"] === {True, True}, Inverse[mt["Matrix"]], mt["Matrix"]]
+
+(* The same metric with the variance {i, j} (True raises an index) and the given coordinates,
+   assumptions and name. Raising or lowering both indices inverts the matrix; the index names are
+   kept. One raised and one lowered index is the Kronecker delta, which is not a metric. *)
+
+MetricTensor[mt_MetricTensor, coordinates_List, {i_ ? BooleanQ, j_ ? BooleanQ}, assumptions_List, name_] := Enclose @ Block[{
+    xs = padCoordinates[coordinates, mt["Dimension"]], matrix, st
+},
+    ConfirmAssert[i === j, "A metric has both indices upper or both lower"];
+    matrix = If[ {i, j} === mt["Indices"],
+        mt["Matrix"],
+        Inverse[mt["Matrix"]]
+    ];
+    st = IndexArray[matrix, {i, j}, xs, assumptions, name];
+    MetricTensor[IndexTensor[IndexArray[st,
+        Shape @@ MapThread[Dimension[If[#2, #1["Upper"], #1["Lower"]], All, xs] &, {mt["IndexArray"]["Indices"], {i, j}}]
+    ]]]
+]
 
 MetricTensor[mt_MetricTensor, coordinates_List, args___] := MetricTensor[MetricTensor[mt, coordinates, mt["Indices"], mt["Assumptions"], mt["Name"]], args]
 
@@ -344,14 +364,25 @@ MetricTensor[mt_MetricTensor, i_ ? BooleanQ, args___] := MetricTensor[MetricTens
 
 MetricTensor[mt_MetricTensor, i_ ? BooleanQ, j_ ? BooleanQ, args___] := MetricTensor[MetricTensor[mt, mt["Coordinates"], {i, j}, mt["Assumptions"], mt["Name"]], args]
 
-MetricTensor[mt_MetricTensor, coordinates_List, i_ ? BooleanQ, j_ ? BooleanQ, args___] := MetricTensor[MetricTensor[mt, mt["Coordinates"], {i, j}, mt["Assumptions"], mt["Name"]], args]
+MetricTensor[mt_MetricTensor, coordinates_List, i_ ? BooleanQ, j_ ? BooleanQ, args___] := MetricTensor[MetricTensor[mt, coordinates, {i, j}, mt["Assumptions"], mt["Name"]], args]
 
 MetricTensor[mt_MetricTensor, name_, args___] := MetricTensor[MetricTensor[mt, mt["Coordinates"], mt["Indices"], mt["Assumptions"], name], args]
 
 MetricTensor[mt_MetricTensor] := mt
 
+MetricTensor[failure_Failure, ___] := failure
+
 
 (* General constructors *)
+
+unknownMetricFailure[name_] := Failure["IndexArray", <|
+    "MessageTemplate" -> "`1` is not a built-in metric; MetricTensor[] lists them.",
+    "MessageParameters" -> {name}
+|>]
+
+MetricTensor[name_String, ___] /; ! MemberQ[MetricTensor[], name] := unknownMetricFailure[name]
+
+MetricTensor[name : _String[___], ___] /; ! MemberQ[MetricTensor[], Head[name]] := unknownMetricFailure[Head[name]]
 
 MetricTensor[name_String, args___] := MetricTensor[name[], args]
 
@@ -410,12 +441,9 @@ Prop[mt_, prop_String /; StringStartsQ[prop, "Reduced"]] := FullSimplify[mt[Stri
 
 Prop[mt_, "Dimension" | "Dimensions"] := Length[mt["Coordinates"]]
 
-Prop[mt_, "MatrixRepresentation"] :=
-    Switch[mt["Indices"],
-        {True, True}, mt["Matrix"],
-        {False, False}, Inverse[mt["Matrix"]],
-        _, IdentityMatrix[mt["Dimension"]]
-    ]
+Prop[mt_, "MatrixRepresentation"] := mt["Matrix"]
+
+Prop[mt_, "CovariantMatrix"] := covariantMatrix[mt]
 
 Prop[mt_, "CoordinateOneForms"] := DifferentialD /@ mt["Coordinates"]
 
@@ -423,20 +451,97 @@ Prop[mt_, "Determinant"] := Det[mt["Matrix"]]
 
 Prop[mt_, "Eigenvalues"] := Eigenvalues[mt["Matrix"]]
 
+Prop[mt_, "Eigenvectors"] := Eigenvectors[mt["Matrix"]]
+
 Prop[mt_, "Trace"] := Tr[mt["Matrix"]]
 
-Prop[mt_, "VolumeForm"] := Sqrt[Abs[Det[mt["Matrix"]]]] * (Wedge @@ mt["CoordinateOneForms"])
+Prop[mt_, "VolumeForm"] := Sqrt[Abs[Det[covariantMatrix[mt]]]] * (Wedge @@ mt["CoordinateOneForms"])
 
-Prop[mt_, "LineElement"] := Total[Flatten[mt["Matrix"] * Outer[Times, mt["CoordinateOneForms"], mt["CoordinateOneForms"]]]]
+Prop[mt_, "LineElement"] := Total[Flatten[covariantMatrix[mt] * Outer[Times, mt["CoordinateOneForms"], mt["CoordinateOneForms"]]]]
+
+(* The squared length g_{mu nu} u^mu v^nu of contravariant component vectors *)
+innerProduct[mt_, u_List, v_List] := u . covariantMatrix[mt] . v
+
+Prop[mt_, "LengthPureFunction"] := Function[v, Sqrt[Abs[innerProduct[mt, v, v]]]]
+
+Prop[mt_, "AnglePureFunction"] := Function[{u, v}, ArcCos[innerProduct[mt, u, v] / Sqrt[Abs[innerProduct[mt, u, u] innerProduct[mt, v, v]]]]]
+
+(* Causal character of a vector in a Lorentzian metric. With one negative eigenvalue (signature
+   - + + +) a timelike vector has negative squared length; with one positive eigenvalue
+   (+ - - -) it has positive squared length. *)
+timeSign[mt_] := With[{n = mt["Dimension"], signature = mt["Signature"]},
+    Which[
+        n > 2 && signature === {1, n - 1, 0}, 1,
+        n > 2 && signature === {n - 1, 1, 0}, -1,
+        (* two dimensions: the first coordinate is time, or else the second is space; with
+           neither of definite sign (null coordinates) no coordinate is time *)
+        n == 2 && signature === {1, 1, 0}, With[{g = covariantMatrix[mt], assumptions = realAssumptions[mt]},
+            Which[
+                decideCondition[g[[1, 1]] > 0, assumptions], 1,
+                decideCondition[g[[1, 1]] < 0, assumptions], -1,
+                decideCondition[g[[2, 2]] > 0, assumptions], -1,
+                decideCondition[g[[2, 2]] < 0, assumptions], 1,
+                True, Missing["NoTimeCoordinate"]
+            ]
+        ],
+        True, Missing["NotLorentzian"]
+    ]
+]
+
+(* the stored assumptions, with the coordinates real *)
+realAssumptions[mt_] := Join[mt["Assumptions"], Element[#, Reals] & /@ mt["Coordinates"]]
+
+causalTest[mt_, test_] := With[{s = timeSign[mt]},
+    If[MissingQ[s], s, Function[v, Simplify[test[s * innerProduct[mt, v, v]], realAssumptions[mt]]]]
+]
+
+Prop[mt_, "TimelikeQ"] := causalTest[mt, Positive]
+
+Prop[mt_, "SpacelikeQ"] := causalTest[mt, Negative]
+
+Prop[mt_, "LightlikeQ"] := causalTest[mt, PossibleZeroQ]
+
+Prop[mt_, prop : "TimelikeQ" | "SpacelikeQ" | "LightlikeQ", v_List] := Replace[mt[prop], f_Function :> f[v]]
+
+(* Conditions on the coordinates and parameters, from the eigenvalues of the matrix, under which
+   the metric has each signature type *)
+signatureConditions[mt_, type_] := With[{e = Eigenvalues[mt["Matrix"]], n = mt["Dimension"]},
+    decideCondition[
+        Switch[type,
+            "Riemannian", And @@ Thread[e > 0] || And @@ Thread[e < 0],
+            (* as "SignatureType": nondegenerate, neither definite nor Lorentzian *)
+            "PseudoRiemannian", And @@ Thread[e != 0] && ! signatureConditions[mt, "Riemannian"] && ! signatureConditions[mt, "Lorentzian"],
+            "Lorentzian", n >= 2 && Or @@ Map[
+                k |-> (e[[k]] < 0 && And @@ Thread[Delete[e, k] > 0]) || (e[[k]] > 0 && And @@ Thread[Delete[e, k] < 0]),
+                Range[n]
+            ]
+        ],
+        realAssumptions[mt]
+    ]
+]
+
+Prop[mt_, "RiemannianConditions"] := signatureConditions[mt, "Riemannian"]
+
+Prop[mt_, "PseudoRiemannianConditions"] := signatureConditions[mt, "PseudoRiemannian"]
+
+Prop[mt_, "LorentzianConditions"] := signatureConditions[mt, "Lorentzian"]
+
+(* Where the components of g_{mu nu} blow up or its determinant vanishes *)
+Prop[mt_, "MetricSingularities"] := With[{gl = Normal[covariantMatrix[mt]]},
+    Simplify[Or @@ DeleteDuplicates @ Join[
+        {Together[Det[gl]] == 0},
+        Thread[DeleteCases[DeleteDuplicates[Flatten[Denominator[Together[gl]]]], _ ? NumericQ] == 0]
+    ]]
+]
 
 Prop[mt_, "SignatureVector"] := Block[{
     eigenvalues = Re[Eigenvalues[mt["MatrixRepresentation"]]],
-    assumptions = mt["Assumptions"],
+    assumptions = realAssumptions[mt],
     positive, negative, zero
 },
-    positive = Simplify[Thread[eigenvalues > 0], assumptions];
-    negative = Simplify[Thread[eigenvalues < 0], assumptions];
-    zero = Simplify[Thread[eigenvalues == 0], assumptions];
+    positive = decideCondition[#, assumptions] & /@ Thread[eigenvalues > 0];
+    negative = decideCondition[#, assumptions] & /@ Thread[eigenvalues < 0];
+    zero = decideCondition[#, assumptions] & /@ Thread[eigenvalues == 0];
     Replace[
         Thread[{positive, negative, zero, Thread[Nor[positive, negative, zero]]}],
         {
@@ -447,6 +552,11 @@ Prop[mt_, "SignatureVector"] := Block[{
         },
         1
     ]
+]
+
+(* Simplify, then FullSimplify for up to two seconds on what Simplify leaves undecided *)
+decideCondition[condition_, assumptions_] := Replace[Simplify[condition, assumptions],
+    undecided : Except[True | False] :> TimeConstrained[FullSimplify[undecided, assumptions], 2, undecided]
 ]
 
 Prop[mt_, "FullSignature"] := Lookup[Counts[mt["SignatureVector"]], {1, -1, 0, Indeterminate}, 0]
@@ -474,7 +584,7 @@ Prop[mt_, "ContravariantQ"] := mt["Type"] === "Contravariant"
 
 Prop[mt_, "MixedQ"] := mt["Type"] === "Mixed"
 
-Prop[mt_, "SignatyreType"] := Switch[
+Prop[mt_, "SignatureType"] := Switch[
     mt["FullSignature"],
     {0, 0, 0, _}, "Unknown",
     {p_, 0, 0, 0} | {0, q_, 0, 0}, "Riemannian",
@@ -483,11 +593,11 @@ Prop[mt_, "SignatyreType"] := Switch[
     _, "General"
 ]
 
-Prop[mt_, "RiemannianQ"] := mt["SignatyreType"] === "Riemannian"
+Prop[mt_, "RiemannianQ"] := mt["SignatureType"] === "Riemannian"
 
-Prop[mt_, "PseudoRiemannianQ"] := mt["SignatyreType"] === "Pseudo-Riemannian"
+Prop[mt_, "PseudoRiemannianQ"] := mt["SignatureType"] === "Pseudo-Riemannian"
 
-Prop[mt_, "LorentzianQ"] := mt["SignatyreType"] === "Lorentzian"
+Prop[mt_, "LorentzianQ"] := mt["SignatureType"] === "Lorentzian"
 
 
 Prop[mt_, "SymmetricQ"] := mt["Symmetry"] === Symmetric[{1, 2}]
@@ -495,7 +605,12 @@ Prop[mt_, "SymmetricQ"] := mt["Symmetry"] === Symmetric[{1, 2}]
 Prop[mt_, "DiagonalQ"] := DiagonalMatrixQ[mt["MatrixRepresentation"]]
 
 
-Prop[mt_, "Inverse" | "InverseMetricTensor"] := MetricTensor[mt, False, False]
+(* The matrix inverse: a covariant metric becomes contravariant and the reverse *)
+Prop[mt_, "Inverse"] := MetricTensor[mt, mt["Coordinates"], Not /@ mt["Indices"], mt["Assumptions"], mt["Name"]]
+
+Prop[mt_, "MetricTensor"] := MetricTensor[mt, False, False]
+
+Prop[mt_, "InverseMetricTensor"] := MetricTensor[mt, True, True]
 
 
 Prop[mt_, prop_String, args___] /; MemberQ[IndexTensor["Properties"], prop] := mt["IndexTensor"][prop, args]
@@ -506,7 +621,7 @@ Prop[_, prop_String, ___] := Missing[prop]
 
 (* General fallback constructor *)
 
-MetricTensor[arg_, args__] /; ! MetricTensorQ[Unevaluated[mt]] := With[{mt = MetricTensor[arg]},
+MetricTensor[arg_, args__] /; ! MetricTensorQ[Unevaluated[arg]] := With[{mt = MetricTensor[arg]},
     Which[
         ! MetricTensorQ[mt],
         Failure["IndexArray", <|"MessageTemplate" -> "Badly specified metric tensor: ``", "MessageParameters" -> {arg}|>]
@@ -518,6 +633,8 @@ MetricTensor[arg_, args__] /; ! MetricTensorQ[Unevaluated[mt]] := With[{mt = Met
 
 
 (* Index juggling *)
+
+(mt_MetricTensor ? MetricTensorQ)[prop : "TimelikeQ" | "SpacelikeQ" | "LightlikeQ", v_List] := Prop[mt, prop, v]
 
 mt_MetricTensor[is___] := With[{newTensor = MetricTensor[mt["IndexTensor"][is]]},
     If[MetricTensorQ[newTensor], newTensor, First[newTensor]]
@@ -566,7 +683,7 @@ MetricTensor /: MakeBoxes[mt_MetricTensor /; MetricTensorQ[Unevaluated[mt]], for
         },
         {
             {
-                BoxForm`SummaryItem[{"Signature: ", TimeConstrained[Row[{mt["SignatyreType"], ": ", Row[mt["SignatureSigns"]]}], .25]}]
+                BoxForm`SummaryItem[{"Signature: ", TimeConstrained[Row[{mt["SignatureType"], ": ", Row[mt["SignatureSigns"]]}], .25]}]
             },
             {
                 BoxForm`SummaryItem[{"Symmetry: ", mt["Symmetry"]}],

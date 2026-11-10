@@ -8,6 +8,7 @@ PackageExport[TreePathToPath]
 PackageExport[PathToTreePath]
 PackageExport[CanonicalPath]
 PackageExport[PathIndexContractions]
+PackageExport[ContractIndices]
 
 PackageScope[treeSteps]
 

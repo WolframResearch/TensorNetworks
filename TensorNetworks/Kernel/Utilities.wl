@@ -114,9 +114,17 @@ symbolicTensorDimensions[t_ ? TensorQ] := TensorDimensions[t]
 (* Transpose with Cycles permutation - permute dimensions accordingly *)
 symbolicTensorDimensions[HoldPattern[Transpose[a_, perm_Cycles]]] := Permute[symbolicTensorDimensions[a], perm]
 symbolicTensorDimensions[Inactive[Transpose][a_, perm_Cycles]] := Permute[symbolicTensorDimensions[a], perm]
-(* Transpose with list permutation *)
-symbolicTensorDimensions[HoldPattern[Transpose[a_, perm_List]]] := symbolicTensorDimensions[a][[perm]]
-symbolicTensorDimensions[Inactive[Transpose][a_, perm_List]] := symbolicTensorDimensions[a][[perm]]
+(* Transpose with a list permutation: level k of a becomes level perm[[k]] *)
+symbolicTensorDimensions[HoldPattern[Transpose[a_, perm_List]]] := listPermuteDimensions[symbolicTensorDimensions[a], perm]
+symbolicTensorDimensions[Inactive[Transpose][a_, perm_List]] := listPermuteDimensions[symbolicTensorDimensions[a], perm]
+(* levels sent to the same place make a diagonal, as long as the shortest of them *)
+listPermuteDimensions[dims_List, perm_List] /; Length[perm] <= Length[dims] := With[{full = Join[perm, Max[perm, 0] + Range[Length[dims] - Length[perm]]]},
+    If[ PermutationListQ[full],
+        Permute[dims, full],
+        Table[Min[dims[[Flatten[Position[full, k]]]]], {k, Max[full]}]
+    ]
+]
+listPermuteDimensions[dims_, _] := dims
 (* General fallback *)
 symbolicTensorDimensions[t_] := Replace[TensorDimensions[toSymbolicTensor[t, "ArrayDotExpand" -> True]], Except[_List] -> {}]
 

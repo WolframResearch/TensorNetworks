@@ -22,6 +22,7 @@ PacletObject[
           "Wolfram`TensorNetworks`Symmetry`"
         },
         "Symbols" -> {
+          "Wolfram`TensorNetworks`$TensorNetworkContractionMethods",
           "Wolfram`TensorNetworks`ActivateTensors",
           "Wolfram`TensorNetworks`BinaryTensorNetwork",
           "Wolfram`TensorNetworks`BinaryTensorNetworkQ",
@@ -65,11 +66,14 @@ PacletObject[
           "Wolfram`TensorNetworks`Symmetry`HookLength",
           "Wolfram`TensorNetworks`Symmetry`HookLengths",
           "Wolfram`TensorNetworks`Symmetry`PartitionQ",
+          "Wolfram`TensorNetworks`Symmetry`SchurDimension",
+          "Wolfram`TensorNetworks`Symmetry`StandardTableauQ",
           "Wolfram`TensorNetworks`Symmetry`TableauColumns",
           "Wolfram`TensorNetworks`Symmetry`TableauDimension",
           "Wolfram`TensorNetworks`Symmetry`TableauRows",
           "Wolfram`TensorNetworks`Symmetry`TableauShape",
           "Wolfram`TensorNetworks`Symmetry`TableauSize",
+          "Wolfram`TensorNetworks`Symmetry`TableauWeylDimension",
           "Wolfram`TensorNetworks`Symmetry`TransposePartition",
           "Wolfram`TensorNetworks`Symmetry`YoungProject",
           "Wolfram`TensorNetworks`Symmetry`YoungSymmetrize",

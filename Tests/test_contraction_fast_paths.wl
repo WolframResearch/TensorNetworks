@@ -214,3 +214,53 @@ VerificationTest[
     {True, True},
     TestID -> "Planner_ReproducibleAndCorrect"
 ]
+
+
+(* ------------------------------------------------------------------ *)
+(* E. Labels that are lists                                           *)
+(* ------------------------------------------------------------------ *)
+
+(* The value of a network by summing every assignment of its labels: output labels index the
+   result, the rest are summed. Labels may be lists, so they are looked up as keys. *)
+bruteForce[tensors_, labels_, out_] := With[{
+    dims = Association[Catenate[MapThread[Thread[#1 -> Dimensions[#2]] &, {labels, tensors}]]],
+    summed = Complement[Union[Catenate[labels]], out]
+},
+    With[{term = Function[assign, Times @@ MapThread[#1[[Sequence @@ Lookup[assign, Key /@ #2]]] &, {tensors, labels}]]},
+        If[ out === {},
+            Total[term[AssociationThread[summed, #]] & /@ Tuples[Range /@ Lookup[dims, Key /@ summed]]],
+            Array[
+                Function[outIndex, Total[term[Join[AssociationThread[out, outIndex], AssociationThread[summed, #]]] & /@ Tuples[Range /@ Lookup[dims, Key /@ summed]]]] @* List,
+                Lookup[dims, Key /@ out]
+            ]
+        ]
+    ]
+]
+
+(* A connected network: a spanning tree plus extra pairwise bonds, some tensors with a free leg *)
+fastNetwork[seed_, n_, extra_] := BlockRandom[SeedRandom[seed]; Module[{edges, labels, dims},
+    edges = Join[Table[{RandomInteger[{1, k - 1}], k}, {k, 2, n}], Table[RandomSample[Range[n], 2], extra]];
+    labels = Table[Join[{"e", #} & /@ Flatten[Position[edges, v][[All, 1]]], If[OddQ[v], {{"f", v}}, {}]], {v, n}];
+    dims = AssociationThread[Union[Catenate[labels]], RandomInteger[{2, 3}, Length[Union[Catenate[labels]]]]];
+    {RandomReal[{-1, 1}, Lookup[dims, Key /@ #]] & /@ labels, labels}
+]]
+
+(* A label that is itself a list, {"p", 1}: kept in the output while two tensors share it, and
+   summed when one tensor alone carries it and the output leaves it out *)
+VerificationTest[
+    BlockRandom[SeedRandom[204]; With[{a = RandomReal[{-1, 1}, {3, 2}], b = RandomReal[{-1, 1}, {3, 2}]},
+        {
+            relativeError[TensorNetworkContract[TensorNetwork[{a, b}, {{{"p", 1}, {"q", 1}}, {{"p", 1}, {"q", 1}}} -> {{"p", 1}}]], Table[a[[p]] . b[[p]], {p, 3}]] < 10^-12,
+            relativeError[TensorNetworkContract[TensorNetwork[{a}, {{{"p", 1}, {"q", 1}}} -> {{"q", 1}}]], Total[a]] < 10^-12
+        }
+    ]],
+    {True, True},
+    TestID -> "FastPath_ListValuedLabels"
+]
+
+(* The hypergraph constructor with labels that are lists reads each label's dimension *)
+VerificationTest[
+    TensorNetwork[{{{"a", 1}, {"a", 2}}, {{"a", 2}, {"a", 3}}} -> Automatic, <|{"a", 1} -> 2, {"a", 2} -> 3, {"a", 3} -> 4|>]["Dimensions"],
+    {{2, 3}, {3, 4}},
+    TestID -> "TensorNetwork_HypergraphListValuedLabels"
+]

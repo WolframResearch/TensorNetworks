@@ -26,14 +26,13 @@ Tier-1 is mostly indirect-validation. Tier-2 (done) adds direct-validation tests
 ```
 Tests/external_validation/
   paclet_primitives/   <- tests that genuinely call paclet symbols
-  baselines/           <- Mathematica-native sanity checks against catalog values; no paclet calls
+  paclet_fuzz/         <- property sweeps over random inputs
 ```
 
-The directory is the source of truth for classification. A test in `paclet_primitives/` MUST exercise at least one symbol from `Wolfram\`TensorNetworks\`*`. A test in `baselines/` documents that the catalog's expected value is reachable in Mathematica generally (e.g. via `Eigenvalues` on a dense Hamiltonian) and serves as a feasibility check before adding a paclet-side equivalent.
+The directory is the source of truth for classification. Every test MUST exercise at least one symbol from `Wolfram\`TensorNetworks\`*`. The former `baselines/` group (24 checks of Mathematica's own `Eigenvalues`, `SingularValueDecomposition` and matrix identities, with no paclet call) was removed: it tested Mathematica, not the paclet, and inflated the pass count.
 
 Reasoning:
 - Paclet regression coverage is unambiguous: count tests in `paclet_primitives/` and that's your number.
-- Baselines act as ready-made templates: when paclet adds DMRG, swap `Eigenvalues[H]` for `paclet_DMRG[H]` and the test moves to `paclet_primitives/`.
 
 ## 4. Tiers
 
@@ -47,10 +46,10 @@ Reasoning:
 | paclet | `contraction_paths.wl` | 13 | OptimalContractionPath / GreedyContractionPath validity, cost ordering, Bcost1-3 cost-convention pinning |
 | paclet | `tn_expectations.wl` | 2 | TensorNetwork + TensorNetworkContract on product states |
 | paclet | `mps.wl` | 9 | MPSCanonicalForm / Overlap / Schmidt / Truncate (random inputs) |
-| baseline | `decomposition.wl` | 6 | SVD/QR/truncate via Mathematica primitives |
-| baseline | `analytic_grounds.wl` | 7 | Dense `Eigenvalues` for small Hamiltonians (Heisenberg, TFIM, AKLT) |
-| baseline | `gate_identities.wl` | 7 | Gate matrix identities (HZH=X, Toffoli, QFT unitarity) |
-| baseline | `state_expectations.wl` | 4 | Product-state expectations via vector arithmetic |
+| baseline (removed) | `decomposition.wl` | 6 | SVD/QR/truncate via Mathematica primitives; removed, no paclet call |
+| baseline (removed) | `analytic_grounds.wl` | 7 | Dense `Eigenvalues` for small Hamiltonians (Heisenberg, TFIM, AKLT); removed, no paclet call |
+| baseline (removed) | `gate_identities.wl` | 7 | Gate matrix identities (HZH=X, Toffoli, QFT unitarity); removed, no paclet call |
+| baseline (removed) | `state_expectations.wl` | 4 | Product-state expectations via vector arithmetic; removed, no paclet call |
 
 ### Tier-1 Symmetry (DONE): `Wolfram`TensorNetworks`Symmetry` analytic baselines
 
@@ -111,7 +110,7 @@ This is the minimum-but-effective stress layer; it does NOT replace the point-va
 
 ### Tier-3 (DEFERRED): algorithmic primitives the paclet doesn't have yet
 
-Gated by paclet feature additions. When the paclet adds DMRG / TRG / CTMRG / TDVP, these tests promote from baselines or new files:
+Gated by paclet feature additions. When the paclet adds DMRG / TRG / CTMRG / TDVP, these tests go into new files:
 
 - DMRG ground-state energies (TFIM L=10 → -12.3814..., Heisenberg S=1 N=100 → -138.94...)
 - TRG free energy (Onsager 2D Ising → -2.10965)
@@ -130,10 +129,10 @@ The build was structured as discrete phases to keep work incremental. **Tier-1 a
 | 0 | `Helpers/ValidationHelpers.wl`: capability gating, skip recording, ValidationClose | done |
 | 1 | Tier-1A tensor algebra: `paclet_primitives/tensor_algebra.wl` | done |
 | 2 | Tier-1B contraction paths: `paclet_primitives/contraction_paths.wl` | done |
-| 3 | Tier-1C decomposition: `baselines/decomposition.wl` | done |
-| 4 | Tier-1D analytic ground states: `baselines/analytic_grounds.wl` | done |
-| 5 | Tier-1E gate identities: `baselines/gate_identities.wl` | done |
-| 6 | Tier-1F TN expectations: split: `paclet/tn_expectations.wl` + `baselines/state_expectations.wl` | done |
+| 3 | Tier-1C decomposition: `baselines/decomposition.wl` | removed (no paclet call) |
+| 4 | Tier-1D analytic ground states: `baselines/analytic_grounds.wl` | removed (no paclet call) |
+| 5 | Tier-1E gate identities: `baselines/gate_identities.wl` | removed (no paclet call) |
+| 6 | Tier-1F TN expectations: `paclet_primitives/tn_expectations.wl` (the `baselines/state_expectations.wl` half was removed: no paclet call) | done |
 | 6+ | Tier-1G MPS: `paclet_primitives/mps.wl` | done |
 | 6++ | Path-cost convention audit: added `Bcost1`, `Bcost2`, `Bcost3` pinning tests to `contraction_paths.wl` | done |
 | 7 | Tier-2 direct-validation (5 files, 30 new tests) | done |
@@ -166,7 +165,7 @@ Not on the current TODO list. Estimated effort: 2-3 days plus ongoing maintenanc
 
 Recorded for posterity; live behavior follows these rules.
 
-1. **Direct vs indirect Tier-2.** *Decided: direct-only.* Tier-2 tests must lift a specific numerical answer from the catalog (e.g. cotengra cost = 1464, ITensorMPS energy = -138.94008605883985) and assert the paclet output equals that exact value. Tests where the expected value is computed in Mathematica from analytic formulas belong in `baselines/` or stay in Tier-1.
+1. **Direct vs indirect Tier-2.** *Decided: direct-only.* Tier-2 tests must lift a specific numerical answer from the catalog (e.g. cotengra cost = 1464, ITensorMPS energy = -138.94008605883985) and assert the paclet output equals that exact value. Tests where the expected value is computed in Mathematica from analytic formulas stay in Tier-1, and must still call the paclet.
 
 2. **Path-cost convention.** *Audited 2026-05-08; resolved.*
    - **cotengra** (`core.py:1196-1227`): `total_flops(dtype=None)` returns mul-count "ops"; `dtype="float"` doubles it (`real_flops = 2·ops`); `dtype="complex"` quadruples it (`complex_flops = 4·ops`). Default `minimize="flops"`.
@@ -185,10 +184,6 @@ Recorded for posterity; live behavior follows these rules.
    - `paclet-paths-*` ← was `tier1b-*` (paclet_primitives/contraction_paths.wl)
    - `paclet-tn-*` ← was `tier1f-F5..F8` (paclet_primitives/tn_expectations.wl)
    - `paclet-mps-*` ← was `tier1g-*` (paclet_primitives/mps.wl)
-   - `baseline-decomp-*` ← was `tier1c-*` (baselines/decomposition.wl)
-   - `baseline-analytic-*` ← was `tier1d-*` (baselines/analytic_grounds.wl)
-   - `baseline-gates-*` ← was `tier1e-*` (baselines/gate_identities.wl)
-   - `baseline-state-*` ← was `tier1f-F1..F4` (baselines/state_expectations.wl)
 
    The group/file is now visible in the test ID, so the skip log and test output read clearly without cross-referencing. The original letter+number (A1, B5, Cost1, etc.) preserves cross-reference to the per-package catalog entries.
 
@@ -207,7 +202,7 @@ Recorded for posterity; live behavior follows these rules.
 
 To add a tier file:
 
-1. Decide group: does the test exercise a paclet symbol? `paclet_primitives/`. Otherwise `baselines/`.
+1. Decide group: a fixed reference value goes in `paclet_primitives/`, a property sweep in `paclet_fuzz/`. A test that calls no paclet symbol does not belong in the suite.
 2. Use the loader pattern at the top of any existing file.
 3. Each test: `WithCapability[{required_symbols}, id, source, body]` for paclet tests, plain `VerificationTest` otherwise.
 4. For RNG-dependence: `SkipDueToRNG[id, reason, source]`.

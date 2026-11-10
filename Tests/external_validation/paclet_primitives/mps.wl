@@ -1,13 +1,20 @@
 (* Tests/external_validation/paclet_primitives/mps.wl
 
 Paclet-primitive tests: MPS-specific paclet primitives. Exercises:
-  RandomTensorNetwork["MPS"[L, bondDim, physDim]],
-  MPSCanonicalForm, MPSCanonicalQ, MPSOverlap, MPSNorm,
+  MPSCanonicalForm, MPSOverlap, MPSNorm, MPSNormalize,
   MPSEntanglementEntropy, MPSSchmidtValues, MPSTruncate.
 
+Every state is a random complex MPS with unequal physical and bond
+dimensions, and every result is compared with the dense state vector built
+here by plain matrix products (primDenseState), never by the paclet: canonical
+forms leave the vector unchanged and their tensors are isometries by
+explicit sums; overlaps of two different states equal conj(v2) . v1;
+Schmidt values and entropies equal the SVD of the dense vector on each cut;
+truncation of a canonical state on one cut equals the best rank-chi
+approximation. G11 checks the overlap against a quimb fixture.
+
 Sources mirrored:
-- ITensorMPS test_mps.jl (MPS construction, norm, orthogonalize, truncate!)
-- ITensorMPS test_mps.jl:880-935 (expect on canonical MPS)
+- ITensorMPS test_mps.jl (inner, orthogonalize!, truncate!)
 - TeNPy a_mps.py (Schmidt entropy on canonical form)
 - quimb tests/test_tensor_core.py (MPS overlap, entropy at bond)
 *)
@@ -28,173 +35,228 @@ Module[{candidates, found},
 ];
 ClearValidationRecords[];
 
-(* ----- G1: random MPS produces a valid TensorNetwork *)
-WithCapability[{"RandomTensorNetwork", "TensorNetworkQ"},
-    "paclet-mps-G1-random-mps-tn",
-    "ITensorMPS test/base/test_mps.jl:200-214 (random_mps)",
+
+(* ----- Independent references: dense state vectors by plain matrix products *)
+
+primMpsSameQ[x_, y_] := Norm[Flatten[{x - y}]] <= 10^-10 Max[1, Norm[Flatten[{y}]]];
+
+primMpsHyperedges[n_] := Join[{{1, n + 1}}, Table[{i - 1, i, n + i}, {i, 2, n - 1}], {{n - 1, 2 n}}];
+
+(* Layout: first {right, phys}, bulk {left, right, phys}, last {left, phys}. *)
+primRandomComplexMPS[phys_List, bonds_List, seed_] :=
+    BlockRandom[
+        SeedRandom[seed];
+        With[{n = Length[phys]},
+            TensorNetwork[
+                Join[
+                    {RandomComplex[{-1 - I, 1 + I}, {bonds[[1]], phys[[1]]}]},
+                    Table[RandomComplex[{-1 - I, 1 + I}, {bonds[[i - 1]], bonds[[i]], phys[[i]]}], {i, 2, n - 1}],
+                    {RandomComplex[{-1 - I, 1 + I}, {bonds[[n - 1]], phys[[n]]}]}
+                ],
+                primMpsHyperedges[n]
+            ]
+        ]
+    ];
+
+primSiteStep[m_, t_ /; ArrayDepth[t] == 2] := m . t;
+primSiteStep[m_, t_ /; ArrayDepth[t] == 3] :=
+    With[{d = Dimensions[t]},
+        ArrayReshape[m . ArrayReshape[Transpose[t, {1, 3, 2}], {d[[1]], d[[3]] d[[2]]}], {Length[m] d[[3]], d[[2]]}]
+    ];
+primDenseState[tn_] := Flatten[Fold[primSiteStep, Transpose[First[tn["Tensors"]]], Rest[tn["Tensors"]]]];
+
+primCutMatrix[v_, phys_, k_] := ArrayReshape[v, {Times @@ Take[phys, k], Times @@ Drop[phys, k]}];
+primCutSpectrum[v_, phys_, k_] := Diagonal[SingularValueDecomposition[primCutMatrix[Normalize[v], phys, k]][[2]]];
+primBestRank[v_, phys_, k_, chi_] :=
+    With[{svd = SingularValueDecomposition[primCutMatrix[v, phys, k]]},
+        Flatten[svd[[1, All, ;; chi]] . svd[[2, ;; chi, ;; chi]] . ConjugateTranspose[svd[[3, All, ;; chi]]]]
+    ];
+
+(* Sum over left bond and phys of conj(A) A (left isometry); over right bond
+   and phys of A conj(A) (right isometry). *)
+primLeftGram[t_ /; ArrayDepth[t] == 2] :=
+    With[{d = Dimensions[t]}, Table[Sum[Conjugate[t[[r, p]]] t[[s, p]], {p, d[[2]]}], {r, d[[1]]}, {s, d[[1]]}]];
+primLeftGram[t_ /; ArrayDepth[t] == 3] :=
+    With[{d = Dimensions[t]},
+        Table[Sum[Conjugate[t[[a, r, p]]] t[[a, s, p]], {a, d[[1]]}, {p, d[[3]]}], {r, d[[2]]}, {s, d[[2]]}]
+    ];
+primRightGram[t_ /; ArrayDepth[t] == 2] :=
+    With[{d = Dimensions[t]}, Table[Sum[t[[a, p]] Conjugate[t[[b, p]]], {p, d[[2]]}], {a, d[[1]]}, {b, d[[1]]}]];
+primRightGram[t_ /; ArrayDepth[t] == 3] :=
+    With[{d = Dimensions[t]},
+        Table[Sum[t[[a, r, p]] Conjugate[t[[b, r, p]]], {r, d[[2]]}, {p, d[[3]]}], {a, d[[1]]}, {b, d[[1]]}]
+    ];
+primIsometryQ[gram_] := primMpsSameQ[gram, IdentityMatrix[Length[gram]]];
+
+(* Six sites, physical dimensions 2, 3, 2, 4, 3, 2, bonds 2, 4, 5, 3, 2. *)
+physG = {2, 3, 2, 4, 3, 2};
+mpsG = primRandomComplexMPS[physG, {2, 4, 5, 3, 2}, 401];
+psiG = primDenseState[mpsG];
+
+(* ----- G2: MPSOverlap of two different complex states equals the dense
+   inner product, with the second argument conjugated (as documented), and
+   MPSNorm equals the dense norm. ITensorMPS test_mps.jl:241-253 (inner). *)
+WithCapability[{"TensorNetwork", "MPSOverlap", "MPSNorm"},
+    "paclet-mps-G2-overlap-two-states-dense",
+    "ITensorMPS test/base/test_mps.jl:241-253 (inner)",
     VerificationTest[
-        Module[{mps},
-            SeedRandom[401];
-            mps = RandomTensorNetwork["MPS"[6, 4, 2]];
-            TensorNetworkQ[mps]
+        Module[{other, psiO},
+            other = primRandomComplexMPS[physG, {2, 3, 3, 4, 2}, 409];
+            psiO = primDenseState[other];
+            {
+                primMpsSameQ[MPSOverlap[mpsG, other], Conjugate[psiO] . psiG],
+                primMpsSameQ[MPSOverlap[other, mpsG], Conjugate[psiG] . psiO],
+                primMpsSameQ[MPSNorm[mpsG], Norm[psiG]]
+            }
         ],
-        True,
-        TestID -> "paclet-mps-G1-random-mps-tn"
+        {True, True, True},
+        TestID -> "paclet-mps-G2-overlap-two-states-dense"
     ]
 ];
 
-(* ----- G2: MPSOverlap[mps,mps] == MPSNorm[mps]^2 (real-positive)
-   ITensorMPS test_mps.jl:241-253 (inner consistency). *)
-WithCapability[{"RandomTensorNetwork", "MPSOverlap", "MPSNorm"},
-    "paclet-mps-G2-overlap-equals-norm-sq",
-    "ITensorMPS test/base/test_mps.jl:241-253 (inner = norm^2)",
-    VerificationTest[
-        Module[{mps, ovrl, norm},
-            SeedRandom[409];
-            mps = RandomTensorNetwork["MPS"[5, 3, 2]];
-            ovrl = MPSOverlap[mps, mps];
-            norm = MPSNorm[mps];
-            ValidationCloseRel[Re[ovrl], norm^2, 1.*^-10] && Abs[Im[ovrl]] < 1.*^-10
-        ],
-        True,
-        TestID -> "paclet-mps-G2-overlap-equals-norm-sq"
-    ]
-];
-
-(* ----- G3: MPSCanonicalForm Left produces a left-canonical state
+(* ----- G3: left-canonical form leaves the dense state unchanged and every
+   tensor but the last is a left isometry (explicit sum).
    ITensorMPS test_mps.jl:680-754 (orthogonalize!). *)
-WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
+WithCapability[{"TensorNetwork", "MPSCanonicalForm"},
     "paclet-mps-G3-canonical-left",
     "ITensorMPS test/base/test_mps.jl:680-754 (left orthogonality)",
     VerificationTest[
-        Module[{mps, canon},
-            SeedRandom[419];
-            mps = RandomTensorNetwork["MPS"[7, 5, 2]];
-            canon = MPSCanonicalForm[mps, "Left"];
-            MPSCanonicalQ[canon, "Left"]
+        Module[{canon},
+            canon = MPSCanonicalForm[mpsG, "Left"];
+            {primMpsSameQ[primDenseState[canon], psiG], AllTrue[Most[canon["Tensors"]], primIsometryQ[primLeftGram[#]] &]}
         ],
-        True,
+        {True, True},
         TestID -> "paclet-mps-G3-canonical-left"
     ]
 ];
 
-(* ----- G4: MPSCanonicalForm Right produces a right-canonical state. *)
-WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
+(* ----- G4: right-canonical form leaves the dense state unchanged and every
+   tensor but the first is a right isometry (explicit sum). *)
+WithCapability[{"TensorNetwork", "MPSCanonicalForm"},
     "paclet-mps-G4-canonical-right",
     "ITensorMPS test/base/test_mps.jl (right orthogonality)",
     VerificationTest[
-        Module[{mps, canon},
-            SeedRandom[421];
-            mps = RandomTensorNetwork["MPS"[6, 4, 2]];
-            canon = MPSCanonicalForm[mps, "Right"];
-            MPSCanonicalQ[canon, "Right"]
+        Module[{canon},
+            canon = MPSCanonicalForm[mpsG, "Right"];
+            {primMpsSameQ[primDenseState[canon], psiG], AllTrue[Rest[canon["Tensors"]], primIsometryQ[primRightGram[#]] &]}
         ],
-        True,
+        {True, True},
         TestID -> "paclet-mps-G4-canonical-right"
     ]
 ];
 
-(* ----- G5: MPSCanonicalForm Mixed at site k. *)
-WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
+(* ----- G5: mixed-canonical form at every site k: dense state unchanged,
+   sites left of k left isometries, sites right of k right isometries. *)
+WithCapability[{"TensorNetwork", "MPSCanonicalForm"},
     "paclet-mps-G5-canonical-mixed",
     "ITensorMPS test/base/test_mps.jl (mixed canonical at site k)",
     VerificationTest[
-        Module[{mps, canon, k},
-            SeedRandom[431];
-            mps = RandomTensorNetwork["MPS"[8, 5, 2]];
-            k = 4;
-            canon = MPSCanonicalForm[mps, {"Mixed", k}];
-            MPSCanonicalQ[canon, {"Mixed", k}]
+        Table[
+            Module[{ts},
+                ts = MPSCanonicalForm[mpsG, {"Mixed", k}]["Tensors"];
+                And[
+                    primMpsSameQ[primDenseState[TensorNetwork[ts, primMpsHyperedges[6]]], psiG],
+                    AllTrue[Take[ts, k - 1], primIsometryQ[primLeftGram[#]] &],
+                    AllTrue[Drop[ts, k], primIsometryQ[primRightGram[#]] &]
+                ]
+            ],
+            {k, 6}
         ],
-        True,
+        ConstantArray[True, 6],
         TestID -> "paclet-mps-G5-canonical-mixed"
     ]
 ];
 
-(* ----- G6: Canonicalization preserves the state up to gauge.
-   For a normalized MPS, canon(mps) and mps should have the same overlap with each other
-   equal to the squared norm. ITensorMPS test_mps.jl norm preservation. *)
-WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSOverlap", "MPSNorm"},
+(* ----- G6: Canonicalization preserves the state up to gauge: the overlap
+   of a complex state with its left-canonical form is its squared norm.
+   ITensorMPS test_mps.jl norm preservation. *)
+WithCapability[{"TensorNetwork", "MPSCanonicalForm", "MPSOverlap", "MPSNorm"},
     "paclet-mps-G6-canon-preserves-norm",
     "ITensorMPS test/base/test_mps.jl (canonical-form preserves overlap)",
     VerificationTest[
         Module[{mps, canon, normMps, normCanon, ovrl},
-            SeedRandom[433];
-            mps = RandomTensorNetwork["MPS"[6, 4, 2]];
+            mps = primRandomComplexMPS[{2, 3, 2, 3, 2, 2}, {4, 4, 4, 4, 4}, 433];
             canon = MPSCanonicalForm[mps, "Left"];
             normMps = MPSNorm[mps];
             normCanon = MPSNorm[canon];
             ovrl = MPSOverlap[mps, canon];
             ValidationCloseRel[normCanon, normMps, 1.*^-10] &&
-                ValidationCloseRel[Abs[ovrl], normMps^2, 1.*^-10]
+                ValidationCloseRel[ovrl, normMps^2, 1.*^-10]
         ],
         True,
         TestID -> "paclet-mps-G6-canon-preserves-norm"
     ]
 ];
 
-(* ----- G7: Schmidt values squared sum to 1 (paclet returns normalized).
-   The paclet's MPSSchmidtValues returns the *normalized* singular values of
-   the bipartition, so they sum-square to 1 regardless of the MPS's overall
-   norm. (For the norm-aware version, multiply by MPSNorm^2 outside.) *)
-WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSSchmidtValues", "MPSNorm"},
-    "paclet-mps-G7-schmidt-sum-to-one",
-    "TeNPy doc/toycodes/a_mps.py (Schmidt values normalization)",
+(* ----- G7: Schmidt values on every cut equal the singular values of the
+   normalized dense state reshaped across that cut.
+   TeNPy doc/toycodes/a_mps.py (Schmidt values). *)
+WithCapability[{"TensorNetwork", "MPSSchmidtValues"},
+    "paclet-mps-G7-schmidt-equals-dense-svd",
+    "TeNPy doc/toycodes/a_mps.py (Schmidt values)",
     VerificationTest[
-        Module[{mps, canon, sv, sumSq},
-            SeedRandom[439];
-            mps = RandomTensorNetwork["MPS"[6, 5, 2]];
-            canon = MPSCanonicalForm[mps, {"Mixed", 3}];
-            sv = MPSSchmidtValues[canon, 3];
-            sumSq = Total[sv^2];
-            ValidationCloseRel[sumSq, 1.0, 1.*^-8]
+        Table[
+            With[{sv = primCutSpectrum[psiG, physG, k]},
+                primMpsSameQ[PadRight[MPSSchmidtValues[mpsG, k], Length[sv], 0.], sv]
+            ],
+            {k, 5}
         ],
-        True,
-        TestID -> "paclet-mps-G7-schmidt-sum-to-one"
+        ConstantArray[True, 5],
+        TestID -> "paclet-mps-G7-schmidt-equals-dense-svd"
     ]
 ];
 
-(* ----- G8: Entanglement entropy is non-negative and bounded by log(min(D_left, D_right)).
-   For bond dim 4 on a 2-level MPS, entropy <= log(min(4, 2^min(L1, L2)) but conservatively
-   <= log(physDim^min(siteToLeft, siteToRight)) for a generic state.
-   ITensorMPS test_mps.jl entanglement_entropy bounds. *)
-WithCapability[{"RandomTensorNetwork", "MPSEntanglementEntropy"},
-    "paclet-mps-G8-entropy-bounds",
+(* ----- G8: entanglement entropy on every cut equals -Sum p Log p over the
+   squared singular values of the dense state.
+   ITensorMPS test_mps.jl (entanglement entropy). *)
+WithCapability[{"TensorNetwork", "MPSEntanglementEntropy"},
+    "paclet-mps-G8-entropy-equals-dense-svd",
     "ITensorMPS test/base/test_mps.jl (entanglement entropy)",
     VerificationTest[
-        Module[{mps, S, upper},
-            SeedRandom[443];
-            mps = RandomTensorNetwork["MPS"[6, 4, 2]];
-            S = MPSEntanglementEntropy[mps, 3];
-            (* Upper bound: log(bond dim cap) on a generic random MPS *)
-            upper = Log[4];
-            S >= -1.*^-10 && S <= upper + 1.*^-6
+        Table[
+            With[{pk = Select[primCutSpectrum[psiG, physG, k]^2, # > 0 &]},
+                primMpsSameQ[MPSEntanglementEntropy[mpsG, k], -Total[pk Log[pk]]]
+            ],
+            {k, 5}
         ],
-        True,
-        TestID -> "paclet-mps-G8-entropy-bounds"
+        ConstantArray[True, 5],
+        TestID -> "paclet-mps-G8-entropy-equals-dense-svd"
     ]
 ];
 
-(* ----- G9: MPSTruncate reduces bond dim and produces a renormalized state.
+(* ----- G9: MPSTruncate of a right-canonical state to bond 4: the Schmidt
+   ranks on the five cuts are 2, 4, 5, 3, 2, so only the cut after site 3 is
+   cut. The normalized result is the normalized best rank-4 approximation
+   across that cut, and every bond is at most 4.
    ITensorMPS test_mps.jl:755-794 (truncate!). *)
-WithCapability[{"RandomTensorNetwork", "MPSTruncate", "MPSNorm"},
-    "paclet-mps-G9-truncate-reduces-bond",
+WithCapability[{"TensorNetwork", "MPSCanonicalForm", "MPSTruncate"},
+    "paclet-mps-G9-truncate-best-rank",
     "ITensorMPS test/base/test_mps.jl:755-794 (truncate!)",
     VerificationTest[
-        Module[{mps, truncated, normTrunc},
-            SeedRandom[449];
-            mps = RandomTensorNetwork["MPS"[6, 8, 2]];
-            truncated = MPSTruncate[mps, 3];  (* maxBond = 3 *)
-            normTrunc = MPSNorm[truncated];
-            (* Truncated MPS norm is positive (state still represents something) *)
-            normTrunc > 0
+        Module[{truncated},
+            truncated = MPSTruncate[MPSCanonicalForm[mpsG, "Right"], 4];
+            {
+                Max[Most /@ Dimensions /@ truncated["Tensors"]],
+                primMpsSameQ[primDenseState[truncated], Normalize[primBestRank[psiG, physG, 3, 4]]]
+            }
         ],
-        True,
-        TestID -> "paclet-mps-G9-truncate-reduces-bond"
+        {4, True},
+        TestID -> "paclet-mps-G9-truncate-best-rank"
     ]
 ];
 
-(* ----- G10: Skip — DMRG ground-state expectation
+(* ----- G12: MPSNormalize divides the dense state by its norm. *)
+WithCapability[{"TensorNetwork", "MPSNormalize"},
+    "paclet-mps-G12-normalize-dense",
+    "ITensorMPS test/base/test_mps.jl (normalize!)",
+    VerificationTest[
+        primMpsSameQ[primDenseState[MPSNormalize[mpsG]], psiG / Norm[psiG]],
+        True,
+        TestID -> "paclet-mps-G12-normalize-dense"
+    ]
+];
+
+(* ----- G10: Skip: DMRG ground-state expectation
    Awaiting DMRG primitive in paclet. *)
 RecordSkipMissing["paclet-mps-G10-dmrg-mps-overlap",
     {"DMRG"},

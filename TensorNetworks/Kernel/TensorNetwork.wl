@@ -160,7 +160,7 @@ TensorNetwork[
     dims_Association
 ] /; ContainsAll[Keys[dims], Union @@ hypergraph] && AllTrue[dims, IntegerQ] :=
     TensorNetwork[
-        ArraySymbol[\[FormalCapitalT], Lookup[dims, #] & /@ #] & /@ hypergraph,
+        ArraySymbol[\[FormalCapitalT], Lookup[dims, Key[#]] & /@ #] & /@ hypergraph,
         hypergraph,
         out
     ]
@@ -375,7 +375,7 @@ RandomTensorNetwork[g_ ? GraphQ, {fixedDim_Integer}, additionalRank_Integer : 0,
             With[
                 {i = RandomInteger[{1, Length[curIndices[[#]]]}]},
                 {ret = curIndices[[#, i]]},
-                curIndices[[#, i]] = Nothing;
+                curIndices[[#]] = Delete[curIndices[[#]], i];
                 ret
             ] &,
             Rule @@@ EdgeList[IndexGraph[g]],
@@ -403,7 +403,7 @@ RandomTensorNetwork[g_ ? GraphQ, maxDimension_Integer : 2, additionalRank_Intege
         With[
             {i = RandomInteger[{1, Length[curIndices[[#]]]}]},
             {ret = curIndices[[#, i]]},
-            curIndices[[#, i]] = Nothing;
+            curIndices[[#]] = Delete[curIndices[[#]], i];
             ret
         ] &,
         Rule @@@ EdgeList[IndexGraph[g]],

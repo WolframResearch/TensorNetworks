@@ -125,9 +125,10 @@ EinsteinSummation::output = "The uncontracted indices can't compose the desired 
 
 (* Contractions with a delta go to Wolfram/Arrays' ArrayContract as an operand set (deltas never
    densified), matching TensorContract's results; inertContract holds the product unbuilt.
-   Recursion limit raised: greedy paths nest one level per gate. *)
+   Recursion limit raised: greedy paths nest one level per gate. A power of TensorProduct is the
+   product of n copies, written out first so that the rules below also reach inside it. *)
 ActivateTensors[expr_] := Block[{$RecursionLimit = Max[$RecursionLimit, 2^14]},
-    Activate[expr /. {
+    Activate[(expr //. GeneralizedPower[TensorProduct, t_, n_Integer ? Positive] :> Inactive[TensorProduct] @@ ConstantArray[t, n]) /. {
         d : _SymbolicDeltaProductArray | _SymbolicIdentityArray :> Inactive[deltaOperand][d],
         Inactive[TensorContract] -> Inactive[inertContract]
     }]

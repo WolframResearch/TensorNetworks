@@ -559,7 +559,7 @@ labelDimensions[leaves_List] := Association @ Catenate @ Map[
     leaves
 ]
 
-keptLabelQ[label_, holders_, env_] := holders[label] < env["Holders"][label] || Lookup[env["Output"], label, False]
+keptLabelQ[label_, holders_, env_] := holders[label] < env["Holders"][label] || Lookup[env["Output"], Key[label], False]
 
 (* shared labels found once per step; the batch test and the matrix step reuse them *)
 contractStep[{a_, i_, ha_}, {b_, j_, hb_}, env_] := Block[{
@@ -639,7 +639,7 @@ matrixProduct[x_, y_] := x . y
 settleLeaf[{t_, labels_List}, env_] := With[{
     distinct = DeleteDuplicates[labels]
 }, {
-    summed = Select[distinct, env["Holders"][#] == 1 && ! Lookup[env["Output"], #, False] &]
+    summed = Select[distinct, env["Holders"][#] == 1 && ! Lookup[env["Output"], Key[#], False] &]
 },
     If[ Length[distinct] == Length[labels] && summed === {},
         {t, labels, AssociationThread[labels, 1]},
@@ -1011,9 +1011,12 @@ rememberPlan[key_, {form_, tree_}] := (
 reducedForm[data_, groups_, labels_] :=
 	Append[tensorNetworkData[applyDiagonalReduction[data["Tensors"], groups], labels, data["FreeIndices"]], "Reduction" -> groups]
 
-(* all a plan depends on: labels, output, method, and per leaf its shape, container, precision
-   and nonzero pattern; the patterns as hashes *)
-planKey[data_, method_] := {method, data["Hyperedges"], data["FreeIndices"], leafSignature /@ data["Tensors"]}
+(* all a plan depends on: method, vertex names (a tree path names vertices), labels, output, and
+   per leaf its shape, container, precision and nonzero pattern; the patterns as hashes. Graph
+   data has no "Hyperedges": its contraction indices are its labels. *)
+planKey[data_, method_] := {
+	method, data["Vertices"], Lookup[data, "Hyperedges", data["ContractionIndices"]], data["FreeIndices"], leafSignature /@ data["Tensors"]
+}
 
 (* a SparseArray's pattern is its stored CSR structure, canonical, and ~100x faster to hash than its positions *)
 leafSignature[t_SparseArray] := {SparseArray, Dimensions[t], Precision[t], numericLeafQ[t], t["Background"], Hash[{t["RowPointers"], t["ColumnIndices"]}]}

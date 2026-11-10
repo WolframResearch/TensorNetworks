@@ -1,124 +1,131 @@
-(* Tests/test_random_tensor_network.wl
-
-   Tests for RandomTensorNetwork — both the element-type contract (Real /
-   Complex / Real-explicit) and the structural contract (right tensor count,
-   right bond/free-index distribution for canonical topologies). The
-   structural tests are what would catch a regression where the generator
-   silently produces malformed networks.
-*)
+(* RandomTensorNetwork: the documented connectivity and dimensions, checked against
+   hand-built expected structures *)
 
 Get[FileNameJoin[{DirectoryName[$InputFileName], "test_setup.wl"}]];
 
 SeedRandom[42];
 
-
-(* ============================================ *)
-(* Element-type contract                       *)
-(* ============================================ *)
-
-VerificationTest[
-    rtnAuto = RandomTensorNetwork[{10, 15}, 2, 4];
-    AllTrue[Flatten[rtnAuto["Tensors"]], Element[#, Reals] &],
-    True,
-    TestID -> "RandomTensorNetwork_Real_Default"
+(* Tensor positions joined by each label carried by two tensors, as sorted pairs *)
+bondPairs[tn_] := Sort @ Values @ Select[
+    GroupBy[Catenate @ MapIndexed[Thread[#1 -> First[#2]] &, tn["Hyperedges"]], First -> Last],
+    Length[#] === 2 &
 ]
 
-VerificationTest[
-    rtnComplex = RandomTensorNetwork[{10, 15}, 2, 4, Method -> "Complex"];
-    AnyTrue[Flatten[rtnComplex["Tensors"]], !Element[#, Reals] &],
-    True,
-    TestID -> "RandomTensorNetwork_Complex"
-]
+(* Labels carried by exactly one tensor *)
+openLabels[tn_] := Keys @ Select[Counts[Catenate[tn["Hyperedges"]]], # === 1 &]
 
-VerificationTest[
-    rtnReal = RandomTensorNetwork[{10, 15}, 2, 4, Method -> "Real"];
-    AllTrue[Flatten[rtnReal["Tensors"]], Element[#, Reals] &],
-    True,
-    TestID -> "RandomTensorNetwork_Real_Explicit"
-]
+labelDimensions[tn_] := Association @ Flatten @ MapThread[Thread[#1 -> Dimensions[#2]] &, {tn["Hyperedges"], tn["Tensors"]}]
+
+(* Two triangles joined by an edge, plus a pendant vertex *)
+fixedGraph = Graph[Range[7], {1 <-> 2, 2 <-> 3, 1 <-> 3, 3 <-> 4, 4 <-> 5, 5 <-> 6, 4 <-> 6, 6 <-> 7}];
+fixedGraphPairs = Sort[Sort /@ List @@@ EdgeList[fixedGraph]];
 
 
 (* ============================================ *)
-(* Structural contract — generic graph form    *)
+(* Arbitrary graph                              *)
 (* ============================================ *)
 
-(* {n, m} graph input must produce a TN with exactly n tensors. *)
-VerificationTest[
-    Length[RandomTensorNetwork[{8, 12}, 2, 4]["Tensors"]],
-    8,
-    TestID -> "RandomTensorNetwork_NTensorCount"
-]
+(* Seeds whose network breaks the documented structure; the generator draws at random,
+   so each promise is checked over many seeds *)
+badSeeds[make_, ok_] := Select[Range[20], Function[seed, ! TrueQ[ok[BlockRandom[SeedRandom[seed]; make[]]]]]]
 
-(* Every tensor's actual array dimensions must match the dim of each leg. *)
+(* One tensor per vertex, one bond per edge, every bond dimension in {2, maxDim}, no free legs *)
 VerificationTest[
-    Module[{tn, indDims, ok},
-        tn = RandomTensorNetwork[{6, 9}, 2, 4];
-        indDims = Association @ tn["IndexDimensions"];
-        ok = AllTrue[
-            Range[Length[tn["Tensors"]]],
-            Dimensions[tn["Tensors"][[#]]] === (
-                Lookup[indDims, Last /@ tn["Indices"][[#]]]
-            ) &
-        ];
-        ok
+    badSeeds[
+        RandomTensorNetwork[fixedGraph, 4] &,
+        Function[tn, And[
+            Length[tn["Tensors"]] === 7,
+            bondPairs[tn] === fixedGraphPairs,
+            openLabels[tn] === {},
+            SubsetQ[Range[2, 4], Values[labelDimensions[tn]]]
+        ]]
     ],
-    True,
-    TestID -> "RandomTensorNetwork_TensorShapes_Match_IndexDims"
+    {},
+    TestID -> "RandomTensorNetwork_Graph_BondsAreTheEdges"
+]
+
+(* {dim}: every dimension is exactly dim; up to r extra free legs per vertex *)
+VerificationTest[
+    badSeeds[
+        RandomTensorNetwork[fixedGraph, {3}, 2] &,
+        Function[tn, And[
+            bondPairs[tn] === fixedGraphPairs,
+            Union[Values[labelDimensions[tn]]] === {3},
+            And @@ MapThread[LessEqual[#1, #2, #1 + 2] &, {VertexDegree[fixedGraph], Length /@ tn["Hyperedges"]}],
+            Length[openLabels[tn]] === Total[Length /@ tn["Hyperedges"]] - Total[VertexDegree[fixedGraph]]
+        ]]
+    ],
+    {},
+    TestID -> "RandomTensorNetwork_Graph_FixedDimensionAndFreeLegs"
+]
+
+(* {n, m}: n tensors joined by m bonds *)
+VerificationTest[
+    badSeeds[
+        RandomTensorNetwork[{8, 12}, 3] &,
+        Function[tn, And[Length[tn["Tensors"]] === 8, Length[bondPairs[tn]] === 12, openLabels[tn] === {}]]
+    ],
+    {},
+    TestID -> "RandomTensorNetwork_NM_TensorAndBondCount"
+]
+
+(* Default entries are reals in [-1, 1]; Method -> "Complex" gives complex entries *)
+VerificationTest[
+    {
+        With[{e = Flatten[RandomTensorNetwork[fixedGraph, 3]["Tensors"]]}, AllTrue[e, Head[#] === Real && -1 <= # <= 1 &]],
+        With[{e = Flatten[RandomTensorNetwork[fixedGraph, 3, Method -> "Complex"]["Tensors"]]}, AllTrue[e, Head[#] === Complex &]]
+    },
+    {True, True},
+    TestID -> "RandomTensorNetwork_EntryType"
 ]
 
 
 (* ============================================ *)
-(* Structural contract — MPS topology          *)
+(* MPS                                          *)
 (* ============================================ *)
 
-(* MPS[L, D, d] must produce L tensors, with ranks (2, 3, 3, ..., 3, 2). *)
+(* MPS[L, D, d]: bonds 1..L-1 between neighbours, physical legs L+1..2L *)
 VerificationTest[
-    Module[{tn},
-        tn = RandomTensorNetwork["MPS"[6, 4, 2]];
-        Length[tn["Tensors"]] === 6 &&
-            tn["Ranks"] === {2, 3, 3, 3, 3, 2}
+    With[{tn = RandomTensorNetwork["MPS"[5, 4, 3]]},
+        {tn["Hyperedges"], Dimensions /@ tn["Tensors"]}
     ],
-    True,
-    TestID -> "RandomTensorNetwork_MPS_Ranks"
+    {
+        {{1, 6}, {1, 2, 7}, {2, 3, 8}, {3, 4, 9}, {4, 10}},
+        {{4, 3}, {4, 4, 3}, {4, 4, 3}, {4, 4, 3}, {4, 3}}
+    },
+    TestID -> "RandomTensorNetwork_MPS_Open"
 ]
 
-(* MPS bond dims should all equal D, phys dims should all equal d. *)
+(* Periodic: a ring, every site rank 3 *)
 VerificationTest[
-    Module[{tn, dims},
-        tn = RandomTensorNetwork["MPS"[5, 4, 3]];
-        dims = tn["Dimensions"];
-        (* Boundary sites have 2 legs; interior have 3 *)
-        First[dims] === {4, 3} &&
-            Last[dims] === {4, 3} &&
-            dims[[2]] === {4, 4, 3} &&
-            dims[[3]] === {4, 4, 3}
+    With[{tn = RandomTensorNetwork["MPS"[4, 2, 3], "Boundary" -> "Periodic"]},
+        {bondPairs[tn], tn["FreeIndices"], Union[Dimensions /@ tn["Tensors"]]}
     ],
-    True,
-    TestID -> "RandomTensorNetwork_MPS_BondAndPhysDims"
-]
-
-(* MPS free indices = the L physical legs (one per site, none paired). *)
-VerificationTest[
-    Module[{tn},
-        tn = RandomTensorNetwork["MPS"[6, 3, 2]];
-        Length[tn["FreeIndices"]] === 6
-    ],
-    True,
-    TestID -> "RandomTensorNetwork_MPS_FreeIndicesCount"
+    {{{1, 2}, {1, 4}, {2, 3}, {3, 4}}, {5, 6, 7, 8}, {{2, 2, 3}}},
+    TestID -> "RandomTensorNetwork_MPS_Periodic"
 ]
 
 
 (* ============================================ *)
-(* Structural contract — PEPS topology         *)
+(* PEPS                                         *)
 (* ============================================ *)
 
-(* PEPS {r, c} should produce r·c tensors with r·c free physical legs. *)
+(* PEPS[{r, c}, D, d]: row-major sites joined as the r x c grid, one physical leg each *)
 VerificationTest[
-    Module[{tn},
-        tn = RandomTensorNetwork["PEPS"[{3, 4}, 2, 2]];
-        Length[tn["Tensors"]] === 12 &&
-            Length[tn["FreeIndices"]] === 12
+    With[{tn = RandomTensorNetwork["PEPS"[{3, 4}, 2, 3]]},
+        {
+            bondPairs[tn],
+            Length[tn["FreeIndices"]],
+            Union @ Lookup[labelDimensions[tn], tn["FreeIndices"]],
+            Union @ Lookup[labelDimensions[tn], Complement[Catenate[tn["Hyperedges"]], tn["FreeIndices"]]]
+        }
     ],
-    True,
-    TestID -> "RandomTensorNetwork_PEPS_TensorCount_And_Phys"
+    {
+        Sort @ Join[
+            Catenate @ Table[{(r - 1) 4 + c, (r - 1) 4 + c + 1}, {r, 3}, {c, 3}],
+            Catenate @ Table[{(r - 1) 4 + c, r 4 + c}, {r, 2}, {c, 4}]
+        ],
+        12, {3}, {2}
+    },
+    TestID -> "RandomTensorNetwork_PEPS_Grid"
 ]

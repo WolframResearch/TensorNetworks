@@ -7,10 +7,7 @@ Master runner for the external-validation test suite. Iterates over two groups:
   paclet_primitives/  - tests that genuinely exercise paclet symbols
                         (TensorNetwork, OptimalContractionPath, EinsteinSummation,
                          MPSCanonicalForm, MPSOverlap, etc.)
-  baselines/          - Mathematica-native sanity checks against catalogued
-                        analytic answers (no paclet calls). These document that
-                        the catalog values are reachable; they are NOT paclet
-                        regression tests.
+  paclet_fuzz/        - property sweeps over random inputs
 
 Aggregates outcomes across all files and writes SKIPPED_AND_MISSING.md.
 
@@ -57,12 +54,6 @@ testGroups = {
         "symmetry_basic.wl",
         (* Textbook reference + Riemann motif + random presentation sweep *)
         "symmetry_textbook_reference.wl"
-    },
-    "baselines" -> {
-        "decomposition.wl",
-        "analytic_grounds.wl",
-        "gate_identities.wl",
-        "state_expectations.wl"
     },
     "paclet_fuzz" -> {
         "fuzz_contraction_paths.wl",

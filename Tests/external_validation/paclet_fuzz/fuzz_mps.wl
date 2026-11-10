@@ -1,16 +1,25 @@
 (* Tests/external_validation/paclet_fuzz/fuzz_mps.wl
 
-   Property-based fuzz layer for MPSOverlap, MPSCanonicalForm, MPSNorm,
-   MPSNormalize. Each sweep iteration generates a random MPS at a point in
-   the (L, D, phys) grid and asserts:
+   Property-based fuzz layer for MPSCanonicalForm, MPSOverlap, MPSNorm,
+   MPSNormalize, MPSSchmidtValues and MPSTruncate. Each sweep point draws a
+   random complex MPS with random physical dimensions (2 or 3) and random
+   bond dimensions (1 to 5) on every bond, plus a second, different state
+   on the same sites, and checks every result against the dense state
+   vector built here by plain matrix products, never by the paclet:
 
-     - MPSOverlap[mps, mps] === MPSNorm[mps]^2  (real, non-negative)
-     - MPSCanonicalQ[Left[mps], "Left"]  and  MPSCanonicalQ[Right[mps], "Right"]
-     - canonicalization preserves overlap within tolerance
-     - normalization gives unit norm
+     - left, right and mixed (every centre) canonical forms give the same
+       dense vector, and their tensors are isometries by explicit sums
+     - MPSOverlap[a, b] = conj(vb) . va, MPSNorm = Norm[v],
+       MPSNormalize gives v / Norm[v]
+     - Schmidt values on every cut = SVD of the dense vector
+     - MPSTruncate of the right-canonical state to one less than the largest
+       Schmidt rank: the truncations are nested projections, so the squared
+       error is at least the largest and at most the summed discarded weight
+       of the dense vector over the cuts
 
-   Edge cases: L=2 (both boundaries adjacent), D=1 (product state).
-   Timing sentinel at L=32, D=8.
+   Edge cases: L = 2 (both boundaries adjacent), bond 1 everywhere (product
+   state). Timing sentinel at L = 32, D = 8, checked by amplitudes of single
+   configurations computed as plain matrix products.
 *)
 
 Module[{candidates, found},
@@ -26,156 +35,184 @@ Module[{candidates, found},
 ClearValidationRecords[];
 
 
-(* Core MPS invariant check. Returns True iff:
-   1. MPSOverlap[mps, mps] is real and non-negative
-   2. MPSOverlap === MPSNorm^2 (within numerical tolerance)
-   3. Left/right canonicalization preserves overlap
-   4. Normalization gives unit overlap
-   5. MPSCanonicalQ confirms the canonicalized form *)
-checkMPSInvariants[mps_, tol_:1.*^-8] := Module[
-    {ov, norm, leftCanon, rightCanon, normalized, ovL, ovR, ovN, scale},
-    ov = MPSOverlap[mps, mps];
-    norm = MPSNorm[mps];
-    leftCanon = MPSCanonicalForm[mps, "Left"];
-    rightCanon = MPSCanonicalForm[mps, "Right"];
-    normalized = MPSNormalize[mps];
-    ovL = MPSOverlap[leftCanon, leftCanon];
-    ovR = MPSOverlap[rightCanon, rightCanon];
-    ovN = MPSOverlap[normalized, normalized];
-    scale = Max[1, Abs[ov]];
-    And[
-        Abs[Im[ov]] < tol * scale,
-        Re[ov] >= -tol * scale,
-        Abs[ov - norm^2]    < tol * scale,
-        Abs[ov - ovL]       < tol * scale,
-        Abs[ov - ovR]       < tol * scale,
-        Abs[ovN - 1]        < tol,
-        MPSCanonicalQ[leftCanon, "Left"],
-        MPSCanonicalQ[rightCanon, "Right"]
-    ]
-];
+(* ----- Independent references *)
+
+fuzzSameQ[x_, y_] := Norm[Flatten[{x - y}]] <= 10^-10 Max[1, Norm[Flatten[{y}]]];
+
+fuzzHyperedges[n_] := Join[{{1, n + 1}}, Table[{i - 1, i, n + i}, {i, 2, n - 1}], {{n - 1, 2 n}}];
+
+(* Layout: first {right, phys}, bulk {left, right, phys}, last {left, phys}. *)
+fuzzMPS[phys_List, bonds_List] :=
+    With[{n = Length[phys]},
+        TensorNetwork[
+            Join[
+                {RandomComplex[{-1 - I, 1 + I}, {bonds[[1]], phys[[1]]}]},
+                Table[RandomComplex[{-1 - I, 1 + I}, {bonds[[i - 1]], bonds[[i]], phys[[i]]}], {i, 2, n - 1}],
+                {RandomComplex[{-1 - I, 1 + I}, {bonds[[n - 1]], phys[[n]]}]}
+            ],
+            fuzzHyperedges[n]
+        ]
+    ];
+
+fuzzSiteStep[m_, t_ /; ArrayDepth[t] == 2] := m . t;
+fuzzSiteStep[m_, t_ /; ArrayDepth[t] == 3] :=
+    With[{d = Dimensions[t]},
+        ArrayReshape[m . ArrayReshape[Transpose[t, {1, 3, 2}], {d[[1]], d[[3]] d[[2]]}], {Length[m] d[[3]], d[[2]]}]
+    ];
+fuzzDense[tn_] := Flatten[Fold[fuzzSiteStep, Transpose[First[tn["Tensors"]]], Rest[tn["Tensors"]]]];
+
+fuzzCutValues[v_, phys_, k_] :=
+    Diagonal[SingularValueDecomposition[ArrayReshape[v, {Times @@ Take[phys, k], Times @@ Drop[phys, k]}]][[2]]];
+
+fuzzLeftGram[t_ /; ArrayDepth[t] == 2] :=
+    With[{d = Dimensions[t]}, Table[Sum[Conjugate[t[[r, p]]] t[[s, p]], {p, d[[2]]}], {r, d[[1]]}, {s, d[[1]]}]];
+fuzzLeftGram[t_ /; ArrayDepth[t] == 3] :=
+    With[{d = Dimensions[t]},
+        Table[Sum[Conjugate[t[[a, r, p]]] t[[a, s, p]], {a, d[[1]]}, {p, d[[3]]}], {r, d[[2]]}, {s, d[[2]]}]
+    ];
+fuzzRightGram[t_ /; ArrayDepth[t] == 2] :=
+    With[{d = Dimensions[t]}, Table[Sum[t[[a, p]] Conjugate[t[[b, p]]], {p, d[[2]]}], {a, d[[1]]}, {b, d[[1]]}]];
+fuzzRightGram[t_ /; ArrayDepth[t] == 3] :=
+    With[{d = Dimensions[t]},
+        Table[Sum[t[[a, r, p]] Conjugate[t[[b, r, p]]], {r, d[[2]]}, {p, d[[3]]}], {a, d[[1]]}, {b, d[[1]]}]
+    ];
+fuzzIsometryQ[gram_] := fuzzSameQ[gram, IdentityMatrix[Length[gram]]];
+
+leftCanonicalQ[ts_] := AllTrue[ts, fuzzIsometryQ[fuzzLeftGram[#]] &];
+rightCanonicalQ[ts_] := AllTrue[ts, fuzzIsometryQ[fuzzRightGram[#]] &];
+
+(* All checks for one random pair of states on L sites. Returns an
+   association of named Booleans so a failure names the property. *)
+checkMPSAgainstDense[L_Integer, maxBond_Integer, seed_Integer] :=
+    BlockRandom[
+        SeedRandom[seed];
+        Module[{phys, bonds, mps, other, v, w, n, left, right, values, ranks, chi, err2, discarded},
+            phys = RandomInteger[{2, 3}, L];
+            bonds = RandomInteger[{1, maxBond}, L - 1];
+            mps = fuzzMPS[phys, bonds];
+            other = fuzzMPS[phys, RandomInteger[{1, maxBond}, L - 1]];
+            v = fuzzDense[mps];
+            w = fuzzDense[other];
+            n = Norm[v];
+            left = MPSCanonicalForm[mps, "Left"];
+            right = MPSCanonicalForm[mps, "Right"];
+            values = Table[fuzzCutValues[v, phys, k], {k, L - 1}];
+            ranks = Count[#, s_ /; s > 10^-10 Max[#]] & /@ values;
+            chi = Max[ranks] - 1;
+            discarded = Total[Drop[#, UpTo[chi]]^2] & /@ values;
+            err2 = If[chi >= 1,
+                Norm[v - fuzzDense[MPSTruncate[right, chi, "Normalize" -> False]]]^2,
+                0.
+            ];
+            <|
+                "LeftState" -> fuzzSameQ[fuzzDense[left], v],
+                "LeftIsometries" -> leftCanonicalQ[Most[left["Tensors"]]],
+                "RightState" -> fuzzSameQ[fuzzDense[right], v],
+                "RightIsometries" -> rightCanonicalQ[Rest[right["Tensors"]]],
+                "Mixed" -> AllTrue[Range[L],
+                    With[{ts = MPSCanonicalForm[mps, {"Mixed", #}]["Tensors"]},
+                        fuzzSameQ[fuzzDense[TensorNetwork[ts, fuzzHyperedges[L]]], v] &&
+                            leftCanonicalQ[Take[ts, # - 1]] && rightCanonicalQ[Drop[ts, #]]
+                    ] &
+                ],
+                "Overlap" -> fuzzSameQ[MPSOverlap[mps, other], Conjugate[w] . v] &&
+                    fuzzSameQ[MPSOverlap[other, mps], Conjugate[v] . w],
+                "Norm" -> fuzzSameQ[MPSNorm[mps], n],
+                "Normalize" -> fuzzSameQ[fuzzDense[MPSNormalize[mps]], v / n],
+                "Schmidt" -> AllTrue[Range[L - 1],
+                    fuzzSameQ[PadRight[MPSSchmidtValues[mps, #], Length[values[[#]]], 0.], values[[#]] / n] &
+                ],
+                "TruncationError" -> Or[
+                    chi < 1,
+                    Max[discarded] (1 - 10^-10) <= err2 <= Total[discarded] (1 + 10^-10) + 10^-20 n^2
+                ]
+            |>
+        ]
+    ];
+
+failedChecks[results_List] := Union @ Flatten[Keys[Select[#, Not @* TrueQ]] & /@ results];
 
 
 (* ----- F-MPS-1: small/medium sweep -----
-   L in {3, 5, 8}, D in {2, 4}, phys in {2, 3}, seed 1..2 = 24 networks. *)
-WithCapability[{"RandomTensorNetwork", "MPSOverlap", "MPSCanonicalForm", "MPSNorm",
-                "MPSNormalize", "MPSCanonicalQ"},
+   L in {3, 4, 5, 6}, bonds up to 4, seeds 1..4 = 16 pairs of states. *)
+WithCapability[{"TensorNetwork", "MPSOverlap", "MPSCanonicalForm", "MPSNorm",
+                "MPSNormalize", "MPSSchmidtValues", "MPSTruncate"},
     "paclet-fuzz-mps-1-small-sweep",
-    "MPS[L,D,d] sweep: overlap=norm^2, canon preserves overlap, normalize gives 1",
+    "Complex MPS[L, D, d] sweep against the dense state vector",
     VerificationTest[
-        AllTrue[
-            Flatten[Table[
-                BlockRandom[SeedRandom[seed]; checkMPSInvariants[RandomTensorNetwork["MPS"[L, D, d]]]],
-                {L, {3, 5, 8}}, {D, {2, 4}}, {d, {2, 3}}, {seed, 1, 2}
-            ], 3],
-            TrueQ
-        ],
-        True,
+        failedChecks @ Flatten @ Table[checkMPSAgainstDense[L, 4, 100 L + seed], {L, 3, 6}, {seed, 4}],
+        {},
         TestID -> "paclet-fuzz-mps-1-small-sweep"
     ]
 ];
 
 
 (* ----- F-MPS-2: larger-bond sweep -----
-   L in {6, 12, 16}, D in {6, 8}, phys=2, seed 1..2 = 12 networks. *)
-WithCapability[{"RandomTensorNetwork", "MPSOverlap", "MPSCanonicalForm", "MPSNorm",
-                "MPSNormalize", "MPSCanonicalQ"},
+   L in {6, 7}, bonds up to 5 (dense vectors up to 3^7 entries), seeds 1..3. *)
+WithCapability[{"TensorNetwork", "MPSOverlap", "MPSCanonicalForm", "MPSNorm",
+                "MPSNormalize", "MPSSchmidtValues", "MPSTruncate"},
     "paclet-fuzz-mps-2-larger-bond-sweep",
-    "MPS[L,D=6..8,2] sweep — larger bond dimensions stress canonicalization",
+    "Complex MPS[L = 6..7, D <= 5, d] sweep against the dense state vector",
     VerificationTest[
-        AllTrue[
-            Flatten[Table[
-                BlockRandom[SeedRandom[seed]; checkMPSInvariants[RandomTensorNetwork["MPS"[L, D, 2]]]],
-                {L, {6, 12, 16}}, {D, {6, 8}}, {seed, 1, 2}
-            ], 2],
-            TrueQ
-        ],
-        True,
+        failedChecks @ Flatten @ Table[checkMPSAgainstDense[L, 5, 1000 L + seed], {L, 6, 7}, {seed, 3}],
+        {},
         TestID -> "paclet-fuzz-mps-2-larger-bond-sweep"
     ]
 ];
 
 
 (* ----- F-MPS-3: L=2 edge case -----
-   Both boundary tensors are adjacent — special-case path through the
-   canonicalization code. *)
-WithCapability[{"RandomTensorNetwork", "MPSOverlap", "MPSCanonicalForm", "MPSNorm",
-                "MPSNormalize", "MPSCanonicalQ"},
+   Both boundary tensors are adjacent: the state is a matrix and truncation
+   is a single SVD. *)
+WithCapability[{"TensorNetwork", "MPSOverlap", "MPSCanonicalForm", "MPSNorm",
+                "MPSNormalize", "MPSSchmidtValues", "MPSTruncate"},
     "paclet-fuzz-mps-3-edge-L2",
-    "L=2 MPS (both boundaries adjacent)",
+    "L=2 complex MPS (both boundaries adjacent)",
     VerificationTest[
-        AllTrue[
-            Table[
-                BlockRandom[SeedRandom[seed]; checkMPSInvariants[RandomTensorNetwork["MPS"[2, D, 2]]]],
-                {D, {2, 3, 4}}, {seed, 1, 3}
-            ] // Flatten,
-            TrueQ
-        ],
-        True,
+        failedChecks @ Table[checkMPSAgainstDense[2, 5, 300 + seed], {seed, 6}],
+        {},
         TestID -> "paclet-fuzz-mps-3-edge-L2"
     ]
 ];
 
 
-(* ----- F-MPS-4: D=1 product state edge case -----
-   Bond dim 1 collapses every bond to a scalar — a product state. *)
-WithCapability[{"RandomTensorNetwork", "MPSOverlap", "MPSCanonicalForm", "MPSNorm",
-                "MPSNormalize", "MPSCanonicalQ"},
+(* ----- F-MPS-4: bond 1 edge case -----
+   Every bond is 1: a product of random complex vectors. Overlaps with a
+   second product state still need the conjugate on the right side. *)
+WithCapability[{"TensorNetwork", "MPSOverlap", "MPSCanonicalForm", "MPSNorm",
+                "MPSNormalize", "MPSSchmidtValues", "MPSTruncate"},
     "paclet-fuzz-mps-4-edge-D1-product",
-    "D=1 product-state edge case",
+    "Bond-1 complex product-state edge case",
     VerificationTest[
-        AllTrue[
-            Table[
-                BlockRandom[SeedRandom[seed]; checkMPSInvariants[RandomTensorNetwork["MPS"[L, 1, 2]]]],
-                {L, {3, 5, 8}}, {seed, 1, 3}
-            ] // Flatten,
-            TrueQ
-        ],
-        True,
+        failedChecks @ Flatten @ Table[checkMPSAgainstDense[L, 1, 400 + 10 L + seed], {L, {3, 5, 7}}, {seed, 3}],
+        {},
         TestID -> "paclet-fuzz-mps-4-edge-D1-product"
     ]
 ];
 
 
-(* ----- F-MPS-5: mixed-canonical at every site -----
-   For an L=8 MPS, MPSCanonicalForm[mps, {"Mixed", k}] should yield a state
-   that contains site k in its non-canonical (orthogonality-center) form, and
-   the overall norm/overlap should be preserved. *)
-WithCapability[{"RandomTensorNetwork", "MPSOverlap", "MPSCanonicalForm", "MPSCanonicalQ"},
-    "paclet-fuzz-mps-5-mixed-canonical",
-    "Mixed-canonical at every site k preserves overlap and is canonical there",
-    VerificationTest[
-        Module[{mps, ov0, results},
-            BlockRandom[SeedRandom[91]; mps = RandomTensorNetwork["MPS"[8, 3, 2]]];
-            ov0 = MPSOverlap[mps, mps];
-            results = Table[
-                Module[{canon, ovK},
-                    canon = MPSCanonicalForm[mps, {"Mixed", k}];
-                    ovK = MPSOverlap[canon, canon];
-                    Abs[ovK - ov0] < 1.*^-7 * Max[1, Abs[ov0]] &&
-                        MPSCanonicalQ[canon, {"Mixed", k}]
-                ],
-                {k, 1, 8}
-            ];
-            AllTrue[results, TrueQ]
-        ],
-        True,
-        TestID -> "paclet-fuzz-mps-5-mixed-canonical"
-    ]
-];
-
-
 (* ----- F-MPS-6: timing sentinel -----
-   Canonicalization on a moderately large MPS within 15s. *)
-WithCapability[{"RandomTensorNetwork", "MPSCanonicalForm", "MPSCanonicalQ"},
+   L = 32, D = 8, complex: left-canonicalize within 15 s. The dense vector is
+   out of reach, so the state is compared on 20 random configurations, each
+   amplitude a product of 32 matrices, and every tensor but the last must be
+   a left isometry. *)
+WithCapability[{"TensorNetwork", "MPSCanonicalForm"},
     "paclet-fuzz-mps-6-timing",
-    "L=32, D=8 left-canonicalize within 15s",
+    "L=32, D=8 complex left-canonicalize within 15s",
     VerificationTest[
-        WithBudget[15.,
-            Module[{mps, canon},
-                BlockRandom[SeedRandom[101]; mps = RandomTensorNetwork["MPS"[32, 8, 2]]];
-                canon = MPSCanonicalForm[mps, "Left"];
-                MPSCanonicalQ[canon, "Left"]
+        BlockRandom[
+            SeedRandom[101];
+            Module[{mps, canon, configs, amp},
+                mps = fuzzMPS[ConstantArray[2, 32], ConstantArray[8, 31]];
+                configs = RandomInteger[{1, 2}, {20, 32}];
+                amp[ts_, c_] := First[ts][[All, First[c]]] .
+                    (Dot @@ MapThread[#1[[All, All, #2]] &, {ts[[2 ;; -2]], c[[2 ;; -2]]}]) .
+                    Last[ts][[All, Last[c]]];
+                And[
+                    WithBudget[15., (canon = MPSCanonicalForm[mps, "Left"]; True)],
+                    fuzzSameQ[amp[canon["Tensors"], #] & /@ configs, amp[mps["Tensors"], #] & /@ configs],
+                    leftCanonicalQ[Most[canon["Tensors"]]]
+                ]
             ]
         ],
         True,

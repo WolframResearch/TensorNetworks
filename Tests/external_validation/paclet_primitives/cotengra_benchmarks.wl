@@ -45,26 +45,27 @@ WithCapability[{"OptimalContractionPath", "TensorNetwork"},
     ]
 ];
 
-(* ----- T2: 4-tensor demo, contracted result = 2x3 array of 6720
-   With all-ones tensors, every entry in the contracted output equals the
-   total contraction sum, which is the cost product 4*5*6*7*8 = 6720 (sum
-   over a, b, c, d, e of T1*T2*T3*T4 = product of dims of internal indices).
-   Source: cotengra docs/basics.ipynb (same as T1). *)
+(* ----- T2: the 4-tensor demo with complex random tensors, output asked for as (y, x):
+   the contracted array equals the explicit sum over a, b, c, d, e written out here.
+   Source: cotengra docs/basics.ipynb (same network as T1). *)
 WithCapability[{"TensorNetwork", "TensorNetworkContract"},
-    "paclet-cotengra-T2-4tensor-result-6720",
-    "cotengra docs/basics.ipynb (4-tensor demo, contracted result)",
+    "paclet-cotengra-T2-4tensor-result",
+    "cotengra docs/basics.ipynb (4-tensor demo); explicit index sum",
     VerificationTest[
-        Module[{tn, ts, shapes, sd, result},
+        Module[{shapes, sd, t1, t2, t3, t4, ref, result},
             sd = <|"a" -> 4, "b" -> 5, "c" -> 6, "d" -> 7, "e" -> 8, "x" -> 2, "y" -> 3|>;
             shapes = {{"a", "b", "x"}, {"b", "c", "d"}, {"c", "e", "y"}, {"e", "a", "d"}};
-            ts = MapThread[ConstantArray[1.0, sd /@ #] &, {shapes}];
-            tn = TensorNetwork[ts, shapes];
-            result = TensorNetworkContract[tn];
-            Dimensions[result] === {2, 3} &&
-                AllTrue[Flatten[result], ValidationClose[#, 6720.0, 1.*^-9] &]
+            {t1, t2, t3, t4} = BlockRandom[SeedRandom[211];
+                RandomComplex[{-1 - I, 1 + I}, Lookup[sd, #]] & /@ shapes];
+            ref = Table[
+                Sum[t1[[a, b, x]] t2[[b, c, d]] t3[[c, e, y]] t4[[e, a, d]], {a, 4}, {b, 5}, {c, 6}, {d, 7}, {e, 8}],
+                {y, 3}, {x, 2}];
+            result = TensorNetworkContract[TensorNetwork[{t1, t2, t3, t4}, shapes -> {"y", "x"}]];
+            Dimensions[result] === {3, 2} &&
+                Max[Abs[Flatten[result - ref]]] <= 1.*^-10 Max[Abs[Flatten[ref]]]
         ],
         True,
-        TestID -> "paclet-cotengra-T2-4tensor-result-6720"
+        TestID -> "paclet-cotengra-T2-4tensor-result"
     ]
 ];
 
@@ -177,28 +178,25 @@ WithCapability[{"TensorNetwork", "OptimalContractionPath"},
     ]
 ];
 
-(* ----- T7: Sycamore m=20 cost-convention validation
-   The Sycamore m=20 network (381 tensors / 754 legs) is too large for the
-   paclet's exhaustive OptimalContractionPath, and the paclet has no
-   HyperOptimizer to reproduce cotengra's documented ~10^18 cost. What we
-   *can* validate cross-package: given the same (inputs, size_dict, path),
-   the paclet's pathCost helper must produce the same total flop count
-   cotengra reports for that path (opt_einsum mul-count convention).
-   The fixture stores cotengra's deterministic-greedy path on the real
-   Sycamore spec, and the paclet recomputes the cost. *)
-WithCapability[{},  (* pure pathCost — no paclet symbols needed *)
+(* ----- T7: Sycamore m=20 (381 tensors / 754 legs): CanonicalPath of cotengra's greedy
+   path (fixture) must describe the same contraction tree, so walking the canonical
+   path must give exactly the total flops cotengra reports for its own path. The walk
+   is the opt_einsum mul-count convention, computed by this suite's pathCost helper,
+   which T1, T5 and T6 tie to cotengra's numbers.
+   Source: cotengra examples/benchmarks/sycamore_n53_m20_s0_e0_pABCDCDAB.json. *)
+WithCapability[{"CanonicalPath"},
     "paclet-cotengra-T7-sycamore-m20",
     "cotengra examples/benchmarks/sycamore_n53_m20_s0_e0_pABCDCDAB.json (fixture: external_oracles/fixtures/cotengra_sycamore_m20.json)",
     VerificationTest[
-        Module[{fixture, shapes, sd, pathPy, pathWL, cost, expected},
+        Module[{fixture, shapes, sd, pathWL, canonical},
             fixture = Import[OracleFixturePath["cotengra_sycamore_m20.json"], "RawJSON"];
             shapes = fixture["inputs"];
             sd = Association @ KeyValueMap[Rule, fixture["size_dict"]];
-            pathPy = fixture["path"];                          (* 0-indexed *)
-            pathWL = Map[# + 1 &, pathPy, {2}];                (* WL: 1-indexed *)
-            cost = pathCost[shapes, sd, pathWL];
-            expected = fixture["expected_total_flops"];
-            cost === expected
+            pathWL = Map[# + 1 &, fixture["path"], {2}];       (* cotengra is 0-indexed *)
+            canonical = CanonicalPath[pathWL];
+            canonical =!= pathWL &&
+                Length[canonical] === Length[pathWL] &&
+                pathCost[shapes, sd, canonical] === fixture["expected_total_flops"]
         ],
         True,
         TestID -> "paclet-cotengra-T7-sycamore-m20"

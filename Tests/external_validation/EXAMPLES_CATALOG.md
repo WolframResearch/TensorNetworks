@@ -197,7 +197,7 @@ These bundle external dependencies the WL paclet does not have. Either skip thes
 The suite exists. Tests are organized by **intent**, not by source-package:
 
 - `paclet_primitives/`: tests that exercise paclet symbols (`EinsteinSummation`, `OptimalContractionPath`, `MPSCanonicalForm`, etc.)
-- `baselines/`: Mathematica-native sanity checks against catalog values (no paclet calls)
+- `paclet_fuzz/`: property sweeps over random inputs
 
 See [PLAN.md](PLAN.md) section 4 for the full tier-by-tier mapping (which catalog group → which `.wl` files), and [SKIPPED_AND_MISSING.md](SKIPPED_AND_MISSING.md) for the live pass/fail/skip state. To add a new test, follow the pattern in [PLAN.md](PLAN.md) section 9.
 

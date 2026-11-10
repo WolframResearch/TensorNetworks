@@ -15,7 +15,20 @@ IndexPart[it : _IndexArray | _IndexTensor, {is__}] := Block[{
     indices = it["Indices"], js, part, newArray
 },
     js = MapThread[If[MatchQ[#2, _Integer | All], #2, Lookup[#1, Key[#2]]] &, {Map[First] @* PositionIndex /@ Through[Take[indices, UpTo[Length[{is}]]]["Indices"]], {is}}];
-    part = ArrayPart[it["Array"], Replace[js, _Missing -> All, 1]];
+    (* Wolfram/Arrays 1.4.1 ArrayPart can return the wrong slice when All precedes an integer:
+       an explicit array is sliced with Part, and a symbolic slice whose dimensions are not those
+       of the kept levels is left unevaluated *)
+    part = With[{array = it["Array"], spec = Replace[js, _Missing -> All, 1]},
+        If[ ArrayQ[array],
+            array[[Sequence @@ spec]],
+            With[{p = ArrayPart[array, spec]},
+                If[ MatchQ[p, _ArrayPart] || TensorDimensions[p] === Delete[TensorDimensions[array], Position[spec, _Integer, {1}, Heads -> False]],
+                    p,
+                    Missing["WrongDimensions"]
+                ]
+            ]
+        ]
+    ];
     (
         newArray = IndexArray[
             part,
@@ -23,6 +36,7 @@ IndexPart[it : _IndexArray | _IndexTensor, {is__}] := Block[{
                 If[ IntegerQ[#2],
                     Dimension[#1, Mod[#2, #1["Dimension"], 1]],
                     Replace[#2, {
+                        All -> #1,
                         Missing[_, - name_] :> Dimension[#1, name]["Lower"],
                         Missing[_, name_] :> Dimension[#1, name]["Upper"]
                     }]
@@ -32,7 +46,7 @@ IndexPart[it : _IndexArray | _IndexTensor, {is__}] := Block[{
             it["Parameters"], it["Assumptions"], it["Name"]
         ];
         If[IndexArrayQ[it], newArray, IndexTensor[newArray, it["Metrics"]]]
-     ) /; AnyTrue[js, IntegerQ] && ! MatchQ[part, _ArrayPart]
+     ) /; AnyTrue[js, IntegerQ] && ! MatchQ[part, _ArrayPart | _Missing]
 ]
 
 IndexPart[it_IndexTensor, {}] := it
