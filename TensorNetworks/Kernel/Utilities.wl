@@ -31,6 +31,8 @@ toTensor[t_] := {t}
 
 
 (* containers TensorDimensions doesn't know fall back to the container route below *)
+tensorDimensions[t_ ? Developer`PackedArrayQ] := Dimensions[t]
+
 tensorDimensions[t_] := Replace[TensorDimensions[t], Except[_List] :> If[arrayContainerQ[t], arrayContainerDimensions[t], {}]]
 
 

@@ -559,14 +559,19 @@ labelDimensions[leaves_List] := Association @ Catenate @ Map[
     leaves
 ]
 
-keptLabelQ[label_, holders_, env_] := holders[label] < env["Holders"][label] || Lookup[env["Output"], Key[label], False]
+(* a label is kept when tensors outside this pair, or the output, still need it; held is how
+   many of the network's tensors carrying it are inside the pair *)
+keptLabelQ[label_, held_, env_] := held < env["Holders"][label] || Lookup[env["Output"], Key[label], False]
+
+(* how many of the original tensors carrying each label the pair holds *)
+pairHolders[ha_, hb_, labels_List] := Lookup[ha, labels, 0] + Lookup[hb, labels, 0]
 
 (* shared labels found once per step; the batch test and the matrix step reuse them *)
 contractStep[{a_, i_, ha_}, {b_, j_, hb_}, env_] := Block[{
-    holders = Merge[{ha, hb}, Total], shared, batch, result
+    shared, batch, result
 },
     shared = Select[i, KeyExistsQ[hb, #] &];
-    batch = Select[shared, keptLabelQ[#, holders, env] &];
+    batch = Pick[shared, MapThread[keptLabelQ[#1, #2, env] &, {shared, pairHolders[ha, hb, shared]}]];
     result = Which[
         batch =!= {},
             contractBatchPair[{a -> i, b -> j}, batch, env],
@@ -578,12 +583,15 @@ contractStep[{a_, i_, ha_}, {b_, j_, hb_}, env_] := Block[{
         True,
             contractTensorPair[{a -> i, b -> j}, env["PairOptions"]]
     ];
-    {env["Represent"][First[result]], Last[result], KeyTake[holders, Last[result]]}
+    {env["Represent"][First[result]], Last[result], AssociationThread[Last[result], pairHolders[ha, hb, Last[result]]]}
 ]
 
 orderAxes[t_, from_, to_] := With[{perm = FindPermutation[from, to]},
     If[perm === Cycles[{}], t, Transpose[t, perm]]
 ]
+
+(* t with its levels taken in the order given by their positions *)
+levelsInOrder[t_, order_List] := If[order === Range[Length[order]], t, Transpose[t, Ordering[order]]]
 
 
 (* --- an evaluated step as one matrix product --- *)
@@ -599,18 +607,23 @@ matrixPair[a_, i_, b_, j_, summed_] := Block[{
     (* Select, not DeleteElements: ~20x faster on short label lists *)
     own = Select[i, ! MemberQ[summed, #] &],
     other = Select[j, ! MemberQ[summed, #] &],
-    da = AssociationThread[i, Dimensions[a]],
-    db = AssociationThread[j, Dimensions[b]],
-    product
+    slotA = AssociationThread[i, Range[Length[i]]],
+    slotB = AssociationThread[j, Range[Length[j]]],
+    da = Dimensions[a], db = Dimensions[b],
+    ownSlots, summedSlotsA, summedSlotsB, otherSlots, product
 },
+    ownSlots = Lookup[slotA, own];
+    summedSlotsA = Lookup[slotA, summed];
+    summedSlotsB = Lookup[slotB, summed];
+    otherSlots = Lookup[slotB, other];
     product = matrixProduct[
-        ArrayReshape[orderAxes[a, i, Join[own, summed]], {Times @@ Lookup[da, own], Times @@ Lookup[da, summed]}],
-        ArrayReshape[orderAxes[b, j, Join[summed, other]], {Times @@ Lookup[db, summed], Times @@ Lookup[db, other]}]
+        ArrayReshape[levelsInOrder[a, Join[ownSlots, summedSlotsA]], {Times @@ da[[ownSlots]], Times @@ da[[summedSlotsA]]}],
+        ArrayReshape[levelsInOrder[b, Join[summedSlotsB, otherSlots]], {Times @@ db[[summedSlotsB]], Times @@ db[[otherSlots]]}]
     ];
     {
         If[ own === {} && other === {},
             product[[1, 1]],
-            ArrayReshape[product, Join[Lookup[da, own], Lookup[db, other]]]
+            ArrayReshape[product, Join[da[[ownSlots]], db[[otherSlots]]]]
         ],
         Join[own, other]
     }
@@ -632,6 +645,131 @@ matrixProduct[x_, y_] /; Length[y] >= $splitComplexLength && Developer`PackedArr
     ]
 
 matrixProduct[x_, y_] := x . y
+
+
+(* --- one network shape contracted again: the label work done once --- *)
+
+(* With dense machine leaves and evaluated "ArrayDot" or "Dot" steps, each step is a matrix
+   product (or an outer product) whose level orders and matrix shapes depend only on the labels
+   and dimensions. stepProgram works them out once per shape; runStepProgram then only reorders,
+   reshapes and multiplies, the same operations contractStep performs. Shapes it does not cover
+   give $Failed and the general route runs: a leaf with a repeated label or a summed label of its
+   own, a shared label kept past a step, a rank-0 operand, a one-operand step. A failed check
+   unwinds through a private Throw tag (Enclose misses Confirm inside called functions), and the
+   whole program is $Failed. *)
+
+stepProgramAssert[True] := Null
+
+stepProgramAssert[_] := Throw[$Failed, stepProgramTag]
+
+$stepProgramCache = <||>
+
+stepProgram[treePath_, vertices_, labels_, dims_, output_] := With[{key = {treePath, vertices, labels, dims, output}},
+    Replace[Lookup[$stepProgramCache, Key[key], Missing[]],
+        _Missing :> With[{program = compileStepProgram[treePath, vertices, labels, dims, output]},
+            $stepProgramCache[key] = program;
+            If[Length[$stepProgramCache] > 64, $stepProgramCache = Rest[$stepProgramCache]];
+            program
+        ]
+    ]
+]
+
+compileStepProgram[treePath_, vertices_, labels_, dims_, output_] := Catch[Block[{
+    n = Length[labels], holders, outputQ, steps, nodes, next, program
+},
+    holders = Counts[Catenate[labels]];
+    outputQ = AssociationThread[output, True];
+    stepProgramAssert[AllTrue[labels, DuplicateFreeQ] && ! MemberQ[labels, {}] &&
+        NoneTrue[Catenate[labels], holders[#] == 1 && ! Lookup[outputQ, Key[#], False] &]];
+    steps = treeSteps[treePath, AssociationThread[List /@ vertices, Range[n]]];
+    stepProgramAssert[ListQ[steps] && steps =!= {} && AllTrue[steps, Length[#] >= 2 &]];
+    (* node: {labels, dimensions, held counts} *)
+    nodes = AssociationThread[Range[n], MapThread[{#1, #2, AssociationThread[#1, 1]} &, {labels, dims}]];
+    next = n;
+    program = Map[
+        Function[operands, Block[{node = nodes[First[operands]], ops},
+            ops = Map[
+                Function[slot, With[{compiled = compilePairStep[node, nodes[slot], holders, outputQ]},
+                    node = Last[compiled];
+                    First[compiled]
+                ]],
+                Rest[operands]
+            ];
+            next++;
+            nodes[next] = node;
+            {operands, ops}
+        ]],
+        steps
+    ];
+    stepProgramAssert[Sort[First[nodes[next]]] === Sort[output]];
+    {program, First[nodes[next]]}
+], stepProgramTag]
+
+compilePairStep[{i_, di_, hi_}, {j_, dj_, hj_}, holders_, outputQ_] := Block[{
+    shared = Select[i, KeyExistsQ[hj, #] &], held, own, other, slotA, slotB, ownSlots, summedSlotsA, summedSlotsB, otherSlots, result
+},
+    stepProgramAssert[i =!= {} && j =!= {}];
+    held = pairHolders[hi, hj, shared];
+    stepProgramAssert[! Or @@ MapThread[#2 < holders[#1] || Lookup[outputQ, Key[#1], False] &, {shared, held}]];
+    If[ shared === {},
+        result = Join[i, j];
+        Return[{{"Outer"}, {result, Join[di, dj], AssociationThread[result, pairHolders[hi, hj, result]]}}]
+    ];
+    own = Select[i, ! MemberQ[shared, #] &];
+    other = Select[j, ! MemberQ[shared, #] &];
+    slotA = AssociationThread[i, Range[Length[i]]];
+    slotB = AssociationThread[j, Range[Length[j]]];
+    ownSlots = Lookup[slotA, own];
+    summedSlotsA = Lookup[slotA, shared];
+    summedSlotsB = Lookup[slotB, shared];
+    otherSlots = Lookup[slotB, other];
+    result = Join[own, other];
+    {
+        {
+            "Matrix",
+            levelOrder[Join[ownSlots, summedSlotsA]], {Times @@ di[[ownSlots]], Times @@ di[[summedSlotsA]]},
+            levelOrder[Join[summedSlotsB, otherSlots]], {Times @@ dj[[summedSlotsB]], Times @@ dj[[otherSlots]]},
+            If[result === {}, None, Join[di[[ownSlots]], dj[[otherSlots]]]]
+        },
+        {result, Join[di[[ownSlots]], dj[[otherSlots]]], AssociationThread[result, pairHolders[hi, hj, result]]}
+    }
+]
+
+packedMachineQ[t_] := Developer`PackedArrayQ[t, Real] || Developer`PackedArrayQ[t, Complex]
+
+(* the Transpose permutation that puts levels in the given order, None when they already are *)
+levelOrder[order_List] := If[order === Range[Length[order]], None, Ordering[order]]
+
+runStepProgram[$Failed, _] := $Failed
+
+runStepProgram[{program_, resultLabels_}, leaves_List] := Block[{
+    values = AssociationThread[Range[Length[leaves]], leaves], next = Length[leaves]
+},
+    Scan[
+        Function[step,
+            next++;
+            values[next] = Fold[
+                applyPairStep[#1, values[First[#2]], Last[#2]] &,
+                values[First[First[step]]],
+                Transpose[{Rest[First[step]], Last[step]}]
+            ];
+            KeyDropFrom[values, First[step]]
+        ],
+        program
+    ];
+    {values[next], resultLabels}
+]
+
+applyPairStep[a_, b_, {"Outer"}] := TensorProduct[a, b]
+
+applyPairStep[a_, b_, {"Matrix", orderA_, shapeA_, orderB_, shapeB_, shape_}] := With[{
+    product = matrixProduct[
+        ArrayReshape[If[orderA === None, a, Transpose[a, orderA]], shapeA],
+        ArrayReshape[If[orderB === None, b, Transpose[b, orderB]], shapeB]
+    ]
+},
+    If[shape === None, product[[1, 1]], ArrayReshape[product, shape]]
+]
 
 
 (* --- a leaf's own labels --- *)
@@ -888,27 +1026,37 @@ TensorNetworkContraction[
 },
     leafTensors = convertLeafTensors[OptionValue[Method], tensors];
     If[! ListQ[leafTensors], netFail[]];
-    If[! inactiveQ, leafTensors = computableLeafTensors[leafTensors]];
     represent = If[
         ! inactiveQ && ! netGraphMethodQ[method] && leafContainerAutomaticQ[OptionValue[Method]],
         computeRepresentation,
         Identity
     ];
-    If[ represent =!= Identity,
-        leafTensors = machinePrecisionLeaves[leafTensors];
-        {scale, leafTensors} = integerScaledLeaves[leafTensors]
+    (* packed machine reals and complexes are already computable, machine, unscaled and packed *)
+    If[ ! (represent =!= Identity && AllTrue[leafTensors, packedMachineQ]),
+        If[! inactiveQ, leafTensors = computableLeafTensors[leafTensors]];
+        If[ represent =!= Identity,
+            leafTensors = machinePrecisionLeaves[leafTensors];
+            {scale, leafTensors} = integerScaledLeaves[leafTensors]
+        ];
+        leafTensors = represent /@ leafTensors
     ];
-    tensorPath = contractTreePath[
-        treePath,
-        AssociationThread[vertices, MapThread[List, {represent /@ leafTensors, contractions}]],
-        freeIndices,
-        <|
-            "PairOptions" -> contractOpts,
-            "Method" -> method,
-            "Inactive" -> inactiveQ,
-            "InactiveLeaves" -> inactiveQ && ! netGraphMethodQ[method],
-            "Represent" -> represent
-        |>
+    tensorPath = Replace[
+        If[ represent =!= Identity && MemberQ[{"ArrayDot", "Dot"}, method] && AllTrue[leafTensors, packedMachineQ],
+            runStepProgram[stepProgram[treePath, vertices, contractions, Dimensions /@ leafTensors, freeIndices], leafTensors],
+            $Failed
+        ],
+        $Failed :> contractTreePath[
+            treePath,
+            AssociationThread[vertices, MapThread[List, {leafTensors, contractions}]],
+            freeIndices,
+            <|
+                "PairOptions" -> contractOpts,
+                "Method" -> method,
+                "Inactive" -> inactiveQ,
+                "InactiveLeaves" -> inactiveQ && ! netGraphMethodQ[method],
+                "Represent" -> represent
+            |>
+        ]
     ];
     If[scale =!= 1, tensorPath[[1]] = scale tensorPath[[1]]];
     perm = FindPermutation[tensorPath[[2]], freeIndices];

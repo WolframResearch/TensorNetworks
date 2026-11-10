@@ -217,7 +217,7 @@ VerificationTest[
 
 
 (* ------------------------------------------------------------------ *)
-(* E. Labels that are lists                                           *)
+(* E. A network shape contracted again, and labels that are lists      *)
 (* ------------------------------------------------------------------ *)
 
 (* The value of a network by summing every assignment of its labels: output labels index the
@@ -244,6 +244,68 @@ fastNetwork[seed_, n_, extra_] := BlockRandom[SeedRandom[seed]; Module[{edges, l
     dims = AssociationThread[Union[Catenate[labels]], RandomInteger[{2, 3}, Length[Union[Catenate[labels]]]]];
     {RandomReal[{-1, 1}, Lookup[dims, Key /@ #]] & /@ labels, labels}
 ]]
+
+(* A ring of eight matrices contracts to the trace of their product; contracting it again uses
+   the step program stored for its shape and gives the identical array *)
+VerificationTest[
+    BlockRandom[SeedRandom[201]; With[{ms = RandomReal[{-1, 1}, {8, 3, 3}]},
+        With[{ring = TensorNetwork[ms, Table[{i, Mod[i, 8] + 1}, {i, 8}]]},
+            With[{first = TensorNetworkContract[ring]},
+                {
+                    Abs[first - Tr[Dot @@ ms]] < 10^-12,
+                    TensorNetworkContract[ring] === first,
+                    MemberQ[Values[private["$stepProgramCache"]], {_List, _List}]
+                }
+            ]
+        ]
+    ]],
+    {True, True, True},
+    TestID -> "FastPath_RepeatedShapeRing"
+]
+
+(* The same labels with other dimensions get their own program: rings of 3 x 3 and 4 x 4 *)
+VerificationTest[
+    BlockRandom[SeedRandom[202]; With[{m3 = RandomReal[{-1, 1}, {5, 3, 3}], m4 = RandomReal[{-1, 1}, {5, 4, 4}]},
+        With[{ring = TensorNetwork[#, Table[{i, Mod[i, 5] + 1}, {i, 5}]] &},
+            {
+                Abs[TensorNetworkContract[ring[m3]] - Tr[Dot @@ m3]] < 10^-12,
+                Abs[TensorNetworkContract[ring[m4]] - Tr[Dot @@ m4]] < 10^-12,
+                Abs[TensorNetworkContract[ring[m3]] - Tr[Dot @@ m3]] < 10^-12
+            }
+        ]
+    ]],
+    {True, True, True},
+    TestID -> "FastPath_SameLabelsOtherDimensions"
+]
+
+(* Connected networks of 3 to 6 tensors with free legs, each contracted twice, against the
+   brute-force sum; the seeds that fail are listed *)
+VerificationTest[
+    Select[Tuples[{Range[8], {3, 5, 6}, {0, 2}}], Function[spec, With[{t = fastNetwork @@ spec},
+        With[{tn = TensorNetwork[First[t], Last[t]], ref = bruteForce[First[t], Last[t], Sort[Cases[Catenate[Last[t]], {"f", _}]]]},
+            ! (relativeError[TensorNetworkContract[tn], ref] < 10^-12 && relativeError[TensorNetworkContract[tn], ref] < 10^-12)
+        ]
+    ]]],
+    {},
+    TestID -> "FastPath_RandomNetworksAgainstBruteForce"
+]
+
+(* Shapes the step program leaves to the general route: a hyperedge, a trace inside a leaf,
+   and a label shared by two tensors and kept in the output *)
+VerificationTest[
+    BlockRandom[SeedRandom[203]; With[{
+        a = RandomReal[{-1, 1}, {3, 2}], b = RandomReal[{-1, 1}, {3, 2}], c = RandomReal[{-1, 1}, {3, 4}],
+        t = RandomReal[{-1, 1}, {3, 3, 2}], u = RandomReal[{-1, 1}, {2, 4}]
+    },
+        {
+            relativeError[TensorNetworkContract[TensorNetwork[{a, b, c}, {{1, 2}, {1, 2}, {1, 3}}]], bruteForce[{a, b, c}, {{1, 2}, {1, 2}, {1, 3}}, {3}]] < 10^-12,
+            relativeError[TensorNetworkContract[TensorNetwork[{t, u}, {{1, 1, 2}, {2, 3}}]], bruteForce[{t, u}, {{1, 1, 2}, {2, 3}}, {3}]] < 10^-12,
+            relativeError[TensorNetworkContract[TensorNetwork[{a, b}, {{1, 2}, {1, 2}} -> {1}]], bruteForce[{a, b}, {{1, 2}, {1, 2}}, {1}]] < 10^-12
+        }
+    ]],
+    {True, True, True},
+    TestID -> "FastPath_GeneralRouteShapes"
+]
 
 (* A label that is itself a list, {"p", 1}: kept in the output while two tensors share it, and
    summed when one tensor alone carries it and the output leaves it out *)
