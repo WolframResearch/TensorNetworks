@@ -340,3 +340,126 @@ VerificationTest[
     True,
     TestID -> "FastPath_RepeatCallCostsTheArithmetic"
 ]
+
+
+(* ------------------------------------------------------------------ *)
+(* Delta and identity leaves: their labels merged before planning      *)
+(* ------------------------------------------------------------------ *)
+
+(* sum_{j,k} A_ij delta_jk B_kl = (A.B)_il, the identity leaf removed from the planned network *)
+VerificationTest[
+    BlockRandom[SeedRandom[301]; With[{a = RandomReal[1, {40, 40}], b = RandomReal[1, {40, 40}]},
+        With[{data = TensorNetworkData[TensorNetwork[{a, SymbolicIdentityArray[{40}], b}, {{i, j}, {j, k}, {k, l}}, {i, l}]]},
+            {
+                relativeError[TensorNetworkContract[data], a . b] < 10^-12,
+                Length[First[private["withoutDeltaLeaves"][data]]["Tensors"]],
+                Developer`PackedArrayQ /@ First[private["withoutDeltaLeaves"][data]]["Tensors"]
+            }
+        ]
+    ]],
+    {True, 2, {True, True}},
+    TestID -> "DeltaLeaf_IdentityRemoved"
+]
+
+(* exact entries stay exact *)
+VerificationTest[
+    BlockRandom[SeedRandom[302]; With[{m = RandomInteger[5, {4, 4}]},
+        TensorNetworkContract[TensorNetwork[{m, SymbolicIdentityArray[{4}], m}, {{i, j}, {j, k}, {k, l}}, {i, l}]] === m . m
+    ]],
+    True,
+    TestID -> "DeltaLeaf_ExactEntries"
+]
+
+(* sum_{p,q,s} delta_pqs x_p y_q z_s = sum_p x_p y_p z_p *)
+VerificationTest[
+    BlockRandom[SeedRandom[303]; With[{x = RandomReal[1, 60], y = RandomReal[1, 60], z = RandomReal[1, 60]},
+        Abs[TensorNetworkContract[TensorNetwork[{x, y, z, SymbolicDeltaProductArray[{60, 60, 60}, {{1, 2, 3}}]}, {{p}, {q}, {s}, {p, q, s}}, {}]] - Total[x y z]] < 10^-12
+    ]],
+    True,
+    TestID -> "DeltaLeaf_ThreeLegDelta"
+]
+
+(* a closed loop of identity labels is a factor of its dimension: Tr(M) Tr(1_7) = 7 Tr(M);
+   an identity on two legs of one tensor is its trace *)
+VerificationTest[
+    BlockRandom[SeedRandom[304]; With[{m = RandomReal[1, {7, 7}]},
+        {
+            Abs[TensorNetworkContract[TensorNetwork[{m, SymbolicIdentityArray[{7}]}, {{i, i}, {u, u}}, {}]] - 7 Tr[m]] < 10^-12,
+            Abs[TensorNetworkContract[TensorNetwork[{m, SymbolicIdentityArray[{7}]}, {{i, j}, {i, j}}, {}]] - Tr[m]] < 10^-12
+        }
+    ]],
+    {True, True},
+    TestID -> "DeltaLeaf_LoopAndTrace"
+]
+
+(* an identity whose legs are both output is the answer itself: kept, M (x) 1_7;
+   an output label only the delta carries: sum_k delta_jk = 1 for every j *)
+VerificationTest[
+    BlockRandom[SeedRandom[305]; With[{m = RandomReal[1, {7, 7}], v = RandomReal[1, 7]},
+        {
+            Max[Abs[Normal[TensorNetworkContract[TensorNetwork[{m, SymbolicIdentityArray[{7}]}, {{i, j}, {k, l}}, {i, j, k, l}]]] - TensorProduct[m, IdentityMatrix[7]]]] < 10^-12,
+            Max[Abs[Normal[TensorNetworkContract[TensorNetwork[{v, SymbolicIdentityArray[{7}]}, {{i}, {j, k}}, {i, j}]]] - Outer[Times, v, ConstantArray[1, 7]]]] < 10^-12
+        }
+    ]],
+    {True, True},
+    TestID -> "DeltaLeaf_KeptWhenInOutput"
+]
+
+(* a delta's nonzero entries as a SparseArray agree with its dense form, legs in no group included *)
+VerificationTest[
+    Normal[Symbol["Wolfram`TensorNetworks`EinsteinSummation`PackagePrivate`deltaSparseArray"][#]] === Normal[#] & /@ {
+        SymbolicDeltaProductArray[{3, 4, 3, 4}, {{1, 3}, {2, 4}}],
+        SymbolicDeltaProductArray[{3, 3, 2}, {{1, 2}}],
+        SymbolicDeltaProductArray[{5, 5, 5}, {{1, 2, 3}}],
+        SymbolicIdentityArray[{2, 3}]
+    },
+    {True, True, True, True},
+    TestID -> "DeltaLeaf_SparseValues"
+]
+
+
+(* ------------------------------------------------------------------ *)
+(* Plan cache: labels numbered in order of first appearance            *)
+(* ------------------------------------------------------------------ *)
+
+(* a network with its labels renamed finds the plan of the first and gives the same value *)
+VerificationTest[
+    BlockRandom[SeedRandom[306]; Block[{Wolfram`TensorNetworks`Contraction`PackagePrivate`$planCache = <||>},
+        With[{
+            tensors = Table[RandomReal[1, {3, 3, 3}], 12],
+            hyperedges = Table[{e[k], e[Mod[k, 12] + 1], e[Mod[k + 3, 12] + 1]}, {k, 12}]
+        },
+            With[{
+                v1 = TensorNetworkContract[TensorNetwork[tensors, hyperedges, {}]],
+                v2 = TensorNetworkContract[TensorNetwork[tensors, hyperedges /. e -> z, {}]]
+            },
+                {Length[Wolfram`TensorNetworks`Contraction`PackagePrivate`$planCache], Abs[v1 - v2] < 10^-12}
+            ]
+        ]
+    ]],
+    {1, True},
+    TestID -> "PlanCache_RenamedLabelsReusePlan"
+]
+
+(* a diagonal-reduced plan is stored under the label numbers and read back under new names *)
+VerificationTest[
+    BlockRandom[SeedRandom[307]; Block[{Wolfram`TensorNetworks`Contraction`PackagePrivate`$planCache = <||>},
+        With[{m = RandomReal[1, {4, 4}], dg = DiagonalMatrix[RandomReal[1, 4]]}, With[{
+            dA = TensorNetworkData[TensorNetwork[{m, dg, m}, {{p, q}, {q, r}, {r, s}}, {p, s}]],
+            dB = TensorNetworkData[TensorNetwork[{m, dg, m}, {{w, x}, {x, y}, {y, u}}, {w, u}]],
+            reduce = Symbol[First[Names["Wolfram`TensorNetworks`*`diagonalReductionGroups"]]]
+        }, With[{
+            reductionA = reduce[dA["Tensors"], dA["Hyperedges"], dA["FreeIndices"]],
+            reductionB = reduce[dB["Tensors"], dB["Hyperedges"], dB["FreeIndices"]]
+        },
+            private["rememberPlan"][{"key"}, {private["reducedForm"][dA, First[reductionA], Last[reductionA]], {{1}, {2}}}, private["labelNumbering"][dA]];
+            Replace[
+                First[Values[Wolfram`TensorNetworks`Contraction`PackagePrivate`$planCache]][[3]],
+                Dispatch[Reverse /@ Normal[private["labelNumbering"][dB]]],
+                {2}
+            ] === Last[reductionB]
+        ]]]
+    ]],
+    True,
+    TestID -> "PlanCache_ReducedLabelsRenamed"
+]

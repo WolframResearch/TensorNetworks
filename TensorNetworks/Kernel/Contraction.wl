@@ -1100,7 +1100,19 @@ TensorNetworkContraction[
 	(* Except[_Rule]: an option in second position is not a path *)
 	path : Except[_Rule | _RuleDelayed] : Automatic,
 	opts : OptionsPattern[]
-] := Which[
+] := With[{
+	withoutDeltas = If[
+		! TrueQ[OptionValue["Inactive"]] && path === Automatic && leafContainerAutomaticQ[OptionValue[Method]] &&
+			! netGraphMethodQ[contractionMethodName[OptionValue[Method]]],
+		withoutDeltaLeaves[data],
+		None
+	]
+}, Which[
+	(* delta and identity leaves renamed away; the rest planned as usual *)
+	withoutDeltas =!= None,
+		With[{result = TensorNetworkContraction[First[withoutDeltas], opts]},
+			If[Last[withoutDeltas] === 1 || FailureQ[result] || result === $Failed, result, Last[withoutDeltas] result]
+		],
 	netGraphMethodQ[contractionMethodName[OptionValue[Method]]],
 		(* a net needs a path: the planner's search over the network as given *)
 		With[{netPath = netGraphPath[data]},
@@ -1120,6 +1132,78 @@ TensorNetworkContraction[
 		],
 	True,
 		einsteinSummationContraction[tensors, indices, freeIndices, OptionValue[Method], TrueQ[OptionValue["Inactive"]]]
+]]
+
+(* A delta or identity leaf only says that the labels on each of its leg groups name one index.
+   withoutDeltaLeaves[data] gives {data with every such leaf removed and its labels merged,
+   scale}, or None to contract the network as given. A merged label class that no remaining
+   tensor carries and that is not in the output is a closed loop: a factor of its dimension.
+   None when a class would join two output labels (the answer itself holds a delta) or
+   leave an output label on no tensor, when no other tensor remains, or when the merged
+   labels' dimensions differ. Only leaves with integer dimensions and every leg in a group. *)
+withoutDeltaLeaves[data_] := With[{
+	tensors = data["Tensors"], hyperedges = Lookup[data, "Hyperedges", None], output = data["FreeIndices"]
+}, {
+	deltaPositions = If[ListQ[hyperedges] && ListQ[output] && Length[hyperedges] === Length[tensors],
+		Select[Range[Length[tensors]], removableDeltaQ[tensors[[#]], hyperedges[[#]]] &],
+		{}
+	]
+},
+	If[ deltaPositions === {} || Length[deltaPositions] === Length[tensors],
+		None,
+		mergeDeltaLabels[tensors, hyperedges, output, deltaPositions]
+	]
+]
+
+removableDeltaQ[t : HoldPattern[SymbolicIdentityArray[{__Integer}] | SymbolicDeltaProductArray[{__Integer}, _List]], labels_List] :=
+	Length[labels] === Length[deltaLeafDimensions[t]] &&
+		Sort[Catenate[deltaLeafGroups[t]]] === Range[Length[labels]] &&
+		AllTrue[deltaLeafGroups[t], Equal @@ deltaLeafDimensions[t][[#]] &]
+
+removableDeltaQ[_, _] := False
+
+deltaLeafGroups[HoldPattern[SymbolicIdentityArray[dims_]]] := Transpose[{Range[Length[dims]], Range[Length[dims]] + Length[dims]}]
+
+deltaLeafGroups[HoldPattern[SymbolicDeltaProductArray[_, groups_]]] := groups
+
+deltaLeafDimensions[HoldPattern[SymbolicIdentityArray[dims_]]] := Join[dims, dims]
+
+deltaLeafDimensions[HoldPattern[SymbolicDeltaProductArray[dims_, _]]] := dims
+
+(* A list holding a symbolic delta unpacks its arrays: the kept leaves are packed again *)
+mergeDeltaLabels[tensors_, hyperedges_, output_, deltaPositions_] := Block[{
+	keptPositions = Complement[Range[Length[tensors]], deltaPositions],
+	kept, labelGroups, classes, labelDimensions, representatives, rules, keptHyperedges, carried, loops
+},
+	kept = Replace[tensors[[keptPositions]], t_List :> packedIfMachine[t], {1}];
+	labelGroups = Catenate @ Map[Function[k, hyperedges[[k, #]] & /@ deltaLeafGroups[tensors[[k]]]], deltaPositions];
+	(* label classes: connected components of the labels each leg group joins *)
+	classes = ConnectedComponents @ Graph[
+		DeleteDuplicates[Catenate[labelGroups]],
+		Catenate[UndirectedEdge @@@ Partition[#, 2, 1] & /@ labelGroups]
+	];
+	labelDimensions = GroupBy[
+		Catenate @ MapThread[Thread[#1 -> #2] &, {
+			Join[hyperedges[[keptPositions]], hyperedges[[deltaPositions]]],
+			Join[tensorDimensions /@ kept, deltaLeafDimensions /@ tensors[[deltaPositions]]]
+		}],
+		First -> Last,
+		Union
+	];
+	If[ AnyTrue[classes, Length[Intersection[#, output]] > 1 || Length[Union @@ Lookup[labelDimensions, #]] =!= 1 &],
+		Return[None]
+	];
+	(* a class keeps its output label's name *)
+	representatives = First[Join[Intersection[#, output], #]] & /@ classes;
+	rules = Dispatch @ Catenate @ MapThread[Thread[#1 -> #2] &, {classes, representatives}];
+	keptHyperedges = Replace[hyperedges[[keptPositions]], rules, {2}];
+	carried = Union @@ keptHyperedges;
+	If[ ! SubsetQ[carried, output], Return[None]];
+	loops = Pick[classes, MemberQ[carried, #] & /@ representatives, False];
+	{
+		tensorNetworkData[kept, keptHyperedges, output],
+		Times @@ (First[Lookup[labelDimensions, First[#]]] & /@ loops)
+	}
 ]
 
 (* The cheapest of the quick plans and the seeded randomized trials, as the array methods search,
@@ -1148,11 +1232,11 @@ einsteinSummationContraction[tensors_, indices_, freeIndices_, methodSpec_, inac
 (* Automatic plan: {network (given or reduced), tree path}; not canonicalized (quadratic).
    Cached by shape, so a network applied to new values replans only when its shape changes;
    a reduced plan is kept as its leg groups and labels, reapplied to the new values. *)
-automaticPlan[data_, method_] := With[{key = planKey[data, method]},
+automaticPlan[data_, method_] := With[{numbering = labelNumbering[data]}, {key = planKey[data, method, numbering]},
 	Replace[Lookup[$planCache, Key[key], Missing[]], {
 		{"Given", tree_} :> {data, tree},
-		{"Reduced", groups_, labels_, tree_} :> {reducedForm[data, groups, labels], tree},
-		_ :> With[{plan = freshPlan[data, method]}, If[ListQ[plan], rememberPlan[key, plan]]; plan]
+		{"Reduced", groups_, labels_, tree_} :> {reducedForm[data, groups, Replace[labels, Dispatch[Reverse /@ Normal[numbering]], {2}]], tree},
+		_ :> With[{plan = freshPlan[data, method]}, If[ListQ[plan], rememberPlan[key, plan, numbering]]; plan]
 	}]
 ]
 
@@ -1168,8 +1252,8 @@ freshPlan[data_, method_] := With[{parameters = extractContractionParameters[dat
 
 $planCache = <||>
 
-rememberPlan[key_, {form_, tree_}] := (
-	$planCache[key] = If[KeyExistsQ[form, "Reduction"], {"Reduced", form["Reduction"], form["Hyperedges"], tree}, {"Given", tree}];
+rememberPlan[key_, {form_, tree_}, numbering_] := (
+	$planCache[key] = If[KeyExistsQ[form, "Reduction"], {"Reduced", form["Reduction"], Replace[form["Hyperedges"], Dispatch[numbering], {2}], tree}, {"Given", tree}];
 	If[Length[$planCache] > 64, $planCache = Rest[$planCache]]
 )
 
@@ -1177,11 +1261,25 @@ reducedForm[data_, groups_, labels_] :=
 	Append[tensorNetworkData[applyDiagonalReduction[data["Tensors"], groups], labels, data["FreeIndices"]], "Reduction" -> groups]
 
 (* all a plan depends on: method, vertex names (a tree path names vertices), labels, output, and
-   per leaf its shape, container, precision and nonzero pattern; the patterns as hashes. Graph
-   data has no "Hyperedges": its contraction indices are its labels. *)
-planKey[data_, method_] := {
-	method, data["Vertices"], Lookup[data, "Hyperedges", data["ContractionIndices"]], data["FreeIndices"], leafSignature /@ data["Tensors"]
-}
+   per leaf its shape, container, precision and nonzero pattern; the patterns as hashes. Labels
+   numbered in order of first appearance, so a network with its labels renamed finds the same
+   plan. Graph data has no "Hyperedges": its contraction indices are its labels, kept as given. *)
+planKey[data_, method_, numbering_] := With[{rules = Dispatch[numbering]}, {
+	method, data["Vertices"],
+	Replace[Lookup[data, "Hyperedges", data["ContractionIndices"]], rules, {2}],
+	Replace[data["FreeIndices"], rules, {1}],
+	leafSignature /@ data["Tensors"]
+}]
+
+(* label -> its number in order of first appearance, labels then output; empty for graph data *)
+labelNumbering[data_] := With[{hyperedges = Lookup[data, "Hyperedges", None]},
+	If[ ListQ[hyperedges] && ListQ[data["FreeIndices"]],
+		With[{labels = DeleteDuplicates[Join[Catenate[hyperedges], data["FreeIndices"]]]},
+			AssociationThread[labels, Range[Length[labels]]]
+		],
+		<||>
+	]
+]
 
 (* a SparseArray's pattern is its stored CSR structure, canonical, and ~100x faster to hash than its positions *)
 leafSignature[t_SparseArray] := {SparseArray, Dimensions[t], Precision[t], numericLeafQ[t], t["Background"], Hash[{t["RowPointers"], t["ColumnIndices"]}]}

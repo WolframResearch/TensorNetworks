@@ -178,10 +178,37 @@ contractOperands[operands_List, pairs_] := If[
 
 plainOperandQ[t_] := NumericQ[t] || MatchQ[t, _SparseArray | _SymbolicDeltaProductArray | _SymbolicIdentityArray] || ListQ[t] && ArrayQ[t]
 
-productContract[operands_, pairs_] := Activate @ TensorContract[
-    Inactive[TensorProduct] @@ Replace[operands, d : _SymbolicDeltaProductArray | _SymbolicIdentityArray :> Normal[d], {1}],
-    pairs
+(* deltas as their nonzero entries, so the product holds no dense delta; a result made sparse
+   only by them is made dense again, as with dense deltas *)
+productContract[operands_, pairs_] := With[{
+    result = Activate @ TensorContract[
+        Inactive[TensorProduct] @@ Replace[operands, d : _SymbolicDeltaProductArray | _SymbolicIdentityArray :> deltaSparseArray[d], {1}],
+        pairs
+    ]
+},
+    If[ MatchQ[result, _SparseArray] && FreeQ[operands, _SparseArray, {1}],
+        packedIfMachine[Normal[result]],
+        result
+    ]
 ]
+
+(* a delta's nonzero entries: every leg of a group takes one shared value, a leg in no
+   group any value; Normal when a dimension is not an integer *)
+deltaSparseArray[HoldPattern[SymbolicIdentityArray[dims : {__Integer}]]] :=
+    deltaSparseArray[SymbolicDeltaProductArray[Join[dims, dims], Transpose[{Range[Length[dims]], Range[Length[dims]] + Length[dims]}]]]
+
+deltaSparseArray[HoldPattern[SymbolicDeltaProductArray[dims : {__Integer}, groups_List]]] := With[{
+    allGroups = Join[groups, List /@ Complement[Range[Length[dims]], Catenate[groups]]]
+}, {
+    groupOfLeg = Lookup[Association @ Catenate @ MapIndexed[Thread[#1 -> First[#2]] &, allGroups], Range[Length[dims]]]
+},
+    SparseArray[
+        Tuples[Range[dims[[First[#]]]] & /@ allGroups][[All, groupOfLeg]] -> 1,
+        dims
+    ]
+]
+
+deltaSparseArray[d_] := Normal[d]
 
 asProductContracted[r_, operands_] := With[{
     value = If[ Min[Precision /@ DeleteCases[operands, _SymbolicDeltaProductArray | _SymbolicIdentityArray]] === MachinePrecision &&
