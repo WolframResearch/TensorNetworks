@@ -39,10 +39,11 @@ tensorDimensions[t_] := Replace[TensorDimensions[t], Except[_List] :> If[arrayCo
 tensorRank[t_] := Length @ tensorDimensions[t]
 
 
-(* construct quietly: failures become paclet messages naming the tensor *)
+(* a construction that issues any message is $Failed, its messages held back: the caller issues
+   a paclet message naming the tensor instead *)
 SetAttributes[silentConstruct, HoldFirst]
 
-silentConstruct[expr_] := Quiet @ Check[expr, $Failed]
+silentConstruct[expr_] := Enclose[ConfirmQuiet[expr], $Failed &]
 
 
 (* Array-container routing: Wolfram/Arrays is a declared dependency

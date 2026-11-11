@@ -89,7 +89,7 @@ TableauSize::noyt = "TableauSize accepts only YoungTableau as input, got `1`.";
 
 TableauSize[expr_] := (Message[TableauSize::noyt, expr]; $Failed)
 
-(* TableauRows exposes the inner row list — YoungTableau is atomic, so
+(* TableauRows exposes the inner row list: YoungTableau is atomic, so
    First and Part do not unpack it. *)
 TableauRows[YoungTableau[rows_List] ? YoungTableauQ] := rows
 
@@ -391,10 +391,10 @@ YoungTableau /: MakeBoxes[yt : YoungTableau[rows_List] /; YoungTableauQ[Unevalua
         (* fillingLabel is computed at display time and not stored in the
            YoungTableau expression, so the data model is unchanged. The
            three-way split distinguishes:
-             "Canonical" — row-reading default filling 1..n (implies Standard)
-             "Standard"  — rows and columns strictly increasing, but not the
+             "Canonical": row-reading default filling 1..n (implies Standard)
+             "Standard":  rows and columns strictly increasing, but not the
                            canonical filling (a valid SYT chosen by the user)
-             "Explicit"  — neither canonical nor standard (rows or columns
+             "Explicit":  neither canonical nor standard (rows or columns
                            not strictly increasing) *)
         fillingLabel = Which[
             canonicalFillingQ[rows], "Canonical",

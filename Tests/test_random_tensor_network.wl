@@ -129,3 +129,55 @@ VerificationTest[
     },
     TestID -> "RandomTensorNetwork_PEPS_Grid"
 ]
+
+
+(* ============================================ *)
+(* TTN and MERA                                 *)
+(* ============================================ *)
+
+(* TTN[depth, D, b]: b^(depth-1) leaf vectors labelled 1.., each level's node joins b children
+   of the level below and, below the top, one parent bond; the top node has no parent *)
+VerificationTest[
+    With[{tn = RandomTensorNetwork["TTN"[3, 2, 2]]},
+        {tn["Hyperedges"], Dimensions /@ tn["Tensors"], tn["FreeIndices"]}
+    ],
+    {
+        {{1}, {2}, {3}, {4}, {1, 2, 5}, {3, 4, 6}, {5, 6}},
+        {{2}, {2}, {2}, {2}, {2, 2, 2}, {2, 2, 2}, {2, 2}},
+        {}
+    },
+    TestID -> "RandomTensorNetwork_TTN_Tree"
+]
+
+(* MERA[w, D, layers]: per layer w/2 disentanglers (2 in, 2 out) then w/2 isometries (2 in,
+   1 out); a later layer's inputs start with the earlier layer's outputs *)
+VerificationTest[
+    With[{tn = RandomTensorNetwork["MERA"[4, 2, 2]]},
+        {tn["Hyperedges"], Dimensions /@ tn["Tensors"]}
+    ],
+    {
+        {
+            {1, 2, 5, 6}, {3, 4, 7, 8}, {5, 6, 9}, {7, 8, 10},
+            {9, 10, 13, 14}, {11, 12, 15, 16}, {13, 14, 17}, {15, 16, 18}
+        },
+        {{2, 2, 2, 2}, {2, 2, 2, 2}, {2, 2, 2}, {2, 2, 2}, {2, 2, 2, 2}, {2, 2, 2, 2}, {2, 2, 2}, {2, 2, 2}}
+    },
+    TestID -> "RandomTensorNetwork_MERA_Layers"
+]
+
+(* The same seed gives the same tensors: draws are taken site by site in a fixed order *)
+VerificationTest[
+    SameQ @@ Table[BlockRandom[SeedRandom[11]; RandomTensorNetwork[#]["Tensors"]], 2] & /@
+        {"PEPS"[{2, 3}, 2], "TTN"[3, 2], "MERA"[4, 2, 2]},
+    {True, True, True},
+    TestID -> "RandomTensorNetwork_StructuredReproducible"
+]
+
+(* MERA with an odd width: the remaining input becomes a free leg, every label an integer *)
+VerificationTest[
+    With[{tn = RandomTensorNetwork["MERA"[3, 2, 2]]},
+        {tn["Hyperedges"], VectorQ[Catenate[tn["Hyperedges"]], IntegerQ]}
+    ],
+    {{{1, 2, 4, 5}, {4, 5, 7}, {7, 8, 10, 11}, {10, 11, 13}}, True},
+    TestID -> "RandomTensorNetwork_MERA_OddWidth"
+]

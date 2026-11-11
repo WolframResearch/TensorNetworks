@@ -133,7 +133,7 @@ PathToTreePath::indlen =
 	"Length of indices `1` does not match the path's required arity `2` " <>
 	"(= Count[path, {_, _}] + 1). A path of a TN is over its own tensors, hyper-edges " <>
 	"included; a path planned over BinaryTensorNetwork[tn] is over the binarized " <>
-	"network — pass BinaryTensorNetwork[tn][\"Vertices\"] for one, or omit the " <>
+	"network; pass BinaryTensorNetwork[tn][\"Vertices\"] for one, or omit the " <>
 	"indices argument to auto-derive them.";
 
 PathToTreePath[path_List ? PathQ, indices : _List | Automatic : Automatic] :=

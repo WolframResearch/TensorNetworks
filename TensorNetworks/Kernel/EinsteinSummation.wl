@@ -165,7 +165,8 @@ operandValue[operand_] := {operand}
 contractOperands[operands_List, pairs_] := If[
     MemberQ[operands, _SymbolicDeltaProductArray | _SymbolicIdentityArray] && AllTrue[operands, plainOperandQ],
     Replace[
-        Quiet @ Wolfram`Arrays`ArrayContract[Inactive[TensorProduct] @@ operands, pairs],
+        (* a contraction ArrayContract answers with a message falls to the product route *)
+        Enclose[ConfirmQuiet[Wolfram`Arrays`ArrayContract[Inactive[TensorProduct] @@ operands, pairs]], $Failed &],
         {
             r : _SymbolicDeltaProductArray | _SymbolicIdentityArray | _SymbolicOnesArray :> asProductContracted[Normal[r], operands],
             r_ /; NumericQ[r] || MatchQ[r, _List | _SparseArray] && ArrayQ[r] :> asProductContracted[r, operands],

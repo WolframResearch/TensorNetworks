@@ -266,7 +266,7 @@ extractContractionParameters[net_TensorNetwork ? TensorNetworkQ] :=
 (* `"FixedIndexing" -> True` puts the Rust path in SSA form (positions > input length).
    CanonicalPath assumes the opt_einsum convention and fails with `Delete::partw`
    on SSA positions, so we skip the canonicalize step in that case. *)
-fixedIndexingQ[args___] := MemberQ[{args}, ("FixedIndexing" -> True) | (True /; False)] ||
+fixedIndexingQ[args___] := MemberQ[{args}, "FixedIndexing" -> True] ||
     Cases[{args}, ("FixedIndexing" -> v_) :> TrueQ[v]] === {True}
 maybeCanonicalize[result_, args___] :=
     If[fixedIndexingQ[args] || !MatchQ[result, _List ? PathQ], result, CanonicalPath[result]]

@@ -138,6 +138,37 @@ VerificationTest[
     TestID -> "Delete_ChainMiddle_OpensLabels"
 ]
 
+(* An explicit output: the bond the deleted tensor shared becomes a free leg, appended after the
+   output labels that remain; a label still carried by a remaining tensor stays *)
+VerificationTest[
+    {
+        With[{deleted = TensorNetworkDelete[TensorNetwork[{ma, mb, mc}, {{1, 2}, {2, 3}, {3, 4}}, {1, 4}]]},
+            {deleted["FreeIndices"], TensorNetworkContract[deleted]}
+        ],
+        With[{deleted = TensorNetworkDelete[TensorNetwork[{ma, mb, mc}, {{1, 2}, {2, 3}, {3, 4}}, {4, 1}], 2]},
+            {deleted["FreeIndices"], TensorNetworkContract[deleted]}
+        ],
+        With[{deleted = TensorNetworkDelete[TensorNetwork[{ma, mb, mc}, {{1, 2}, {1, 3}, {1, 4}}, {1, 2, 3, 4}], 3]},
+            {deleted["FreeIndices"], TensorNetworkContract[deleted]}
+        ]
+    },
+    {
+        {{1, 3}, Table[Sum[ma[[i, j]] mb[[j, k]], {j, 3}], {i, 3}, {k, 3}]},
+        {{4, 1, 2, 3}, Table[ma[[i, j]] mc[[k, l]], {l, 3}, {i, 3}, {j, 3}, {k, 3}]},
+        {{1, 2, 3}, Table[ma[[i, j]] mb[[i, k]], {i, 3}, {j, 3}, {k, 3}]}
+    },
+    TestID -> "Delete_ExplicitOutput_FreesSharedBond"
+]
+
+(* A position outside the network leaves the call unevaluated, without messages *)
+VerificationTest[
+    With[{net = TensorNetwork[{ma, mb, mc}, {{1, 2}, {2, 3}, {3, 4}}]},
+        {Head[TensorNetworkDelete[net, 4]], Head[TensorNetworkDelete[net, -4]], Head[TensorNetworkDelete[net, 0]]}
+    ],
+    {TensorNetworkDelete, TensorNetworkDelete, TensorNetworkDelete},
+    TestID -> "Delete_PositionOutsideNetwork"
+]
+
 VerificationTest[
     With[{back = TensorNetworkDelete[TensorNetworkAdd[swappedPair, ri[5, 6], {4, 5}], -1]},
         {back["FreeIndices"], TensorNetworkContract[back]}

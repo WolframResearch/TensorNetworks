@@ -326,3 +326,17 @@ VerificationTest[
     {{2, 3}, {3, 4}},
     TestID -> "TensorNetwork_HypergraphListValuedLabels"
 ]
+
+(* A repeat contraction of large dense leaves costs little beyond its arithmetic: recognising
+   the cached plan does not hash every entry. 256 batched 64 x 64 products, against the same
+   products done directly *)
+VerificationTest[
+    BlockRandom[SeedRandom[205]; With[{x = RandomReal[1, {256, 64, 64}], y = RandomReal[1, {256, 64, 64}]},
+        With[{tn = TensorNetwork[{x, y}, {{1, 2, 3}, {1, 3, 4}}, {1, 2, 4}]},
+            TensorNetworkContract[tn];
+            First[RepeatedTiming[TensorNetworkContract[tn], 1]] < 1.6 First[RepeatedTiming[MapThread[Dot, {x, y}], 1]]
+        ]
+    ]],
+    True,
+    TestID -> "FastPath_RepeatCallCostsTheArithmetic"
+]

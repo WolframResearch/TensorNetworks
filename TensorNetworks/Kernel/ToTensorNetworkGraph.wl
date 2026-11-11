@@ -289,14 +289,15 @@ ToTensorNetworkGraph[g_ /; DirectedGraphQ[g] && AcyclicGraphQ[g], opts : Options
             Length[edge] === 3 && MatchQ[edge[[3]], {o_Superscript, i_Subscript} /;
                 MemberQ[indices[edge[[1]]], o] && MemberQ[indices[edge[[2]]], i]]
         ],
-        tagged
+        tagged, taggedEdges
     },
         tagged = Select[edges, taggedQ];
         tagged = If[DuplicateFreeQ[Catenate[tagged[[All, 3]]]], tagged, {}];
+        taggedEdges = AssociationThread[tagged, True];
         out = DeleteElements[#, tagged[[All, 3, 1]]] & /@ out;
         in = DeleteElements[#, tagged[[All, 3, 2]]] & /@ in;
         edges = Table[
-            If[ MemberQ[tagged, edge],
+            If[ KeyExistsQ[taggedEdges, edge],
                 edge,
                 {outIdx, inIdx} = FirstCase[#, {_[_, x_], _[_, x_]}, First[#]] & @ Tuples[{Lookup[out, edge[[1]]], Lookup[in, edge[[2]]]}];
                 out[edge[[1]]] //= DeleteCases[outIdx];
@@ -344,11 +345,10 @@ ToTensorNetworkGraph[g_ ? GraphQ, opts : OptionsPattern[]] := ToTensorNetworkGra
    Edge tags are pairs {srcIndex, tgtIndex}. *)
 ToTensorNetworkGraph[tensors_List, hyperedges : {___List}, opts : OptionsPattern[]] := Block[{
     n = Length[tensors],
-    dims, indexPositions, 
-    spiders = {}, spiderId,
-    undirectedEdges = {},
+    dims, indexPositions, hyper, spiderIds,
+    spiders, undirectedEdges,
     allVertices, directedEdges,
-    vertexIndices,
+    leaving, entering, incidences, vertexIndices,
     annotations, edgeMap
 },
     (* Build dimension lookup *)
@@ -362,23 +362,21 @@ ToTensorNetworkGraph[tensors_List, hyperedges : {___List}, opts : OptionsPattern
         Last -> First
     ];
 
-    spiderId = n;
+    (* An index on three or more tensors gets a spider vertex, numbered after the tensors *)
+    hyper = Select[indexPositions, Length[#] > 2 &];
+    spiderIds = AssociationThread[Keys[hyper], n + Range[Length[hyper]]];
+    spiders = KeyValueMap[
+        {Lookup[spiderIds, Key[#1]], SymbolicDeltaProductArray[ConstantArray[Lookup[dims, Key[#1], 2], Length[#2]], {Range[Length[#2]]}]} &,
+        hyper
+    ];
 
-    (* Build undirected edges *)
-    KeyValueMap[{idx, verts} |->
-        Which[
-            Length[verts] == 1, (* Free index -> edge to boundary 0 *)
-                AppendTo[undirectedEdges, UndirectedEdge[verts[[1]], 0, idx]],
-            Length[verts] == 2, (* Binary -> direct edge *)
-                AppendTo[undirectedEdges, UndirectedEdge[verts[[1]], verts[[2]], idx]],
-            True, (* Hyperedge -> spider *)
-                spiderId++;
-                With[{d = Lookup[dims, idx, 2], k = Length[verts]},
-                    AppendTo[spiders, {spiderId, SymbolicDeltaProductArray[ConstantArray[d, k], {Range[k]}]}];
-                    Scan[AppendTo[undirectedEdges, UndirectedEdge[#, spiderId, idx]] &, verts]
-                ]
-        ]
-        ,
+    (* A free index is an edge to the boundary vertex 0, a pairwise one a direct edge *)
+    undirectedEdges = Catenate @ KeyValueMap[
+        {idx, verts} |-> Switch[Length[verts],
+            1, {UndirectedEdge[verts[[1]], 0, idx]},
+            2, {UndirectedEdge[verts[[1]], verts[[2]], idx]},
+            _, UndirectedEdge[#, Lookup[spiderIds, Key[idx]], idx] & /@ verts
+        ],
         indexPositions
     ];
 
@@ -387,37 +385,39 @@ ToTensorNetworkGraph[tensors_List, hyperedges : {___List}, opts : OptionsPattern
     (* Make acyclic to determine directions *)
     directedEdges = EdgeList[DirectedGraph[undirectedEdges, "Acyclic"]];
 
-    (* Build vertex indices based on edge directions *)
-    vertexIndices = <||>;
+    (* The first edge leaving, and the first entering, each vertex through each index *)
+    leaving = GroupBy[directedEdges, {#[[1]], #[[3]]} &, First];
+    entering = GroupBy[directedEdges, {#[[2]], #[[3]]} &, First];
 
-    (* Tensor vertices *)
-    Do[
-        vertexIndices[v] = MapIndexed[
-            With[{idx = #1, i = First[#2]},
-                FirstCase[directedEdges,
-                    edge : DirectedEdge[v, _, idx] :> edge -> Superscript[v, i],
-                    FirstCase[directedEdges, edge : DirectedEdge[_, v, idx] :> edge -> Subscript[v, i]]
-                ]
-            ] &,
+    (* Tensor vertices: slot i leaves through Superscript[v, i] or enters through Subscript[v, i] *)
+    vertexIndices = AssociationMap[
+        Function[v, MapIndexed[
+            Replace[Lookup[leaving, Key[{v, #1}], Missing[]], {
+                _Missing :> Lookup[entering, Key[{v, #1}]] -> Subscript[v, First[#2]],
+                edge_ :> edge -> Superscript[v, First[#2]]
+            }] &,
             hyperedges[[v]]
-        ],
-        {v, Range[n]}
+        ]],
+        Range[n]
     ];
 
-    (* Spider vertices *)
-    Do[
-        Block[{i = 1},
-            vertexIndices[s] = Replace[
-                directedEdges,
-                {
-                    edge : DirectedEdge[s, _, _] :> edge -> Superscript[s, i++],
-                    edge : DirectedEdge[_, s, _] :> edge -> Subscript[s, i++],
-                    _ -> Nothing
-                },
-                1
-            ]
+    (* Spider vertices (numbered above n; the boundary is 0): legs numbered in edge order *)
+    incidences = GroupBy[
+        Catenate @ Map[
+            Function[edge, Join[
+                If[edge[[1]] > n, {{edge[[1]], edge, Superscript}}, {}],
+                If[edge[[2]] > n, {{edge[[2]], edge, Subscript}}, {}]
+            ]],
+            directedEdges
         ],
-        {s, spiders[[All, 1]]}
+        First
+    ];
+    vertexIndices = Join[
+        vertexIndices,
+        AssociationMap[
+            Function[s, MapIndexed[#1[[2]] -> #1[[3]][s, First[#2]] &, Lookup[incidences, s, {}]]],
+            spiders[[All, 1]]
+        ]
     ];
     
     (* Build annotations *)
@@ -512,7 +512,7 @@ TensorNetworkRemoveCycles[inputNet_ ? DirectedGraphQ, opts : OptionsPattern[Grap
 
 (* Thin wrapper over the "NetGraph" contraction method *)
 
-TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ] := TensorNetworkToNetGraph[net, OptimalContractionPath[net]]
+TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ] := TensorNetworkContraction[net, Method -> "NetGraph", "Inactive" -> True]
 
 TensorNetworkToNetGraph[net_ ? TensorNetworkGraphQ, path_] :=
     TensorNetworkContraction[net, path, Method -> "NetGraph", "Inactive" -> True]

@@ -110,7 +110,10 @@ $UnreproducedRandom = Catenate[Thread /@ {
   {"RandomTensorNetwork", {10, 11, 22}},
   {"TensorNetwork", {3, 12, 14, 15, 44, 53, 66, 122}},
   {"TensorNetworkContract", {46, 49}},
-  {"TensorNetworkData", {12, 13}}
+  {"TensorNetworkData", {12, 13}},
+  (* single-precision net outputs: their last digits follow the contraction order, which the
+     planner's search now chooses in place of the exhaustive optimal one *)
+  {"TensorNetworkToNetGraph", {5, 8}}
 }];
 
 (* Name "sym::tag" of a message recorded in $MessageList. *)

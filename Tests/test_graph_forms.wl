@@ -566,3 +566,30 @@ VerificationTest[
     {True, True, True},
     TestID -> "GraphForm_C10_same_shape_other_vertex_names"
 ]
+
+(* D1. Building the graph of a long network grows about linearly: eight times the tensors takes
+   well under 64 times as long, which a construction that scans every edge per label would *)
+gfChain[m_] := TensorNetwork[
+    ConstantArray[ConstantArray[1., {2, 2, 2}], m],
+    Table[{k, k + 1, 10^6 + Mod[k, 7]}, {k, m}]
+];
+
+VerificationTest[
+    With[{times = Table[Median[Table[First[AbsoluteTiming[ToTensorNetworkGraph[gfChain[m]]]], 3]], {m, {400, 3200}}]},
+        Last[times] / First[times] < 24
+    ],
+    True,
+    TestID -> "GraphForm_D1_construction_scales_linearly"
+]
+
+(* A1b. A label that is a list, shared by three tensors: its spider has the label's dimension *)
+VerificationTest[
+    With[{g = ToTensorNetworkGraph[TensorNetwork[
+        {gfRandomArray[{2, 3}, 31], gfRandomArray[{3, 4}, 32], gfRandomArray[{3}, 33], gfRandomArray[{4}, 34]},
+        {{{"a", 1}, {"b"}}, {{"b"}, {"c", 2}}, {{"b"}}, {{"c", 2}}}
+    ]]},
+        Dimensions[Normal[#]] & /@ Select[AnnotationValue[{g, Developer`FromPackedArray[VertexList[g]]}, "Tensor"], MatchQ[#, _SymbolicDeltaProductArray] &]
+    ],
+    {{3, 3, 3}},
+    TestID -> "GraphForm_A1b_list_label_spider_dimension"
+]

@@ -145,43 +145,6 @@ mpsLeftCanonical[mps_, opts___] := Block[{
 ]
 
 
-(* Helper: Infer MPS hyperedges from tensor dimensions *)
-inferMPSHyperedges[tensors_List] := Block[{n, dims, hyperedges, bondIdx, physIdx, i},
-    n = Length[tensors];
-    bondIdx = 1;
-    physIdx = n;  (* Physical indices start at n *)
-    
-    hyperedges = Table[
-        dims = Dimensions[tensors[[i]]];
-        Which[
-            i == 1 && Length[dims] == 2,
-                (* First tensor: {right_bond, physical} *)
-                {bondIdx++, physIdx++},
-            i == n && Length[dims] == 2,
-                (* Last tensor: {left_bond, physical} *)
-                {bondIdx - 1, physIdx++},
-            Length[dims] == 3,
-                (* Bulk tensor: {left_bond, right_bond, physical} *)
-                Module[{leftB = bondIdx - 1, rightB},
-                    rightB = bondIdx++;
-                    {If[i == 1, rightB, leftB], rightB, physIdx++}
-                ],
-            True,
-                (* Fallback for unexpected structure *)
-                Range[Length[dims]]
-        ],
-        {i, n}
-    ];
-    
-    (* Fix first tensor if bulk (for very short MPS) *)
-    If[n > 0 && Length[Dimensions[tensors[[1]]]] == 2,
-        hyperedges[[1]] = {1, n}
-    ];
-    
-    hyperedges
-]
-
-
 mpsRightCanonical[mps_, opts___] := Block[{
     tensors = mps["Tensors"],
     hyperedges = mps["Hyperedges"],
@@ -195,7 +158,7 @@ mpsRightCanonical[mps_, opts___] := Block[{
     residual = None;
     
     (* Sweep from right to left *)
-    For[i = n, i >= 1, i--,
+    Do[
         t = newTensors[[i]];
         dims = Dimensions[t];
         
@@ -240,6 +203,8 @@ mpsRightCanonical[mps_, opts___] := Block[{
                 residual = Transpose[svals Transpose[u]]
             ]
         ]
+        ,
+        {i, n, 1, -1}
     ];
     
     TensorNetwork[newTensors, hyperedges, output]

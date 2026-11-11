@@ -27,7 +27,7 @@ keeps one free leg under the index's own name."
 
 CanonicalPathQ::usage = "\!\(\*RowBox[{\"CanonicalPathQ\", \"[\", StyleBox[\"path\", \"TI\"], \
 \"]\"}]\) yields True if \!\(\*StyleBox[\"path\", \"TI\"]\) is a list of \
-integer pairs \[LongDash] the canonical opt_einsum form \[LongDash] and False \
+integer pairs (the canonical opt_einsum form), and False \
 otherwise."
 
 
@@ -366,8 +366,9 @@ the canonical list of its per-tensor labeled occurrences."
 
 
 TensorNetworkContraction::usage = "\!\(\*RowBox[{\"TensorNetworkContraction\", \"[\", StyleBox[\"tn\", \"TI\"], \
-\"]\"}]\) returns an inactive contraction expression for the tensor network \
-using an auto-selected path \
+\"]\"}]\) returns the network as an inactive Einstein summation, with no \
+contraction order; with \"Inactive\" -> False it returns the contracted array, \
+using a planned contraction path \
 \[Bullet]\n\!\(\*RowBox[{\"TensorNetworkContraction\", \"[\", \
 RowBox[{StyleBox[\"tn\", \"TI\"], \",\", StyleBox[\"path\", \"TI\"]}], \
 \"]\"}]\) uses the explicit canonical contraction path \
@@ -623,8 +624,8 @@ spider tensors for any index shared by three or more tensors."
 
 
 TreePathQ::usage = "\!\(\*RowBox[{\"TreePathQ\", \"[\", StyleBox[\"treePath\", \"TI\"], \
-\"]\"}]\)  yields True if StyleBox[\"treePath\", \"TI\"] is a valid tree-form \
-contraction path \[LongDash] a nested list whose non-leaf nodes recursively \
+\"]\"}]\) yields True if \!\(\*StyleBox[\"treePath\", \"TI\"]\) is a valid tree-form \
+contraction path: a nested list whose non-leaf nodes recursively \
 decompose into \!\(\*RowBox[{\"TreePathQ\", \"[\", StyleBox[\"_\", \"TI\"], \
 \"]\"}]\) children, and False otherwise."
 

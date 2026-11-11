@@ -37,7 +37,7 @@ contractedLabels[i_, j_, out_] := DeleteElements[DeleteDuplicates @ Join[i, j], 
 einsumArrayDot[{i_, j_} -> out_, a_, b_, inactiveQ : _ ? BooleanQ : False] := Block[{
 	c = contractedLabels[i, j, out],
 	k, perm,
-	al, br, x, y,
+	al, br, x,
 	aIndex = First /@ PositionIndex[i], bIndex = First /@ PositionIndex[j],
 	inactive = If[inactiveQ, Function[f, Inactive[f][##] &], Identity]
 },
@@ -819,39 +819,44 @@ diagonalOf[t_SparseArray, levels_] := With[{groups = Values[PositionIndex[levels
 diagonalOf[t_, levels_] := Transpose[t, levels]
 
 (* inert form: a settled label contracts with a delta (one leg more if kept) or a ones vector *)
-settleLeafInactive[t_, labels_, summed_, env_] := Block[{
-    rank = Length[labels], extras = {}, pairs = {}, open = {}, settledLabels = {}, base
-},
-    base = rank;
-    KeyValueMap[
-        Function[{label, slots}, With[{
-            kept = ! MemberQ[summed, label],
-            d = env["Dimension"][label],
-            m = Length[slots]
+settleLeafInactive[t_, labels_, summed_, env_] := With[{
+    settled = Fold[
+        Function[{state, entry}, With[{
+            label = First[entry], slots = Last[entry],
+            kept = ! MemberQ[summed, First[entry]],
+            d = env["Dimension"][First[entry]],
+            m = Length[Last[entry]],
+            base = state["Base"]
         },
             Which[
                 m == 1 && kept,
-                    Null,
+                    state,
                 m == 1,
-                    AppendTo[extras, ConstantArray[1, d]];
-                    AppendTo[pairs, {First[slots], base + 1}];
-                    base += 1,
+                    <|state,
+                        "Extras" -> Append[state["Extras"], ConstantArray[1, d]],
+                        "Pairs" -> Append[state["Pairs"], {First[slots], base + 1}],
+                        "Base" -> base + 1
+                    |>,
                 (* a plain trace needs no delta *)
                 m == 2 && ! kept,
-                    AppendTo[pairs, slots],
+                    <|state, "Pairs" -> Append[state["Pairs"], slots]|>,
                 True,
-                    AppendTo[extras, SymbolicDeltaProductArray[ConstantArray[d, m + Boole[kept]], {Range[m + Boole[kept]]}]];
-                    pairs = Join[pairs, Transpose[{slots, base + Range[m]}]];
-                    If[kept, AppendTo[settledLabels, label]];
-                    base += m + Boole[kept]
+                    <|state,
+                        "Extras" -> Append[state["Extras"], SymbolicDeltaProductArray[ConstantArray[d, m + Boole[kept]], {Range[m + Boole[kept]]}]],
+                        "Pairs" -> Join[state["Pairs"], Transpose[{slots, base + Range[m]}]],
+                        "Settled" -> If[kept, Append[state["Settled"], label], state["Settled"]],
+                        "Base" -> base + m + Boole[kept]
+                    |>
             ]
         ]],
-        PositionIndex[labels]
-    ];
-    open = Select[labels, Count[labels, #] == 1 && ! MemberQ[summed, #] &];
+        <|"Extras" -> {}, "Pairs" -> {}, "Base" -> Length[labels], "Settled" -> {}|>,
+        Normal[PositionIndex[labels]]
+    ],
+    open = Select[labels, Count[labels, #] == 1 && ! MemberQ[summed, #] &]
+},
     {
-        Inactive[TensorContract][If[extras === {}, t, Inactive[TensorProduct][t, Sequence @@ extras]], pairs],
-        Join[open, settledLabels]
+        Inactive[TensorContract][If[settled["Extras"] === {}, t, Inactive[TensorProduct][t, Sequence @@ settled["Extras"]]], settled["Pairs"]],
+        Join[open, settled["Settled"]]
     }
 ]
 
@@ -1097,10 +1102,10 @@ TensorNetworkContraction[
 	opts : OptionsPattern[]
 ] := Which[
 	netGraphMethodQ[contractionMethodName[OptionValue[Method]]],
-		(* a net needs a path: use the optimal one *)
-		With[{optimalPath = OptimalContractionPath[data]},
-			If[ CanonicalPathQ[optimalPath],
-				TensorNetworkContraction[data, optimalPath, opts],
+		(* a net needs a path: the planner's search over the network as given *)
+		With[{netPath = netGraphPath[data]},
+			If[ CanonicalPathQ[netPath],
+				TensorNetworkContraction[data, netPath, opts],
 				Message[TensorNetworkContraction::netpath]; $Failed
 			]
 		],
@@ -1115,6 +1120,18 @@ TensorNetworkContraction[
 		],
 	True,
 		einsteinSummationContraction[tensors, indices, freeIndices, OptionValue[Method], TrueQ[OptionValue["Inactive"]]]
+]
+
+(* The cheapest of the quick plans and the seeded randomized trials, as the array methods search,
+   over the network as given (a net cannot use a diagonal-reduced network). The exhaustive
+   optimal search grows exponentially with the network. *)
+netGraphPath[data_] := With[{parameters = extractContractionParameters[data]},
+	If[ MatchQ[parameters, {_List, _List, _Association}] && AllTrue[Values[Last[parameters]], IntegerQ],
+		With[{plans = Select[formPlans[data, parameters, pathCostInput[parameters], "ArrayDot", True], CanonicalPathQ[#[[2]]] &]},
+			If[plans === {}, OptimalContractionPath[data], plans[[First @ Ordering[plans[[All, 3, 1]], 1], 2]]]
+		],
+		OptimalContractionPath[data]
+	]
 ]
 
 einsteinSummationContraction[tensors_, indices_, freeIndices_, methodSpec_, inactiveQ_] :=
@@ -1169,9 +1186,15 @@ planKey[data_, method_] := {
 (* a SparseArray's pattern is its stored CSR structure, canonical, and ~100x faster to hash than its positions *)
 leafSignature[t_SparseArray] := {SparseArray, Dimensions[t], Precision[t], numericLeafQ[t], t["Background"], Hash[{t["RowPointers"], t["ColumnIndices"]}]}
 
-leafSignature[t_List] := {List, Dimensions[t], Precision[t], numericLeafQ[t], If[ArrayQ[t, _, NumericQ], Hash[Unitize[t]], None]}
+leafSignature[t_List] := {List, Dimensions[t], Precision[t], numericLeafQ[t], If[ArrayQ[t, _, NumericQ], zeroPattern[t], None]}
 
-leafSignature[t_] := {Head[t], Quiet[Dimensions[t]], Precision[t], numericLeafQ[t]}
+(* The zero pattern: "NoZeros" when no entry is zero, whatever the storage, else a hash of it.
+   On a packed array the test for a zero takes a tenth of hashing the pattern. *)
+zeroPattern[t_ ? Developer`PackedArrayQ] := If[Min[Abs[t]] > 0, "NoZeros", Hash[Unitize[t]]]
+
+zeroPattern[t_] := With[{pattern = Unitize[t]}, If[Min[pattern] == 1, "NoZeros", Hash[pattern]]]
+
+leafSignature[t_] := {Head[t], Dimensions[t], Precision[t], numericLeafQ[t]}
 
 (* Default: greedy over the given network. If that's expensive, also price half-weight greedy,
    the sweep, randomized greedy trials and, on machine numbers, the same over the
@@ -1250,8 +1273,9 @@ formPlans[form_, parameters : {input_, _, _}, costInput_, method_, includeDefaul
 (* Randomized greedy: greedy with a random cost weight (log-uniform in [0.1, 4]) and
    temperature (log-uniform in [0.001, 1]), trial k seeded by k so plans are reproducible.
    Rounds of 16, 32, 64, ... trials run while their estimated time stays within the best
-   plan's estimated contraction time, or while no plan's largest intermediate is within the
-   memory budget; at most 4096 trials. Searching for no longer than the contraction it may
+   plan's estimated contraction time, or, while no plan's largest intermediate is within the
+   memory budget, until three rounds in a row fail to lower the smallest largest intermediate
+   found; at most 4096 trials. Searching for no longer than the contraction it may
    shorten keeps a first call within about twice the time without search, while the plan
    found (cached for later calls) can be many times faster. The two rates are
    measured on 50-72 tensor PEPS norms: about 1 ns per price unit, 11 us per trial per tensor. *)
@@ -1271,13 +1295,14 @@ randomGreedyPlans[parameters : {input_, _, _}, costInput_, startPrice_, startLar
 			"Round" -> Min[2 state["Round"], $maxGreedyTrials - state["Done"] - state["Round"]],
 			"Best" -> Min[state["Best"], trials[[All, 2, 1]]],
 			"Smallest" -> Min[state["Smallest"], trials[[All, 2, 2]]],
+			"Stalls" -> If[Min[trials[[All, 2, 2]]] < state["Smallest"], 0, state["Stalls"] + 1],
 			"Plans" -> Join[state["Plans"], trials]
 		|>
 	]],
-	<|"Done" -> 0, "Round" -> 16, "Best" -> startPrice, "Smallest" -> startLargest, "Plans" -> {}|>,
+	<|"Done" -> 0, "Round" -> 16, "Best" -> startPrice, "Smallest" -> startLargest, "Stalls" -> 0, "Plans" -> {}|>,
 	#["Round"] > 0 && (
 		(#["Done"] + #["Round"]) Length[input] $secondsPerTrialPerTensor <= #["Best"] $secondsPerPrice ||
-		#["Smallest"] > budget
+		#["Smallest"] > budget && #["Stalls"] < 3
 	) &
 ]["Plans"]
 

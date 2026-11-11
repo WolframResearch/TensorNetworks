@@ -200,9 +200,9 @@ ToTensorNetworkGraph[tn_ ? TensorNetworkQ, opts___] := ToTensorNetworkGraph[tn["
 
 TensorNetworkProp[tn_, "Graph", opts___] := ToTensorNetworkGraph[tn, opts]
 
-TensorNetworkProp[tn_, "GraphData"] := TensorNetworkProp[tn, "GraphData"] = TensorNetworkGraphData[tn["Graph"]]
+TensorNetworkProp[tn_, "GraphData"] := TensorNetworkGraphData[tn["Graph"]]
 
-TensorNetworkProp[tn_, "Data"] := TensorNetworkProp[tn, "Data"] = TensorNetworkData[tn]
+TensorNetworkProp[tn_, "Data"] := TensorNetworkData[tn]
 
 TensorNetworkContractions[tn_ ? TensorNetworkQ]  := With[{
     hyperedges = tn["Hyperedges"],
@@ -521,31 +521,30 @@ RandomTensorNetwork["MPO"[length_Integer, bondDim_Integer, physicalDim_Integer :
    horizontal bonds next rows*(cols-1), physical legs at the end. Both
    endpoints of a bond compute the same integer from their (r,c) coordinates,
    so no shared counter is needed across iterations. *)
-RandomTensorNetwork["PEPS"[{rows_Integer, cols_Integer}, bondDim_Integer, physicalDim_Integer : 2], opts : OptionsPattern[]] :=
-    Block[{tensors = {}, indices = {}, horizOffset, physIdx},
-        horizOffset = (rows - 1) * cols;
-        physIdx = horizOffset + rows * (cols - 1) + 1;
-        Do[
+RandomTensorNetwork["PEPS"[{rows_Integer, cols_Integer}, bondDim_Integer, physicalDim_Integer : 2], opts : OptionsPattern[]] := With[{
+    horizOffset = (rows - 1) * cols
+}, {
+    (* sites in row-major order, each {tensor, labels}: up, down, left, right bonds, then physical *)
+    sites = Flatten[
+        Table[
             With[{
-                upBond    = If[r > 1,    (r - 2) * cols + c,                         Nothing],
-                downBond  = If[r < rows, (r - 1) * cols + c,                         Nothing],
-                leftBond  = If[c > 1,    horizOffset + (r - 1) * (cols - 1) + c - 1, Nothing],
-                rightBond = If[c < cols, horizOffset + (r - 1) * (cols - 1) + c,     Nothing],
-                phys = physIdx++
+                bondList = Join[
+                    If[r > 1, {(r - 2) * cols + c}, {}],
+                    If[r < rows, {(r - 1) * cols + c}, {}],
+                    If[c > 1, {horizOffset + (r - 1) * (cols - 1) + c - 1}, {}],
+                    If[c < cols, {horizOffset + (r - 1) * (cols - 1) + c}, {}]
+                ],
+                phys = horizOffset + rows * (cols - 1) + (r - 1) * cols + c
             },
-                With[{bondList = DeleteCases[{upBond, downBond, leftBond, rightBond}, Nothing]},
-                    AppendTo[tensors, randomTensor[
-                        Join[ConstantArray[bondDim, Length[bondList]], {physicalDim}],
-                        opts
-                    ]];
-                    AppendTo[indices, Append[bondList, phys]];
-                ]
+                {randomTensor[Join[ConstantArray[bondDim, Length[bondList]], {physicalDim}], opts], Append[bondList, phys]}
             ],
             {r, rows}, {c, cols}
-        ];
-
-        TensorNetwork[tensors, indices]
+        ],
+        1
     ]
+},
+    TensorNetwork[sites[[All, 1]], sites[[All, 2]]]
+]
 
 (* Alternative PEPS syntax *)
 RandomTensorNetwork["PEPS"[rows_Integer, cols_Integer, bondDim_Integer, physicalDim_Integer : 2], opts___] := 
@@ -557,40 +556,29 @@ RandomTensorNetwork["PEPS"[rows_Integer, cols_Integer, bondDim_Integer, physical
 (* Label scheme: single counter starting at 1. Each level remembers where
    its nodes began so the next level can address its children by absolute
    index without arithmetic depending on the running counter. *)
-RandomTensorNetwork["TTN"[depth_Integer, bondDim_Integer, branching_Integer : 2], opts : OptionsPattern[]] :=
-    Block[{tensors = {}, indices = {}, idx = 1, prevLevelStart, nodesAtLevel, levelStart},
-        prevLevelStart = idx;
-
-        (* Leaves: vectors *)
-        Do[
-            AppendTo[tensors, randomTensor[{bondDim}, opts]];
-            AppendTo[indices, {idx++}],
-            branching^(depth - 1)
-        ];
-
-        (* Internal nodes level by level *)
-        Do[
-            nodesAtLevel = branching^(depth - 1 - level);
-            levelStart = idx;
-            Do[
-                With[{
-                    childIndices = Table[prevLevelStart + (node - 1) * branching + k - 1, {k, branching}],
-                    parentIdx = If[level < depth - 1, idx++, Nothing]
+RandomTensorNetwork["TTN"[depth_Integer, bondDim_Integer, branching_Integer : 2], opts : OptionsPattern[]] := With[{
+    (* first label of each level: the leaves, then each internal level's parent bonds *)
+    starts = FoldList[Plus, 1, Table[branching^(depth - 1 - level), {level, 0, depth - 2}]]
+}, {
+    nodes = Join[
+        Table[{randomTensor[{bondDim}, opts], {k}}, {k, branching^(depth - 1)}],
+        Catenate @ Table[
+            Table[
+                {
+                    randomTensor[ConstantArray[bondDim, If[level < depth - 1, branching + 1, branching]], opts],
+                    Join[
+                        Table[starts[[level]] + (node - 1) * branching + k - 1, {k, branching}],
+                        If[level < depth - 1, {starts[[level + 1]] + node - 1}, {}]
+                    ]
                 },
-                    AppendTo[tensors, randomTensor[
-                        ConstantArray[bondDim, If[level < depth - 1, branching + 1, branching]],
-                        opts
-                    ]];
-                    AppendTo[indices, DeleteCases[Append[childIndices, parentIdx], Nothing]];
-                ],
-                {node, nodesAtLevel}
-            ];
-            prevLevelStart = levelStart,
+                {node, branching^(depth - 1 - level)}
+            ],
             {level, 1, depth - 1}
-        ];
-
-        TensorNetwork[tensors, indices]
+        ]
     ]
+},
+    TensorNetwork[nodes[[All, 1]], nodes[[All, 2]]]
+]
 
 (* ============================================ *)
 (* MERA: Multi-scale Entanglement Renormalization Ansatz *)
@@ -600,42 +588,37 @@ RandomTensorNetwork["TTN"[depth_Integer, bondDim_Integer, branching_Integer : 2]
    slots), and outputs (width/2 slots). Layer k > 1 reuses the prior layer's
    outputs as the first width/2 of its inputs; the remaining width/2 are
    fresh (and become free legs, matching the constant-width topology). *)
-RandomTensorNetwork["MERA"[width_Integer, bondDim_Integer, layers_Integer : 1], opts : OptionsPattern[]] :=
-    Block[{tensors = {}, indices = {}, nextIdx = 1, prevLayerOutputs = {}, layerInputs, layerMid, layerOutputs},
-        Do[
-            layerInputs = If[layer == 1,
-                Table[nextIdx++, width],
-                Join[prevLayerOutputs, Table[nextIdx++, width - Length[prevLayerOutputs]]]
-            ];
-            layerMid = Table[nextIdx++, width];
-            layerOutputs = Table[nextIdx++, width / 2];
-
-            (* Disentanglers: rank-4 tensors (2 in, 2 out) *)
-            Do[
-                AppendTo[tensors, randomTensor[{bondDim, bondDim, bondDim, bondDim}, opts]];
-                AppendTo[indices, {
-                    layerInputs[[2 i - 1]], layerInputs[[2 i]],
-                    layerMid[[2 i - 1]],    layerMid[[2 i]]
-                }],
-                {i, width / 2}
-            ];
-
-            (* Isometries: rank-3 tensors (2 in, 1 out) *)
-            Do[
-                AppendTo[tensors, randomTensor[{bondDim, bondDim, bondDim}, opts]];
-                AppendTo[indices, {
-                    layerMid[[2 i - 1]], layerMid[[2 i]],
-                    layerOutputs[[i]]
-                }],
-                {i, width / 2}
-            ];
-
-            prevLayerOutputs = layerOutputs,
-            {layer, layers}
-        ];
-
-        TensorNetwork[tensors, indices]
+RandomTensorNetwork["MERA"[width_Integer, bondDim_Integer, layers_Integer : 1], opts : OptionsPattern[]] := With[{
+    (* per layer {inputs, mid, outputs}; a layer's inputs start with the previous layer's outputs *)
+    labelSets = Rest @ FoldList[
+        Function[{state, layer}, With[{
+            n = state[[1]], previous = state[[2]][[3]]
+        }, With[{
+            mid = n + width - Length[previous], half = Floor[width / 2]
+        },
+            {
+                mid + width + half,
+                {Join[previous, Range[n, mid - 1]], Range[mid, mid + width - 1], Range[mid + width, mid + width + half - 1]}
+            }
+        ]]],
+        {1, {{}, {}, {}}},
+        Range[layers]
+    ][[All, 2]]
+}, {
+    nodes = Catenate @ Map[
+        Function[sets, With[{inputs = sets[[1]], mid = sets[[2]], outputs = sets[[3]]},
+            Join[
+                (* disentanglers: 2 in, 2 out *)
+                Table[{randomTensor[{bondDim, bondDim, bondDim, bondDim}, opts], {inputs[[2 i - 1]], inputs[[2 i]], mid[[2 i - 1]], mid[[2 i]]}}, {i, width / 2}],
+                (* isometries: 2 in, 1 out *)
+                Table[{randomTensor[{bondDim, bondDim, bondDim}, opts], {mid[[2 i - 1]], mid[[2 i]], outputs[[i]]}}, {i, width / 2}]
+            ]
+        ]],
+        labelSets
     ]
+},
+    TensorNetwork[nodes[[All, 1]], nodes[[All, 2]]]
+]
 
 
 TensorNetworkAdd::rank = "Tensor rank `1` does not match the length of the index list `2`.";
@@ -661,11 +644,20 @@ TensorNetworkAdd[net_ ? TensorNetworkQ, tensor_, indices_List] := With[{
     ]
 ]
 
-TensorNetworkDelete[net_ ? TensorNetworkQ, index_Integer : -1] := With[{hyperedges = net["Hyperedges"]},
+(* An explicit output keeps the labels some remaining tensor still carries, and gains the bonds
+   of the deleted tensor that are now carried by one tensor alone: they become free legs, as
+   they would with an Automatic output *)
+TensorNetworkDelete[net_ ? TensorNetworkQ, index_Integer : -1] /; 1 <= Abs[index] <= Length[net["Tensors"]] := With[{
+    hyperedges = net["Hyperedges"], remaining = Delete[net["Hyperedges"], index]
+}, {
+    counts = Counts[Catenate[remaining]]
+},
     TensorNetwork[
         Delete[net["Tensors"], index],
-        Delete[hyperedges, index],
-        Replace[net["Output"], Except[Automatic] :> DeleteElements[net["FreeIndices"], hyperedges[[index]]]]
+        remaining,
+        Replace[net["Output"], Except[Automatic] :> With[{kept = Select[net["FreeIndices"], KeyExistsQ[counts, #] &]},
+            Join[kept, Select[DeleteDuplicates[hyperedges[[index]]], Lookup[counts, Key[#], 0] == 1 && ! MemberQ[kept, #] &]]
+        ]]
     ]
 ]
 

@@ -4,10 +4,10 @@ Package["Wolfram`TensorNetworks`Symmetry`"]
 HookFactor::usage = "\!\(\*RowBox[{\"HookFactor\", \"[\", StyleBox[\"partition\", \"TI\"], \
 \"]\"}]\) computes \!\(\*RowBox[{\"1\", \"/\", RowBox[{\"\[Product]\", \" \", \
 StyleBox[\"h\", \"TI\"]}]}]\), the reciprocal product of the hook lengths of \
-the Young diagram of StyleBox[\"partition\", \"TI\"], evaluated by the \
+the Young diagram of \!\(\*StyleBox[\"partition\", \"TI\"]\), evaluated by the \
 Frobenius determinant formula. \[Bullet]\n\!\(\*RowBox[{\"HookFactor\", \
 \"[\", StyleBox[\"tableau\", \"TI\"], \"]\"}]\) does the same for the \
-underlying partition of a Young StyleBox[\"tableau\", \"TI\"]."
+underlying partition of a Young \!\(\*StyleBox[\"tableau\", \"TI\"]\)."
 
 
 
@@ -37,12 +37,11 @@ partition: a non-empty list of positive integers in non-increasing order."
 SchurDimension::usage = "\!\(\*RowBox[{\"SchurDimension\", \"[\", RowBox[{StyleBox[\"partition\", \
 \"TI\"], \",\", \" \", StyleBox[\"d\", \"TI\"]}], \"]\"}]\) gives the \
 dimension of the \!\(\*RowBox[{\"GL\", \"(\", StyleBox[\"d\", \"TI\"], \
-\")\"}]\) Weyl module corresponding to the integer StyleBox[\"partition\", \" \
-TI\"] via the hook-content formula. \
+\")\"}]\) Weyl module corresponding to the integer \!\(\*StyleBox[\"partition\", \"TI\"]\) via the hook-content formula. \
 \[Bullet]\n\!\(\*RowBox[{\"SchurDimension\", \"[\", \
 RowBox[{StyleBox[\"tableau\", \"TI\"], \",\", \" \", StyleBox[\"d\", \
 \"TI\"]}], \"]\"}]\) does the same when the input is a Young \
-StyleBox[\"tableau\", \" TI\"]."
+\!\(\*StyleBox[\"tableau\", \"TI\"]\)."
 
 
 
@@ -53,11 +52,11 @@ TableauColumns::usage = "\!\(\*RowBox[{\"TableauColumns\", \"[\", StyleBox[\"tab
 
 TableauDimension::usage = "\!\(\*RowBox[{\"TableauDimension\", \"[\", StyleBox[\"tableau\", \"TI\"], \
 \"]\"}]\) gives the dimension of the irreducible representation of the \
-symmetric group corresponding to a Young StyleBox[\"tableau\", \" TI\"], \
+symmetric group corresponding to a Young \!\(\*StyleBox[\"tableau\", \"TI\"]\), \
 computed via the hook-length formula. \
 \[Bullet]\n\!\(\*RowBox[{\"TableauDimension\", \"[\", StyleBox[\"partition\", \
 \"TI\"], \"]\"}]\) does the same when the input is a bare integer \
-StyleBox[\"partition\", \"TI\"]."
+\!\(\*StyleBox[\"partition\", \"TI\"]\)."
 
 
 
@@ -81,8 +80,7 @@ of its row lengths."
 TableauWeylDimension::usage = "\!\(\*RowBox[{\"TableauWeylDimension\", \"[\", RowBox[{StyleBox[\"tableau\", \
 \"TI\"], \",\", \" \", StyleBox[\"d\", \"TI\"]}], \"]\"}]\) gives the \
 \!\(\*RowBox[{\"GL\", \"(\", StyleBox[\"d\", \"TI\"], \")\"}]\) Weyl module \
-dimension for the partition underlying the Young StyleBox[\"tableau\", \" \
-TI\"]."
+dimension for the partition underlying the Young \!\(\*StyleBox[\"tableau\", \"TI\"]\)."
 
 
 

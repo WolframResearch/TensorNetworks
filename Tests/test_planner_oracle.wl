@@ -494,3 +494,70 @@ VerificationTest[
     ConstantArray[{True, True, True, 2}, 3],
     TestID -> "PlanCache_ReducedPlanNotReusedForFullTensor"
 ]
+
+
+(* ------------------------------------------------------------------ *)
+(* E. Plan keys, memory-driven trials and the NetGraph path            *)
+(* ------------------------------------------------------------------ *)
+
+(* Dense leaves without a zero share one cache entry across new values; a single zero entry
+   changes the zero pattern and gets its own; every value matches the explicit trace *)
+VerificationTest[
+    BlockRandom[SeedRandom[301]; Block[{Wolfram`TensorNetworks`Contraction`PackagePrivate`$planCache = <||>},
+        With[{
+            ring = TensorNetwork[#, Table[{k, Mod[k, 9] + 1}, {k, 9}]] &,
+            first = RandomReal[{1, 2}, {9, 3, 3}], second = RandomReal[{1, 2}, {9, 3, 3}]
+        }, With[{withZero = ReplacePart[second, {1, 1, 1} -> 0.]},
+            {
+                Abs[TensorNetworkContract[ring[first]] - Tr[Dot @@ first]] < 10^-9 Abs[Tr[Dot @@ first]],
+                Abs[TensorNetworkContract[ring[second]] - Tr[Dot @@ second]] < 10^-9 Abs[Tr[Dot @@ second]],
+                Length[Wolfram`TensorNetworks`Contraction`PackagePrivate`$planCache],
+                Abs[TensorNetworkContract[ring[withZero]] - Tr[Dot @@ withZero]] < 10^-9 Abs[Tr[Dot @@ withZero]],
+                Length[Wolfram`TensorNetworks`Contraction`PackagePrivate`$planCache]
+            }
+        ]]
+    ]],
+    {True, True, 1, True, 2},
+    TestID -> "PlanCache_DenseLeavesWithoutZeros"
+]
+
+(* With no plan able to fit the memory budget, trials stop after three rounds in a row that do
+   not lower the largest intermediate, well before the 4096-trial cap *)
+VerificationTest[
+    With[{data = $poQualityData["PEPS 3x3 chi 3"]},
+        With[{parameters = extractContractionParameters[data]},
+            With[{count = Length[poPrivate["randomGreedyPlans"][parameters, poPrivate["pathCostInput"][parameters], 1., Infinity, 1]]},
+                16 <= count < 4096
+            ]
+        ]
+    ],
+    True,
+    TestID -> "Planner_MemoryRoundsStopWithoutProgress"
+]
+
+(* The "NetGraph" method without a path plans with the array methods' search, never the
+   exhaustive optimal one, and the net computes the trace of the ring *)
+VerificationTest[
+    BlockRandom[SeedRandom[302]; With[{ms = RandomReal[{-1, 1}, {6, 3, 3}]},
+        Block[{OptimalContractionPath = Function[Throw["exhaustive search", poNetPath]]},
+            Catch[
+                Abs[TensorNetworkContract[TensorNetwork[ms, Table[{k, Mod[k, 6] + 1}, {k, 6}]], Method -> "NetGraph"] - Tr[Dot @@ ms]] < 10^-5,
+                poNetPath
+            ]
+        ]
+    ]],
+    True,
+    TestID -> "NetGraph_DefaultPathWithoutExhaustiveSearch"
+]
+
+(* A round that finds nothing smaller does not end the memory-driven search: on a 3-regular
+   graph of 26 tensors the second round finds a plan within a budget the first round missed *)
+VerificationTest[
+    With[{tn = BlockRandom[SeedRandom[4]; RandomTensorNetwork[RandomGraph[DegreeGraphDistribution[ConstantArray[3, 26]]], {2}]]},
+        With[{parameters = extractContractionParameters[TensorNetworkData[tn]]},
+            Min[poPrivate["randomGreedyPlans"][parameters, poPrivate["pathCostInput"][parameters], 1., 64., 32.][[All, 2, 2]]] <= 32
+        ]
+    ],
+    True,
+    TestID -> "Planner_MemoryRoundsSurviveOneStall"
+]
