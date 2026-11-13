@@ -22,6 +22,10 @@ testsDir = FileNameJoin[{root, "Tests"}];
 
 (* Parse Arguments *)
 args = Rest[$ScriptCommandLine];
+If[! VectorQ[args, StringQ],
+    printFailure["Runner arguments must all be strings."];
+    Quit[2]
+];
 argMap = Association[];
 Do[
     If[StringStartsQ[args[[i]], "-"],
@@ -35,9 +39,23 @@ Do[
 targetFile = argMap["file"];
 targetID = argMap["id"];
 
-(* Determine files to run *)
-filesToRun = If[StringQ[targetFile],
-    {If[FileExistsQ[targetFile], targetFile, FileNameJoin[{testsDir, targetFile}]]},
+(* An explicitly requested file must resolve before dispatch. In particular a
+   missing/non-string -file value must never fall back to the entire suite. *)
+If[KeyExistsQ[argMap, "file"] && (! StringQ[targetFile] || targetFile === ""),
+    printFailure["-file requires a nonempty file path."];
+    Quit[2]
+];
+If[KeyExistsQ[argMap, "id"] && (! StringQ[targetID] || targetID === ""),
+    printFailure["-id requires a nonempty test ID."];
+    Quit[2]
+];
+filesToRun = If[KeyExistsQ[argMap, "file"],
+    targetFile = If[FileExistsQ[targetFile], targetFile, FileNameJoin[{testsDir, targetFile}]];
+    If[! FileExistsQ[targetFile] || DirectoryQ[targetFile],
+        printFailure["Test file does not exist: " <> targetFile];
+        Quit[2]
+    ];
+    {ExpandFileName[targetFile]},
     FileNames["*.wl", testsDir]
 ];
 
@@ -50,6 +68,10 @@ filesToRun = Select[filesToRun,
         name =!= "run_tests.wl" && !StringStartsQ[name, "run_"]
     ] &
 ];
+If[KeyExistsQ[argMap, "file"] && filesToRun === {},
+    printFailure["The requested file is a standalone runner, not a test file."];
+    Quit[2]
+];
 
 (* Pre-load the paclet so test_setup.wl Get failures are harmless. *)
 PacletDirectoryLoad[FileNameJoin[{root, "TensorNetworks"}]];
@@ -57,6 +79,12 @@ Needs["Wolfram`TensorNetworks`"];
 
 (* A test that ends in an unexpected message or an evaluation error is a failure too. *)
 $failedOutcomes = {"Failure", "MessagesFailure", "Error"};
+(* Current MUnit reports Abort[] as a Failure with a FailureType; older
+   reports may use an Aborted outcome. Keep the aborted tally disjoint
+   from ordinary failures so Total Tests counts each test exactly once. *)
+runnerAbortedQ[test_] := test["Outcome"] === "Aborted" ||
+    (test["Outcome"] === "Failure" && test["FailureType"] === "EvaluationAbortedFailure");
+runnerUnsuccessfulQ[test_] := MemberQ[$failedOutcomes, test["Outcome"]] || runnerAbortedQ[test];
 
 totalPassed = 0;
 totalFailed = 0;
@@ -84,19 +112,19 @@ Do[
     ];
     
     filePassed = Count[results, _?(#["Outcome"] === "Success" &)];
-    fileFailed = Count[results, _?(MemberQ[$failedOutcomes, #["Outcome"]] &)];
-    fileAborted = Count[results, _?(#["Outcome"] === "Aborted" &)]; (* Simplified check *)
+    fileFailed = Count[results, _?(runnerUnsuccessfulQ[#] && ! runnerAbortedQ[#] &)];
+    fileAborted = Count[results, _?runnerAbortedQ];
     
     (* Update Totals *)
     totalPassed += filePassed;
     totalFailed += fileFailed;
     totalAborted += fileAborted;
     
-    If[fileFailed > 0,
+    If[fileFailed + fileAborted > 0,
         Scan[
             Function[{testObj},
-                If[MemberQ[$failedOutcomes, testObj["Outcome"]],
-                   id = testObj["TestID"] <> " (" <> testObj["Outcome"] <> ")";
+                If[runnerUnsuccessfulQ[testObj],
+                   id = testObj["TestID"] <> " (" <> If[runnerAbortedQ[testObj], "Aborted", testObj["Outcome"]] <> ")";
                    actual = testObj["ActualOutput"];
                    expected = testObj["ExpectedOutput"];
                    printFailure[ToString[id]];
@@ -116,10 +144,11 @@ printHeader["Total Summary"];
 Print[bold, "Total Tests: ", totalPassed + totalFailed + totalAborted, reset];
 Print[green, "Passed:      ", totalPassed, reset];
 
-If[totalFailed > 0,
+If[totalFailed + totalAborted > 0,
     Print[red, "Failed:      ", totalFailed, reset];
+    Print[red, "Aborted:     ", totalAborted, reset];
     Print[""];
-    printFailure["Some tests failed."];
+    printFailure["Some tests failed or aborted."];
     Quit[1];
 ,
     If[totalPassed == 0 && totalAborted == 0, 

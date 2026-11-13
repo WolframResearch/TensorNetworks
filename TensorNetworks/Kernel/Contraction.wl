@@ -874,6 +874,9 @@ contractBatchPair[{a_ -> i_, b_ -> j_}, batch_, env_] := Which[
 ]
 
 (* operands as [batch, own, summed] blocks: one matrix product per batch entry, batch axes first *)
+(* ArrayReshape copies packed data even when its shape already agrees. *)
+reshapeIfNeeded[t_, shape_] := If[Dimensions[t] === shape, t, ArrayReshape[t, shape]]
+
 batchPairEager[a_, i_, b_, j_, batch_, env_] := Block[{
     summed = Select[i, MemberQ[j, #] && ! MemberQ[batch, #] &],
     own = Select[i, ! MemberQ[j, #] &],
@@ -885,18 +888,18 @@ batchPairEager[a_, i_, b_, j_, batch_, env_] := Block[{
     y = orderAxes[b, j, Join[batch, summed, other]];
     product = Which[
         SparseArrayQ[x] || SparseArrayQ[y],
-            SparseArray[MapThread[Dot, {ArrayReshape[x, {nb, na, ns}], ArrayReshape[y, {nb, ns, nf}]}]],
+            SparseArray[MapThread[Dot, {reshapeIfNeeded[x, {nb, na, ns}], reshapeIfNeeded[y, {nb, ns, nf}]}]],
         (* nothing summed: an outer product per batch entry; ArrayReshape, not Part, drops the axis *)
         ns == 1,
-            batchOuter[ArrayReshape[x, {nb, na}], ArrayReshape[y, {nb, nf}], na, nf],
+            batchOuter[reshapeIfNeeded[x, {nb, na}], reshapeIfNeeded[y, {nb, nf}], na, nf],
         (* tiny blocks: one Dot per entry costs more than one broadcast multiply and sum *)
         na ns nf <= $batchBroadcastSize,
-            batchBroadcast[ArrayReshape[x, {nb, na, ns}], ArrayReshape[y, {nb, ns, nf}], na, nf],
+            batchBroadcast[reshapeIfNeeded[x, {nb, na, ns}], reshapeIfNeeded[y, {nb, ns, nf}], na, nf],
         True,
-            Developer`ToPackedArray[MapThread[Dot, {ArrayReshape[x, {nb, na, ns}], ArrayReshape[y, {nb, ns, nf}]}]]
+            Developer`ToPackedArray[MapThread[Dot, {reshapeIfNeeded[x, {nb, na, ns}], reshapeIfNeeded[y, {nb, ns, nf}]}]]
     ];
     {
-        ArrayReshape[product, Lookup[env["Dimension"], Join[batch, own, other]]],
+        reshapeIfNeeded[product, Lookup[env["Dimension"], Join[batch, own, other]]],
         Join[batch, own, other]
     }
 ]
@@ -1261,14 +1264,20 @@ reducedForm[data_, groups_, labels_] :=
 	Append[tensorNetworkData[applyDiagonalReduction[data["Tensors"], groups], labels, data["FreeIndices"]], "Reduction" -> groups]
 
 (* all a plan depends on: method, vertex names (a tree path names vertices), labels, output, and
-   per leaf its shape, container, precision and nonzero pattern; the patterns as hashes. Labels
+   per leaf its shape, container, precision and nonzero pattern; the patterns as hashes. For
+   fewer than eight leaves cheapestPlan always uses the shape-only greedy path, so scanning
+   tensor values cannot change the plan and is unnecessary. Keep the full signature for the
+   adaptive search, including its representation-dependent reductions. Labels
    numbered in order of first appearance, so a network with its labels renamed finds the same
    plan. Graph data has no "Hyperedges": its contraction indices are its labels, kept as given. *)
 planKey[data_, method_, numbering_] := With[{rules = Dispatch[numbering]}, {
 	method, data["Vertices"],
 	Replace[Lookup[data, "Hyperedges", data["ContractionIndices"]], rules, {2}],
 	Replace[data["FreeIndices"], rules, {1}],
-	leafSignature /@ data["Tensors"]
+	If[Length[data["Vertices"]] < 8,
+		{"GreedyShape", data["Dimensions"]},
+		leafSignature /@ data["Tensors"]
+	]
 }]
 
 (* label -> its number in order of first appearance, labels then output; empty for graph data *)
